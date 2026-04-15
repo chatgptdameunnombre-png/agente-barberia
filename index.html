@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d" crossorigin="anonymous"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
@@ -134,14 +134,20 @@ section{padding:100px 0}
 .rpanel{min-height:85vh;display:flex;flex-direction:column;justify-content:center;padding:30px 0}
 .rpanel:first-child{min-height:50vh}
 
-/* Mobile inline chat bubbles */
-.mob-chat{display:none;flex-direction:column;gap:4px;padding:16px;margin-top:12px;background:var(--wa-bg);border-radius:16px;border:1px solid #1a272f}
-.mob-chat .bub{display:none}
-.mob-chat .ddiv{display:none}
+/* Mobile inline bubbles */
+.mob-wa{display:none;flex-direction:column;gap:4px;padding:14px;margin-top:12px;background:var(--wa-bg);border-radius:14px;border:1px solid #1a272f}
+.mob-wa .mb{max-width:88%;padding:7px 10px;font-size:13px;line-height:1.45;border-radius:14px;opacity:0;transform:translateY(8px);transition:all .4s cubic-bezier(.22,.61,.36,1)}
+.mob-wa .mb.v{opacity:1;transform:none}
+.mob-wa .mb.mi{background:var(--wa-in);align-self:flex-start;border-bottom-left-radius:4px;color:#d1d7db}
+.mob-wa .mb.mo{background:var(--wa-out);align-self:flex-end;border-bottom-right-radius:4px;color:#d1e4db}
+.mob-wa .mb .tm{font-size:9px;color:rgba(255,255,255,.3);float:right;margin-left:6px;margin-top:2px}
+.mob-wa .md{text-align:center;padding:5px 0;opacity:0;transition:opacity .3s}
+.mob-wa .md.v{opacity:1}
+.mob-wa .md span{background:#182229;color:#8696a0;font-size:10px;padding:3px 10px;border-radius:6px}
 
 @media(max-width:860px){
-  .mob-chat{display:flex}
-  .rpanel{min-height:auto;padding:24px 0}
+  .mob-wa{display:flex}
+  .rpanel{min-height:auto;padding:20px 0}
   .rpanel:first-child{min-height:auto}
 }
 
@@ -426,7 +432,7 @@ const MSGS=[
 
 const SM={0:[],1:[0,1],2:[2,3],3:[4,5],4:[6,7],5:[8,9],6:[10,11],7:[12,13,14,15],8:[16,17,18,19,20],9:[21,22],10:[23,24,25,26,27]};
 
-// Create bubble elements for DESKTOP phone
+// Create bubble elements (all start hidden via CSS opacity:0)
 const ELS=[];
 MSGS.forEach(m=>{
   const d=document.createElement('div');
@@ -434,29 +440,6 @@ MSGS.forEach(m=>{
   else{d.className=`bub ${m.t==='i'?'i':'o'}`;d.innerHTML=`${m.x.replace(/\n/g,'<br>')} <span class="tm">${m.h}</span>`}
   CB.insertBefore(d,TP);
   ELS.push(d);
-});
-
-// Create MOBILE inline chat containers under each panel
-const MOB_ELS={};
-const isMobile=()=>window.innerWidth<=860;
-
-Object.entries(SM).forEach(([step,indices])=>{
-  if(!indices.length)return;
-  const panel=document.querySelector(`[data-s="${step}"]`);
-  if(!panel)return;
-  const mobChat=document.createElement('div');
-  mobChat.className='mob-chat';
-  const mobBubs=[];
-  indices.forEach(idx=>{
-    const m=MSGS[idx];
-    const d=document.createElement('div');
-    if(m.t==='d'){d.className='ddiv';d.innerHTML=`<span>${m.x}</span>`}
-    else{d.className=`bub ${m.t==='i'?'i':'o'}`;d.innerHTML=`${m.x.replace(/\n/g,'<br>')} <span class="tm">${m.h}</span>`}
-    mobChat.appendChild(d);
-    mobBubs.push(d);
-  });
-  panel.appendChild(mobChat);
-  MOB_ELS[step]=mobBubs;
 });
 
 let chatOpen=false;
@@ -477,40 +460,21 @@ function closeChat(){
 }
 
 function resetAll(){
+  // Kill pending delayed calls
   gsap.globalTimeline.getChildren(false,true,false).forEach(t=>{if(t.vars&&t.vars.id==='wa')t.kill()});
-  // Hide desktop messages
+  // Hide all messages
   ELS.forEach(el=>{gsap.set(el,{display:'none',opacity:0,y:10})});
-  // Hide mobile messages
-  Object.values(MOB_ELS).forEach(bubs=>{
-    bubs.forEach(el=>{gsap.set(el,{display:'none',opacity:0,y:10})});
-  });
+  // Hide typing
   TP.classList.remove('on');
+  // Close chat back to list
   closeChat();
+  // Reset right boxes
   document.querySelectorAll('.rbox').forEach(b=>gsap.set(b,{opacity:0,y:16}));
+  // Clear fired steps
   firedSteps.clear();
+  // Reset first panel box (visible by default)
   const firstBox=document.querySelector('[data-s="0"] .rbox');
   if(firstBox)gsap.set(firstBox,{opacity:0,y:16});
-}
-
-function showBub(el,m,base,scrollTarget){
-  if(m.t==='o'){
-    gsap.delayedCall(base,()=>{if(scrollTarget){TP.classList.add('on');scrollTarget.scrollTop=scrollTarget.scrollHeight}});
-    gsap.delayedCall(base+0.5,()=>{
-      TP.classList.remove('on');
-      gsap.set(el,{display:'block',opacity:0,y:10});
-      gsap.to(el,{opacity:1,y:0,duration:0.4,ease:'back.out(1.4)',onComplete:()=>{if(scrollTarget)scrollTarget.scrollTop=scrollTarget.scrollHeight}});
-    });
-  } else if(m.t==='d'){
-    gsap.delayedCall(base,()=>{
-      gsap.set(el,{display:'block',opacity:0});
-      gsap.to(el,{opacity:1,duration:0.3,onComplete:()=>{if(scrollTarget)scrollTarget.scrollTop=scrollTarget.scrollHeight}});
-    });
-  } else {
-    gsap.delayedCall(base,()=>{
-      gsap.set(el,{display:'block',opacity:0,y:10});
-      gsap.to(el,{opacity:1,y:0,duration:0.4,ease:'back.out(1.4)',onComplete:()=>{if(scrollTarget)scrollTarget.scrollTop=scrollTarget.scrollHeight}});
-    });
-  }
 }
 
 function fireStep(step){
@@ -521,22 +485,35 @@ function fireStep(step){
   const box=panel.querySelector('.rbox');
   const indices=SM[step]||[];
 
+  // Animate right box
   gsap.to(box,{opacity:1,y:0,duration:0.5,ease:'power2.out'});
 
   if(step===0)return;
-
-  // Always open chat (CSS hides phone on mobile)
   openChat();
 
-  // Animate BOTH desktop phone bubbles AND mobile inline bubbles
-  // CSS controls which one is visible
   indices.forEach((idx,i)=>{
-    showBub(ELS[idx],MSGS[idx],i*0.7,CB);
-  });
+    const el=ELS[idx];
+    const m=MSGS[idx];
+    const base=i*0.7;
 
-  const mobBubs=MOB_ELS[step]||[];
-  mobBubs.forEach((el,i)=>{
-    showBub(el,MSGS[indices[i]],i*0.7,null);
+    if(m.t==='o'){
+      gsap.delayedCall(base,()=>{TP.classList.add('on');CB.scrollTop=CB.scrollHeight});
+      gsap.delayedCall(base+0.5,()=>{
+        TP.classList.remove('on');
+        gsap.set(el,{display:'block',opacity:0,y:10});
+        gsap.to(el,{opacity:1,y:0,duration:0.4,ease:'back.out(1.4)',onComplete:()=>{CB.scrollTop=CB.scrollHeight}});
+      });
+    } else if(m.t==='d'){
+      gsap.delayedCall(base,()=>{
+        gsap.set(el,{display:'block',opacity:0});
+        gsap.to(el,{opacity:1,duration:0.3,onComplete:()=>{CB.scrollTop=CB.scrollHeight}});
+      });
+    } else {
+      gsap.delayedCall(base,()=>{
+        gsap.set(el,{display:'block',opacity:0,y:10});
+        gsap.to(el,{opacity:1,y:0,duration:0.4,ease:'back.out(1.4)',onComplete:()=>{CB.scrollTop=CB.scrollHeight}});
+      });
+    }
   });
 }
 
@@ -561,6 +538,56 @@ ScrollTrigger.create({
 });
 
 gsap.from('.ctagrid',{scrollTrigger:{trigger:'.ctagrid',start:'top 80%'},opacity:0,y:30,duration:.7});
+
+// ══════════════════════════════════════
+// MOBILE ONLY — Inline bubbles autoplay
+// ══════════════════════════════════════
+if(window.innerWidth<=860){
+
+  // Create mobile bubble containers under each panel
+  const mobData={};
+  Object.entries(SM).forEach(([step,indices])=>{
+    if(!indices.length)return;
+    const panel=document.querySelector(`[data-s="${step}"]`);
+    if(!panel)return;
+    const box=document.createElement('div');
+    box.className='mob-wa';
+    const bubs=[];
+    indices.forEach(idx=>{
+      const m=MSGS[idx];
+      const d=document.createElement('div');
+      if(m.t==='d'){
+        d.className='md';
+        d.innerHTML=`<span>${m.x}</span>`;
+      } else {
+        d.className=`mb ${m.t==='i'?'mi':'mo'}`;
+        d.innerHTML=`${m.x.replace(/\n/g,'<br>')} <span class="tm">${m.h}</span>`;
+      }
+      box.appendChild(d);
+      bubs.push({el:d,m:m});
+    });
+    panel.appendChild(box);
+    mobData[step]=bubs;
+  });
+
+  // Autoplay: when each panel enters viewport, animate its bubbles
+  Object.entries(mobData).forEach(([step,bubs])=>{
+    const panel=document.querySelector(`[data-s="${step}"]`);
+    ScrollTrigger.create({
+      trigger:panel,
+      start:'top 80%',
+      once:true,
+      onEnter:()=>{
+        bubs.forEach((b,i)=>{
+          const delay=i*0.6;
+          gsap.delayedCall(delay,()=>{
+            b.el.classList.add('v');
+          });
+        });
+      }
+    });
+  });
+}
 </script>
 </body>
 </html>
