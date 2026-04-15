@@ -525,20 +525,19 @@ function fireStep(step){
 
   if(step===0)return;
 
-  if(isMobile()){
-    // Mobile: animate inline bubbles
-    const mobBubs=MOB_ELS[step]||[];
-    mobBubs.forEach((el,i)=>{
-      const m=MSGS[indices[i]];
-      showBub(el,m,i*0.7,null);
-    });
-  } else {
-    // Desktop: animate phone bubbles
-    openChat();
-    indices.forEach((idx,i)=>{
-      showBub(ELS[idx],MSGS[idx],i*0.7,CB);
-    });
-  }
+  // Always open chat (CSS hides phone on mobile)
+  openChat();
+
+  // Animate BOTH desktop phone bubbles AND mobile inline bubbles
+  // CSS controls which one is visible
+  indices.forEach((idx,i)=>{
+    showBub(ELS[idx],MSGS[idx],i*0.7,CB);
+  });
+
+  const mobBubs=MOB_ELS[step]||[];
+  mobBubs.forEach((el,i)=>{
+    showBub(el,MSGS[indices[i]],i*0.7,null);
+  });
 }
 
 // ═══ ScrollTriggers — repeatable ═══
