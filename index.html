@@ -134,6 +134,17 @@ section{padding:100px 0}
 .rpanel{min-height:85vh;display:flex;flex-direction:column;justify-content:center;padding:30px 0}
 .rpanel:first-child{min-height:50vh}
 
+/* Mobile inline chat bubbles */
+.mob-chat{display:none;flex-direction:column;gap:4px;padding:16px;margin-top:12px;background:var(--wa-bg);border-radius:16px;border:1px solid #1a272f}
+.mob-chat .bub{display:none}
+.mob-chat .ddiv{display:none}
+
+@media(max-width:860px){
+  .mob-chat{display:flex}
+  .rpanel{min-height:auto;padding:24px 0}
+  .rpanel:first-child{min-height:auto}
+}
+
 .rbox{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:28px 32px;position:relative;overflow:hidden;opacity:0;transform:translateY(16px)}
 .rbox .rn{font-size:90px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--gold);opacity:.06;position:absolute;top:-8px;right:14px;line-height:1}
 .rbox h3{font-size:1.05rem;font-weight:700;margin-bottom:6px;position:relative}
@@ -415,7 +426,7 @@ const MSGS=[
 
 const SM={0:[],1:[0,1],2:[2,3],3:[4,5],4:[6,7],5:[8,9],6:[10,11],7:[12,13,14,15],8:[16,17,18,19,20],9:[21,22],10:[23,24,25,26,27]};
 
-// Create bubble elements (all start hidden via CSS opacity:0)
+// Create bubble elements for DESKTOP phone
 const ELS=[];
 MSGS.forEach(m=>{
   const d=document.createElement('div');
@@ -423,6 +434,29 @@ MSGS.forEach(m=>{
   else{d.className=`bub ${m.t==='i'?'i':'o'}`;d.innerHTML=`${m.x.replace(/\n/g,'<br>')} <span class="tm">${m.h}</span>`}
   CB.insertBefore(d,TP);
   ELS.push(d);
+});
+
+// Create MOBILE inline chat containers under each panel
+const MOB_ELS={};
+const isMobile=()=>window.innerWidth<=860;
+
+Object.entries(SM).forEach(([step,indices])=>{
+  if(!indices.length)return;
+  const panel=document.querySelector(`[data-s="${step}"]`);
+  if(!panel)return;
+  const mobChat=document.createElement('div');
+  mobChat.className='mob-chat';
+  const mobBubs=[];
+  indices.forEach(idx=>{
+    const m=MSGS[idx];
+    const d=document.createElement('div');
+    if(m.t==='d'){d.className='ddiv';d.innerHTML=`<span>${m.x}</span>`}
+    else{d.className=`bub ${m.t==='i'?'i':'o'}`;d.innerHTML=`${m.x.replace(/\n/g,'<br>')} <span class="tm">${m.h}</span>`}
+    mobChat.appendChild(d);
+    mobBubs.push(d);
+  });
+  panel.appendChild(mobChat);
+  MOB_ELS[step]=mobBubs;
 });
 
 let chatOpen=false;
@@ -443,21 +477,40 @@ function closeChat(){
 }
 
 function resetAll(){
-  // Kill pending delayed calls
   gsap.globalTimeline.getChildren(false,true,false).forEach(t=>{if(t.vars&&t.vars.id==='wa')t.kill()});
-  // Hide all messages
+  // Hide desktop messages
   ELS.forEach(el=>{gsap.set(el,{display:'none',opacity:0,y:10})});
-  // Hide typing
+  // Hide mobile messages
+  Object.values(MOB_ELS).forEach(bubs=>{
+    bubs.forEach(el=>{gsap.set(el,{display:'none',opacity:0,y:10})});
+  });
   TP.classList.remove('on');
-  // Close chat back to list
   closeChat();
-  // Reset right boxes
   document.querySelectorAll('.rbox').forEach(b=>gsap.set(b,{opacity:0,y:16}));
-  // Clear fired steps
   firedSteps.clear();
-  // Reset first panel box (visible by default)
   const firstBox=document.querySelector('[data-s="0"] .rbox');
   if(firstBox)gsap.set(firstBox,{opacity:0,y:16});
+}
+
+function showBub(el,m,base,scrollTarget){
+  if(m.t==='o'){
+    gsap.delayedCall(base,()=>{if(scrollTarget){TP.classList.add('on');scrollTarget.scrollTop=scrollTarget.scrollHeight}});
+    gsap.delayedCall(base+0.5,()=>{
+      TP.classList.remove('on');
+      gsap.set(el,{display:'block',opacity:0,y:10});
+      gsap.to(el,{opacity:1,y:0,duration:0.4,ease:'back.out(1.4)',onComplete:()=>{if(scrollTarget)scrollTarget.scrollTop=scrollTarget.scrollHeight}});
+    });
+  } else if(m.t==='d'){
+    gsap.delayedCall(base,()=>{
+      gsap.set(el,{display:'block',opacity:0});
+      gsap.to(el,{opacity:1,duration:0.3,onComplete:()=>{if(scrollTarget)scrollTarget.scrollTop=scrollTarget.scrollHeight}});
+    });
+  } else {
+    gsap.delayedCall(base,()=>{
+      gsap.set(el,{display:'block',opacity:0,y:10});
+      gsap.to(el,{opacity:1,y:0,duration:0.4,ease:'back.out(1.4)',onComplete:()=>{if(scrollTarget)scrollTarget.scrollTop=scrollTarget.scrollHeight}});
+    });
+  }
 }
 
 function fireStep(step){
@@ -468,36 +521,24 @@ function fireStep(step){
   const box=panel.querySelector('.rbox');
   const indices=SM[step]||[];
 
-  // Animate right box
   gsap.to(box,{opacity:1,y:0,duration:0.5,ease:'power2.out'});
 
   if(step===0)return;
-  openChat();
 
-  indices.forEach((idx,i)=>{
-    const el=ELS[idx];
-    const m=MSGS[idx];
-    const base=i*0.7;
-
-    if(m.t==='o'){
-      gsap.delayedCall(base,()=>{TP.classList.add('on');CB.scrollTop=CB.scrollHeight});
-      gsap.delayedCall(base+0.5,()=>{
-        TP.classList.remove('on');
-        gsap.set(el,{display:'block',opacity:0,y:10});
-        gsap.to(el,{opacity:1,y:0,duration:0.4,ease:'back.out(1.4)',onComplete:()=>{CB.scrollTop=CB.scrollHeight}});
-      });
-    } else if(m.t==='d'){
-      gsap.delayedCall(base,()=>{
-        gsap.set(el,{display:'block',opacity:0});
-        gsap.to(el,{opacity:1,duration:0.3,onComplete:()=>{CB.scrollTop=CB.scrollHeight}});
-      });
-    } else {
-      gsap.delayedCall(base,()=>{
-        gsap.set(el,{display:'block',opacity:0,y:10});
-        gsap.to(el,{opacity:1,y:0,duration:0.4,ease:'back.out(1.4)',onComplete:()=>{CB.scrollTop=CB.scrollHeight}});
-      });
-    }
-  });
+  if(isMobile()){
+    // Mobile: animate inline bubbles
+    const mobBubs=MOB_ELS[step]||[];
+    mobBubs.forEach((el,i)=>{
+      const m=MSGS[indices[i]];
+      showBub(el,m,i*0.7,null);
+    });
+  } else {
+    // Desktop: animate phone bubbles
+    openChat();
+    indices.forEach((idx,i)=>{
+      showBub(ELS[idx],MSGS[idx],i*0.7,CB);
+    });
+  }
 }
 
 // ═══ ScrollTriggers — repeatable ═══
