@@ -174,13 +174,14 @@ section{padding:100px 0}
 .slbl{font-size:.83rem;color:var(--dim);font-weight:500}
 
 /* ═══ FLOW ═══ */
-.fwrap{margin-top:44px;display:flex;flex-direction:column;align-items:center}
+.fwrap{margin-top:44px;display:flex;flex-direction:column;align-items:stretch}
+@media(max-width:600px){.fwrap{align-items:center}}
 .fstep{display:flex;align-items:center;gap:18px;padding:22px 26px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;transition:all .3s}
 .fstep:hover{border-color:var(--border2);transform:translateX(3px)}
 .fstep .fn{flex-shrink:0;width:38px;height:38px;border-radius:10px;background:var(--gold-g);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#0a0a0a}
 .fstep h4{font-size:.92rem;font-weight:600;margin-bottom:1px}
 .fstep p{font-size:.8rem;color:var(--dim)}
-.fconn{width:2px;height:24px;background:linear-gradient(to bottom,var(--gold),transparent);opacity:.35}
+.fconn{width:2px;height:24px;background:linear-gradient(to bottom,var(--gold),transparent);opacity:.35;align-self:center}
 
 /* ═══ CTA ═══ */
 .cta-sec{text-align:center;padding:100px 24px}
@@ -208,7 +209,7 @@ section{padding:100px 0}
 
 <section class="hero">
   <div class="badge"><span class="dot"></span>Automatización con IA</div>
-  <h1>Tu <em>Agente de IA</em> para Barbería</h1>
+  <h1>Tu <em>Agente de IA</em> para tu Barbería</h1>
   <p class="hero-sub">Agente de llamadas y WhatsApp que agenda citas 24/7</p>
   <div class="scroll-ind"><span>Descubre cómo</span><i></i></div>
 </section>
@@ -220,9 +221,9 @@ section{padding:100px 0}
     <p class="desc">Cuando estás con un cliente, no puedes contestar. Cuando descansas, tampoco. Y esos mensajes no esperan.</p>
     <div class="pgrid">
       <div class="pcard"><span class="ic">📱</span><h3>Mensajes sin responder</h3><p>El cliente escribe a las 9pm preguntando si hay espacio mañana. Nadie contesta. Se va con la competencia.</p></div>
-      <div class="pcard"><span class="ic">📞</span><h3>Llamadas perdidas</h3><p>Suena el teléfono mientras tienes la navaja en la mano. No puedes contestar. El cliente no vuelve a llamar.</p></div>
+      <div class="pcard"><span class="ic">📞</span><h3>Llamadas perdidas</h3><p>Suena el teléfono mientras atiendes a los clientes que están pidiendo una cita en la barbería. No puedes contestar. El cliente no vuelve a llamar.</p></div>
       <div class="pcard"><span class="ic">😤</span><h3>Clientes que no llegan</h3><p>Agendaron hace 3 días y se les olvidó. Tú los esperaste 20 minutos con el sillón vacío.</p></div>
-      <div class="pcard"><span class="ic">🔄</span><h3>Doble trabajo</h3><p>Contestar, agendar, confirmar, recordar... todo manual. Tiempo que deberías estar cortando.</p></div>
+      <div class="pcard"><span class="ic">🔄</span><h3>Doble trabajo</h3><p>Contestar, agendar, confirmar, recordar... todo manual. Tiempo en el que podrías estar atendiendo la barbería.</p></div>
     </div>
   </div>
 </section>
@@ -267,6 +268,7 @@ section{padding:100px 0}
         <div class="rpanel" data-s="7"><div class="rbox"><span class="rn">07</span><h3>¿Y si quiere agendar?</h3><p>Revisa el calendario en tiempo real, ofrece horarios y confirma la cita.</p></div></div>
         <div class="rpanel" data-s="8"><div class="rbox"><span class="rn">08</span><h3>¿Y si quiere reagendar?</h3><p>Cambia su cita sin molestarte. El agente busca y confirma al instante.</p></div></div>
         <div class="rpanel" data-s="9"><div class="rbox"><span class="rn">09</span><h3>¿Y si quiere cancelar?</h3><p>Cancela sin drama. El espacio se libera para otro cliente.</p></div></div>
+        <div class="rpanel" data-s="10"><div class="rbox"><span class="rn">10</span><h3>🔔 Recordatorios automáticos</h3><p>El agente manda recordatorio antes de la cita. El cliente confirma y tú sabes quién va a llegar.</p></div></div>
       </div>
     </div>
   </div>
@@ -291,7 +293,7 @@ section{padding:100px 0}
     <span class="lbl">El cambio</span>
     <h2 class="ttl">La diferencia es clara</h2>
     <div class="comp">
-      <div class="col bf"><h3>🔴 Sin agente IA</h3><div class="ci"><span>✗</span>Mensajes sin respuesta</div><div class="ci"><span>✗</span>Llamadas perdidas mientras cortas</div><div class="ci"><span>✗</span>Clientes que no llegan a su cita</div><div class="ci"><span>✗</span>Tiempo perdido agendando por chat</div><div class="ci"><span>✗</span>Clientes molestos</div></div>
+      <div class="col bf"><h3>🔴 Sin agente IA</h3><div class="ci"><span>✗</span>Mensajes sin respuesta</div><div class="ci"><span>✗</span>Llamadas perdidas mientras atiendes clientes en persona</div><div class="ci"><span>✗</span>Clientes que no llegan a su cita</div><div class="ci"><span>✗</span>Tiempo perdido agendando por chat</div><div class="ci"><span>✗</span>Clientes molestos</div></div>
       <div class="line"></div>
       <div class="col af"><h3>🟢 Con agente IA</h3><div class="ci"><span>✓</span>Respuesta en segundos, siempre</div><div class="ci"><span>✓</span>Llamadas atendidas automáticamente</div><div class="ci"><span>✓</span>Recordatorios que reducen inasistencias</div><div class="ci"><span>✓</span>Agenda automática sin intervención</div><div class="ci"><span>✓</span>Menos clientes insatisfechos</div></div>
     </div>
@@ -372,32 +374,46 @@ const CL=document.getElementById('CL');
 const CV=document.getElementById('CV');
 
 const MSGS=[
+  // 0-1: Bienvenida
   {t:'i',x:'Hola, a donde escribo?',h:'4:02 PM'},
-  {t:'o',x:'¡Hola! 👋 Bienvenido a Urban Kings Barbershop. Estás en el lugar correcto. Soy tu asistente virtual y puedo ayudarte con citas, horarios, servicios y más. ¿En qué te puedo ayudar?',h:'4:02 PM'},
+  {t:'o',x:'¡Hola! 👋 Bienvenido a Urban Kings Barbershop 💈\n\n¿En qué te puedo ayudar? 😊',h:'4:02 PM'},
+  // 2-3: Ubicación
   {t:'i',x:'Donde están ubicados?',h:'4:03 PM'},
-  {t:'o',x:'📍 Av. Revolución #220, Col. Centro, Zapopan. A dos cuadras de la plaza principal.\n\nmaps.google.com/...',h:'4:03 PM'},
+  {t:'o',x:'¡Con gusto! 😄 Nuestra ubicación es súper céntrica:\n\n📍 Av. Revolución #220, Col. Centro, Zapopan\nA dos cuadras de la plaza principal 🏛️\n\n📌 https://maps.google.com/maps?q=Urban+Kings\n\n¡Te esperamos! 🙌',h:'4:03 PM'},
+  // 4-5: Horarios
   {t:'i',x:'Qué horario manejan?',h:'4:04 PM'},
-  {t:'o',x:'🕐 Nuestro horario:\n\nLun-Vie: 10:00 AM - 8:00 PM\nSáb: 9:00 AM - 6:00 PM\nDom: Cerrado\n\n¿Te gustaría agendar?',h:'4:04 PM'},
+  {t:'o',x:'¡Claro que sí! 😊 Aquí van nuestros horarios:\n\n🗓️ Lunes a Viernes: 10:00 AM - 8:00 PM\n🗓️ Sábado: 9:00 AM - 6:00 PM\n🗓️ Domingo: Cerrado 😴\n\n¿Te gustaría agendar una cita? 📅',h:'4:04 PM'},
+  // 6-7: Servicios
   {t:'i',x:'Qué servicios tienen?',h:'4:05 PM'},
-  {t:'o',x:'💈 Nuestros servicios:\n\n• Corte de cabello\n• Recorte de barba\n• Corte + barba\n• Diseño de cejas\n• Tratamiento capilar\n• Facial express\n\n¿Te interesa alguno?',h:'4:05 PM'},
+  {t:'o',x:'¡Tenemos de todo para que salgas como nuevo! 🔥\n\n✂️ Corte de cabello\n🧔 Recorte de barba\n💈 Corte + barba\n👁️ Diseño de cejas\n💆 Tratamiento capilar\n✨ Facial express\n\n¿Cuál te interesa? 😎',h:'4:05 PM'},
+  // 8-9: Precios
   {t:'i',x:'Cuánto cuesta cada uno?',h:'4:06 PM'},
-  {t:'o',x:'💰 Precios:\n\n• Corte: $150\n• Barba: $80\n• Corte + Barba: $200\n• Cejas: $50\n• Tratamiento: $250\n• Facial: $180\n\n¿Quieres agendar?',h:'4:06 PM'},
+  {t:'o',x:'¡Aquí te van los precios! 💰\n\n✂️ Corte: $150\n🧔 Barba: $80\n💈 Corte + Barba: $200\n👁️ Cejas: $50\n💆 Tratamiento: $250\n✨ Facial: $180\n\n¿Te agendo? 😉',h:'4:06 PM'},
+  // 10-11: Todo junto
   {t:'i',x:'Dime todo: ubicación, horarios, servicios y precios',h:'4:07 PM'},
-  {t:'o',x:'📍 Av. Revolución #220, Zapopan\n🕐 Lun-Vie 10-8 | Sáb 9-6\n\n💈 Servicios y precios:\n• Corte $150\n• Barba $80\n• Corte+Barba $200\n• Cejas $50\n• Tratamiento $250\n• Facial $180\n\n¿Te agendo? 📅',h:'4:07 PM'},
-  {t:'i',x:'Sí, quiero corte + barba',h:'4:08 PM'},
-  {t:'o',x:'Mañana tengo:\n• 10:00 AM\n• 11:30 AM\n• 3:00 PM\n\n¿Cuál prefieres?',h:'4:08 PM'},
-  {t:'i',x:'11:30',h:'4:08 PM'},
-  {t:'o',x:'✅ Tu cita:\n📅 Mañana 11:30 AM\n💈 Corte + Barba — $200\n\nTe mando recordatorio 1 hora antes. ¡Te esperamos!',h:'4:09 PM'},
+  {t:'o',x:'¡Toda la info de un jalón! 💪\n\n📍 Ubicación:\nAv. Revolución #220, Col. Centro, Zapopan\n📌 https://maps.google.com/maps?q=Urban+Kings\n\n🗓️ Horarios:\nLunes a Viernes: 10:00 AM - 8:00 PM\nSábado: 9:00 AM - 6:00 PM\nDomingo: Cerrado\n\n💈 Servicios y precios:\n✂️ Corte — $150\n🧔 Barba — $80\n💈 Corte + Barba — $200\n👁️ Cejas — $50\n💆 Tratamiento — $250\n✨ Facial — $180\n\n¿Quieres que te agende? 📅😊',h:'4:07 PM'},
+  // 12-15: Agendar
+  {t:'i',x:'Sí, quiero agendar un corte + barba',h:'4:08 PM'},
+  {t:'o',x:'¡Perfecto! 🙌 Para agendarte necesito unos datos:\n\n📅 ¿Qué día te gustaría venir?\n🕐 ¿A qué hora?\n👤 ¿Tu nombre?\n💈 ¿Tienes algún barbero de preferencia?',h:'4:08 PM'},
+  {t:'i',x:'Mañana a las 11:30, soy Carlos, con el barbero Migue',h:'4:09 PM'},
+  {t:'o',x:'✅ ¡Listo Carlos! Tu cita quedó agendada:\n\n📅 Mañana\n🕐 11:30 AM\n💈 Corte + Barba\n👤 Barbero: Migue\n💰 $200\n\nTe mando un recordatorio antes de tu cita 🔔\n\n¡Te esperamos! 😎🤙',h:'4:09 PM'},
+  // 16-21: Reagendar
   {t:'d',x:'Hoy'},
-  {t:'i',x:'No voy a poder a las 11:30, se puede cambiar?',h:'9:15 AM'},
-  {t:'o',x:'¡Sin problema! Hoy tengo:\n• 1:00 PM\n• 4:30 PM\n• 6:00 PM\n\n¿Cuál te funciona?',h:'9:15 AM'},
-  {t:'i',x:'4:30',h:'9:16 AM'},
-  {t:'o',x:'✅ Cambié tu cita a hoy 4:30 PM. Te mando recordatorio. 👍',h:'9:16 AM'},
-  {t:'i',x:'Mejor cancélame la cita',h:'2:10 PM'},
-  {t:'o',x:'Cancelada. Cuando quieras reagendar, escríbeme. ¡Buen día! 👋',h:'2:10 PM'},
+  {t:'i',x:'Oye no voy a poder a las 11:30, se puede cambiar?',h:'9:15 AM'},
+  {t:'o',x:'¡Sin problema Carlos! 😊 ¿Para qué día y hora te gustaría cambiarla?',h:'9:15 AM'},
+  {t:'i',x:'Hoy a las 4:30',h:'9:16 AM'},
+  {t:'o',x:'✅ ¡Listo! Tu cita se cambió:\n\n📅 Hoy\n🕐 4:30 PM\n💈 Corte + Barba con Migue\n\nTe mando recordatorio antes 🔔👍',h:'9:16 AM'},
+  // 22-23: Cancelar
+  {t:'i',x:'Sabes qué, mejor cancélame la cita',h:'2:10 PM'},
+  {t:'o',x:'Entendido Carlos, tu cita de hoy a las 4:30 PM queda cancelada ✅\n\nCuando quieras reagendar solo escríbeme, aquí andamos 😊\n\n¡Que tengas excelente día! 🙌',h:'2:10 PM'},
+  // 24-27: Recordatorio
+  {t:'d',x:'Martes'},
+  {t:'o',x:'¡Hola Carlos! 👋 Te recuerdo que tienes cita hoy:\n\n📅 Hoy\n🕐 4:30 PM\n💈 Corte + Barba con Migue\n📍 Av. Revolución #220, Zapopan\n\n¿Confirmas tu asistencia? 😊🔔',h:'3:30 PM'},
+  {t:'i',x:'Gracias por recordarme! Sí confirmo, ahí estaré 👍',h:'3:32 PM'},
+  {t:'o',x:'¡Perfecto Carlos! ✅ Te esperamos a las 4:30 PM 💈🔥\n\n¡Nos vemos! 🤙',h:'3:32 PM'},
 ];
 
-const SM={0:[],1:[0,1],2:[2,3],3:[4,5],4:[6,7],5:[8,9],6:[10,11],7:[12,13,14,15],8:[16,17,18,19,20],9:[21,22]};
+const SM={0:[],1:[0,1],2:[2,3],3:[4,5],4:[6,7],5:[8,9],6:[10,11],7:[12,13,14,15],8:[16,17,18,19,20],9:[21,22],10:[23,24,25,26,27]};
 
 // Create bubble elements (all start hidden via CSS opacity:0)
 const ELS=[];
