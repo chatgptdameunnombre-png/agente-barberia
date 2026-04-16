@@ -398,42 +398,42 @@ const CV=document.getElementById('CV');
 
 const MSGS=[
   // 0-1: Bienvenida
-  {t:'i',x:'Hola, a donde escribo?',h:'4:02 PM'},
-  {t:'o',x:'¡Hola! 👋 Bienvenido a Urban Kings Barbershop 💈\n\n¿En qué te puedo ayudar? 😊',h:'4:02 PM'},
+  {t:'i',x:'Hola buenas tardes',h:'4:02 PM'},
+  {t:'o',x:'Buenas tardes 👋 Bienvenido a Urban Kings Barbershop. ¿En qué puedo ayudarte?',h:'4:02 PM'},
   // 2-3: Ubicación
-  {t:'i',x:'Donde están ubicados?',h:'4:03 PM'},
-  {t:'o',x:'¡Con gusto! 😄 Nuestra ubicación es súper céntrica:\n\n📍 Av. Revolución #220, Col. Centro, Zapopan\nA dos cuadras de la plaza principal 🏛️\n\n📌 https://maps.google.com/maps?q=Urban+Kings\n\n¡Te esperamos! 🙌',h:'4:03 PM'},
+  {t:'i',x:'Dónde están ubicados?',h:'4:03 PM'},
+  {t:'o',x:'Nos encontramos en Av. Revolución #220, Col. Centro, Zapopan. A dos cuadras de la plaza principal.\n\n📍 https://maps.google.com/maps?q=Urban+Kings',h:'4:03 PM'},
   // 4-5: Horarios
-  {t:'i',x:'Qué horario manejan?',h:'4:04 PM'},
-  {t:'o',x:'¡Claro que sí! 😊 Aquí van nuestros horarios:\n\n🗓️ Lunes a Viernes: 10:00 AM - 8:00 PM\n🗓️ Sábado: 9:00 AM - 6:00 PM\n🗓️ Domingo: Cerrado 😴\n\n¿Te gustaría agendar una cita? 📅',h:'4:04 PM'},
+  {t:'i',x:'Y qué horario manejan?',h:'4:04 PM'},
+  {t:'o',x:'Nuestro horario es:\n\nLunes a Viernes: 10:00 AM a 8:00 PM\nSábado: 9:00 AM a 6:00 PM\nDomingo: Cerrado\n\n¿Te gustaría agendar una cita?',h:'4:04 PM'},
   // 6-7: Servicios
-  {t:'i',x:'Qué servicios tienen?',h:'4:05 PM'},
-  {t:'o',x:'¡Tenemos de todo para que salgas como nuevo! 🔥\n\n✂️ Corte de cabello\n🧔 Recorte de barba\n💈 Corte + barba\n👁️ Diseño de cejas\n💆 Tratamiento capilar\n✨ Facial express\n\n¿Cuál te interesa? 😎',h:'4:05 PM'},
+  {t:'i',x:'Qué servicios manejan?',h:'4:05 PM'},
+  {t:'o',x:'Estos son nuestros servicios:\n\n• Corte de cabello\n• Recorte de barba\n• Corte + barba\n• Diseño de cejas\n• Tratamiento capilar\n• Facial express\n\n¿Te interesa alguno en particular?',h:'4:05 PM'},
   // 8-9: Precios
-  {t:'i',x:'Cuánto cuesta cada uno?',h:'4:06 PM'},
-  {t:'o',x:'¡Aquí te van los precios! 💰\n\n✂️ Corte: $150\n🧔 Barba: $80\n💈 Corte + Barba: $200\n👁️ Cejas: $50\n💆 Tratamiento: $250\n✨ Facial: $180\n\n¿Te agendo? 😉',h:'4:06 PM'},
+  {t:'i',x:'Cuánto cuesta cada servicio?',h:'4:06 PM'},
+  {t:'o',x:'Con gusto, estos son nuestros precios:\n\n• Corte: $150\n• Barba: $80\n• Corte + Barba: $200\n• Cejas: $50\n• Tratamiento capilar: $250\n• Facial express: $180\n\n¿Deseas agendar una cita?',h:'4:06 PM'},
   // 10-11: Todo junto
-  {t:'i',x:'Dime todo: ubicación, horarios, servicios y precios',h:'4:07 PM'},
-  {t:'o',x:'¡Toda la info de un jalón! 💪\n\n📍 Ubicación:\nAv. Revolución #220, Col. Centro, Zapopan\n📌 https://maps.google.com/maps?q=Urban+Kings\n\n🗓️ Horarios:\nLunes a Viernes: 10:00 AM - 8:00 PM\nSábado: 9:00 AM - 6:00 PM\nDomingo: Cerrado\n\n💈 Servicios y precios:\n✂️ Corte — $150\n🧔 Barba — $80\n💈 Corte + Barba — $200\n👁️ Cejas — $50\n💆 Tratamiento — $250\n✨ Facial — $180\n\n¿Quieres que te agende? 📅😊',h:'4:07 PM'},
+  {t:'i',x:'Me puedes dar toda la información? Ubicación, horarios, servicios y precios',h:'4:07 PM'},
+  {t:'o',x:'Por supuesto. Aquí tienes toda la información:\n\n📍 Ubicación:\nAv. Revolución #220, Col. Centro, Zapopan\nhttps://maps.google.com/maps?q=Urban+Kings\n\n🕐 Horarios:\nLunes a Viernes: 10:00 AM a 8:00 PM\nSábado: 9:00 AM a 6:00 PM\nDomingo: Cerrado\n\n💈 Servicios y precios:\n• Corte — $150\n• Barba — $80\n• Corte + Barba — $200\n• Cejas — $50\n• Tratamiento capilar — $250\n• Facial express — $180\n\n¿Quieres que te agende una cita?',h:'4:07 PM'},
   // 12-15: Agendar
-  {t:'i',x:'Sí, quiero agendar un corte + barba',h:'4:08 PM'},
-  {t:'o',x:'¡Perfecto! 🙌 Para agendarte necesito unos datos:\n\n📅 ¿Qué día te gustaría venir?\n🕐 ¿A qué hora?\n👤 ¿Tu nombre?\n💈 ¿Tienes algún barbero de preferencia?',h:'4:08 PM'},
-  {t:'i',x:'Mañana a las 11:30, soy Carlos, con el barbero Migue',h:'4:09 PM'},
-  {t:'o',x:'✅ ¡Listo Carlos! Tu cita quedó agendada:\n\n📅 Mañana\n🕐 11:30 AM\n💈 Corte + Barba\n👤 Barbero: Migue\n💰 $200\n\nTe mando un recordatorio antes de tu cita 🔔\n\n¡Te esperamos! 😎🤙',h:'4:09 PM'},
-  // 16-21: Reagendar
+  {t:'i',x:'Sí, quiero agendar un corte con barba',h:'4:08 PM'},
+  {t:'o',x:'Con gusto. Para agendar tu cita necesito los siguientes datos:\n\n¿Qué día te gustaría venir?\n¿A qué hora?\n¿A nombre de quién?\n¿Tienes algún barbero de preferencia?',h:'4:08 PM'},
+  {t:'i',x:'Mañana a las 11:30, a nombre de Carlos, con el barbero Migue',h:'4:09 PM'},
+  {t:'o',x:'Listo Carlos, tu cita quedó confirmada ✅\n\n📅 Mañana\n🕐 11:30 AM\n💈 Corte + Barba\n👤 Barbero: Migue\n💰 $200\n\nTe enviaremos un recordatorio antes de tu cita. Te esperamos.',h:'4:09 PM'},
+  // 16-20: Reagendar
   {t:'d',x:'Hoy'},
-  {t:'i',x:'Oye no voy a poder a las 11:30, se puede cambiar?',h:'9:15 AM'},
-  {t:'o',x:'¡Sin problema Carlos! 😊 ¿Para qué día y hora te gustaría cambiarla?',h:'9:15 AM'},
-  {t:'i',x:'Hoy a las 4:30',h:'9:16 AM'},
-  {t:'o',x:'✅ ¡Listo! Tu cita se cambió:\n\n📅 Hoy\n🕐 4:30 PM\n💈 Corte + Barba con Migue\n\nTe mando recordatorio antes 🔔👍',h:'9:16 AM'},
-  // 22-23: Cancelar
-  {t:'i',x:'Sabes qué, mejor cancélame la cita',h:'2:10 PM'},
-  {t:'o',x:'Entendido Carlos, tu cita de hoy a las 4:30 PM queda cancelada ✅\n\nCuando quieras reagendar solo escríbeme, aquí andamos 😊\n\n¡Que tengas excelente día! 🙌',h:'2:10 PM'},
-  // 24-27: Recordatorio
+  {t:'i',x:'Hola, no voy a poder llegar a las 11:30. Se puede cambiar la cita?',h:'9:15 AM'},
+  {t:'o',x:'Claro que sí Carlos. ¿Para qué día y hora te gustaría reprogramarla?',h:'9:15 AM'},
+  {t:'i',x:'Hoy a las 4:30 si hay disponible',h:'9:16 AM'},
+  {t:'o',x:'Perfecto, tu cita fue reprogramada ✅\n\n📅 Hoy\n🕐 4:30 PM\n💈 Corte + Barba con Migue\n\nTe enviaremos recordatorio antes de tu cita.',h:'9:16 AM'},
+  // 21-22: Cancelar
+  {t:'i',x:'Disculpa, voy a tener que cancelar la cita',h:'2:10 PM'},
+  {t:'o',x:'Entendido Carlos, tu cita de hoy a las 4:30 PM queda cancelada.\n\nCuando desees reagendar no dudes en escribirnos. Que tengas buen día.',h:'2:10 PM'},
+  // 23-26: Recordatorio
   {t:'d',x:'Martes'},
-  {t:'o',x:'¡Hola Carlos! 👋 Te recuerdo que tienes cita hoy:\n\n📅 Hoy\n🕐 4:30 PM\n💈 Corte + Barba con Migue\n📍 Av. Revolución #220, Zapopan\n\n¿Confirmas tu asistencia? 😊🔔',h:'3:30 PM'},
-  {t:'i',x:'Gracias por recordarme! Sí confirmo, ahí estaré 👍',h:'3:32 PM'},
-  {t:'o',x:'¡Perfecto Carlos! ✅ Te esperamos a las 4:30 PM 💈🔥\n\n¡Nos vemos! 🤙',h:'3:32 PM'},
+  {t:'o',x:'Hola Carlos, te recordamos que tienes una cita programada para hoy:\n\n📅 Hoy\n🕐 4:30 PM\n💈 Corte + Barba con Migue\n📍 Av. Revolución #220, Zapopan\n\n¿Confirmas tu asistencia?',h:'3:30 PM'},
+  {t:'i',x:'Sí confirmo, gracias por el recordatorio',h:'3:32 PM'},
+  {t:'o',x:'Confirmado ✅ Te esperamos a las 4:30 PM, Carlos. Hasta pronto.',h:'3:32 PM'},
 ];
 
 const SM={0:[],1:[0,1],2:[2,3],3:[4,5],4:[6,7],5:[8,9],6:[10,11],7:[12,13,14,15],8:[16,17,18,19,20],9:[21,22],10:[23,24,25,26]};
