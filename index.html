@@ -543,54 +543,28 @@ ScrollTrigger.create({
 gsap.from('.ctagrid',{scrollTrigger:{trigger:'.ctagrid',start:'top 80%'},opacity:0,y:30,duration:.7});
 
 // ══════════════════════════════════════
-// MOBILE ONLY — Inline bubbles autoplay
+// MOBILE — Inline bubbles (created always, CSS hides on desktop)
 // ══════════════════════════════════════
-if(window.innerWidth<=860){
-
-  // Create mobile bubble containers under each panel
-  const mobData={};
-  Object.entries(SM).forEach(([step,indices])=>{
-    if(!indices.length)return;
-    const panel=document.querySelector(`[data-s="${step}"]`);
-    if(!panel)return;
-    const box=document.createElement('div');
-    box.className='mob-wa';
-    const bubs=[];
-    indices.forEach(idx=>{
-      const m=MSGS[idx];
-      const d=document.createElement('div');
-      if(m.t==='d'){
-        d.className='md';
-        d.innerHTML=`<span>${m.x}</span>`;
-      } else {
-        d.className=`mb ${m.t==='i'?'mi':'mo'}`;
-        d.innerHTML=`${m.x.replace(/\n/g,'<br>')} <span class="tm">${m.h}</span>`;
-      }
-      box.appendChild(d);
-      bubs.push({el:d,m:m});
-    });
-    panel.appendChild(box);
-    mobData[step]=bubs;
+Object.entries(SM).forEach(([step,indices])=>{
+  if(!indices.length)return;
+  const panel=document.querySelector(`[data-s="${step}"]`);
+  if(!panel)return;
+  const box=document.createElement('div');
+  box.className='mob-wa';
+  indices.forEach(idx=>{
+    const m=MSGS[idx];
+    const d=document.createElement('div');
+    if(m.t==='d'){
+      d.className='md';
+      d.innerHTML=`<span>${m.x}</span>`;
+    } else {
+      d.className=`mb ${m.t==='i'?'mi':'mo'}`;
+      d.innerHTML=`${m.x.replace(/\n/g,'<br>')} <span class="tm">${m.h}</span>`;
+    }
+    box.appendChild(d);
   });
-
-  // Autoplay: when each panel enters viewport, animate its bubbles
-  Object.entries(mobData).forEach(([step,bubs])=>{
-    const panel=document.querySelector(`[data-s="${step}"]`);
-    ScrollTrigger.create({
-      trigger:panel,
-      start:'top 80%',
-      once:true,
-      onEnter:()=>{
-        bubs.forEach((b,i)=>{
-          const delay=i*0.6;
-          gsap.delayedCall(delay,()=>{
-            b.el.classList.add('v');
-          });
-        });
-      }
-    });
-  });
-}
+  panel.appendChild(box);
+});
 </script>
 </body>
 </html>
