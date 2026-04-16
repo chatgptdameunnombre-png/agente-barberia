@@ -147,9 +147,12 @@ section{padding:100px 0}
 
 @media(max-width:860px){
   .phone-col{display:none !important}
+  .rbox{opacity:1 !important;transform:none !important}
   .mob-wa{display:flex !important}
-  .mob-wa .mb{opacity:1;transform:none}
-  .mob-wa .md{opacity:1}
+  .mob-wa .mb{opacity:1 !important;transform:none !important;display:block !important}
+  .mob-wa .mb.mi{display:block !important}
+  .mob-wa .mb.mo{display:block !important}
+  .mob-wa .md{opacity:1 !important;display:block !important}
   .rpanel{min-height:auto;padding:20px 0}
   .rpanel:first-child{min-height:auto}
 }
