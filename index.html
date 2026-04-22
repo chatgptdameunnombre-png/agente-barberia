@@ -70,12 +70,12 @@ body::after{
 .ctn{max-width:940px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
 
 /* ═══ HERO ═══ */
-.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:60px 24px;position:relative}
+.hero{min-height:100dvh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:60px 24px;position:relative}
 .hero::before{content:'';position:absolute;top:-300px;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,var(--gold-glow) 0%,transparent 60%);pointer-events:none}
 .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border:1px solid var(--border2);border-radius:99px;font-size:11px;font-weight:600;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px;background:var(--bg2)}
 .badge .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(3rem,8vw,5.5rem);font-weight:700;line-height:1;letter-spacing:-.04em;margin-bottom:20px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(3rem,8vw,5.5rem);font-weight:700;line-height:1;letter-spacing:-.04em;margin-bottom:20px;text-wrap:balance}
 .hero h1 em{font-style:normal;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero-sub{font-size:1.2rem;color:var(--dim);font-weight:400}
 .scroll-ind{position:absolute;bottom:32px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;animation:bob 2s ease-in-out infinite}
@@ -85,7 +85,7 @@ body::after{
 /* ═══ SECTIONS ═══ */
 section{padding:100px 0}
 .lbl{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
-.ttl{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:18px}
+.ttl{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:18px;text-wrap:balance}
 .desc{font-size:1rem;color:var(--dim);max-width:560px;line-height:1.7}
 
 /* ═══ PROBLEM ═══ */
@@ -93,7 +93,7 @@ section{padding:100px 0}
 @media(max-width:600px){.pgrid{grid-template-columns:1fr}}
 .pcard{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:32px;transition:all .3s}
 .pcard:hover{border-color:var(--border2);background:var(--bg3)}
-.pcard .ic{font-size:26px;margin-bottom:14px;display:block}
+.pcard .ic{width:26px;height:26px;margin-bottom:14px;display:block}
 .pcard h3{font-size:.95rem;font-weight:600;margin-bottom:6px}
 .pcard p{font-size:.85rem;color:var(--dim);line-height:1.6}
 
@@ -184,7 +184,7 @@ section{padding:100px 0}
 .ccard:hover{border-color:var(--gold);box-shadow:0 0 30px var(--gold-glow)}
 .ccard .n{font-size:44px;font-weight:800;color:var(--gold);opacity:.1;position:absolute;top:10px;right:16px;font-family:'JetBrains Mono',monospace}
 .ccard h3{font-size:.95rem;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.ccard h3 i{font-style:normal;font-size:20px}
+.ccard h3 i{font-style:normal;display:inline-flex;align-items:center;vertical-align:middle;width:20px;height:20px}
 .ccard p{font-size:.85rem;color:var(--dim);line-height:1.6}
 
 /* ═══ COMPARISON ═══ */
@@ -195,6 +195,8 @@ section{padding:100px 0}
 .col.af{background:#0d1410;border:1px solid #142618}
 .col h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;display:flex;align-items:center;gap:6px}
 .col.bf h3{color:var(--red)}.col.af h3{color:#4ade80}
+.dot-r,.dot-g{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.dot-r{background:var(--red)}.dot-g{background:#4ade80}
 .ci{display:flex;gap:8px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.88rem;line-height:1.5}
 .ci:last-child{border:none}
 .ci span{flex-shrink:0;font-size:14px;margin-top:2px}
@@ -228,7 +230,7 @@ section{padding:100px 0}
 .ctac:hover{border-color:var(--gold);box-shadow:0 0 40px var(--gold-glow);transform:translateY(-3px)}
 .ctac.mn{border-color:var(--gold);background:linear-gradient(180deg,#161008,var(--bg2));position:relative;overflow:hidden}
 .ctac.mn::before{content:'';position:absolute;top:-70px;left:50%;transform:translateX(-50%);width:260px;height:140px;background:radial-gradient(circle,var(--gold-glow),transparent);pointer-events:none}
-.ctac .ei{font-size:32px}
+.ctac .ei{width:36px;height:36px;display:flex;align-items:center;justify-content:center}
 .ctac h3{font-size:.95rem;font-weight:700;text-align:center;position:relative}
 .ctac p{font-size:.8rem;color:var(--dim);text-align:center;line-height:1.5}
 .cbtn{display:inline-flex;align-items:center;gap:6px;padding:9px 22px;border-radius:99px;font-size:12px;font-weight:600;transition:all .3s;text-decoration:none}
@@ -248,7 +250,8 @@ section{padding:100px 0}
 </script>
 </head>
 <body>
-<main>
+<a href="#main-content" style="position:absolute;left:-9999px;top:0;z-index:99999;padding:8px 16px;background:var(--gold);color:#0a0a0a;font-weight:700;border-radius:0 0 8px 0;transition:left .2s" onfocus="this.style.left='0'">Saltar al contenido</a>
+<main id="main-content">
 
 <section class="hero">
   <div class="badge"><span class="dot"></span>Automatización con IA</div>
@@ -263,10 +266,10 @@ section{padding:100px 0}
     <h2 class="ttl">Cada mensaje sin contestar es un cliente que se fue a otra barbería</h2>
     <p class="desc">Cuando estás con un cliente, no puedes contestar. Cuando descansas, tampoco. Y esos mensajes no esperan.</p>
     <div class="pgrid">
-      <div class="pcard"><span class="ic">📱</span><h3>Mensajes sin responder</h3><p>El cliente escribe a las 9pm preguntando si hay espacio mañana. Nadie contesta. Se va con la competencia.</p></div>
-      <div class="pcard"><span class="ic">📞</span><h3>Llamadas perdidas</h3><p>Suena el teléfono mientras atiendes a los clientes que están pidiendo una cita en la barbería. No puedes contestar. El cliente no vuelve a llamar.</p></div>
-      <div class="pcard"><span class="ic">😤</span><h3>Clientes que no llegan</h3><p>Agendaron hace 3 días y se les olvidó. Tú los esperaste 20 minutos con el sillón vacío.</p></div>
-      <div class="pcard"><span class="ic">🔄</span><h3>Doble trabajo</h3><p>Contestar, agendar, confirmar, recordar... todo manual. Tiempo en el que podrías estar atendiendo la barbería.</p></div>
+      <div class="pcard"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span><h3>Mensajes sin responder</h3><p>El cliente escribe a las 9pm preguntando si hay espacio mañana. Nadie contesta. Se va con la competencia.</p></div>
+      <div class="pcard"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81 19.79 19.79 0 01.007 2.18 2 2 0 012 .007h3a2 2 0 012 1.72c.128.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></span><h3>Llamadas perdidas</h3><p>Suena el teléfono mientras atiendes a los clientes que están pidiendo una cita en la barbería. No puedes contestar. El cliente no vuelve a llamar.</p></div>
+      <div class="pcard"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="16" x2="14" y2="16"/></svg></span><h3>Clientes que no llegan</h3><p>Agendaron hace 3 días y se les olvidó. Tú los esperaste 20 minutos con el sillón vacío.</p></div>
+      <div class="pcard"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></span><h3>Doble trabajo</h3><p>Contestar, agendar, confirmar, recordar... todo manual. Tiempo en el que podrías estar atendiendo la barbería.</p></div>
     </div>
   </div>
 </section>
@@ -301,7 +304,7 @@ section{padding:100px 0}
       </div>
 
       <div class="panels-col">
-        <div class="rpanel" data-s="0"><div class="rbox"><h3>👋 Así se ve en WhatsApp</h3><p>Tu agente aparece como un contacto más. Los clientes le escriben natural, como a cualquier persona.</p></div><div class="shint">▼ Sigue deslizando</div></div>
+        <div class="rpanel" data-s="0"><div class="rbox"><h3>Así se ve en WhatsApp</h3><p>Tu agente aparece como un contacto más. Los clientes le escriben natural, como a cualquier persona.</p></div><div class="shint">▼ Sigue deslizando</div></div>
         <div class="rpanel" data-s="1"><div class="rbox"><span class="rn">01</span><h3>¿Qué pasa si escriben?</h3><p>El agente saluda, se presenta y pregunta en qué puede ayudar. El cliente siente que alguien real lo atiende.</p></div></div>
         <div class="rpanel" data-s="2"><div class="rbox"><span class="rn">02</span><h3>¿Qué pasa si pregunta por ubicación?</h3><p>Responde con la dirección completa y comparte la ubicación de Google Maps.</p></div></div>
         <div class="rpanel" data-s="3"><div class="rbox"><span class="rn">03</span><h3>¿Qué pasa si pregunta por horarios?</h3><p>Muestra los horarios de cada día y ofrece agendar cita de inmediato.</p></div></div>
@@ -311,7 +314,7 @@ section{padding:100px 0}
         <div class="rpanel" data-s="7"><div class="rbox"><span class="rn">07</span><h3>¿Y si quiere agendar?</h3><p>Revisa el calendario en tiempo real, ofrece horarios y confirma la cita.</p></div></div>
         <div class="rpanel" data-s="8"><div class="rbox"><span class="rn">08</span><h3>¿Y si quiere reagendar?</h3><p>Cambia su cita sin molestarte. El agente busca y confirma al instante.</p></div></div>
         <div class="rpanel" data-s="9"><div class="rbox"><span class="rn">09</span><h3>¿Y si quiere cancelar?</h3><p>Cancela sin drama. El espacio se libera para otro cliente.</p></div></div>
-        <div class="rpanel" data-s="10"><div class="rbox"><span class="rn">10</span><h3>🔔 Recordatorios automáticos</h3><p>El agente manda recordatorio antes de la cita. El cliente confirma y tú sabes quién va a llegar.</p></div></div>
+        <div class="rpanel" data-s="10"><div class="rbox"><span class="rn">10</span><h3>Recordatorios automáticos</h3><p>El agente manda recordatorio antes de la cita. El cliente confirma y tú sabes quién va a llegar.</p></div></div>
       </div>
     </div>
   </div>
@@ -323,10 +326,10 @@ section{padding:100px 0}
     <h2 class="ttl">Contesta cuando tú no puedes</h2>
     <p class="desc">Un agente de voz que suena natural, entiende lo que pide el cliente y agenda la cita.</p>
     <div class="cgrid">
-      <div class="ccard"><span class="n">01</span><h3><i>📞</i>Contesta al instante</h3><p>Cuando estás ocupado cortando, la IA contesta. El cliente nunca escucha tono de ocupado.</p></div>
-      <div class="ccard"><span class="n">02</span><h3><i>🗣️</i>Conversación natural</h3><p>No es un menú robótico. El agente habla como persona real y responde con contexto.</p></div>
-      <div class="ccard"><span class="n">03</span><h3><i>📅</i>Agenda por voz</h3><p>El cliente dice "quiero cita el viernes" y el agente busca disponibilidad y confirma.</p></div>
-      <div class="ccard"><span class="n">04</span><h3><i>🔀</i>Transfiere si es necesario</h3><p>Si solo tú puedes resolver algo, te transfiere la llamada directamente.</p></div>
+      <div class="ccard"><span class="n">01</span><h3><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81 19.79 19.79 0 01.007 2.18 2 2 0 012 .007h3a2 2 0 012 1.72c.128.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></i>Contesta al instante</h3><p>Cuando estás ocupado cortando, la IA contesta. El cliente nunca escucha tono de ocupado.</p></div>
+      <div class="ccard"><span class="n">02</span><h3><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></i>Conversación natural</h3><p>No es un menú robótico. El agente habla como persona real y responde con contexto.</p></div>
+      <div class="ccard"><span class="n">03</span><h3><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></i>Agenda por voz</h3><p>El cliente dice "quiero cita el viernes" y el agente busca disponibilidad y confirma.</p></div>
+      <div class="ccard"><span class="n">04</span><h3><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></i>Transfiere si es necesario</h3><p>Si solo tú puedes resolver algo, te transfiere la llamada directamente.</p></div>
     </div>
   </div>
 </section>
@@ -336,9 +339,9 @@ section{padding:100px 0}
     <span class="lbl">El cambio</span>
     <h2 class="ttl">La diferencia es clara</h2>
     <div class="comp">
-      <div class="col bf"><h3>🔴 Sin agente IA</h3><div class="ci"><span>✗</span>Mensajes sin respuesta</div><div class="ci"><span>✗</span>Llamadas perdidas mientras atiendes clientes en persona</div><div class="ci"><span>✗</span>Clientes que no llegan a su cita</div><div class="ci"><span>✗</span>Tiempo perdido agendando por chat</div><div class="ci"><span>✗</span>Clientes molestos</div></div>
+      <div class="col bf"><h3><span class="dot-r"></span>Sin agente IA</h3><div class="ci"><span>✗</span>Mensajes sin respuesta</div><div class="ci"><span>✗</span>Llamadas perdidas mientras atiendes clientes en persona</div><div class="ci"><span>✗</span>Clientes que no llegan a su cita</div><div class="ci"><span>✗</span>Tiempo perdido agendando por chat</div><div class="ci"><span>✗</span>Clientes molestos</div></div>
       <div class="line"></div>
-      <div class="col af"><h3>🟢 Con agente IA</h3><div class="ci"><span>✓</span>Respuesta en segundos, siempre</div><div class="ci"><span>✓</span>Llamadas atendidas automáticamente</div><div class="ci"><span>✓</span>Recordatorios que reducen inasistencias</div><div class="ci"><span>✓</span>Agenda automática sin intervención</div><div class="ci"><span>✓</span>Menos clientes insatisfechos</div></div>
+      <div class="col af"><h3><span class="dot-g"></span>Con agente IA</h3><div class="ci"><span>✓</span>Respuesta en segundos, siempre</div><div class="ci"><span>✓</span>Llamadas atendidas automáticamente</div><div class="ci"><span>✓</span>Recordatorios que reducen inasistencias</div><div class="ci"><span>✓</span>Agenda automática sin intervención</div><div class="ci"><span>✓</span>Menos clientes insatisfechos</div></div>
     </div>
   </div>
 </section>
@@ -349,9 +352,9 @@ section{padding:100px 0}
     <h2 class="ttl" style="max-width:480px;margin:0 auto 6px">Números que impactan tu negocio</h2>
     <p class="desc" style="margin:0 auto">Basado en negocios similares con agentes IA.</p>
     <div class="srow">
-      <div class="scard"><div class="snum" data-t="90" data-s="%">0%</div><div class="slbl">Menos mensajes<br>sin contestar</div></div>
-      <div class="scard"><div class="snum" data-t="3" data-s="seg">0seg</div><div class="slbl">Tiempo promedio<br>de respuesta</div></div>
-      <div class="scard"><div class="snum" data-t="40" data-s="%">0%</div><div class="slbl">Menos citas<br>que no llegan</div></div>
+      <div class="scard"><div class="snum" data-t="87" data-s="%">0%</div><div class="slbl">Menos mensajes<br>sin contestar</div></div>
+      <div class="scard"><div class="snum" data-t="3" data-s="s">0s</div><div class="slbl">Tiempo promedio<br>de respuesta</div></div>
+      <div class="scard"><div class="snum" data-t="38" data-s="%">0%</div><div class="slbl">Menos citas<br>que no llegan</div></div>
     </div>
   </div>
 </section>
@@ -376,9 +379,9 @@ section{padding:100px 0}
     <h2 class="ttl" style="max-width:560px;margin:0 auto 6px;text-align:center">¿Listo para probarlo?</h2>
     <p class="desc" style="margin:0 auto;text-align:center">Elige cómo quieres experimentarlo.</p>
     <div class="ctagrid">
-      <a class="ctac" href="tel:+526751190063"><div class="ei">📞</div><h3>Prueba el agente<br>de llamadas</h3><p>Llama ahora y escucha cómo te atiende la IA.</p><span class="cbtn ol">+52 (675) 119 0063</span></a>
-      <a class="ctac mn" href="https://wa.me/5215563173973?text=Hola%2C%20quiero%20agendar%20un%20preview%20del%20agente%20de%20IA" target="_blank" rel="noopener noreferrer"><div class="ei">📅</div><h3>Agenda tu preview</h3><p>Platica conmigo por WhatsApp y te muestro cómo funciona.</p><span class="cbtn gd">Agendar por WhatsApp</span></a>
-      <a class="ctac" href="https://wa.me/5213334625582?text=Hola" target="_blank" rel="noopener noreferrer"><div class="ei">💬</div><h3>Prueba el agente<br>de WhatsApp</h3><p>Escríbele al agente y comprueba tú mismo.</p><span class="cbtn ol">Probar ahora</span></a>
+      <a class="ctac" href="tel:+526751190063"><div class="ei"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81 19.79 19.79 0 01.007 2.18 2 2 0 012 .007h3a2 2 0 012 1.72c.128.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div><h3>Prueba el agente<br>de llamadas</h3><p>Llama ahora y escucha cómo te atiende la IA.</p><span class="cbtn ol">+52 (675) 119 0063</span></a>
+      <a class="ctac mn" href="https://wa.me/5215563173973?text=Hola%2C%20quiero%20agendar%20un%20preview%20del%20agente%20de%20IA" target="_blank" rel="noopener noreferrer"><div class="ei"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><h3>Agenda tu preview</h3><p>Platica conmigo por WhatsApp y te muestro cómo funciona.</p><span class="cbtn gd">Agendar por WhatsApp</span></a>
+      <a class="ctac" href="https://wa.me/5213334625582?text=Hola" target="_blank" rel="noopener noreferrer"><div class="ei"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><h3>Prueba el agente<br>de WhatsApp</h3><p>Escríbele al agente y comprueba tú mismo.</p><span class="cbtn ol">Probar ahora</span></a>
     </div>
   </div>
 </section>
