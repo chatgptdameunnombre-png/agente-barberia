@@ -130,7 +130,7 @@ section{padding:100px 0}
 .cv-body{flex:1;padding:8px 10px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none;background:var(--wa-bg)}
 .cv-body::-webkit-scrollbar{display:none}
 
-.bub{max-width:82%;padding:7px 10px;font-size:12px;line-height:1.45;border-radius:14px;display:none}
+.bub{max-width:82%;padding:7px 10px;font-size:12px;line-height:1.45;border-radius:14px;display:none;overflow-wrap:break-word;word-break:break-word}
 .bub.i{background:var(--wa-in);align-self:flex-start;border-bottom-left-radius:4px;color:#d1d7db}
 .bub.o{background:var(--wa-out);align-self:flex-end;border-bottom-right-radius:4px;color:#d1e4db}
 .bub .tm{font-size:9px;color:rgba(255,255,255,.3);float:right;margin-left:6px;margin-top:2px}
@@ -150,7 +150,7 @@ section{padding:100px 0}
 
 /* Mobile inline bubbles */
 .mob-wa{display:none;flex-direction:column;gap:4px;padding:14px;margin-top:12px;background:var(--wa-bg);border-radius:14px;border:1px solid #1a272f}
-.mob-wa .mb{max-width:88%;padding:7px 10px;font-size:13px;line-height:1.45;border-radius:14px;opacity:0;transform:translateY(8px);transition:all .4s cubic-bezier(.22,.61,.36,1)}
+.mob-wa .mb{max-width:88%;padding:7px 10px;font-size:13px;line-height:1.45;border-radius:14px;opacity:0;transform:translateY(8px);transition:all .4s cubic-bezier(.22,.61,.36,1);overflow-wrap:break-word;word-break:break-word}
 .mob-wa .mb.v{opacity:1;transform:none}
 .mob-wa .mb.mi{background:var(--wa-in);align-self:flex-start;border-bottom-left-radius:4px;color:#d1d7db}
 .mob-wa .mb.mo{background:var(--wa-out);align-self:flex-end;border-bottom-right-radius:4px;color:#d1e4db}
@@ -237,6 +237,22 @@ section{padding:100px 0}
 .cbtn.gd{background:var(--gold-g);color:#0a0a0a}
 .cbtn.ol{border:1px solid var(--border2);color:var(--text)}
 .cbtn:hover{transform:scale(1.04)}
+
+@media(max-width:600px){
+  section{padding:64px 0}
+  .cta-sec{padding:64px 20px}
+  .wa-section{padding:64px 0 0}
+  .hero{padding:44px 20px}
+  .hero-sub{font-size:1rem}
+  .pcard,.ccard{padding:22px}
+  .col{padding:22px}
+  .rbox{padding:20px 20px}
+  .fstep{padding:16px 18px;gap:12px}
+  .snum{font-size:1.9rem}
+  .ctac{padding:26px 16px}
+  .ctn{padding:0 20px}
+  .ttl{font-size:clamp(1.45rem,5vw,2.4rem)}
+}
 
 </style>
 <script type="application/ld+json">
