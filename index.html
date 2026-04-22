@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-MX">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,8 +38,8 @@
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" as="script" crossorigin="anonymous">
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" as="script" crossorigin="anonymous">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d" crossorigin="anonymous" defer></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
@@ -251,7 +251,16 @@ section{padding:100px 0}
 </head>
 <body>
 <a href="#main-content" style="position:absolute;left:-9999px;top:0;z-index:99999;padding:8px 16px;background:var(--gold);color:#0a0a0a;font-weight:700;border-radius:0 0 8px 0;transition:left .2s" onfocus="this.style.left='0'">Saltar al contenido</a>
-<main id="main-content">
+<nav aria-label="Navegación principal" style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,5,5,0.85);backdrop-filter:blur(12px);border-bottom:1px solid #1c1c1c;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between">
+  <a href="/" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--gold);text-decoration:none;letter-spacing:-.01em">Tu Agente de IA</a>
+  <div style="display:flex;align-items:center;gap:20px">
+    <a href="#wa-demo" style="font-size:13px;color:#999;text-decoration:none;display:none" class="nav-link">Demo</a>
+    <a href="#llamadas" style="font-size:13px;color:#999;text-decoration:none;display:none" class="nav-link">Llamadas</a>
+    <a href="#contacto" style="font-size:13px;font-weight:600;color:#0a0a0a;background:var(--gold);padding:6px 16px;border-radius:99px;text-decoration:none">Probar gratis</a>
+  </div>
+</nav>
+<style>@media(min-width:600px){.nav-link{display:block!important}}</style>
+<main id="main-content" style="padding-top:52px">
 
 <section class="hero">
   <div class="badge"><span class="dot"></span>Automatización con IA</div>
