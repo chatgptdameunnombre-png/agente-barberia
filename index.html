@@ -213,14 +213,13 @@ section{padding:100px 0}
 .slbl{font-size:.83rem;color:var(--dim);font-weight:500}
 
 /* ═══ FLOW ═══ */
-.fwrap{margin-top:44px;display:flex;flex-direction:column;align-items:stretch}
-@media(max-width:600px){.fwrap{align-items:center}}
-.fstep{display:flex;align-items:center;gap:18px;padding:22px 26px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;transition:all .3s}
-.fstep:hover{border-color:var(--border2);transform:translateX(3px)}
+.fwrap{margin-top:44px;display:flex;flex-direction:column;align-items:stretch;gap:8px}
+.fstep{display:flex;align-items:center;gap:18px;padding:22px 26px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;transition:border-color .3s,box-shadow .3s}
+.fstep:hover{border-color:var(--border2)}
+@media(hover:hover){.fstep:hover{transform:translateX(3px)}}
 .fstep .fn{flex-shrink:0;width:38px;height:38px;border-radius:10px;background:var(--gold-g);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#0a0a0a}
 .fstep h4{font-size:.92rem;font-weight:600;margin-bottom:1px}
 .fstep p{font-size:.8rem;color:var(--dim)}
-.fconn{width:2px;height:24px;background:linear-gradient(to bottom,var(--gold),transparent);opacity:.35;align-self:center}
 
 /* ═══ CTA ═══ */
 .cta-sec{text-align:center;padding:100px 24px}
@@ -390,9 +389,9 @@ section{padding:100px 0}
     <h2 class="ttl" style="max-width:480px;margin:0 auto 6px">Simple. Automático. Sin apps nuevas.</h2>
     <p class="desc" style="margin:0 auto">El cliente usa WhatsApp de siempre. Tú solo ves citas en tu calendario.</p>
     <div class="fwrap">
-      <div class="fstep"><div class="fn">1</div><div><h4>El cliente escribe o llama</h4><p>Por WhatsApp o teléfono, como siempre</p></div></div><div class="fconn"></div>
-      <div class="fstep"><div class="fn">2</div><div><h4>La IA responde al instante</h4><p>Contesta preguntas, ofrece horarios y toma la cita</p></div></div><div class="fconn"></div>
-      <div class="fstep"><div class="fn">3</div><div><h4>La cita aparece en tu calendario</h4><p>Google Calendar — sin cambiar nada</p></div></div><div class="fconn"></div>
+      <div class="fstep"><div class="fn">1</div><div><h4>El cliente escribe o llama</h4><p>Por WhatsApp o teléfono, como siempre</p></div></div>
+      <div class="fstep"><div class="fn">2</div><div><h4>La IA responde al instante</h4><p>Contesta preguntas, ofrece horarios y toma la cita</p></div></div>
+      <div class="fstep"><div class="fn">3</div><div><h4>La cita aparece en tu calendario</h4><p>Google Calendar — sin cambiar nada</p></div></div>
       <div class="fstep"><div class="fn">4</div><div><h4>Recordatorio automático</h4><p>El cliente recibe mensaje antes de su cita</p></div></div>
     </div>
   </div>
