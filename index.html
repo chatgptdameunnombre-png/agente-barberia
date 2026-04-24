@@ -9,7 +9,7 @@
 <meta name="keywords" content="agente de IA para barbería, chatbot WhatsApp barbería, automatización barbería México, agenda automática barbería, IA para barbería, responder WhatsApp automático barbería, asistente virtual barbería">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:; child-src blob:; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://image.mux.com https://*.mux.com; media-src 'self' blob: https://stream.mux.com https://*.mux.com; connect-src 'self' https://stream.mux.com https://*.mux.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:; child-src blob:; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://image.mux.com https://*.mux.com; media-src 'self' blob: https://stream.mux.com https://*.mux.com https://d8j0ntlcm91z4.cloudfront.net https://*.cloudfront.net; connect-src 'self' https://stream.mux.com https://*.mux.com https://d8j0ntlcm91z4.cloudfront.net https://*.cloudfront.net; frame-ancestors 'none'; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 <meta name="theme-color" content="#050505">
@@ -84,10 +84,11 @@ body::after{
 .badge .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(3rem,8vw,5.5rem);font-weight:700;line-height:1;letter-spacing:-.04em;margin-bottom:20px;text-wrap:balance}
-.hero h1 em{font-style:normal;font-weight:400;letter-spacing:-.03em;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 2px 20px rgba(223,192,106,0.25))}
+.hero h1 em{font-style:normal;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:-.04em;background:linear-gradient(135deg,#fff2c4 0%,#f5e3a8 35%,#ead68c 70%,#d9c278 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 2px 20px rgba(245,227,168,0.25))}
 .hero-sub{font-size:1.2rem;color:var(--dim);font-weight:400}
-.scroll-ind{position:absolute;bottom:16px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;animation:bob 2s ease-in-out infinite}
-.scroll-ind i{width:1px;height:24px;background:linear-gradient(to bottom,var(--muted),transparent)}
+.scroll-ind{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,.55);font-size:11px;letter-spacing:1.8px;text-transform:uppercase;animation:bob 2s ease-in-out infinite;text-shadow:0 2px 8px rgba(0,0,0,.6);font-weight:500;z-index:5;transition:opacity .4s}
+.scroll-ind.hide{opacity:0;pointer-events:none}
+.scroll-ind i{width:1px;height:34px;background:linear-gradient(to bottom,rgba(255,255,255,.55),transparent)}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 
 /* ═══ SECTIONS ═══ */
@@ -215,22 +216,171 @@ section{padding:100px 0}
 .ccard h3 i{font-style:normal;display:inline-flex;align-items:center;vertical-align:middle;width:20px;height:20px}
 .ccard p{font-size:.85rem;color:var(--dim);line-height:1.6}
 
-/* ═══ COMPARISON ═══ */
-.comp{display:grid;grid-template-columns:1fr 1px 1fr;gap:24px;margin-top:44px;align-items:stretch}
-@media(max-width:700px){.comp{grid-template-columns:1fr;gap:20px}.comp .line{display:none}}
-.col{border-radius:18px;padding:30px}
-.col.bf{background:#140d0d;border:1px solid #261414}
-.col.af{background:#0d1410;border:1px solid #142618}
-.col h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;display:flex;align-items:center;gap:6px}
-.col.bf h3{color:var(--red)}.col.af h3{color:#4ade80}
-.dot-r,.dot-g{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
-.dot-r{background:var(--red)}.dot-g{background:#4ade80}
-.ci{display:flex;gap:8px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.88rem;line-height:1.5}
-.ci:last-child{border:none}
-.ci span{flex-shrink:0;font-size:14px;margin-top:2px}
-.col.bf .ci{color:#daa}.col.af .ci{color:#adb}
-.line{background:var(--border);position:relative}
-.line::after{content:'→';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg);padding:10px 2px;color:var(--gold);font-size:16px}
+/* ═══ COMPARISON — Animated reveal ═══ */
+#comp{padding:120px 0;position:relative;overflow:hidden}
+.diff-stage{position:relative;min-height:760px;margin-top:32px;display:flex;align-items:center;justify-content:center}
+.diff-phase{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .7s ease}
+.diff-phase.on{opacity:1;pointer-events:auto}
+
+/* Title hide on later phases */
+#diff-kicker,#diff-title{transition:opacity .6s ease}
+#comp.hide-title #diff-kicker,#comp.hide-title #diff-title{opacity:0;pointer-events:none}
+
+/* Clock banner */
+.diff-clock{position:absolute;top:-24px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:10px;padding:9px 20px;border:1px solid var(--border);border-radius:99px;background:var(--bg2);font-size:12px;color:var(--dim);letter-spacing:.08em;opacity:0;transition:opacity .6s ease}
+.diff-clock.on{opacity:1}
+.diff-clock .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+.diff-clock strong{color:#fff;font-weight:600}
+
+/* Phase 1: two phones layout */
+.diff-phones{display:grid;grid-template-columns:1fr 1fr;gap:40px;width:100%;max-width:900px;align-items:start;padding-top:40px}
+@media(max-width:820px){.diff-phones{grid-template-columns:1fr;gap:40px;max-width:340px;margin:0 auto}}
+
+.diff-side{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative}
+.diff-tag{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:7px 14px;border-radius:99px;border:1px solid;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.diff-tag i{width:6px;height:6px;border-radius:50%;animation:pulse 2s infinite}
+.diff-side.sin .diff-tag{color:var(--red);border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.07)}
+.diff-side.sin .diff-tag i{background:var(--red)}
+.diff-side.con .diff-tag{color:var(--gold);border-color:rgba(201,168,76,.35);background:rgba(201,168,76,.07)}
+.diff-side.con .diff-tag i{background:var(--gold)}
+
+.diff-phone-wrap{position:relative}
+.diff-phone{width:250px;height:440px;border-radius:38px;padding:4px;background:linear-gradient(135deg,#3a3a3c 0%,#1c1c1e 20%,#2c2c2e 50%,#1c1c1e 80%,#3a3a3c 100%);box-shadow:0 20px 50px rgba(0,0,0,.6);position:relative;transition:box-shadow .3s}
+.diff-side.sin .diff-phone.flash{box-shadow:0 0 0 3px rgba(255,107,107,.6),0 0 40px rgba(255,107,107,.5),0 20px 50px rgba(0,0,0,.6)}
+.diff-side.con .diff-phone.flash{box-shadow:0 0 0 3px rgba(201,168,76,.6),0 0 40px rgba(201,168,76,.5),0 20px 50px rgba(0,0,0,.6)}
+.diff-phone-bezel{position:absolute;inset:4px;border-radius:34px;padding:5px;background:#050505}
+.diff-phone-screen{position:absolute;inset:5px;border-radius:29px;overflow:hidden;background:#0b141a;display:flex;flex-direction:column}
+.diff-phone-island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:80px;height:22px;border-radius:12px;background:#000;z-index:50}
+.diff-phone-hd{padding:40px 12px 10px;background:#1b2b32;flex-shrink:0}
+.diff-phone-name{font-size:11px;font-weight:600;color:#fff;text-align:center;margin-top:2px}
+.diff-phone-body{flex:1;padding:10px 10px 8px;overflow:hidden;display:flex;flex-direction:column;gap:5px;position:relative}
+.diff-badge{position:absolute;top:10px;right:10px;min-width:22px;height:22px;border-radius:11px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 7px;z-index:10;opacity:0;transform:scale(.6);transition:opacity .4s,transform .4s cubic-bezier(.34,1.56,.64,1)}
+.diff-badge.on{opacity:1;transform:scale(1)}
+.diff-badge.sin{background:var(--red);animation:shakePulse 1.4s ease-in-out infinite}
+.diff-badge.con{background:#4ade80}
+@keyframes shakePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+.diff-msg{max-width:82%;padding:6px 9px;font-size:10.5px;line-height:1.35;border-radius:10px;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s;flex-shrink:0}
+.diff-msg.on{opacity:1;transform:translateY(0)}
+.diff-msg.in{background:#1b2b32;align-self:flex-start;border-bottom-left-radius:3px;color:#d1d7db}
+.diff-msg.out{background:#005c4b;align-self:flex-end;border-bottom-right-radius:3px;color:#d1e4db}
+.diff-msg.fade{opacity:.4}
+.diff-msg .when{font-size:8px;color:rgba(255,255,255,.4);margin-top:2px}
+.diff-msg.in.lost{border:1px solid rgba(255,107,107,.3)}
+
+/* Money ticker */
+.diff-money{margin-top:8px;text-align:center;min-height:64px}
+.diff-money-lbl{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.diff-money-num{font-family:'Instrument Serif',Georgia,serif;font-size:34px;line-height:1;letter-spacing:-.02em;font-weight:400;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.diff-money-num.bump{transform:scale(1.15)}
+.diff-side.sin .diff-money-num{color:var(--red)}
+.diff-side.con .diff-money-num{color:var(--gold)}
+.diff-money-sub{font-size:10px;color:var(--dim);margin-top:2px}
+.diff-floater{position:absolute;padding:4px 10px;border-radius:99px;font-size:10px;font-weight:700;opacity:0;transform:translateY(0);pointer-events:none;animation:floatUp 1.4s ease-out forwards}
+.diff-floater.neg{background:rgba(255,107,107,.15);color:var(--red);border:1px solid rgba(255,107,107,.3)}
+.diff-floater.pos{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+@keyframes floatUp{0%{opacity:0;transform:translateY(0) scale(.8)}20%{opacity:1;transform:translateY(-8px) scale(1)}100%{opacity:0;transform:translateY(-40px) scale(1)}}
+
+/* Review cards */
+.diff-review{margin-top:10px;padding:12px 14px;border-radius:14px;max-width:260px;opacity:0;transform:translateY(8px);transition:opacity .6s ease,transform .6s ease;font-size:11px;line-height:1.4}
+.diff-review.on{opacity:1;transform:translateY(0)}
+.diff-review.neg{background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.2)}
+.diff-review.pos{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25)}
+.diff-review .stars{display:flex;gap:1px;margin-bottom:6px}
+.diff-review .stars span{font-size:11px}
+.diff-review.neg .stars span.on{color:#ff6b6b}
+.diff-review.neg .stars span{color:rgba(255,255,255,.2)}
+.diff-review.pos .stars span.on{color:var(--gold)}
+.diff-review.pos .stars span{color:rgba(255,255,255,.2)}
+.diff-review .txt{color:#e2e2e2;font-style:italic}
+.diff-review.neg .txt{color:#f5c4c4}
+.diff-review.pos .txt{color:#f0e4b8}
+.diff-review .who{font-size:9px;color:var(--muted);margin-top:6px;font-style:normal;letter-spacing:.05em}
+
+/* Sin-side leaving */
+.diff-side.leaving{transition:opacity .7s ease,transform .9s cubic-bezier(.5,0,.3,1);opacity:0;transform:translateX(-150px) scale(.8)}
+.diff-side.centering{transition:transform .9s cubic-bezier(.5,0,.3,1)}
+
+/* Phase 2: single phone + side headline */
+.diff-solo{display:flex;align-items:center;justify-content:center;gap:56px;width:100%;max-width:900px}
+@media(max-width:820px){.diff-solo{flex-direction:column;gap:28px}}
+.diff-solo .diff-side{opacity:0;transition:opacity .8s ease .2s}
+.diff-solo.on .diff-side{opacity:1}
+.diff-solo-text{flex:1;max-width:420px;opacity:0;transform:translateY(14px);transition:opacity .8s ease .4s,transform .8s ease .4s}
+.diff-solo.on .diff-solo-text{opacity:1;transform:translateY(0)}
+.diff-solo-kicker{font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.diff-solo-h{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(2.4rem,5.2vw,3.6rem);font-weight:400;line-height:1.02;letter-spacing:-.02em;color:#fff}
+.diff-solo-h em{font-style:italic;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.diff-solo-stats{margin-top:22px;display:flex;flex-direction:column;gap:14px}
+.diff-solo-stat{padding:14px 18px;border:1px solid var(--border);border-radius:14px;background:var(--bg2)}
+.diff-solo-stat.sin{border-color:rgba(255,107,107,.2);background:rgba(255,107,107,.04)}
+.diff-solo-stat.con{border-color:rgba(201,168,76,.25);background:rgba(201,168,76,.04)}
+.diff-solo-stat .num{font-family:'Instrument Serif',Georgia,serif;font-size:28px;line-height:1;margin-right:10px}
+.diff-solo-stat.sin .num{color:var(--red)}
+.diff-solo-stat.con .num{color:var(--gold)}
+.diff-solo-stat .lbl{font-size:.85rem;color:var(--dim)}
+
+/* Phase 2: "La diferencia es clara" headline (big, old) */
+.diff-reveal{text-align:center}
+.diff-reveal-kicker{font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;opacity:0;animation:diffUp .8s forwards}
+.diff-reveal-h{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(2.8rem,7vw,5rem);font-weight:400;line-height:1;letter-spacing:-.03em;color:#fff;opacity:0;animation:diffUp .9s .15s forwards}
+.diff-reveal-h em{font-style:italic;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.diff-reveal-sub{margin-top:20px;font-size:1rem;color:var(--dim);opacity:0;animation:diffUp .8s .35s forwards}
+@keyframes diffUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* Phase 3: table (compact, rounded, original-style) */
+.diff-reveal-big{text-align:center;margin-bottom:28px;opacity:0;transform:translateY(10px);transition:opacity .6s,transform .6s}
+.diff-reveal-big.on{opacity:1;transform:translateY(0)}
+.diff-reveal-big h3{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(2rem,4.4vw,3rem);font-weight:400;line-height:1;letter-spacing:-.02em;color:#fff}
+.diff-reveal-big h3 em{font-style:italic;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+.diff-final{width:100%;max-width:900px;display:flex;flex-direction:column;align-items:center}
+.diff-compact{display:grid;grid-template-columns:1fr 1px 1fr;gap:24px;width:100%;align-items:stretch}
+@media(max-width:700px){.diff-compact{grid-template-columns:1fr;gap:20px}.diff-compact .divline{display:none}}
+.diff-card{border-radius:20px;padding:26px 28px}
+.diff-card.sin{background:#140d0d;border:1px solid #261414}
+.diff-card.con{background:#0d1410;border:1px solid #142618}
+.diff-card h4{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.diff-card.sin h4{color:var(--red)}
+.diff-card.con h4{color:var(--gold)}
+.diff-card h4 .dot{width:8px;height:8px;border-radius:50%}
+.diff-card.sin h4 .dot{background:var(--red)}
+.diff-card.con h4 .dot{background:var(--gold);box-shadow:0 0 8px rgba(201,168,76,.4)}
+.diff-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.9rem;line-height:1.45;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
+.diff-item:last-child{border:none}
+.diff-item.show{opacity:1;transform:translateY(0)}
+.diff-item .mk{flex-shrink:0;width:16px;font-family:'Instrument Serif',Georgia,serif;font-size:16px;line-height:1.5}
+.diff-card.sin .diff-item{color:#d8b0b0}
+.diff-card.sin .diff-item .mk{color:rgba(255,107,107,.6)}
+.diff-card.con .diff-item{color:#e8d99b;font-weight:500}
+.diff-card.con .diff-item .mk{color:var(--gold)}
+.divline{background:var(--border);position:relative}
+.divline::after{content:'→';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg);padding:10px 2px;color:var(--gold);font-size:16px}
+
+/* old leftovers for phase3 left in file — kept but not used */
+.diff-table{width:100%;max-width:920px;display:grid;grid-template-columns:1fr auto 1fr;gap:0 28px;align-items:stretch}
+@media(max-width:820px){.diff-table{grid-template-columns:1fr;gap:0}}
+.diff-col-head{padding:16px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.diff-col-head .dot{width:8px;height:8px;border-radius:50%}
+.diff-col-head h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.18em}
+.diff-col-head.sin h4{color:var(--red)}.diff-col-head.sin .dot{background:var(--red)}
+.diff-col-head.con h4{color:var(--gold)}.diff-col-head.con .dot{background:var(--gold);box-shadow:0 0 8px rgba(201,168,76,.4)}
+.diff-row{display:contents}
+.diff-cell{padding:14px 20px;font-size:.92rem;line-height:1.45;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:flex-start;gap:10px;opacity:0;transform:translateX(-8px);transition:opacity .5s,transform .5s}
+.diff-cell.con{transform:translateX(8px)}
+.diff-cell.show{opacity:1;transform:translateX(0)}
+.diff-cell.sin{color:#d8b0b0}
+.diff-cell.con{color:#e8d99b;font-weight:500}
+.diff-cell .mk{flex-shrink:0;width:14px;font-family:'Instrument Serif',Georgia,serif;font-size:18px;line-height:1;margin-top:1px}
+.diff-cell.sin .mk{color:rgba(255,107,107,.6)}
+.diff-cell.con .mk{color:var(--gold)}
+.diff-divider{width:1px;background:linear-gradient(to bottom,transparent,rgba(201,168,76,.2),transparent);min-height:100%}
+@media(max-width:820px){.diff-divider{display:none}.diff-cell{padding:10px 14px}}
+
+.diff-topic{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);padding:10px 20px 6px;grid-column:1 / -1;margin-top:6px;opacity:0;transition:opacity .5s}
+.diff-topic.show{opacity:1}
+.diff-topic:first-of-type{margin-top:0}
+@media(max-width:820px){.diff-topic{padding:14px 14px 4px}}
 
 /* ═══ STATS ═══ */
 .srow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
@@ -650,12 +800,120 @@ section{padding:100px 0}
 
 <section id="comp">
   <div class="ctn">
-    <span class="lbl">El cambio</span>
-    <h2 class="ttl">La diferencia es clara</h2>
-    <div class="comp">
-      <div class="col bf"><h3><span class="dot-r"></span>Sin agente IA</h3><div class="ci"><span>✗</span>Mensajes sin respuesta</div><div class="ci"><span>✗</span>Llamadas perdidas mientras atiendes clientes en persona</div><div class="ci"><span>✗</span>Clientes que no llegan a su cita</div><div class="ci"><span>✗</span>Tiempo perdido agendando por chat</div><div class="ci"><span>✗</span>Clientes molestos</div></div>
-      <div class="line"></div>
-      <div class="col af"><h3><span class="dot-g"></span>Con agente IA</h3><div class="ci"><span>✓</span>Respuesta en segundos, siempre</div><div class="ci"><span>✓</span>Llamadas atendidas automáticamente</div><div class="ci"><span>✓</span>Recordatorios que reducen inasistencias</div><div class="ci"><span>✓</span>Agenda automática sin intervención</div><div class="ci"><span>✓</span>Menos clientes insatisfechos</div></div>
+    <span class="lbl" id="diff-kicker">El cambio</span>
+    <h2 class="ttl" id="diff-title">La diferencia es clara</h2>
+    <div class="diff-stage">
+
+      <!-- Phase 1: Two phones with clock, tags, money tickers and reviews -->
+      <div class="diff-phase on" id="diff-phase-1">
+        <div class="diff-clock" id="diff-clock"><span class="dot"></span><strong>11:47 PM</strong> · Domingo · Mientras duermes, los clientes escriben</div>
+        <div class="diff-phones">
+          <div class="diff-side sin" id="diff-side-sin">
+            <span class="diff-tag"><i></i>Barbería cerrada</span>
+            <div class="diff-phone-wrap">
+              <div class="diff-phone" id="diff-phone-sin">
+                <div class="diff-phone-bezel">
+                  <div class="diff-phone-island"></div>
+                  <div class="diff-phone-screen">
+                    <div class="diff-phone-hd"><div class="diff-phone-name">WhatsApp Business</div></div>
+                    <div class="diff-badge sin" id="diff-badge-sin">0</div>
+                    <div class="diff-phone-body" id="diff-body-sin"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="diff-money">
+              <div class="diff-money-lbl">Pérdida del día</div>
+              <div class="diff-money-num" id="diff-money-sin">$0</div>
+              <div class="diff-money-sub">Clientes que se fueron</div>
+            </div>
+            <div class="diff-review neg" id="diff-review-sin">
+              <div class="stars"><span class="on">★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+              <div class="txt">"Escribí a las 11pm, nunca me contestaron."</div>
+              <div class="who">— Carlos M. · hace 2 horas</div>
+            </div>
+          </div>
+
+          <div class="diff-side con" id="diff-side-con">
+            <span class="diff-tag"><i></i>Agente 24/7</span>
+            <div class="diff-phone-wrap">
+              <div class="diff-phone" id="diff-phone-con">
+                <div class="diff-phone-bezel">
+                  <div class="diff-phone-island"></div>
+                  <div class="diff-phone-screen">
+                    <div class="diff-phone-hd"><div class="diff-phone-name">WhatsApp Business</div></div>
+                    <div class="diff-badge con" id="diff-badge-con">0</div>
+                    <div class="diff-phone-body" id="diff-body-con"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="diff-money">
+              <div class="diff-money-lbl">Ganado hoy</div>
+              <div class="diff-money-num" id="diff-money-con">$0</div>
+              <div class="diff-money-sub">Citas agendadas</div>
+            </div>
+            <div class="diff-review pos" id="diff-review-con">
+              <div class="stars"><span class="on">★</span><span class="on">★</span><span class="on">★</span><span class="on">★</span><span class="on">★</span></div>
+              <div class="txt">"Agendé en 30 segundos aunque era domingo en la noche. Increíble servicio."</div>
+              <div class="who">— Luis R. · hace 2 horas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 2: Single 'con' phone + headline + stats -->
+      <div class="diff-phase" id="diff-phase-2">
+        <div class="diff-solo" id="diff-solo">
+          <div class="diff-side con">
+            <span class="diff-side-label"><i></i>Con agente IA</span>
+            <div class="diff-phone">
+              <div class="diff-phone-bezel">
+                <div class="diff-phone-island"></div>
+                <div class="diff-phone-screen">
+                  <div class="diff-phone-hd"><div class="diff-phone-name">WhatsApp Business</div></div>
+                  <div class="diff-phone-body" id="diff-body-solo"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="diff-solo-text">
+            <div class="diff-solo-kicker">El resultado</div>
+            <h3 class="diff-solo-h">La diferencia <em>es clara</em></h3>
+            <div class="diff-solo-stats">
+              <div class="diff-solo-stat sin"><span class="num">4</span><span class="lbl">clientes perdidos sin agente de IA</span></div>
+              <div class="diff-solo-stat con"><span class="num">4</span><span class="lbl">clientes atendidos con servicio en segundos y un sistema de reservas</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 3: Compact rounded table -->
+      <div class="diff-phase" id="diff-phase-3">
+        <div class="diff-final">
+          <div class="diff-reveal-big" id="diff-reveal-big"><h3>La diferencia <em>es clara</em></h3></div>
+          <div class="diff-compact" id="diff-compact">
+            <div class="diff-card sin">
+              <h4><span class="dot"></span>Sin agente IA</h4>
+              <div class="diff-item"><span class="mk">✕</span>Solo responde en horario de barbería</div>
+              <div class="diff-item"><span class="mk">✕</span>Minutos u horas para contestar</div>
+              <div class="diff-item"><span class="mk">✕</span>Clientes se van con la competencia</div>
+              <div class="diff-item"><span class="mk">✕</span>Recordatorios los tienes que mandar tú</div>
+              <div class="diff-item"><span class="mk">✕</span>Mensajes de noche y fin de semana se pierden</div>
+            </div>
+            <div class="divline"></div>
+            <div class="diff-card con">
+              <h4><span class="dot"></span>Con agente IA</h4>
+              <div class="diff-item"><span class="mk">✓</span>Disponible 24 horas · 7 días</div>
+              <div class="diff-item"><span class="mk">✓</span>Responde en segundos, siempre</div>
+              <div class="diff-item"><span class="mk">✓</span>Agenda la cita automáticamente</div>
+              <div class="diff-item"><span class="mk">✓</span>Recordatorios automáticos el día anterior</div>
+              <div class="diff-item"><span class="mk">✓</span>Capta citas fuera de horario</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -710,25 +968,35 @@ section{padding:100px 0}
 </footer>
 
 <script>
-// ═══ HERO VIDEO (HLS) ═══
+// ═══ HERO VIDEO ═══
 (function(){
   const v=document.querySelector('.hero-video');
   if(!v)return;
   const url='https://stream.mux.com/Aa02T7oM1wH5Mk5EEVDYhbZ1ChcdhRsS2m1NYyx4Ua1g.m3u8';
   function start(){
-    if(window.Hls && window.Hls.isSupported()){
+    const isHls=/\.m3u8(\?|$)/.test(url);
+    if(isHls && window.Hls && window.Hls.isSupported()){
       const hls=new Hls({enableWorker:true,lowLatencyMode:false,capLevelToPlayerSize:true});
       hls.loadSource(url);
       hls.attachMedia(v);
       hls.on(Hls.Events.MANIFEST_PARSED,()=>{v.play().catch(()=>{})});
       hls.on(Hls.Events.ERROR,(e,d)=>{if(d.fatal)console.warn('HLS fatal',d)});
-    } else if(v.canPlayType('application/vnd.apple.mpegurl')){
+    } else {
       v.src=url;
       v.addEventListener('loadedmetadata',()=>v.play().catch(()=>{}));
     }
   }
   if(document.readyState==='complete')start();
   else window.addEventListener('load',start);
+})();
+
+// ═══ WA SECTION VIDEO (HLS) ═══
+// ═══ (WA section video removed) ═══
+(function(){
+  const v=document.querySelector('.wa-bg-video');
+  if(v)v.remove();
+  const o=document.querySelector('.wa-bg-video-overlay');
+  if(o)o.remove();
 })();
 
 gsap.registerPlugin(ScrollTrigger);
@@ -756,9 +1024,231 @@ gsap.from('.hero-sub',{opacity:0,y:14,duration:.7,delay:.5});
   checkNav();
 })();
 
-document.querySelectorAll('.pcard,.ccard,.ci,.fstep,.scard,.ctac').forEach((el,i)=>{
+// Hide scroll-ind after user scrolls past hero
+(function(){
+  const si=document.querySelector('.scroll-ind');
+  if(!si)return;
+  function check(){
+    if(window.scrollY>120)si.classList.add('hide');
+    else si.classList.remove('hide');
+  }
+  window.addEventListener('scroll',check,{passive:true});
+  check();
+})();
+
+document.querySelectorAll('.pcard,.ccard,.fstep,.scard,.ctac').forEach((el,i)=>{
   gsap.from(el,{scrollTrigger:{trigger:el,start:'top 88%'},opacity:0,y:24,duration:.5,delay:(i%4)*.08,ease:'power2.out'});
 });
+
+// ══════════════════════════════════════
+// DIFFERENCE SECTION — Animated loop (3 phases)
+// ══════════════════════════════════════
+(function(){
+  const stage=document.querySelector('.diff-stage');
+  if(!stage)return;
+  const compSec=document.getElementById('comp');
+  const p1=document.getElementById('diff-phase-1');
+  const p2=document.getElementById('diff-phase-2');
+  const p3=document.getElementById('diff-phase-3');
+  const bodySin=document.getElementById('diff-body-sin');
+  const bodyCon=document.getElementById('diff-body-con');
+  const bodySolo=document.getElementById('diff-body-solo');
+  const badgeSin=document.getElementById('diff-badge-sin');
+  const badgeCon=document.getElementById('diff-badge-con');
+  const solo=document.getElementById('diff-solo');
+  const revealBig=document.getElementById('diff-reveal-big');
+  const compactEl=document.getElementById('diff-compact');
+  const sideSin=document.getElementById('diff-side-sin');
+  const clockBanner=document.getElementById('diff-clock');
+  const phoneSin=document.getElementById('diff-phone-sin');
+  const phoneCon=document.getElementById('diff-phone-con');
+  const moneySin=document.getElementById('diff-money-sin');
+  const moneyCon=document.getElementById('diff-money-con');
+  const reviewSin=document.getElementById('diff-review-sin');
+  const reviewCon=document.getElementById('diff-review-con');
+
+  const incoming=[
+    {t:'Hola, ¿precio del corte?',hr:'11:47 PM'},
+    {t:'¿Tienen lugar mañana?',hr:'11:52 PM'},
+    {t:'¿A qué hora abren?',hr:'11:58 PM'},
+    {t:'Quiero agendar con Migue',hr:'12:04 AM'},
+  ];
+  const replies=[
+    {in:'Hola, ¿precio del corte?',hr:'11:47 PM',reply:'¡Hola! Corte $180, con barba $200 🙌',hrR:'11:47 PM'},
+    {in:'¿Tienen lugar mañana?',hr:'11:52 PM',reply:'Sí, mañana tengo 11:00, 1:30 y 6:00 pm.',hrR:'11:52 PM'},
+    {in:'¿A qué hora abren?',hr:'11:58 PM',reply:'Abrimos de lunes a sábado, 10am a 9pm.',hrR:'11:58 PM'},
+    {in:'Quiero agendar con Migue',hr:'12:04 AM',reply:'Listo ✅ Agendado con Migue. Te mando recordatorio.',hrR:'12:04 AM'},
+  ];
+
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+  function show(phase){[p1,p2,p3].forEach(p=>p.classList.remove('on'));phase.classList.add('on')}
+
+  function addMsg(body,cls,text,when){
+    const el=document.createElement('div');
+    el.className='diff-msg '+cls;
+    el.innerHTML=`${text.replace(/\n/g,'<br>')}<div class="when">${when}</div>`;
+    body.appendChild(el);
+    body.scrollTop=body.scrollHeight;
+    requestAnimationFrame(()=>el.classList.add('on'));
+    return el;
+  }
+
+  function flashPhone(which){
+    const el=which==='con'?phoneCon:phoneSin;
+    if(!el)return;
+    el.classList.add('flash');
+    setTimeout(()=>el.classList.remove('flash'),520);
+  }
+
+  function spawnFloater(side,text,kind){
+    const f=document.createElement('div');
+    f.className='diff-floater '+kind;
+    f.textContent=text;
+    // position: center above the phone
+    f.style.left='50%';f.style.top='32%';f.style.transform='translateX(-50%)';
+    side.appendChild(f);
+    setTimeout(()=>f.remove(),1500);
+  }
+
+  function bumpMoney(el,value,prefix){
+    el.textContent=prefix+value.toLocaleString('es-MX');
+    el.classList.add('bump');
+    setTimeout(()=>el.classList.remove('bump'),300);
+  }
+
+  async function runPhase1(){
+    // Reset
+    bodySin.innerHTML='';bodyCon.innerHTML='';
+    badgeSin.textContent='0';badgeCon.textContent='0';
+    badgeSin.classList.remove('on');badgeCon.classList.remove('on');
+    compSec.classList.remove('hide-title');
+    sideSin.classList.remove('leaving');
+    if(clockBanner)clockBanner.classList.remove('on');
+    if(reviewSin)reviewSin.classList.remove('on');
+    if(reviewCon)reviewCon.classList.remove('on');
+    if(moneySin)moneySin.textContent='$0';
+    if(moneyCon)moneyCon.textContent='$0';
+    show(p1);
+
+    // Show clock
+    await sleep(350);
+    if(clockBanner)clockBanner.classList.add('on');
+    await sleep(700);
+
+    let lossSin=0, gainCon=0;
+    const lossPerMsg=200;
+    const bigLoss=800;     // extra penalty for long wait
+    const gainPerBooking=200;
+
+    for(let i=0;i<incoming.length;i++){
+      // SIN side — mensaje entra, flash rojo, se queda sin contestar
+      flashPhone('sin');
+      addMsg(bodySin,'in lost',incoming[i].t,incoming[i].hr);
+      badgeSin.classList.add('on');
+      badgeSin.textContent=String(i+1);
+      await sleep(450);
+
+      // Sin agente: se pierde silenciosamente. Contador queda en $0.
+      await sleep(600);
+
+      // CON side — mismo mensaje, flash dorado + respuesta instantánea
+      flashPhone('con');
+      addMsg(bodyCon,'in',replies[i].in,replies[i].hr);
+      badgeCon.classList.add('on');badgeCon.textContent='1';
+      await sleep(400);
+      addMsg(bodyCon,'out',replies[i].reply,replies[i].hrR);
+      badgeCon.classList.remove('on');badgeCon.textContent='0';
+      // +$200 por cita agendada — contador dorado SÍ sube
+      gainCon+=gainPerBooking;
+      bumpMoney(moneyCon,gainCon,'+$');
+      spawnFloater(document.getElementById('diff-side-con'),'+$'+gainPerBooking,'pos');
+
+      // Trim
+      while(bodySin.children.length>5)bodySin.removeChild(bodySin.firstChild);
+      while(bodyCon.children.length>4)bodyCon.removeChild(bodyCon.firstChild);
+      await sleep(900);
+    }
+
+    // Penalización final (cliente perdido): flash rojo, sin floater. Contador queda en $0.
+    await sleep(500);
+    flashPhone('sin');
+
+    await sleep(1200);
+
+    // Reveal reviews
+    if(reviewSin)reviewSin.classList.add('on');
+    await sleep(400);
+    if(reviewCon)reviewCon.classList.add('on');
+
+    await sleep(3200);
+  }
+
+  async function runPhase2(){
+    // populate solo phone with a summary conversation
+    bodySolo.innerHTML='';
+    addMsg(bodySolo,'in','Hola, ¿tienen lugar?','2:18');
+    await sleep(200);
+    addMsg(bodySolo,'out','Sí, mañana 11:00 o 6pm. ¿Cuál prefieres?','2:18');
+
+    // fade out 'sin' phone
+    sideSin.classList.add('leaving');
+    if(clockBanner)clockBanner.classList.remove('on');
+    if(reviewSin)reviewSin.classList.remove('on');
+    if(reviewCon)reviewCon.classList.remove('on');
+    // hide the top title ("El cambio / La diferencia es clara") because it'll show in phase2 text
+    await sleep(500);
+    show(p2);
+    requestAnimationFrame(()=>solo.classList.add('on'));
+
+    await sleep(400);
+    addMsg(bodySolo,'in','Mañana a las 11',' 2:19');
+    await sleep(600);
+    addMsg(bodySolo,'out','Listo ✅ Cita mañana 11am con Migue.',' 2:19');
+
+    await sleep(4200);
+    solo.classList.remove('on');
+  }
+
+  async function runPhase3(){
+    // Hide the top title ("El cambio" + "La diferencia es clara")
+    compSec.classList.add('hide-title');
+    show(p3);
+    requestAnimationFrame(()=>revealBig.classList.add('on'));
+    await sleep(700);
+
+    const items=compactEl.querySelectorAll('.diff-item');
+    items.forEach(el=>el.classList.remove('show'));
+    // reveal items in pairs (left + right together)
+    const sinItems=compactEl.querySelectorAll('.diff-card.sin .diff-item');
+    const conItems=compactEl.querySelectorAll('.diff-card.con .diff-item');
+    const n=Math.min(sinItems.length,conItems.length);
+    for(let i=0;i<n;i++){
+      sinItems[i].classList.add('show');
+      conItems[i].classList.add('show');
+      await sleep(180);
+    }
+    await sleep(4500);
+    revealBig.classList.remove('on');
+    items.forEach(el=>el.classList.remove('show'));
+  }
+
+  let running=false;
+  async function loop(){
+    if(running)return;
+    running=true;
+    while(document.body.contains(stage)){
+      await runPhase1();
+      await runPhase2();
+      await runPhase3();
+      await sleep(500);
+    }
+  }
+
+  const io=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{if(e.isIntersecting && !running)loop()});
+  },{threshold:.15});
+  io.observe(stage);
+})();
 
 document.querySelectorAll('.lbl,.ttl,.desc').forEach(el=>{
   gsap.from(el,{scrollTrigger:{trigger:el,start:'top 90%'},opacity:0,y:16,duration:.5});
@@ -970,37 +1460,39 @@ Object.entries(SM).forEach(([step,indices])=>{
       title:'Cita nueva',
       outcome:'Cita agendada · Google Calendar',
       lines:[
-        {who:'ag',t:'Barbería El Clásico, buenos días. ¿En qué le ayudo?',d:2000},
-        {who:'cl',t:'Hola, ¿tienen espacio para un corte mañana?',d:2200},
-        {who:'ag',t:'Claro. ¿Mañana o tarde?',d:1600},
-        {who:'cl',t:'Por la tarde, como a las 5.',d:1800},
-        {who:'ag',t:'Tengo 5:15 con Miguel. ¿Le funciona?',d:2000},
-        {who:'cl',t:'Perfecto, agéndame.',d:1600},
-        {who:'ag',t:'Listo. Le mando recordatorio por WhatsApp.',d:2200},
+        {who:'ag',t:'Urban Kings Barbershop, buenas tardes. ¿En qué le puedo ayudar?',d:2400},
+        {who:'cl',t:'Hola, quiero agendar un corte con barba.',d:2000},
+        {who:'ag',t:'Con mucho gusto. ¿Para qué día le gustaría?',d:2000},
+        {who:'cl',t:'Mañana a las 11:30 si tienen.',d:1800},
+        {who:'ag',t:'Perfecto. ¿A nombre de quién sería la cita?',d:2000},
+        {who:'cl',t:'A nombre de Carlos.',d:1500},
+        {who:'ag',t:'Gracias Carlos. ¿Tiene algún barbero de preferencia?',d:2200},
+        {who:'cl',t:'Sí, con Migue por favor.',d:1600},
+        {who:'ag',t:'Listo Carlos, su cita queda mañana a las 11:30 con Migue. Corte y barba, $200. Le mandamos recordatorio por WhatsApp. ¡Aquí lo esperamos!',d:3600},
       ]
     },
     {
       title:'Reagendar',
       outcome:'Cita movida · confirmación enviada',
       lines:[
-        {who:'cl',t:'Hola, tengo cita hoy pero no voy a poder llegar.',d:2300},
-        {who:'ag',t:'No se preocupe. ¿La movemos a otro día?',d:2000},
-        {who:'cl',t:'Sí, ¿qué tienen el jueves?',d:1800},
-        {who:'ag',t:'Tengo 11:00, 1:30 o 6:00 pm.',d:1900},
-        {who:'cl',t:'A las 11 está bien.',d:1500},
-        {who:'ag',t:'Perfecto, jueves 11:00 con Miguel. Confirmado.',d:2300},
+        {who:'cl',t:'Hola, habla Carlos. Tengo cita hoy pero no voy a poder llegar.',d:2600},
+        {who:'ag',t:'No se preocupe Carlos, con gusto la movemos. ¿Para qué día le acomoda?',d:2600},
+        {who:'cl',t:'¿Qué tienen el jueves?',d:1600},
+        {who:'ag',t:'Para el jueves con Migue tengo 11:00, 1:30 o 6:00 de la tarde. ¿Cuál le funciona?',d:2800},
+        {who:'cl',t:'A las 11 está perfecto.',d:1600},
+        {who:'ag',t:'Perfecto Carlos. Quedó jueves a las 11:00 con Migue, corte y barba. Le llega la confirmación por WhatsApp. Gracias por avisar.',d:3400},
       ]
     },
     {
       title:'Precios y servicios',
       outcome:'Información enviada · cliente informado',
       lines:[
-        {who:'cl',t:'Buenas, ¿cuánto cuesta el corte más barba?',d:2100},
-        {who:'ag',t:'Corte clásico $180, barba $120. El combo queda en $250.',d:2600},
-        {who:'cl',t:'¿Y tienen tinte?',d:1500},
-        {who:'ag',t:'Sí, tinte desde $400. ¿Le agendo?',d:1900},
-        {who:'cl',t:'Lo pienso y te escribo. Gracias.',d:1800},
-        {who:'ag',t:'Con gusto. Aquí estamos.',d:1700},
+        {who:'cl',t:'Buenas, ¿me puede decir cuánto cuesta el corte con barba?',d:2200},
+        {who:'ag',t:'Con gusto. El corte clásico está en $180, la barba en $120, y el combo completo le queda en $200.',d:3200},
+        {who:'cl',t:'¿Y tienen servicio de tinte?',d:1800},
+        {who:'ag',t:'Sí, también hacemos tinte. Empieza en $400 dependiendo del largo. ¿Le agendo una cita?',d:2800},
+        {who:'cl',t:'Lo pienso y les marco. Gracias.',d:1800},
+        {who:'ag',t:'Con mucho gusto. Aquí estamos cuando guste. Que tenga buen día.',d:2400},
       ]
     },
   ];
