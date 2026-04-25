@@ -86,6 +86,9 @@ body::after{
 .hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(3rem,8vw,5.5rem);font-weight:700;line-height:1;letter-spacing:-.04em;margin-bottom:20px;text-wrap:balance}
 .hero h1 em{font-style:normal;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:-.04em;background:linear-gradient(135deg,#fff2c4 0%,#f5e3a8 35%,#ead68c 70%,#d9c278 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 2px 20px rgba(245,227,168,0.25))}
 .hero-sub{font-size:1.2rem;color:var(--dim);font-weight:400}
+.hero-scroll-hint{margin-top:120px;display:inline-flex;align-items:center;gap:10px;color:rgba(255,255,255,.42);font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;font-family:'Instrument Sans',sans-serif;animation:scrollHintBob 2.4s ease-in-out infinite}
+.hero-scroll-hint svg{opacity:.7}
+@keyframes scrollHintBob{0%,100%{transform:translateY(0);opacity:.55}50%{transform:translateY(6px);opacity:.85}}
 .scroll-ind{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,.55);font-size:11px;letter-spacing:1.8px;text-transform:uppercase;animation:bob 2s ease-in-out infinite;text-shadow:0 2px 8px rgba(0,0,0,.6);font-weight:500;z-index:5;transition:opacity .4s}
 .scroll-ind.hide{opacity:0;pointer-events:none}
 .scroll-ind i{width:1px;height:34px;background:linear-gradient(to bottom,rgba(255,255,255,.55),transparent)}
@@ -588,7 +591,10 @@ section{padding:100px 0}
   <div class="badge"><span class="dot"></span>Automatización con IA</div>
   <h1>Tu <em>Agente de IA</em></h1>
   <p class="hero-sub">Agente de llamadas y WhatsApp que agenda citas 24/7</p>
-  <div class="scroll-ind"><span>Descubre cómo</span><i></i></div>
+  <div class="hero-scroll-hint" aria-hidden="true">
+    <span>Desliza para ver</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="6 13 12 19 18 13"/></svg>
+  </div>
 </section>
 
 <section id="problema">
@@ -805,7 +811,7 @@ section{padding:100px 0}
     <div class="diff-stage">
 
       <!-- Phase 1: Two phones with clock, tags, money tickers and reviews -->
-      <div class="diff-phase on" id="diff-phase-1">
+      <div class="diff-phase" id="diff-phase-1">
         <div class="diff-clock" id="diff-clock"><span class="dot"></span><strong>11:47 PM</strong> · Domingo · Mientras duermes, los clientes escriben</div>
         <div class="diff-phones">
           <div class="diff-side sin" id="diff-side-sin">
@@ -889,7 +895,7 @@ section{padding:100px 0}
       </div>
 
       <!-- Phase 3: Compact rounded table -->
-      <div class="diff-phase" id="diff-phase-3">
+      <div class="diff-phase on" id="diff-phase-3">
         <div class="diff-final">
           <div class="diff-reveal-big" id="diff-reveal-big"><h3>La diferencia <em>es clara</em></h3></div>
           <div class="diff-compact" id="diff-compact">
@@ -1244,10 +1250,20 @@ document.querySelectorAll('.pcard,.ccard,.fstep,.scard,.ctac').forEach((el,i)=>{
     }
   }
 
+  // ── ANIMACIÓN DESACTIVADA TEMPORALMENTE ──
+  // En móvil no se ve bien. Mostramos sólo la tabla comparativa (Phase 3).
+  // Para reactivar la secuencia phones→solo→tabla, descomentar el bloque y
+  // restaurar `class="diff-phase on"` en #diff-phase-1 y quitarlo de #diff-phase-3.
+  /*
   const io=new IntersectionObserver((entries)=>{
     entries.forEach(e=>{if(e.isIntersecting && !running)loop()});
   },{threshold:.15});
   io.observe(stage);
+  */
+  // Estado estático: tabla siempre visible, items revelados.
+  compSec.classList.add('hide-title');
+  if(revealBig)revealBig.classList.add('on');
+  compactEl.querySelectorAll('.diff-item').forEach(el=>el.classList.add('show'));
 })();
 
 document.querySelectorAll('.lbl,.ttl,.desc').forEach(el=>{
