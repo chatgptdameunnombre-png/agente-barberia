@@ -23,7 +23,7 @@
 <meta property="og:image:alt" content="Agente de IA para Negocios de Servicio — WhatsApp y Llamadas 24/7">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Tu Agente de IA | WhatsApp · Llamadas · Webs · Automatizaciones en México">
-<meta name="twitter:description" content="Tu barbería atendida 24/7 con IA. Responde WhatsApp, contesta llamadas y agenda citas automáticamente. Sin apps nuevas."><meta name="twitter:image" content="https://tuagentedeia.com/og-image.png">
+<meta name="twitter:description" content="tuagentedeia.com — Agentes de WhatsApp y llamadas, automatizaciones y páginas web para tu negocio en México"><meta name="twitter:image" content="https://tuagentedeia.com/og-image.png">
 <link rel="canonical" href="https://tuagentedeia.com/">
 <meta name="author" content="Tu Agente de IA">
 <meta name="geo.region" content="MX-JAL">
@@ -504,6 +504,31 @@ section{padding:100px 0}
 
 /* Texto solo para lectores de pantalla e IAs (oculto visualmente) */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ═══ INDUSTRIAS ═══ */
+#industrias{padding:120px 0 100px;position:relative;overflow:hidden}
+#industrias::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:680px;height:680px;background:radial-gradient(circle,var(--gold-glow) 0%,transparent 62%);pointer-events:none;opacity:.45;z-index:0}
+#industrias .ctn{text-align:center;position:relative;z-index:1}
+#industrias .ttl{max-width:760px;margin:0 auto 14px}
+#industrias .desc{margin:0 auto;max-width:600px;text-align:center}
+.ind-marquee-wrap{margin-top:56px;position:relative;display:flex;flex-direction:column;gap:18px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%)}
+.ind-track{display:flex;width:max-content;animation:indScroll 42s linear infinite;will-change:transform}
+.ind-track.rev{animation-duration:52s;animation-direction:reverse}
+.ind-chip{display:inline-flex;align-items:center;gap:11px;padding:14px 22px;margin-right:14px;border:1px solid rgba(201,168,76,.18);border-radius:99px;background:linear-gradient(180deg,rgba(201,168,76,.05),rgba(201,168,76,.01));color:#e8e8e8;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:500;letter-spacing:-.005em;white-space:nowrap;flex-shrink:0;transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease,background .35s ease,color .35s ease}
+.ind-chip:hover{transform:translateY(-8px) scale(1.04);border-color:var(--gold);background:linear-gradient(180deg,rgba(201,168,76,.14),rgba(201,168,76,.04));box-shadow:0 14px 34px rgba(0,0,0,.45),0 0 28px var(--gold-glow);color:#fff}
+.ind-chip-ic{width:18px;height:18px;flex-shrink:0;color:var(--gold);transition:color .35s ease,filter .35s ease}
+.ind-chip:hover .ind-chip-ic{color:var(--gold2);filter:drop-shadow(0 0 8px var(--gold-glow))}
+.ind-chip-ic svg{width:100%;height:100%;display:block}
+@media(max-width:600px){
+  #industrias{padding:80px 0 70px}
+  .ind-chip{padding:12px 18px;font-size:13.5px;gap:9px;margin-right:10px}
+  .ind-chip-ic{width:16px;height:16px}
+  .ind-marquee-wrap{gap:12px;margin-top:40px}
+  .ind-track{animation-duration:32s}
+  .ind-track.rev{animation-duration:40s}
+}
+@keyframes indScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.ind-track{animation:none}}
 
 </style>
 <script type="application/ld+json">
@@ -1019,6 +1044,19 @@ section{padding:100px 0}
       </div>
 
     </div>
+  </div>
+</section>
+
+<section id="industrias">
+  <div class="ctn">
+    <span class="lbl">Para tu industria</span>
+    <h2 class="ttl">Funciona para cualquier negocio de servicio</h2>
+    <p class="desc">Adaptamos el agente, las automatizaciones y la página web al giro de tu negocio.</p>
+    <div class="ind-marquee-wrap" aria-hidden="true">
+      <div class="ind-track" data-ind-row="a"></div>
+      <div class="ind-track rev" data-ind-row="b"></div>
+    </div>
+    <p class="sr-only">Industrias que automatizamos: barberías, clínicas dentales, restaurantes, veterinarias, gimnasios, estéticas, talleres mecánicos, inmobiliarias, consultorios médicos, estudios de yoga, autolavados, spas, notarías, fisioterapeutas, florerías, academias de idiomas, cafeterías, hoteles, despachos contables, bufetes legales, ópticas, salones de eventos, nutriólogos, psicólogos.</p>
   </div>
 </section>
 
@@ -1730,5 +1768,49 @@ Object.entries(SM).forEach(([step,indices])=>{
 })();
 </script>
 
+<script>
+(function(){
+  const INDS_A=[
+    {n:'Barberías',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>'},
+    {n:'Restaurantes',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V2"/><line x1="7" y1="12" x2="7" y2="22"/><path d="M17 22V3c-2 0-3 2-3 5s2 5 3 5"/></svg>'},
+    {n:'Gimnasios',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7v10M3 10v4M21 10v4M18 7v10M6 12h12"/></svg>'},
+    {n:'Talleres mecánicos',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'},
+    {n:'Consultorios médicos',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>'},
+    {n:'Autolavados',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l6.5 7.5a8.5 8.5 0 1 1-13 0z"/></svg>'},
+    {n:'Notarías',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>'},
+    {n:'Fisioterapeutas',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l9.84-9.84a5.5 5.5 0 0 0 0-7.78z"/></svg>'},
+    {n:'Floristerías',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M12 9.5c-2-2-2-4 0-6 2 2 2 4 0 6zM14.5 12c2-2 4-2 6 0-2 2-4 2-6 0zM12 14.5c2 2 2 4 0 6-2-2-2-4 0-6zM9.5 12c-2 2-4 2-6 0 2-2 4-2 6 0z"/></svg>'},
+    {n:'Academias de idiomas',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'},
+    {n:'Cafeterías',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>'},
+    {n:'Hoteles',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/><circle cx="9" cy="13" r="2"/><line x1="13" y1="13" x2="20" y2="13"/></svg>'}
+  ];
+  const INDS_B=[
+    {n:'Clínicas dentales',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3c-2 0-3 1.5-3 4 0 1.6 1 4 1 7 0 4 1 7 3 7 1.5 0 1.8-3 4-3s2.5 3 4 3c2 0 3-3 3-7 0-3 1-5.4 1-7 0-2.5-1-4-3-4-2 0-2 1-5 1s-3-1-5-1z"/></svg>'},
+    {n:'Veterinarias',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="9.5" r="1.7"/><circle cx="9.5" cy="5.5" r="1.7"/><circle cx="14.5" cy="5.5" r="1.7"/><circle cx="18.5" cy="9.5" r="1.7"/><path d="M12 11c-3 0-5 3-5 5.5 0 2 1.3 3.5 3 3.5 1 0 1.5-.5 2-.5s1 .5 2 .5c1.7 0 3-1.5 3-3.5 0-2.5-2-5.5-5-5.5z"/></svg>'},
+    {n:'Estéticas',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 3v3M20.5 4.5h-3M5 18v3M6.5 19.5h-3"/></svg>'},
+    {n:'Inmobiliarias',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 13 15 13 15 22"/></svg>'},
+    {n:'Estudios de yoga',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>'},
+    {n:'Spas',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13C4 8 11 3 21 3c-2 5-3 7-3 10a7 7 0 0 1-7 7z"/><path d="M2 21c0-3 2.85-5.39 6-9"/></svg>'},
+    {n:'Despachos contables',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="13" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="10" y2="15"/><line x1="13" y1="15" x2="16" y2="15"/><line x1="8" y1="19" x2="10" y2="19"/><line x1="13" y1="19" x2="16" y2="19"/></svg>'},
+    {n:'Bufetes legales',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="5" y1="8" x2="19" y2="8"/><path d="M5 8l-2.5 7a2.5 2.5 0 0 0 5 0z"/><path d="M19 8l-2.5 7a2.5 2.5 0 0 0 5 0z"/><line x1="8" y1="21" x2="16" y2="21"/></svg>'},
+    {n:'Ópticas',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'},
+    {n:'Salones de eventos',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'},
+    {n:'Nutriólogos',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5-1 9-5 9-12 0-3-1-5-3-5-2 0-3 1-4 3-1-2-3-3-5-2-3 1-5 4-5 8 0 5 3 7 8 8z"/><path d="M12 11c-1 2-2 5-1 9"/></svg>'},
+    {n:'Psicólogos',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3a6 6 0 0 0-6 6c0 2 1 4 2.5 5L7 17v3h2v-3l2-1c1 1 3 1 4 0l2 1v3h2v-3l1.5-3c1.5-1 2.5-3 2.5-5a6 6 0 0 0-6-6"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg>'}
+  ];
+  function chip(d){return '<span class="ind-chip"><span class="ind-chip-ic">'+d.s+'</span>'+d.n+'</span>';}
+  const a=document.querySelector('[data-ind-row="a"]');
+  const b=document.querySelector('[data-ind-row="b"]');
+  if(a&&b){
+    const htmlA=INDS_A.map(chip).join('');
+    const htmlB=INDS_B.map(chip).join('');
+    a.innerHTML=htmlA+htmlA;
+    b.innerHTML=htmlB+htmlB;
+  }
+  if(window.gsap&&window.ScrollTrigger){
+    gsap.from('#industrias .ind-marquee-wrap',{scrollTrigger:{trigger:'#industrias',start:'top 80%'},opacity:0,y:24,duration:.7,ease:'power2.out'});
+  }
+})();
+</script>
 
 </body></html>
