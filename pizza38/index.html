@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Pizza 38 — Pizza romana artesanal en Tlajomulco</title>
+<meta name="description" content="Pizza romana artesanal hecha al momento, frente a ti, con ingredientes frescos. Orilla rellena de queso. Pizzas de 38 cm. Plaza El Manantial, Tlajomulco. Pide por WhatsApp.">
+<meta property="og:type" content="restaurant">
+<meta property="og:title" content="Pizza 38 — Pizza romana artesanal">
+<meta property="og:description" content="Masa artesanal estilo romano e ingredientes frescos a la vista. Pizza para todos, bien hecha.">
+<meta property="og:image" content="assets/margarita.png">
+<meta name="theme-color" content="#0c0b0a">
+<link rel="icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500;600;700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #0c0b0a; }
+  ::selection { background: #e2231a; color: #fff; }
+  [data-r="tabs"]::-webkit-scrollbar { display: none; }
+  [data-r="tabs"] { scrollbar-width: none; }
+  @keyframes p38marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  /* reveal al hacer scroll lo maneja el JS (componentDidMount) de forma robusta */
+  @media (max-width: 980px) {
+    header { padding-left: 20px !important; padding-right: 20px !important; }
+    nav a.navlink { display: none !important; }
+    section { padding-left: 20px !important; padding-right: 20px !important; }
+    [data-r="menu"] { grid-template-columns: 1fr !important; }
+    [data-r="cats"] { flex-direction: row !important; flex-wrap: wrap !important; }
+    [data-r="local"] { grid-template-columns: 1fr 1fr !important; }
+    [data-r="contact"] { grid-template-columns: 1fr !important; }
+    [data-r="apps"] { gap: 16px !important; }
+  }
+  @media (max-width: 560px) {
+    [data-r="vids"] { grid-template-columns: 1fr !important; }
+    [data-r="vid2"] { display: none !important; }
+    [data-r="cards"] { grid-template-columns: 1fr !important; }
+    [data-r="local"] { grid-template-columns: 1fr !important; }
+    [data-r="apps"] { flex-direction: column !important; align-items: stretch !important; }
+  }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "name": "Pizza 38",
+  "servesCuisine": "Pizza romana artesanal",
+  "image": "assets/margarita.png",
+  "telephone": "+523338575605",
+  "priceRange": "$$",
+  "address": { "@type": "PostalAddress", "streetAddress": "Av. López Mateos Sur 5560, Local 22, Plaza El Manantial", "addressLocality": "Tlajomulco de Zúñiga", "addressRegion": "Jalisco", "postalCode": "45645", "addressCountry": "MX" },
+  "openingHours": "Mo-Su 12:00-21:30",
+  "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.7", "reviewCount": "74" }
+}
+</script>
+</helmet>
+
+<template id="__bundler_thumbnail"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#0c0b0a"/></svg></template>
+<div style="font-family: 'Archivo', sans-serif; background-color: #0c0b0a; background-image: url('assets/bg-pattern-med.png'); background-size: 720px auto; background-position: top center; background-repeat: repeat; color: #fafaf9; overflow-x: hidden; position: relative;">
+
+  <!-- ===== FONDO PATRÓN (estilo menú) ===== -->
+  <!-- ===================== NAV ===================== -->
+  <header style="position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 16px 48px; background: rgba(12,11,10,0.82); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.08);">
+    <a href="#top" style="text-decoration: none; display: inline-flex; align-items: center;">
+      <img src="assets/logo-mark.png" alt="Pizza 38 — Pizza y Pasta" style="height: 34px; width: auto; display: block;">
+    </a>
+    <nav style="display: flex; align-items: center; gap: 32px;">
+      <a class="navlink" href="#menu" style="font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #a8a29e; text-decoration: none; transition: color .2s;" style-hover="color: #fafaf9;">Menú</a>
+      <a class="navlink" href="#domicilio" style="font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #a8a29e; text-decoration: none; transition: color .2s;" style-hover="color: #fafaf9;">Domicilio</a>
+      <a class="navlink" href="#local" style="font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #a8a29e; text-decoration: none; transition: color .2s;" style-hover="color: #fafaf9;">Local</a>
+      <a class="navlink" href="#resenas" style="font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #a8a29e; text-decoration: none; transition: color .2s;" style-hover="color: #fafaf9;">Reseñas</a>
+      <a class="navlink" href="#info" style="font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #a8a29e; text-decoration: none; transition: color .2s;" style-hover="color: #fafaf9;">Info</a>
+      <a href="{{ waOrder }}" target="_blank" style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; text-decoration: none; background: #e2231a; padding: 11px 20px; border-radius: 3px; transition: all .2s;" style-hover="background: #b91c1c; transform: translateY(-2px);">Pedir</a>
+    </nav>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section id="top" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: calc(100vh - 59px); padding: 60px 24px;">
+    <div data-reveal style="width: min(720px, 88vw); margin-bottom: 48px;">
+      <img src="assets/logo-mark.png" alt="Pizza 38 — Pizza y Pasta" style="width: 100%; height: auto; display: block;">
+    </div>
+    <div data-reveal style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center;">
+      <a href="{{ waOrder }}" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; background: #25d366; color: #04210f; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; padding: 17px 30px; border-radius: 3px; text-decoration: none; transition: all .2s;" style-hover="background: #1fb855; transform: translateY(-3px);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#04210f"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.042zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+        Pedir por WhatsApp
+      </a>
+      <a href="#menu" style="color: #fafaf9; font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; padding: 16px 6px; border-bottom: 2px solid #e2231a; text-decoration: none; transition: all .2s;" style-hover="color:#e2231a;">Ver el menú</a>
+    </div>
+  </section>
+
+  <!-- ===================== FRASE ===================== -->
+  <section style="position: relative; padding: clamp(70px, 11vh, 130px) 56px; border-top: 1px solid rgba(255,255,255,0.07); background: #0c0b0a;">
+    <div data-reveal style="max-width: 1100px; margin: 0 auto; text-align: center;">
+      <div style="margin-bottom: 30px;">
+        <img src="assets/logo-mark.png" alt="Pizza 38" style="width: min(320px, 66vw); height: auto; display: inline-block;">
+      </div>
+      <p style="margin: 0; font-family: 'Anton', sans-serif; font-weight: 400; font-size: clamp(24px, 3.4vw, 50px); line-height: 1.1; letter-spacing: 0.005em; color: #fafaf9; text-transform: uppercase;">Pizza artesanal al horno, estilo romano, hecha ante la mirada de nuestros comensales — porque lo más importante es que veas <span style="color:#e2231a;">ingredientes frescos y de gran calidad.</span></p>
+    </div>
+  </section>
+
+  <!-- ===================== MENÚ ===================== -->
+  <section id="menu" style="position: relative; padding: clamp(70px, 9vh, 110px) 56px clamp(80px,11vh,120px); border-top: 1px solid rgba(255,255,255,0.07);">
+    <div data-reveal style="text-align: center; margin-bottom: 50px;">
+      <div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; color: #e2231a;">Nuestro menú</div>
+      <h2 style="margin: 14px 0 18px; font-family: 'Anton', sans-serif; font-weight: 400; font-size: clamp(40px, 5.5vw, 76px); line-height: 0.95; color: #fafaf9; text-transform: uppercase;">Para todos los antojos</h2>
+      <div style="width: 64px; height: 3px; background: #e2231a; margin: 0 auto;"></div>
+    </div>
+
+    <!-- ===== TABS (categorías) ===== -->
+    <div data-reveal style="max-width: 1240px; margin: 0 auto 20px;">
+      <div data-r="tabs" style="display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 14px; scrollbar-width: none; -webkit-overflow-scrolling: touch; cursor: grab;">
+        <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="7">
+          <button onClick="{{ cat.onClick }}" style="flex: none; cursor: pointer; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 14.5px; letter-spacing: 0.06em; text-transform: uppercase; color: {{ cat.color }}; background: {{ cat.bg }}; border: 1px solid {{ cat.border }}; padding: 13px 24px; border-radius: 999px; white-space: nowrap; transition: all .2s ease;" style-hover="border-color: #e2231a; color: #fff; box-shadow: 0 0 16px rgba(226,35,26,0.35);">{{ cat.label }}</button>
+        </sc-for>
+        <span style="flex: none; display: inline-flex; align-items: center; gap: 10px; font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: #a8a29e; background: #17150f; border: 1px dashed rgba(226,35,26,0.5); padding: 8px 16px; border-radius: 999px; white-space: nowrap; line-height: 1.25;"><span style="color:#e2231a; font-size: 17px;">☝</span><span>Toca una categoría<br>para desplegar el menú</span></span>
+      </div>
+    </div>
+
+    <!-- ===== CONTENIDO ===== -->
+    <div style="max-width: 1240px; margin: 0 auto;">
+      <!-- sin seleccionar: 2 videos + guía -->
+      <sc-if value="{{ showVideo }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div data-r="vids" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div style="position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 4/5; background: #131110; border: 1px solid rgba(255,255,255,0.09);">
+              <video ref="{{ videoRef }}" loop muted playsinline preload="auto" style="position:absolute; inset:0; width: 100%; height: 100%; object-fit: cover;">
+                <source src="assets/reel.mp4" type="video/mp4">
+              </video>
+              <span style="position:absolute; top:12px; left:14px; font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#fff; background:rgba(0,0,0,0.45); padding:5px 10px; border-radius:6px;">@pizza38.gdl</span>
+            </div>
+            <div data-r="vid2" style="position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 4/5; background: #131110; border: 1px solid rgba(255,255,255,0.09);">
+              <video ref="{{ videoRef }}" loop muted playsinline preload="auto" style="position:absolute; inset:0; width: 100%; height: 100%; object-fit: cover;">
+                <source src="assets/reel2.mp4" type="video/mp4">
+              </video>
+              <span style="position:absolute; top:12px; left:14px; font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#fff; background:rgba(0,0,0,0.45); padding:5px 10px; border-radius:6px;">@pizza38.gdl</span>
+            </div>
+          </div>
+          <div style="text-align: center; margin-top: 26px; font-family: 'Oswald', sans-serif; font-weight: 500; font-size: clamp(15px, 1.6vw, 19px); letter-spacing: 0.06em; text-transform: uppercase; color: #a8a29e;">Selecciona una categoría <span style="color:#e2231a;">para ver los platillos</span> y arma tu pedido</div>
+        </div>
+      </sc-if>
+
+      <!-- con categoría: tarjetas -->
+      <sc-if value="{{ showItems }}" hint-placeholder-val="">
+        <div style="background: #100f0d; border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; padding: 30px 32px;">
+          <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 4px;">
+            <h3 style="margin: 0; font-family: 'Anton', sans-serif; font-weight: 400; font-size: clamp(28px, 3vw, 44px); text-transform: uppercase; color: #fff;">{{ activeLabel }}</h3>
+          </div>
+          <sc-if value="{{ activeNote }}" hint-placeholder-val="">
+            <div style="font-family: 'Archivo', sans-serif; font-size: 13.5px; color: #78716c; margin-bottom: 20px;">{{ activeNote }}</div>
+          </sc-if>
+          <div data-r="cards" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <sc-for list="{{ items }}" as="item" hint-placeholder-count="6">
+              <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 17px 18px;">
+                <div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 18px; text-transform: uppercase; color: #fff; letter-spacing: 0.01em;">{{ item.name }}</div>
+                <sc-if value="{{ item.desc }}" hint-placeholder-val="">
+                  <div style="font-family: 'Archivo', sans-serif; font-size: 12.5px; color: #78716c; margin-top: 4px; line-height: 1.35;">{{ item.desc }}</div>
+                </sc-if>
+                <div style="display: flex; gap: 8px; margin-top: 14px;">
+                  <sc-for list="{{ item.buttons }}" as="btn" hint-placeholder-count="1">
+                    <button onClick="{{ btn.onClick }}" style="flex: 1; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: 'Oswald', sans-serif; font-weight: 600; color: #d6d3d1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.18); border-radius: 9px; padding: 11px 6px; transition: all .18s ease;" style-hover="background: rgba(226,35,26,0.16); border-color: #e2231a; color: #fff; box-shadow: 0 0 14px rgba(226,35,26,0.4);"><span style="font-size: 12.5px; letter-spacing: 0.03em; opacity: 0.85;">{{ btn.size }}</span><span style="font-size: 19px; color: #e2231a;">{{ btn.price }}</span></button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ===== BARRA DE PEDIDO (solo cantidad) ===== -->
+    <sc-if value="{{ hasCart }}" hint-placeholder-val="">
+      <div style="max-width: 1240px; margin: 22px auto 0; background: #17150f; border: 1.5px solid rgba(226,35,26,0.4); border-radius: 10px; overflow: hidden; box-shadow: 0 0 30px rgba(226,35,26,0.15);">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap;">
+          <div style="font-family: 'Anton', sans-serif; font-size: 22px; text-transform: uppercase; color: #fff;">Tu pedido <span style="color:#e2231a;">· {{ cartCountLabel }}</span></div>
+          <button onClick="{{ clearCart }}" style="cursor: pointer; background: transparent; border: 0; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #78716c; transition: color .2s;" style-hover="color: #e2231a;">Vaciar</button>
+        </div>
+        <div style="padding: 6px 20px;">
+          <sc-for list="{{ cartLines }}" as="line" hint-placeholder-count="2">
+            <div style="display: flex; align-items: center; gap: 16px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
+              <div style="flex: 1; min-width: 0; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.02em; text-transform: uppercase; color: #fafaf9;">{{ line.label }}</div>
+              <div style="display: flex; align-items: center; gap: 9px;">
+                <button onClick="{{ line.dec }}" aria-label="Quitar uno" style="cursor: pointer; width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; font-family: 'Oswald', sans-serif; font-size: 17px; line-height: 1; transition: all .18s;" style-hover="border-color:#e2231a; background: rgba(226,35,26,0.15);">−</button>
+                <span style="min-width: 20px; text-align: center; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 16px; color: #fff;">{{ line.qty }}</span>
+                <button onClick="{{ line.inc }}" aria-label="Agregar uno" style="cursor: pointer; width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; font-family: 'Oswald', sans-serif; font-size: 17px; line-height: 1; transition: all .18s;" style-hover="border-color:#e2231a; background: rgba(226,35,26,0.15);">+</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 18px; padding: 14px 20px; background: rgba(226,35,26,0.06);">
+          <a href="{{ waCart }}" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; background: #25d366; color: #04210f; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; padding: 14px 28px; border-radius: 6px; text-decoration: none; transition: all .2s;" style-hover="background: #1fb855; transform: translateY(-3px); box-shadow: 0 0 24px rgba(37,211,102,0.5);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#04210f"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.042zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Enviar pedido
+          </a>
+        </div>
+      </div>
+    </sc-if>
+  </section>
+
+  <!-- ===================== DOMICILIO ===================== -->
+  <section id="domicilio" style="position: relative; padding: clamp(80px, 12vh, 150px) 56px; border-top: 1px solid rgba(255,255,255,0.07); text-align: center; background: #0c0b0a;">
+    <div data-reveal>
+      <div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; color: #e2231a;">Te la mandamos a tu casa</div>
+      <h2 style="margin: 14px 0 16px; font-family: 'Anton', sans-serif; font-weight: 400; font-size: clamp(44px, 6vw, 88px); line-height: 0.95; color: #fafaf9; text-transform: uppercase;">Pídenos a domicilio</h2>
+      <div style="width: 64px; height: 3px; background: #e2231a; margin: 0 auto 56px;"></div>
+    </div>
+    <div data-reveal data-r="apps" style="display: flex; align-items: stretch; justify-content: center; gap: 28px; flex-wrap: wrap; max-width: 720px; margin: 0 auto;">
+      <a href="{{ links.uber }}" target="_blank" style="flex: 1; min-width: 230px; max-width: 320px; display: flex; flex-direction: column; align-items: center; gap: 18px; text-decoration: none; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 34px 24px; transition: all .25s ease;" style-hover="transform: translateY(-6px); border-color: #e2231a; background: rgba(255,255,255,0.06); box-shadow: 0 0 26px rgba(226,35,26,0.45), 0 0 0 1px rgba(226,35,26,0.55);">
+        <div style="width: 100px; height: 100px; background: #fff; border-radius: 20px; display: flex; align-items: center; justify-content: center; padding: 10px;"><img src="assets/uber.png" alt="Uber Eats" style="width: 100%; height: 100%; object-fit: contain;"></div>
+        <div style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 19px; color: #fff;">Uber Eats</div>
+      </a>
+      <a href="{{ links.rappi }}" target="_blank" style="flex: 1; min-width: 230px; max-width: 320px; display: flex; flex-direction: column; align-items: center; gap: 18px; text-decoration: none; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 34px 24px; transition: all .25s ease;" style-hover="transform: translateY(-6px); border-color: #e2231a; background: rgba(255,255,255,0.06); box-shadow: 0 0 26px rgba(226,35,26,0.45), 0 0 0 1px rgba(226,35,26,0.55);">
+        <div style="width: 100px; height: 100px; background: #fff; border-radius: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden;"><img src="assets/rappi.jpg" alt="Rappi" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;"></div>
+        <div style="font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 19px; color: #fff;">Rappi</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== NUESTRO LOCAL ===================== -->
+  <section id="local" style="position: relative; padding: clamp(70px, 9vh, 110px) 56px; border-top: 1px solid rgba(255,255,255,0.07); text-align: center; background: #0c0b0a;">
+    <div data-reveal>
+      <h2 style="margin: 0 0 16px; font-family: 'Anton', sans-serif; font-weight: 400; font-size: clamp(52px, 7vw, 104px); line-height: 0.95; color: #fafaf9; text-transform: uppercase;">Nuestro local</h2>
+      <div style="width: 64px; height: 3px; background: #e2231a; margin: 0 auto 50px;"></div>
+    </div>
+    <div data-reveal data-r="local" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 1100px; margin: 0 auto;">
+      <div style="border-radius: 5px; overflow: hidden; aspect-ratio: 4/3;"><img src="assets/local.png" alt="Local de Pizza 38" style="width: 100%; height: 100%; object-fit: cover; display:block;"></div>
+      <div style="border-radius: 5px; overflow: hidden; aspect-ratio: 4/3;"><img src="assets/pastor.png" alt="Pizza estilo pastor" style="width: 100%; height: 100%; object-fit: cover; display:block;"></div>
+      <div style="border-radius: 5px; overflow: hidden; aspect-ratio: 4/3;"><img src="assets/margarita.png" alt="Pizza margarita recién horneada" style="width: 100%; height: 100%; object-fit: cover; display:block;"></div>
+    </div>
+  </section>
+
+  <!-- ===================== RESEÑAS ===================== -->
+  <section id="resenas" style="position: relative; padding: clamp(70px, 9vh, 110px) 0; border-top: 1px solid rgba(255,255,255,0.07);">
+    <div data-reveal style="text-align: center; margin-bottom: 50px; padding: 0 56px;">
+      <div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; color: #e2231a;">Lo que dicen</div>
+      <h2 style="margin: 14px 0 18px; font-family: 'Anton', sans-serif; font-weight: 400; font-size: clamp(40px, 5.5vw, 76px); line-height: 0.95; color: #fafaf9; text-transform: uppercase;">⭐ 4.7 de 74 reseñas</h2>
+      <div style="width: 64px; height: 3px; background: #e2231a; margin: 0 auto;"></div>
+    </div>
+    <div style="overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);">
+      <div style="display: flex; width: max-content; animation: p38marquee 46s linear infinite;" style-hover="animation-play-state: paused;">
+        <sc-for list="{{ reviewsLoop }}" as="r" hint-placeholder-count="12">
+          <div style="flex: none; width: clamp(290px, 30vw, 380px); margin-right: 20px; background: #131110; border: 1.5px solid rgba(255,255,255,0.09); border-radius: 6px; padding: 30px 28px; display: flex; flex-direction: column; transition: border-color .25s ease, transform .25s ease;" style-hover="border-color: #e2231a; transform: translateY(-5px); box-shadow: 0 0 24px rgba(226,35,26,0.4), 0 0 0 1px rgba(226,35,26,0.5);">
+            <div style="color: #e2231a; font-size: 16px; letter-spacing: 2px; margin-bottom: 16px;">★★★★★</div>
+            <p style="font-family: 'Archivo', sans-serif; font-size: 16px; line-height: 1.55; color: #e7e5e4; margin: 0 0 22px; flex: 1;">{{ r.quote }}</p>
+            <div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #a8a29e;">{{ r.name }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NUESTRA INFO ===================== -->
+  <section id="info" style="position: relative; padding: clamp(70px, 9vh, 110px) 56px clamp(40px,6vh,60px); border-top: 1px solid rgba(255,255,255,0.07); background: #0c0b0a;">
+    <div data-reveal style="text-align: center; margin-bottom: 50px;">
+      <div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; color: #e2231a;">Visítanos o pide</div>
+      <h2 style="margin: 14px 0 18px; font-family: 'Anton', sans-serif; font-weight: 400; font-size: clamp(40px, 5.5vw, 76px); line-height: 0.95; color: #fafaf9; text-transform: uppercase;">Nuestra info</h2>
+      <div style="width: 64px; height: 3px; background: #e2231a; margin: 0 auto;"></div>
+    </div>
+    <div data-reveal data-r="contact" style="display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; max-width: 1200px; margin: 0 auto; align-items: stretch;">
+      <div style="display: flex; flex-direction: column; gap: 26px;">
+        <div>
+          <div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #e2231a; margin-bottom: 6px;">Dirección</div>
+          <div style="font-family: 'Archivo', sans-serif; font-size: 17px; line-height: 1.5; color: #e7e5e4;">Av. López Mateos Sur 5560, Local 22<br>Tlajomulco de Zúñiga, Jal. 45645</div>
+        </div>
+        <div>
+          <div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #e2231a; margin-bottom: 6px;">Horario</div>
+          <div style="font-family: 'Archivo', sans-serif; font-size: 17px; line-height: 1.5; color: #e7e5e4;">Todos los días · 12:00 — 21:30</div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px;">
+          <a href="{{ waOrder }}" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; background: #25d366; color: #04210f; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; padding: 14px 24px; border-radius: 3px; text-decoration: none; transition: all .2s;" style-hover="background:#1fb855; transform: translateY(-3px);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#04210f"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.042zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            WhatsApp
+          </a>
+          <a href="tel:+523338575605" style="display: inline-flex; align-items: center; gap: 8px; background: #e2231a; color: #fff; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; padding: 14px 24px; border-radius: 3px; text-decoration: none; transition: all .2s;" style-hover="background:#b91c1c; transform: translateY(-3px);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24 11.36 11.36 0 003.56.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.56 1 1 0 01-.24 1.02l-2.2 2.21z"/></svg>
+            Llamar
+          </a>
+          <a href="https://www.instagram.com/pizza38.gdl/" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid rgba(255,255,255,0.25); color: #fafaf9; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; padding: 13px 22px; border-radius: 3px; text-decoration: none; transition: all .2s;" style-hover="border-color:#e2231a; transform: translateY(-3px);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+            @pizza38.gdl
+          </a>
+        </div>
+        <div>
+          <div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #e2231a; margin-bottom: 12px;">También a domicilio</div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="{{ links.uber }}" target="_blank" title="Uber Eats" style="width: 52px; height: 52px; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 7px; transition: all .2s;" style-hover="transform: translateY(-3px); box-shadow: 0 0 18px rgba(226,35,26,0.5);"><img src="assets/uber.png" alt="Uber Eats" style="width: 100%; height: 100%; object-fit: contain;"></a>
+            <a href="{{ links.rappi }}" target="_blank" title="Rappi" style="width: 52px; height: 52px; background: #fff; border-radius: 12px; overflow: hidden; display: flex; transition: all .2s;" style-hover="transform: translateY(-3px); box-shadow: 0 0 18px rgba(226,35,26,0.5);"><img src="assets/rappi.jpg" alt="Rappi" style="width: 100%; height: 100%; object-fit: cover;"></a>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="border-radius: 6px; overflow: hidden; flex: 1; min-height: 340px; border: 1px solid rgba(255,255,255,0.09);">
+          <iframe data-mapsrc="https://www.google.com/maps?q=Pizza%2038%20Av.%20L%C3%B3pez%20Mateos%20Sur%205560%20Local%2022%20Tlajomulco&output=embed" style="width: 100%; height: 100%; min-height: 340px; border: 0; display: block; background:#131110;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        <a href="https://maps.app.goo.gl/pBT5DvHH1nNXZ7LEA" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: #e2231a; color: #fff; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; padding: 15px 24px; border-radius: 3px; text-decoration: none; transition: all .2s;" style-hover="background:#b91c1c; transform: translateY(-3px);">Cómo llegar →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer style="position: relative; padding: 36px 56px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+    <div>
+      <img src="assets/logo-mark.png" alt="Pizza 38" style="height: 30px; width: auto; display: block;">
+    </div>
+    <div style="font-family: 'Archivo', sans-serif; font-size: 13px; color: #57534e;">Pizza romana artesanal · Tlajomulco, Jalisco · © 2026</div>
+  </footer>
+
+  <!-- ===================== WHATSAPP FLOTANTE ===================== -->
+  <a href="{{ waOrder }}" target="_blank" aria-label="Pedir por WhatsApp" style="position: fixed; bottom: 26px; right: 26px; z-index: 100; width: 60px; height: 60px; border-radius: 50%; background: #25d366; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,0.4); transition: transform .2s ease;" style-hover="transform: scale(1.08);">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="#fff"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.042zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+  </a>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { tab: null, cart: {} };
+
+  get WA() { return "523337029955"; }
+  waFor(text) { return "https://wa.me/" + this.WA + "?text=" + encodeURIComponent(text); }
+
+  money(n) { return "$" + n.toFixed(0); }
+
+  addToCart(name, sizeLabel, price) {
+    const key = name + (sizeLabel ? " · " + sizeLabel : "");
+    this.setState((s) => {
+      const cart = Object.assign({}, s.cart);
+      const line = cart[key] ? Object.assign({}, cart[key]) : { name, sizeLabel, price, qty: 0 };
+      line.qty += 1;
+      cart[key] = line;
+      return { cart };
+    });
+  }
+  decFromCart(key) {
+    this.setState((s) => {
+      const cart = Object.assign({}, s.cart);
+      if (!cart[key]) return { cart };
+      const line = Object.assign({}, cart[key]);
+      line.qty -= 1;
+      if (line.qty <= 0) delete cart[key]; else cart[key] = line;
+      return { cart };
+    });
+  }
+  clearCart() { this.setState({ cart: {} }); }
+
+  links() {
+    return {
+      uber: "https://www.ubereats.com/mx/store/pizza-38-plaza-manantial/QhwmpYJCWLCHfj1uREwcdg?diningMode=DELIVERY&sc=SEARCH_SUGGESTION",
+      rappi: "https://www.rappi.com.mx/restaurantes/1923816019-pizza-38?csr=true",
+    };
+  }
+
+  menu() {
+    // p3 = tres tamaños [26, 38, 45]; p2 = [38, 45]; p1 = precio único
+    const p3 = (a, b, c) => [{ label: "26cm", price: a }, { label: "38cm", price: b }, { label: "45cm", price: c }];
+    const p2 = (a, b) => [{ label: "38cm", price: a }, { label: "45cm", price: b }];
+    const p1 = (a, lbl) => [{ label: lbl || "", price: a }];
+    return {
+      pizza: {
+        label: "Pizzas",
+        note: "8 rebanadas · elige tamaño: 26 individual · 38 usual · 45 especial.",
+        items: [
+          { name: "Pepperoni", prices: p3(90, 199, 398) },
+          { name: "Queso", prices: p3(90, 199, 398) },
+          { name: "Hawaiana", prices: p3(115, 230, 460) },
+          { name: "Champiñones", prices: p3(115, 230, 460) },
+          { name: "Vegetales", prices: p3(115, 230, 460) },
+          { name: "Margarita", prices: p3(125, 250, 500) },
+          { name: "Manzana Tocino", prices: p3(140, 280, 550) },
+        ],
+      },
+      especialidades: {
+        label: "Especialidades",
+        note: "Pizzas de 4 carnes y gourmet · 26 / 38 / 45 cm.",
+        items: [
+          { name: "Mexicana", prices: p3(150, 295, 550) },
+          { name: "Pastor", prices: p3(150, 295, 550) },
+          { name: "Chicharrón", prices: p3(150, 295, 550) },
+          { name: "Camarón", prices: p3(170, 310, 550) },
+          { name: "Española", prices: p3(250, 390, 600) },
+        ],
+      },
+      orillas: {
+        label: "Orillas y extras",
+        note: "Las orillas se agregan a tu pizza. Extras por ingrediente.",
+        items: [
+          { name: "Orilla de queso", prices: p2(80, 160) },
+          { name: "Dedos de queso", prices: p2(95, 190) },
+          { name: "Extra vegetales / salsa", desc: "Piña, aceitunas, cebolla, morrones, champiñones, salsa, jalapeños", prices: p1(30) },
+          { name: "Extra carne / queso", desc: "Queso, jamón, tocino, pepperoni", prices: p1(40) },
+          { name: "Extra premium", desc: "Jamón serrano, camarones", prices: p1(120) },
+        ],
+      },
+      pasta: {
+        label: "Pastas",
+        note: "Porción individual.",
+        items: [
+          { name: "Spaguetti Pomodoro", desc: "Salsa de jitomate", prices: p1(130) },
+          { name: "Spaguetti Boloñesa", desc: "Carne y jitomate", prices: p1(190) },
+          { name: "Fettuccini Alfredo", desc: "Salsa cremosa", prices: p1(180) },
+          { name: "Ensalada Mediterránea", prices: p1(180) },
+          { name: "Lasaña chica", prices: p1(220) },
+          { name: "Lasaña grande", prices: p1(300) },
+        ],
+      },
+      complementos: {
+        label: "Rollitos y calzone",
+        note: "Ingrediente extra se cobra aparte.",
+        items: [
+          { name: "Rollitos de pizza", desc: "Pepperoni, Hawaiano o Salami", prices: p1(60) },
+          { name: "Calzone Individual", prices: p1(115) },
+          { name: "Calzone Grande", prices: p1(230) },
+        ],
+      },
+      paquetes: {
+        label: "Paquetes",
+        note: "",
+        items: [
+          { name: "Paquete Individual", desc: "Pizza 26 Pepperoni + queso o jamón + bebida", prices: p1(110) },
+          { name: "Paquete 1", desc: "Pizza 38 Pepperoni + lasaña grande", prices: p1(480) },
+          { name: "Paquete 2", desc: "Pizza 38 Pepperoni + espagueti + ensalada", prices: p1(450) },
+        ],
+      },
+      bebidas: {
+        label: "Bebidas",
+        note: "",
+        items: [
+          { name: "Refresco", prices: p1(28) },
+          { name: "Cerveza", prices: p1(40) },
+        ],
+      },
+    };
+  }
+
+  reviews() {
+    return [
+      { name: "Arcadia Rodríguez", quote: "Deliciosísimas. Recomendada la de Manzana con Tocino. Precio razonable ya que se nota la calidad del queso y del producto en sí." },
+      { name: "Sinuhé Sánchez", quote: "Excelente el sabor, calidad, grosor y textura. La de pepperoni con orilla de queso venía con bastante queso. Excelente relación precio-calidad." },
+      { name: "Oscar Sánchez", quote: "Pizzas deliciosas. La masa buenísima y las orillas de queso rellenas, ¡buenísimas! Me gusta que no las hacen tan doradas y la orilla queda blandita." },
+      { name: "Carolina Nieves", quote: "¡De las mejores pizzas que he probado! La española wow!!! Tienen que pedirla 👌" },
+      { name: "Alexis R.", quote: "Las mejores pizzas que he probado. La de jamón serrano y manzana tocino están increíbles." },
+      { name: "Carlos Sandoval", quote: "La atención es buena, son amables y atienden bien, la pizza es deliciosa y la sirven rápido. Se disfruta una buena pizza en fin de semana." },
+    ];
+  }
+
+  componentDidMount() {
+    // === Animaciones de entrada al hacer scroll (todas las letras e imágenes) ===
+    // Lo que ya está visible al cargar NO se oculta nunca; solo lo de más abajo se anima al entrar.
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if ("IntersectionObserver" in window && !reduce) {
+      const vh = window.innerHeight || 800;
+      const show = (el) => { el.style.opacity = "1"; el.style.transform = "none"; };
+      const hidden = [];
+      const io = new IntersectionObserver((ents) => {
+        ents.forEach((e) => { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } });
+      }, { threshold: 0.06, rootMargin: "0px 0px -5% 0px" });
+      document.querySelectorAll("section").forEach((sec) => {
+        const picks = (sec.id === "resenas")
+          ? sec.querySelectorAll(":scope > div:first-child > *")
+          : sec.querySelectorAll("h1, h2, h3, p, img, [data-r='cats'] button, a");
+        let i = 0;
+        picks.forEach((el) => {
+          if (hidden.some((p) => p.contains(el))) return;
+          const r = el.getBoundingClientRect();
+          if (r.top < vh * 0.92) return; // visible al cargar: se queda visible (nunca en blanco)
+          el.style.opacity = "0";
+          el.style.transform = "translateY(26px)";
+          el.style.transition = "opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1)";
+          el.style.transitionDelay = Math.min(i * 65, 360) + "ms";
+          hidden.push(el);
+          io.observe(el);
+          i++;
+        });
+      });
+      // Red de seguridad: si el observer no dispara, revela todo.
+      setTimeout(() => hidden.forEach(show), 1600);
+    }
+
+    // === tabs: arrastrar con dedo/mouse + nudge inicial en móvil ===
+    const tabs = document.querySelector('[data-r="tabs"]');
+    if (tabs) {
+      let down = false, startX = 0, startScroll = 0, moved = false;
+      const onDown = (e) => { down = true; moved = false; startX = (e.touches ? e.touches[0].clientX : e.clientX); startScroll = tabs.scrollLeft; tabs.style.cursor = "grabbing"; };
+      const onMove = (e) => { if (!down) return; const x = (e.touches ? e.touches[0].clientX : e.clientX); const dx = x - startX; if (Math.abs(dx) > 4) moved = true; tabs.scrollLeft = startScroll - dx; };
+      const onUp = () => { down = false; tabs.style.cursor = "grab"; };
+      tabs.addEventListener("mousedown", onDown);
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onUp);
+      tabs.addEventListener("click", (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
+      const isTouch = window.matchMedia && window.matchMedia("(max-width: 980px)").matches;
+      if (isTouch && tabs.scrollWidth > tabs.clientWidth + 20) {
+        setTimeout(() => {
+          const max = Math.min(90, tabs.scrollWidth - tabs.clientWidth);
+          let t0 = null; const dur = 1400;
+          const step = (ts) => {
+            if (t0 == null) t0 = ts;
+            const p = Math.min(1, (ts - t0) / dur);
+            const ease = p < 0.5 ? (p * 2) : (1 - (p - 0.5) * 2);
+            tabs.scrollLeft = max * ease;
+            if (p < 1) requestAnimationFrame(step); else tabs.scrollLeft = 0;
+          };
+          requestAnimationFrame(step);
+        }, 700);
+      }
+    }
+
+    const frame = document.querySelector("iframe[data-mapsrc]");
+    if (frame) {
+      const mio = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            frame.src = frame.getAttribute("data-mapsrc");
+            mio.unobserve(e.target);
+          }
+        });
+      }, { rootMargin: "200px" });
+      mio.observe(frame);
+    }
+  }
+
+  renderVals() {
+    const menu = this.menu();
+    const order = ["pizza", "especialidades", "orillas", "pasta", "complementos", "paquetes", "bebidas"];
+    const active = this.state.tab;
+    const categories = order.map((id) => {
+      const isOn = id === active;
+      return {
+        label: menu[id].label,
+        onClick: () => this.setState({ tab: isOn ? null : id }),
+        bg: isOn ? "#e2231a" : "#17150f",
+        color: isOn ? "#fff" : "#d6d3d1",
+        border: isOn ? "#e2231a" : "rgba(255,255,255,0.14)",
+      };
+    });
+    const cur = active ? menu[active] : null;
+    const items = cur ? cur.items.map((it) => ({
+      name: it.name,
+      desc: it.desc || "",
+      multi: it.prices.length > 1,
+      buttons: it.prices.map((pr) => ({
+        size: pr.label || "",
+        price: this.money(pr.price),
+        onClick: () => this.addToCart(it.name, pr.label, pr.price),
+      })),
+    })) : [];
+
+    // === carrito ===
+    const cart = this.state.cart || {};
+    const cartLines = Object.keys(cart).map((key) => {
+      const l = cart[key];
+      return {
+        key,
+        label: l.name + (l.sizeLabel ? " · " + l.sizeLabel : ""),
+        qty: l.qty,
+        sub: this.money(l.price * l.qty),
+        inc: () => this.addToCart(l.name, l.sizeLabel, l.price),
+        dec: () => this.decFromCart(key),
+      };
+    });
+    const cartCount = cartLines.reduce((n, l) => n + l.qty, 0);
+    const cartTotal = Object.keys(cart).reduce((t, k) => t + cart[k].price * cart[k].qty, 0);
+    const hasCart = cartCount > 0;
+    let waCart = this.waFor("Hola, quisiera hacer un pedido");
+    if (hasCart) {
+      let msg = "Hola, quisiera pedir:\n";
+      Object.keys(cart).forEach((k) => {
+        const l = cart[k];
+        msg += "- " + l.qty + " " + l.name + (l.sizeLabel ? " (" + l.sizeLabel + ")" : "") + "\n";
+      });
+      waCart = this.waFor(msg);
+    }
+
+    const reviews = this.reviews();
+    return {
+      waOrder: this.waFor("Hola, quisiera hacer un pedido"),
+      videoRef: (el) => { if (el) { el.muted = true; el.defaultMuted = true; el.loop = true; el.setAttribute("muted", ""); const p = el.play(); if (p && p.catch) p.catch(() => {}); } },
+      links: this.links(),
+      categories,
+      showVideo: !active,
+      showItems: !!active,
+      activeLabel: cur ? cur.label : "",
+      activeNote: cur ? cur.note : "",
+      items,
+      cartLines,
+      cartCount,
+      cartCountLabel: cartCount === 1 ? "1 platillo" : cartCount + " platillos",
+      cartTotal: this.money(cartTotal),
+      hasCart,
+      waCart,
+      clearCart: () => this.clearCart(),
+      reviews,
+      reviewsLoop: reviews.concat(reviews),
+    };
+  }
+}
+</script>
+</body>
+</html>
