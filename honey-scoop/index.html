@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>html,body{margin:0;background:#f7efe0}</style>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Honey Scoop · Heladería &amp; Cafetería · Santa Anita</title>
+<meta name="description" content="Helados originales hechos con leche y fruta, café del bueno, bagels, toasts y postres. Heladería y cafetería en Plaza La Cibela, Santa Anita, Jal. Mesas, terraza y Martes 2×1.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#e89a17">
+<meta name="geo.region" content="MX-JAL">
+<meta name="geo.placename" content="Santa Anita, Jalisco">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="canonical" href="https://honeyscoop.mx/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_MX">
+<meta property="og:site_name" content="Honey Scoop">
+<meta property="og:title" content="Honey Scoop · Heladería &amp; Cafetería">
+<meta property="og:description" content="Helados originales con leche y fruta, café del bueno y mesas para quedarte. Santa Anita, Jal.">
+<meta property="og:url" content="https://honeyscoop.mx/">
+<meta property="og:image" content="assets/logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Honey Scoop · Heladería &amp; Cafetería">
+<meta name="twitter:description" content="Helados originales con leche y fruta, café del bueno y mesas para quedarte.">
+<meta name="twitter:image" content="assets/logo.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CafeOrCoffeeShop","name":"Honey Scoop","image":"https://honeyscoop.mx/assets/logo.png","url":"https://honeyscoop.mx/","telephone":"+523320165404","priceRange":"$$","servesCuisine":["Helados","Café","Postres","Bagels","Toasts"],"address":{"@type":"PostalAddress","streetAddress":"Plaza La Cibela, Cam. a las Moras 1560-1B","addressLocality":"Santa Anita","addressRegion":"Jalisco","postalCode":"45645","addressCountry":"MX"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"08:00","closes":"21:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Saturday","Sunday"],"opens":"09:00","closes":"21:00"}],"sameAs":["https://www.facebook.com/HoneyScoopHelados/"]}</script>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,400;1,6..96,600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500;1,600;1,700&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;background:#f7efe0}
+  html{scroll-behavior:smooth}
+  @keyframes hs-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  #hs-menu-track{scrollbar-width:none;-ms-overflow-style:none}
+  #hs-menu-track::-webkit-scrollbar{display:none}
+  ::selection{background:#e89a17;color:#fff}
+  #hs-logo-link{display:flex;align-items:center}
+  #hs-logo-full{display:block}
+  #hs-logo-mini{display:none}
+  @media(max-width:680px){
+    #hs-logo-link{display:none}
+    #hs-nav{width:100%;justify-content:space-between;gap:10px;font-size:11.5px;letter-spacing:0.03em}
+    #hs-nav a[data-pill]{padding:9px 14px}
+  }
+  @keyframes hs-nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+</helmet>
+
+<div style="font-family:'Manrope',sans-serif;color:#2c1d12;background:#f7efe0;overflow-x:hidden">
+
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#f7efe0"/>
+    </svg>
+  </template>
+
+
+  <!-- ============ TOPBAR ============ -->
+  <header style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px clamp(20px,5vw,72px);background:rgba(247,239,224,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(44,29,18,.08)">
+    <a id="hs-logo-link" href="#top" style="text-decoration:none">
+      <img id="hs-logo-full" src="assets/logo-bar.png" alt="Honey Scoop" style="height:40px;width:auto">
+    </a>
+    <nav id="hs-nav" style="display:flex;align-items:center;gap:clamp(16px,2.4vw,34px);font-size:12.5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5b4634;white-space:nowrap">
+      <a href="#menu" style="color:inherit;text-decoration:none">Menú</a>
+      <a href="#local" style="color:inherit;text-decoration:none">El local</a>
+      <a href="#resenas" style="color:inherit;text-decoration:none">Reseñas</a>
+      <a href="#visitanos" data-pill="1" style="color:inherit;text-decoration:none;background:#e89a17;color:#fff;padding:9px 18px;border-radius:2px;letter-spacing:0.08em" style-hover="background:#cf870e;color:#fff;padding:9px 18px;border-radius:2px;letter-spacing:0.08em;box-shadow:0 0 0 4px rgba(232,154,23,.18)">Visítanos</a>
+    </nav>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section id="top" data-screen-label="01 Hero" style="background:#f7efe0;padding:clamp(64px,9vw,104px) clamp(20px,5vw,72px) clamp(56px,8vw,88px);text-align:center">
+    <div data-hs-hero style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.34em;text-transform:uppercase;color:#b08a3e;margin-bottom:34px">Heladería · Cafetería · Santa Anita</div>
+    <img data-hs-hero src="assets/logo.png" alt="Honey Scoop" style="width:min(380px,76vw);height:auto;display:block;margin:0 auto 30px">
+    <p data-hs-hero style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:clamp(22px,3.4vw,30px);color:#5b4634;margin:0 auto 38px;max-width:560px;line-height:1.4">Helados originales hechos con leche y fruta.<br>Café del bueno. Mesas para quedarte.</p>
+    <div data-hs-hero style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a href="https://maps.app.goo.gl/k3qgVL3CGAPyD8Xs8" target="_blank" rel="noopener" style="background:#e89a17;color:#fff;font-weight:700;font-size:14px;letter-spacing:0.04em;padding:16px 32px;border-radius:2px;text-decoration:none" style-hover="background:#cf870e;color:#fff;font-weight:700;font-size:14px;letter-spacing:0.04em;padding:16px 32px;border-radius:2px;text-decoration:none;box-shadow:0 0 0 5px rgba(232,154,23,.18)">Cómo llegar</a>
+      <a href="#menu" style="background:transparent;color:#2c1d12;font-weight:700;font-size:14px;letter-spacing:0.04em;padding:15px 31px;border:1.5px solid #2c1d12;border-radius:2px;text-decoration:none" style-hover="background:#2c1d12;color:#f7efe0;font-weight:700;font-size:14px;letter-spacing:0.04em;padding:15px 31px;border:1.5px solid #2c1d12;border-radius:2px;text-decoration:none">Ver menú</a>
+    </div>
+  </section>
+
+  <!-- ============ FRASE ============ -->
+  <section data-screen-label="02 Frase" style="background:#fffaf0;padding:clamp(56px,8vw,90px) clamp(20px,5vw,72px);text-align:center;border-top:1px solid rgba(44,29,18,.06)">
+    <div data-hs-anim style="max-width:820px;margin:0 auto">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.28em;text-transform:uppercase;color:#b08a3e;margin-bottom:22px">From Honey Scoop</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:clamp(24px,3.6vw,34px);line-height:1.45;color:#2c1d12;margin:0">“Honey Scoop ofrece los mejores helados originales hechos con leche y fruta. Aptos para todo el público.”</p>
+    </div>
+  </section>
+
+  <!-- ============ MENÚ (carrusel) ============ -->
+  <section id="menu" data-screen-label="04 Menú" style="background:#fffaf0;padding:clamp(64px,9vw,100px) 0;border-top:1px solid rgba(44,29,18,.06);overflow:hidden">
+    <div data-hs-anim style="text-align:center;margin-bottom:36px;padding:0 clamp(20px,5vw,72px)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:0.28em;text-transform:uppercase;color:#b08a3e;margin-bottom:14px">El menú</div>
+      <h2 style="font-family:'Bodoni Moda',serif;font-weight:600;font-size:clamp(32px,4.6vw,46px);color:#2c1d12;margin:0 0 16px">Nuestra carta</h2>
+      <div style="width:48px;height:2px;background:#e89a17;margin:0 auto 18px"></div>
+      <span style="display:inline-flex;align-items:center;gap:8px;background:#e89a17;color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;padding:9px 20px;border-radius:999px">Martes 2×1 en helados</span>
+      <div style="margin-top:20px;display:inline-flex;align-items:center;gap:9px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:#9a7a4e">
+        <span>Desliza para ver toda la carta</span>
+        <span aria-hidden="true" style="display:inline-block;animation:hs-nudge 1.4s ease-in-out infinite;font-style:normal;font-weight:700;color:#e89a17">→</span>
+      </div>
+    </div>
+    <div style="overflow:hidden;width:100%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)">
+      <div id="hs-menu-track" style="display:flex;gap:20px;align-items:flex-start;overflow-x:auto;overflow-y:hidden;padding:30px 12px;cursor:grab">
+        <sc-for list="{{ menuCards }}" as="card" hint-placeholder-count="7">
+          <div style="flex:none;width:328px;background:#fffdf7;border:1px solid rgba(44,29,18,.1);border-radius:6px;padding:26px;box-shadow:0 4px 16px rgba(44,29,18,.05);transition:box-shadow .35s ease,transform .35s ease,border-color .35s ease" style-hover="flex:none;width:328px;background:#fffdf7;border:1px solid rgba(232,154,23,.7);border-radius:6px;padding:26px;box-shadow:0 0 34px rgba(232,154,23,.4),0 12px 30px rgba(44,29,18,.12);transform:translateY(-4px)">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+              <h3 style="font-family:'Bodoni Moda',serif;font-weight:600;font-size:23px;color:#2c1d12;margin:0">{{ card.label }}</h3>
+              <sc-if value="{{ card.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="background:#e89a17;color:#fff;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.08em;padding:4px 9px;border-radius:999px;white-space:nowrap">{{ card.badge }}</span></sc-if>
+            </div>
+            <div style="width:32px;height:2px;background:#e89a17;margin:13px 0 16px"></div>
+            <sc-if value="{{ card.isFlavors }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ card.flavors }}" as="f" hint-placeholder-count="8">
+                <div style="padding:7px 0;border-bottom:1px dashed rgba(44,29,18,.08)">
+                  <div style="font-family:'Bodoni Moda',serif;font-size:17px;color:#2c1d12">{{ f.name }}</div>
+                  <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:#6b5443;line-height:1.3">{{ f.desc }}</div>
+                </div>
+              </sc-for>
+              <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:15px;color:#b08a3e;margin-top:12px">+ sabores de temporada</div>
+            </sc-if>
+            <sc-if value="{{ card.isItems }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ card.items }}" as="it" hint-placeholder-count="5">
+                <div style="display:flex;align-items:baseline;gap:8px;padding:9px 0;border-bottom:1px dashed rgba(44,29,18,.08)">
+                  <span style="font-size:15px;color:#3a2a1c">{{ it.n }}</span>
+                  <span style="flex:1;border-bottom:1px dotted rgba(176,138,62,.4);transform:translateY(-5px)"></span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:13.5px;color:#c98a1e">{{ it.pLabel }}</span>
+                </div>
+              </sc-for>
+            </sc-if>
+          </div>
+        </sc-for>
+        <sc-for list="{{ menuCards }}" as="card" hint-placeholder-count="7">
+          <div aria-hidden="true" style="flex:none;width:328px;background:#fffdf7;border:1px solid rgba(44,29,18,.1);border-radius:6px;padding:26px;box-shadow:0 4px 16px rgba(44,29,18,.05);transition:box-shadow .35s ease,transform .35s ease,border-color .35s ease" style-hover="flex:none;width:328px;background:#fffdf7;border:1px solid rgba(232,154,23,.7);border-radius:6px;padding:26px;box-shadow:0 0 34px rgba(232,154,23,.4),0 12px 30px rgba(44,29,18,.12);transform:translateY(-4px)">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+              <h3 style="font-family:'Bodoni Moda',serif;font-weight:600;font-size:23px;color:#2c1d12;margin:0">{{ card.label }}</h3>
+              <sc-if value="{{ card.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="background:#e89a17;color:#fff;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.08em;padding:4px 9px;border-radius:999px;white-space:nowrap">{{ card.badge }}</span></sc-if>
+            </div>
+            <div style="width:32px;height:2px;background:#e89a17;margin:13px 0 16px"></div>
+            <sc-if value="{{ card.isFlavors }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ card.flavors }}" as="f" hint-placeholder-count="8">
+                <div style="padding:7px 0;border-bottom:1px dashed rgba(44,29,18,.08)">
+                  <div style="font-family:'Bodoni Moda',serif;font-size:17px;color:#2c1d12">{{ f.name }}</div>
+                  <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:#6b5443;line-height:1.3">{{ f.desc }}</div>
+                </div>
+              </sc-for>
+              <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:15px;color:#b08a3e;margin-top:12px">+ sabores de temporada</div>
+            </sc-if>
+            <sc-if value="{{ card.isItems }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ card.items }}" as="it" hint-placeholder-count="5">
+                <div style="display:flex;align-items:baseline;gap:8px;padding:9px 0;border-bottom:1px dashed rgba(44,29,18,.08)">
+                  <span style="font-size:15px;color:#3a2a1c">{{ it.n }}</span>
+                  <span style="flex:1;border-bottom:1px dotted rgba(176,138,62,.4);transform:translateY(-5px)"></span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:13.5px;color:#c98a1e">{{ it.pLabel }}</span>
+                </div>
+              </sc-for>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EL LOCAL (galería) ============ -->
+  <section id="local" data-screen-label="05 Local" style="background:#f7efe0;padding:clamp(64px,9vw,100px) clamp(20px,5vw,72px)">
+    <div data-hs-anim style="text-align:center;margin-bottom:40px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:0.28em;text-transform:uppercase;color:#b08a3e;margin-bottom:14px">Para quedarte</div>
+      <h2 style="font-family:'Bodoni Moda',serif;font-weight:600;font-size:clamp(32px,4.6vw,46px);color:#2c1d12;margin:0 0 16px">El local</h2>
+      <div style="width:48px;height:2px;background:#e89a17;margin:0 auto 18px"></div>
+      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:#6b5443;margin:0 auto;max-width:600px;line-height:1.45">Mesas adentro y terraza con sombrillas. Te prestamos juegos de mesa para que te quedes la tarde.</p>
+    </div>
+    <div data-hs-anim style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;max-width:1120px;margin:0 auto">
+      <img src="assets/photo-1.png" alt="Fachada Honey Scoop" style="width:100%;height:300px;object-fit:cover;border-radius:3px;display:block">
+      <img src="assets/photo-2.png" alt="Interior y barra de helados" style="width:100%;height:300px;object-fit:cover;border-radius:3px;display:block">
+      <img src="assets/photo-6.png" alt="Terraza con sombrillas" style="width:100%;height:300px;object-fit:cover;border-radius:3px;display:block">
+      <img src="assets/photo-3.png" alt="Repostería y café" style="width:100%;height:300px;object-fit:cover;border-radius:3px;display:block">
+      <img src="assets/photo-4.png" alt="Vitrina de pasteles" style="width:100%;height:300px;object-fit:cover;border-radius:3px;display:block">
+      <img src="assets/photo-5.png" alt="Toasts y bebidas" style="width:100%;height:300px;object-fit:cover;border-radius:3px;display:block">
+    </div>
+  </section>
+
+  <!-- ============ RESEÑAS (carrusel) ============ -->
+  <section id="resenas" data-screen-label="06 Reseñas" style="background:#2c1d12;padding:clamp(64px,9vw,100px) 0;overflow:hidden">
+    <div data-hs-anim style="text-align:center;margin-bottom:44px;padding:0 clamp(20px,5vw,72px)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:0.28em;text-transform:uppercase;color:#f0a91e;margin-bottom:14px">Lo que dicen</div>
+      <h2 style="font-family:'Bodoni Moda',serif;font-weight:600;font-size:clamp(32px,4.6vw,46px);color:#fff;margin:0 0 16px">Reseñas reales</h2>
+      <div style="width:48px;height:2px;background:#f0a91e;margin:0 auto"></div>
+    </div>
+    <div style="overflow:hidden;width:100%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)">
+      <div id="hs-rev-track" style="display:flex;gap:20px;width:max-content;animation:hs-scroll 70s linear infinite;padding:46px 10px">
+        <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="8">
+          <div style="flex:none;width:330px;background:#241712;border:1px solid rgba(240,169,30,.18);border-radius:4px;padding:28px 26px;transition:box-shadow .35s ease,transform .35s ease,background .35s ease,border-color .35s ease" style-hover="flex:none;width:330px;background:#33221a;border:1px solid rgba(240,169,30,.8);border-radius:4px;padding:28px 26px;transform:translateY(-4px);box-shadow:0 0 38px rgba(240,169,30,.55),0 14px 34px rgba(0,0,0,.35)">
+            <div style="color:#f0a91e;font-size:15px;letter-spacing:2px;margin-bottom:14px">{{ r.stars }}</div>
+            <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:20px;line-height:1.45;color:#f3e6cf;margin:0 0 18px">{{ r.text }}</p>
+            <div style="font-family:'Manrope',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.04em;color:#cdbb9e">{{ r.name }}</div>
+          </div>
+        </sc-for>
+        <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="8">
+          <div aria-hidden="true" style="flex:none;width:330px;background:#241712;border:1px solid rgba(240,169,30,.18);border-radius:4px;padding:28px 26px;transition:box-shadow .35s ease,transform .35s ease,background .35s ease,border-color .35s ease" style-hover="flex:none;width:330px;background:#33221a;border:1px solid rgba(240,169,30,.8);border-radius:4px;padding:28px 26px;transform:translateY(-4px);box-shadow:0 0 38px rgba(240,169,30,.55),0 14px 34px rgba(0,0,0,.35)">
+            <div style="color:#f0a91e;font-size:15px;letter-spacing:2px;margin-bottom:14px">{{ r.stars }}</div>
+            <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:20px;line-height:1.45;color:#f3e6cf;margin:0 0 18px">{{ r.text }}</p>
+            <div style="font-family:'Manrope',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.04em;color:#cdbb9e">{{ r.name }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VISÍTANOS (contacto + mapa) ============ -->
+  <section id="visitanos" data-screen-label="07 Visítanos" style="background:#fffaf0;padding:clamp(64px,9vw,100px) clamp(20px,5vw,72px);border-top:1px solid rgba(44,29,18,.06)">
+    <div data-hs-anim style="text-align:center;margin-bottom:46px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:0.28em;text-transform:uppercase;color:#b08a3e;margin-bottom:14px">Encuéntranos</div>
+      <h2 style="font-family:'Bodoni Moda',serif;font-weight:600;font-size:clamp(32px,4.6vw,46px);color:#2c1d12;margin:0 0 16px">Visítanos</h2>
+      <div style="width:48px;height:2px;background:#e89a17;margin:0 auto"></div>
+    </div>
+    <div data-hs-anim style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:36px;max-width:1080px;margin:0 auto;align-items:start">
+      <div>
+        <div style="margin-bottom:28px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#b08a3e;margin-bottom:8px">Dirección</div>
+          <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:21px;color:#2c1d12;margin:0;line-height:1.4">Plaza La Cibela · Cam. a las Moras 1560-1B,<br>Bosques Santa Anita, 45645 Jal.</p>
+        </div>
+        <div style="margin-bottom:32px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#b08a3e;margin-bottom:8px">Horario</div>
+          <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:21px;color:#2c1d12;margin:0;line-height:1.5">Lunes a Viernes · 8:00 AM – 9:00 PM<br>Sábado y Domingo · 9:00 AM – 9:00 PM</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;max-width:340px">
+          <a href="https://wa.me/5213316281300?text=Hola%2C%20me%20gustar%C3%ADa%20m%C3%A1s%20informaci%C3%B3n%20de%20Honey%20Scoop." target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#e89a17;color:#fff;font-weight:700;font-size:14.5px;letter-spacing:0.03em;padding:16px;border-radius:2px;text-decoration:none" style-hover="display:flex;align-items:center;justify-content:center;gap:10px;background:#cf870e;color:#fff;font-weight:700;font-size:14.5px;letter-spacing:0.03em;padding:16px;border-radius:2px;text-decoration:none;box-shadow:0 0 0 5px rgba(232,154,23,.18)">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.711zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            WhatsApp · 33 1628 1300
+          </a>
+          <a href="tel:+523320165404" style="display:flex;align-items:center;justify-content:center;gap:10px;background:transparent;color:#2c1d12;font-weight:700;font-size:14.5px;letter-spacing:0.03em;padding:15px;border:1.5px solid #2c1d12;border-radius:2px;text-decoration:none" style-hover="display:flex;align-items:center;justify-content:center;gap:10px;background:#2c1d12;color:#fffaf0;font-weight:700;font-size:14.5px;letter-spacing:0.03em;padding:15px;border:1.5px solid #2c1d12;border-radius:2px;text-decoration:none">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.18z"/></svg>
+            Llamar · 33 2016 5404
+          </a>
+          <a href="https://www.facebook.com/HoneyScoopHelados/" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#e89a17;color:#fff;font-weight:700;font-size:14.5px;letter-spacing:0.03em;padding:16px;border-radius:2px;text-decoration:none" style-hover="display:flex;align-items:center;justify-content:center;gap:10px;background:#cf870e;color:#fff;font-weight:700;font-size:14.5px;letter-spacing:0.03em;padding:16px;border-radius:2px;text-decoration:none;box-shadow:0 0 0 5px rgba(232,154,23,.18)">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.52 1.5-3.91 3.77-3.91 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94z"/></svg>
+            Facebook
+          </a>
+        </div>
+      </div>
+      <div style="position:relative;border-radius:4px;overflow:hidden;border:1px solid rgba(44,29,18,.12);box-shadow:0 10px 30px rgba(44,29,18,.08)">
+        <iframe title="Mapa Honey Scoop" src="https://maps.google.com/maps?q=Honey%20Scoop%20Helader%C3%ADa%20Cafeter%C3%ADa%2C%20Cam.%20a%20las%20Moras%201560%2C%20Santa%20Anita%2C%20Jalisco&t=&z=15&ie=UTF8&iwloc=&output=embed" style="width:100%;height:380px;border:0;display:block" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <a href="https://maps.app.goo.gl/k3qgVL3CGAPyD8Xs8" target="_blank" rel="noopener" style="position:absolute;right:14px;bottom:14px;display:inline-flex;align-items:center;gap:8px;background:#fffaf0;color:#2c1d12;font-family:'Manrope',sans-serif;font-weight:700;font-size:13.5px;letter-spacing:0.02em;padding:11px 18px;border-radius:2px;text-decoration:none;box-shadow:0 6px 18px rgba(44,29,18,.22)" style-hover="position:absolute;right:14px;bottom:14px;display:inline-flex;align-items:center;gap:8px;background:#e89a17;color:#fff;font-family:'Manrope',sans-serif;font-weight:700;font-size:13.5px;letter-spacing:0.02em;padding:11px 18px;border-radius:2px;text-decoration:none;box-shadow:0 6px 22px rgba(232,154,23,.5)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>Cómo llegar</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer data-screen-label="08 Footer" style="background:#f7efe0;padding:46px clamp(20px,5vw,72px);display:flex;justify-content:center;align-items:center;border-top:1px solid rgba(44,29,18,.08)">
+    <img src="assets/logo-bar.png" alt="Honey Scoop" style="height:110px;width:auto;display:block">
+  </footer>
+
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {};
+
+  flavors() {
+    return [
+      { name:'Padres Cansados', desc:'Café, brownie y chocolate. El más pedido.' },
+      { name:'Pera Azul', desc:'Pera con un giro fresco y frutal. Favorito.' },
+      { name:'Monster', desc:'Intenso y consentido de los clientes.' },
+      { name:'Honey Lavender', desc:'Miel y lavanda. Suave y floral.' },
+      { name:'Tartín de Manzana', desc:'Manzana caramelizada estilo tarta.' },
+      { name:'Blueberry Butter', desc:'Arándano con mantequilla, bien cremoso.' },
+      { name:'Hot Pumpkin', desc:'Calabaza especiada de temporada.' },
+      { name:'Chocolate Oreo', desc:'Chocolate con trozos de galleta.' }
+    ];
+  }
+
+  menu() {
+    return [
+      { id:'helados', label:'Helados', promo:'MARTES 2×1', items:[
+        {n:'Helado sencillo',p:60},{n:'Helado doble',p:90},{n:'Medio litro',p:120},{n:'1 litro',p:210}
+      ]},
+      { id:'frias', label:'Bebidas frías', items:[
+        {n:'Malteada',p:85},{n:'Frappé',p:85},{n:'Smoothie',p:80},{n:'Latte',p:65},{n:'Affogato',p:80},{n:'Chai',p:65},{n:'Chai sucio',p:85},{n:'Matcha',p:70},{n:'Moka',p:70}
+      ]},
+      { id:'calientes', label:'Bebidas calientes', items:[
+        {n:'Café americano',p:40},{n:'Capuccino',p:65},{n:'Espresso',p:35},{n:'Espresso doble',p:45},{n:'Chocolate caliente',p:70},{n:'Té',p:35},{n:'Tisana',p:45},{n:'Latte',p:70},{n:'Chai latte',p:70},{n:'Chai sucio',p:90},{n:'Matcha',p:75},{n:'Moka',p:75}
+      ]},
+      { id:'postres', label:'Postres & alimentos', items:[
+        {n:'Pastel individual',p:65},{n:'Tartaletas',p:65},{n:'Sandwich de helado',p:80},{n:'Brownie con helado',p:80},{n:'Pan dulce',p:50}
+      ]},
+      { id:'bagels', label:'Bagels', items:[
+        {n:'Bagel salami, pepperoni y queso',p:95},{n:'Bagel jamón y queso',p:95},{n:'Bagel 3 quesos',p:105}
+      ]},
+      { id:'toasts', label:'Toasts', items:[
+        {n:'Toast salmón ahumado y queso',p:135},{n:'Toast jamón serrano y queso',p:135},{n:'Toast vegetariano',p:110}
+      ]}
+    ];
+  }
+
+  reviews() {
+    return [
+      {name:'Claudia Ramírez', stars:'★★★★★', text:'Nos gusta mucho la variedad de sabores únicos. Nuestros favoritos: padres cansados, pera azul y los de temporada.'},
+      {name:'Sandy Rochin', stars:'★★★★★', text:'Las nieves son deliciosas, mi favorito es «Padres cansados». 10 de 10 que te presten juegos de mesa. Excelente.'},
+      {name:'erika daniela', stars:'★★★★★', text:'Súper rico y los chicos con excelente servicio, 10/10. El café es delicioso.'},
+      {name:'Airam Mendez', stars:'★★★★★', text:'Las nieves están muy ricas, cremositas y con muy buen sabor 10/10. Tiene mesitas afuera.'},
+      {name:'Pedro Herrera', stars:'★★★★', text:'Me gustó el café, hasta ahora el mejor de este sector.'},
+      {name:'Diana Valladares', stars:'★★★★★', text:'Los bagels estaban ricos, el café y los postres también. Sin duda su fuerte son los helados.'},
+      {name:'Jose Corral', stars:'★★★★★', text:'Excelente calidad y sabores súper distintos a los comunes, muy recomendable.'},
+      {name:'Ofi Azul', stars:'★★★★★', text:'Me encantan estos helados, cada martes no falto. Llevo a quien sea para que los pruebe.'}
+    ];
+  }
+
+  renderVals() {
+    const flavorCard = { label: 'Sabores de helado', isFlavors: true, isItems: false, hasBadge: false, badge: '', flavors: this.flavors(), items: [] };
+    const catCards = this.menu().map(c => ({
+      label: c.label, isFlavors: false, isItems: true,
+      hasBadge: !!c.promo, badge: c.promo || '',
+      flavors: [],
+      items: c.items.map(it => ({ n: it.n, pLabel: '$' + it.p }))
+    }));
+    const nudge = (dx) => { if (this._animateScrollBy) this._animateScrollBy(dx); };
+    return {
+      menuCards: [flavorCard].concat(catCards),
+      reviews: this.reviews(),
+      menuPrev: () => nudge(-348),
+      menuNext: () => nudge(348)
+    };
+  }
+
+  componentDidMount() {
+    const els = Array.prototype.slice.call(document.querySelectorAll('[data-hs-anim]'));
+    const reveal = (el) => { el.style.opacity = '1'; el.style.transform = 'none'; };
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const track = document.getElementById('hs-rev-track');
+
+    if (reduce) { if (track) track.style.animation = 'none'; const mt = document.getElementById('hs-menu-track'); if (mt) mt.style.animation = 'none'; els.forEach(reveal); return; }
+
+    // Hero stagger — immediate, no scroll dependency. Falls back to visible if GSAP never loads.
+    const startHero = (tries) => {
+      if (window.gsap) { try { window.gsap.from('[data-hs-hero]', { opacity:0, y:22, duration:.9, stagger:.12, ease:'power2.out' }); } catch(e) {} }
+      else if (tries < 30) { setTimeout(() => startHero(tries + 1), 100); }
+    };
+    startHero(0);
+
+    // Prep reveal targets
+    els.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(26px)'; el.style.transition = 'opacity .7s ease, transform .7s ease'; });
+
+    // Find the real scroll container (the DC runtime scrolls an inner element, not window)
+    let root = null, node = els[0];
+    while (node && node.parentElement) {
+      node = node.parentElement;
+      const cs = getComputedStyle(node);
+      if ((cs.overflowY === 'auto' || cs.overflowY === 'scroll') && node.scrollHeight > node.clientHeight + 4) { root = node; break; }
+    }
+
+    // IntersectionObserver reveal — robust regardless of which element scrolls
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(en => { if (en.isIntersecting) { reveal(en.target); io.unobserve(en.target); } });
+      }, { root: root, rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+      els.forEach(el => io.observe(el));
+    } else {
+      els.forEach(reveal);
+    }
+
+    // Hard safety net — never leave content hidden, even if the observer never fires
+    setTimeout(() => els.forEach(el => { if (getComputedStyle(el).opacity !== '1') reveal(el); }), 3000);
+
+    this.initMenuScroll();
+  }
+
+  initMenuScroll() {
+    const m = document.getElementById('hs-menu-track');
+    if (!m) return;
+    let paused = false, resumeT = null, isDown = false, startX = 0, startS = 0;
+    const resumeSoon = (ms) => { clearTimeout(resumeT); resumeT = setTimeout(() => { paused = false; }, ms); };
+    this._pauseMenu = () => { paused = true; resumeSoon(3500); };
+    // Arrow-driven eased scroll — own rAF so the auto-drift never fights it
+    this._animateScrollBy = (dx) => {
+      paused = true; clearTimeout(resumeT);
+      const start = m.scrollLeft, target = start + dx, t0 = performance.now(), dur = 440;
+      const ease = (p) => 1 - Math.pow(1 - p, 3);
+      const step = (now) => {
+        const p = Math.min(1, (now - t0) / dur);
+        m.scrollLeft = start + (target - start) * ease(p);
+        if (p < 1) requestAnimationFrame(step); else resumeSoon(3500);
+      };
+      requestAnimationFrame(step);
+    };
+    // Seamless loop: two identical card sets — wrap scroll position within the first half.
+    const wrap = () => { const half = m.scrollWidth / 2; if (half > 4) { if (m.scrollLeft >= half) m.scrollLeft -= half; else if (m.scrollLeft < 1) m.scrollLeft += half; } };
+    m.scrollLeft = 2;
+    m.addEventListener('scroll', wrap, { passive: true });
+    // Pause on hover (desktop)
+    m.addEventListener('pointerenter', () => { if (!isDown) paused = true; });
+    m.addEventListener('pointerleave', () => { if (!isDown) paused = false; });
+    // Pause briefly after touch / wheel so people can read
+    m.addEventListener('touchstart', () => { paused = true; }, { passive: true });
+    m.addEventListener('touchend', () => resumeSoon(3000));
+    m.addEventListener('wheel', () => { paused = true; resumeSoon(3000); }, { passive: true });
+    // Drag-to-scroll with the mouse
+    m.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'touch') { isDown = true; paused = true; startX = e.clientX; startS = m.scrollLeft; m.style.cursor = 'grabbing'; } });
+    window.addEventListener('pointermove', (e) => { if (isDown) m.scrollLeft = startS - (e.clientX - startX); });
+    window.addEventListener('pointerup', () => { if (isDown) { isDown = false; m.style.cursor = 'grab'; resumeSoon(3000); } });
+    // Gentle auto-drift
+    this._drift = setInterval(() => { if (!paused) m.scrollLeft += 0.6; }, 24);
+  }
+
+  componentWillUnmount() { if (this._drift) clearInterval(this._drift); }
+}
+</script>
+</body>
+</html>
