@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="logo.jpg" type="image/jpeg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colnago V4Rs — The Cycling Syndicate Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Inter',sans-serif;background:#050505;color:#f0f0f0;-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}button{border:none;background:none;cursor:pointer;font-family:inherit;color:inherit}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#050505}::-webkit-scrollbar-thumb{background:#c9a84c;border-radius:3px}
+:root{--gold:#c9a84c;--gold-light:#e0c374;--gold-glow:rgba(201,168,76,.35);--black:#050505;--card:#0e0e0e;--white:#f0f0f0;--dim:rgba(240,240,240,.6);--muted:rgba(240,240,240,.3);--font-h:'Bebas Neue',sans-serif;--ease:cubic-bezier(.4,0,.2,1)}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:1rem 4%;background:rgba(5,5,5,.92);backdrop-filter:blur(20px)}
+.nb{font-family:var(--font-h);font-size:1.4rem;color:var(--gold);letter-spacing:.06em;flex-shrink:0}
+.nav-title{font-family:var(--font-h);font-size:clamp(.85rem,1.6vw,1.15rem);letter-spacing:.12em;background:linear-gradient(90deg,rgba(240,240,240,.3),#f0f0f0,#e0c374,#f0f0f0,rgba(240,240,240,.3));background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shine 4s ease infinite;white-space:nowrap}
+@keyframes shine{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.nl{display:flex;gap:2rem}.nl a{font-size:.75rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);transition:color .3s}.nl a:hover{color:var(--gold)}
+.back{font-size:.75rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase}
+
+/* HERO */
+.hero{position:relative;height:70vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.3),rgba(5,5,5,.7) 70%,#050505 100%)}
+.hero-ct{position:relative;z-index:2;text-align:center}
+.hero-ct h1{font-family:var(--font-h);font-size:clamp(3rem,8vw,6rem);letter-spacing:.04em}
+.hero-ct h1 em{font-style:normal;color:var(--gold)}
+.hero-ct p{color:var(--dim);font-size:.85rem;margin-top:.5rem}
+
+/* CONTENT */
+.wrap{max-width:1000px;margin:0 auto;padding:3rem 4% 2rem}
+.bike-hero-img{width:100%;max-width:900px;margin:0 auto 3rem;display:block;border-radius:10px}
+.section{margin-bottom:3.5rem}
+.section h2{font-family:var(--font-h);font-size:clamp(1.8rem,3.5vw,2.5rem);letter-spacing:.04em;color:var(--gold);margin-bottom:1rem}
+.section p{font-size:.88rem;color:var(--dim);line-height:1.8;margin-bottom:.8rem;max-width:750px}
+
+/* SPECS GRID */
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1.5rem 0 2rem}
+.spec{background:var(--card);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:1.2rem;text-align:center;transition:border-color .3s,transform .3s}
+.spec:hover{border-color:rgba(201,168,76,.15);transform:translateY(-3px)}
+.spec .val{font-family:var(--font-h);font-size:1.6rem;color:var(--gold)}
+.spec .lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:.2rem}
+
+/* IMAGE GALLERY */
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.gallery img{width:100%;border-radius:8px;transition:transform .5s var(--ease)}
+.gallery img:hover{transform:scale(1.03)}
+.gallery .full{grid-column:1/-1}
+
+/* FEATURES */
+.features{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:2rem 0}
+.feat{display:flex;gap:1rem;align-items:flex-start}
+.feat-icon{font-size:1.5rem;flex-shrink:0;margin-top:.2rem}
+.feat h4{font-family:var(--font-h);font-size:1rem;letter-spacing:.04em;margin-bottom:.2rem}
+.feat p{font-size:.78rem;color:var(--dim);line-height:1.6}
+
+/* VIDEO */
+.vid-section{margin:2rem 0}
+.vid-section video{width:100%;aspect-ratio:16/9;border-radius:10px;object-fit:cover}
+
+/* CTA */
+.cta-bar{position:sticky;bottom:0;left:0;right:0;z-index:100;background:rgba(5,5,5,.95);backdrop-filter:blur(15px);border-top:1px solid rgba(201,168,76,.1);padding:1rem 4%;display:flex;align-items:center;justify-content:space-between}
+.cta-info h3{font-family:var(--font-h);font-size:1.2rem;letter-spacing:.04em}
+.cta-info p{font-size:.7rem;color:var(--muted)}
+.bg{display:inline-flex;padding:.75rem 1.8rem;background:var(--gold);color:var(--black);font-family:var(--font-h);font-size:.85rem;letter-spacing:.1em;border-radius:2px;transition:all .3s var(--ease)}
+.bg:hover{background:var(--gold-light);transform:scale(1.05);box-shadow:0 4px 20px var(--gold-glow)}
+.bo{display:inline-flex;padding:.75rem 1.8rem;border:1.5px solid var(--gold);color:var(--gold);font-family:var(--font-h);font-size:.85rem;letter-spacing:.1em;border-radius:2px;transition:all .3s var(--ease)}
+.bo:hover{background:var(--gold);color:var(--black);transform:scale(1.05)}
+
+/* MODAL */
+.modal{position:fixed;inset:0;z-index:2000;background:rgba(5,5,5,.92);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center}.modal.show{display:flex}
+.mb{max-width:520px;width:90%;text-align:center;padding:2.5rem;position:relative}
+.mx{position:absolute;top:-.8rem;right:-.8rem;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .3s}.mx:hover{border-color:var(--gold);background:rgba(201,168,76,.1)}
+.cbox{max-width:550px;width:90%;padding:2.5rem;background:var(--card);border:1px solid rgba(201,168,76,.1);border-radius:10px;position:relative}
+.ci{padding:.8rem 0;border-bottom:1px solid rgba(255,255,255,.04)}.ci h4{font-family:var(--font-h);font-size:1rem}.ci p{font-size:.7rem;color:var(--muted)}
+.ct{display:flex;justify-content:space-between;padding:1rem 0;margin-top:.5rem}.ct span{font-family:var(--font-h);font-size:1.1rem}.ct .price{color:var(--gold);font-size:1.2rem}
+.pmsg{display:none;text-align:center;padding:1.2rem;margin-top:1rem;border:1px solid rgba(201,168,76,.12);border-radius:8px;background:rgba(201,168,76,.03)}.pmsg.show{display:block}.pmsg h3{font-family:var(--font-h);font-size:1.1rem;color:var(--gold);margin-bottom:.2rem}.pmsg p{color:var(--dim);font-size:.78rem}
+
+footer{padding:2rem 4% 1rem;background:#0a0a0a;border-top:1px solid rgba(255,255,255,.04);text-align:center;font-size:.6rem;color:var(--muted)}
+@media(max-width:768px){.nl{display:none}.gallery,.features{grid-template-columns:1fr}.cta-bar{flex-direction:column;gap:.8rem;text-align:center}}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-title">THE CYCLING SYNDICATE HUB</span>
+  <div class="nl"><a href="index.html">Inicio</a><a href="index.html#bikes">Bicicletas</a><a href="index.html#history">Historia</a></div>
+  <a href="bikes-road.html" class="back">&larr; Volver</a>
+</nav>
+
+<!-- HERO VIDEO -->
+<div class="hero">
+  <video autoplay muted loop playsinline>
+    <source src="https://cdn.shopify.com/videos/c/vp/825d4a2a783047e0af5a89faeba60dcd/825d4a2a783047e0af5a89faeba60dcd.HD-720p-4.5Mbps-80190241.mp4" type="video/mp4">
+  </video>
+  <div class="hero-ct">
+    <h1>COLNAGO <em>V4Rs</em></h1>
+    <p>Máquina de Victorias — La bici con más victorias WorldTour</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- IMAGEN PRINCIPAL -->
+  <img class="bike-hero-img" src="https://a.storyblok.com/f/263970/3840x2400/84249d2572/colnago-v4r-510-rvwo-3quarter.jpg" alt="Colnago V4Rs" loading="lazy">
+
+  <!-- INTRO -->
+  <div class="section">
+    <h2>LA BICI CON MÁS VICTORIAS WORLDTOUR</h2>
+    <p>La V4Rs es la bicicleta con más victorias WorldTour en 2024. Pogačar acumuló 55+ victorias profesionales con ella, incluyendo el Tour de France 2024, Giro d'Italia, Tour de Flandes, Liège-Bastogne-Liège y el Campeonato del Mundo.</p>
+    <p>Plataforma de competición refinada en túnel de viento con cockpit CC01 que es 16% más aerodinámico. Laminación de carbono especializada con escalado lineal de reach/stack entre tallas.</p>
+  </div>
+
+  <!-- SPECS -->
+  <div class="section">
+    <h2>ESPECIFICACIONES</h2>
+    <div class="specs">
+      <div class="spec"><div class="val">55+</div><div class="lbl">Victorias</div></div>
+      <div class="spec"><div class="val">798g</div><div class="lbl">Cuadro</div></div>
+      <div class="spec"><div class="val">-16%</div><div class="lbl">Drag cockpit</div></div>
+      <div class="spec"><div class="val">32mm</div><div class="lbl">Neumáticos</div></div>
+      <div class="spec"><div class="val">€7,758</div><div class="lbl">Desde</div></div>
+      <div class="spec"><div class="val">7</div><div class="lbl">Colores</div></div>
+    </div>
+  </div>
+
+  <!-- GALERÍA -->
+  <div class="section">
+    <h2>GALERÍA</h2>
+    <div class="gallery">
+      <img src="https://a.storyblok.com/f/263970/3840x2400/4414e92a30/colnago-v4r-510-rvbu-3quarter.jpg" alt="V4Rs azul" loading="lazy">
+      <img src="https://a.storyblok.com/f/263970/3840x2400/a571def3cf/colnago-v4r-510-rvbo-3quarter.jpg" alt="V4Rs naranja" loading="lazy">
+      <img class="full" src="https://a.storyblok.com/f/263970/3290x2194/5a30b9f9b1/tadej-pogacar-at-lombardia-2024-rising-his-colnago-v4rs.jpg" alt="Pogačar levantando la V4Rs" loading="lazy">
+      <img src="https://a.storyblok.com/f/263970/7952x5304/fc5bf4165d/01-rigida-e-reattiva.jpg" alt="V4Rs rigidez" loading="lazy">
+      <img src="https://a.storyblok.com/f/263970/7952x5304/d5c577532a/v4rs-bagliore-oro-48.jpg" alt="V4Rs dorada" loading="lazy">
+      <img src="https://a.storyblok.com/f/263970/6000x4000/6278436bc7/banner-alto-racing-2.jpg" alt="V4Rs racing" loading="lazy">
+    </div>
+  </div>
+
+  <!-- CARACTERÍSTICAS -->
+  <div class="section">
+    <h2>CARACTERÍSTICAS PRINCIPALES</h2>
+    <div class="features">
+      <div class="feat">
+        <span class="feat-icon">🏆</span>
+        <div><h4>55+ Victorias WorldTour</h4><p>La bicicleta más ganadora de 2024. Tour de France, Giro, Clásicas Monumento y Campeonato del Mundo.</p></div>
+      </div>
+      <div class="feat">
+        <span class="feat-icon">💨</span>
+        <div><h4>Cockpit CC01 — 16% Más Aero</h4><p>Integración total del cockpit con 16% menos resistencia aerodinámica. Diseñado en túnel de viento.</p></div>
+      </div>
+      <div class="feat">
+        <span class="feat-icon">⚙️</span>
+        <div><h4>Headset Ceramic Speed SLT</h4><p>Rodamientos de mínima fricción para una dirección suave y precisa en cualquier condición.</p></div>
+      </div>
+      <div class="feat">
+        <span class="feat-icon">✅</span>
+        <div><h4>Homologada UCI</h4><p>Completamente apta para competición oficial. La misma bici que usan los profesionales del UAE Team Emirates.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO -->
+  <div class="section">
+    <h2>EN DETALLE</h2>
+    <div class="vid-section">
+      <video autoplay muted loop playsinline>
+        <source src="https://a.storyblok.com/f/263970/x/140620efe1/colnago-v4r-510-top-to-side.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+</div>
+
+<!-- STICKY CTA -->
+<div class="cta-bar">
+  <div class="cta-info">
+    <h3>COLNAGO V4Rs — Desde €7,758</h3>
+    <p>55+ victorias WorldTour — 7 colores disponibles</p>
+  </div>
+  <button class="bg cart" data-n="Colnago V4Rs">AGREGAR AL CARRITO</button>
+</div>
+
+<!-- MODALS -->
+<div class="modal" id="cm"><div class="mb"><button class="mx" onclick="this.closest('.modal').classList.remove('show')">✕</button><div style="font-size:2.5rem;margin-bottom:1rem">🚴</div><h2 style="font-family:var(--font-h);font-size:1.5rem;letter-spacing:.05em;margin-bottom:.3rem">BICI AGREGADA</h2><p id="cn" style="color:var(--dim);font-size:.85rem;margin-bottom:1.8rem"></p><div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap"><button class="bg" id="bchk">COMPRA TOTAL</button><button class="bo" onclick="document.getElementById('cm').classList.remove('show')">SEGUIR NAVEGANDO</button></div></div></div>
+<div class="modal" id="chk"><div class="cbox"><button class="mx" onclick="cclose()">✕</button><h2 style="font-family:var(--font-h);font-size:1.3rem;letter-spacing:.05em;margin-bottom:1rem">TU CARRITO</h2><div id="citems"></div><div class="ct"><span>Total</span><span class="price">Próximamente</span></div><div style="text-align:center;margin-top:1rem"><button class="bg" id="bbuy">COMPRAR AHORA</button></div><div class="pmsg" id="pmsg"><h3>Próximamente</h3><p>La función de compra estará disponible pronto.</p><button class="bo" style="margin-top:.7rem" onclick="cclose()">CERRAR</button></div></div></div>
+
+<footer>© 2026 The Cycling Syndicate Hub — Distribuidor Autorizado Colnago</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+// Animate sections on scroll
+gsap.utils.toArray('.section').forEach(s=>gsap.from(s,{y:40,opacity:0,duration:.7,ease:'power2.out',scrollTrigger:{trigger:s,start:'top 80%'}}));
+// Gallery images
+gsap.utils.toArray('.gallery img').forEach(img=>gsap.from(img,{y:30,opacity:0,duration:.6,ease:'power2.out',scrollTrigger:{trigger:img,start:'top 85%'}}));
+// Specs
+gsap.from('.spec',{y:20,opacity:0,stagger:.08,duration:.5,ease:'power2.out',scrollTrigger:{trigger:'.specs',start:'top 80%'}});
+
+// Cart
+const cart=[];
+document.querySelectorAll('.cart').forEach(b=>b.addEventListener('click',()=>{cart.push({name:b.dataset.n});document.getElementById('cn').textContent=b.dataset.n;document.getElementById('cm').classList.add('show')}));
+document.getElementById('bchk').addEventListener('click',()=>{document.getElementById('cm').classList.remove('show');document.getElementById('citems').innerHTML=cart.map(i=>'<div class="ci"><h4>'+i.name+'</h4><p>Precio próximamente</p></div>').join('');document.getElementById('chk').classList.add('show')});
+document.getElementById('bbuy').addEventListener('click',()=>{document.getElementById('pmsg').classList.add('show')});
+function cclose(){document.getElementById('chk').classList.remove('show');document.getElementById('pmsg').classList.remove('show')}
+</script>
+</body>
+</html>

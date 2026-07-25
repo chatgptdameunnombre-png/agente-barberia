@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="logo.jpg" type="image/jpeg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colnago Y1Rs — The Cycling Syndicate Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Inter',sans-serif;background:#050505;color:#f0f0f0;-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}button{border:none;background:none;cursor:pointer;font-family:inherit;color:inherit}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#050505}::-webkit-scrollbar-thumb{background:#c9a84c;border-radius:3px}
+:root{--gold:#c9a84c;--gold-light:#e0c374;--gold-glow:rgba(201,168,76,.35);--black:#050505;--card:#0e0e0e;--white:#f0f0f0;--dim:rgba(240,240,240,.6);--muted:rgba(240,240,240,.3);--font-h:'Bebas Neue',sans-serif;--ease:cubic-bezier(.4,0,.2,1)}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:1rem 4%;background:rgba(5,5,5,.92);backdrop-filter:blur(20px)}
+.nb{font-family:var(--font-h);font-size:1.4rem;color:var(--gold);letter-spacing:.06em;flex-shrink:0}
+.nav-title{font-family:var(--font-h);font-size:clamp(.85rem,1.6vw,1.15rem);letter-spacing:.12em;background:linear-gradient(90deg,rgba(240,240,240,.3),#f0f0f0,#e0c374,#f0f0f0,rgba(240,240,240,.3));background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shine 4s ease infinite;white-space:nowrap}
+@keyframes shine{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.nl{display:flex;gap:2rem}.nl a{font-size:.75rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);transition:color .3s}.nl a:hover{color:var(--gold)}
+.back{font-size:.75rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase}
+
+/* HERO */
+.hero{position:relative;height:70vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.3),rgba(5,5,5,.7) 70%,#050505 100%)}
+.hero-ct{position:relative;z-index:2;text-align:center}
+.hero-ct h1{font-family:var(--font-h);font-size:clamp(3rem,8vw,6rem);letter-spacing:.04em}
+.hero-ct h1 em{font-style:normal;color:var(--gold)}
+.hero-ct p{color:var(--dim);font-size:.85rem;margin-top:.5rem}
+
+/* CONTENT */
+.wrap{max-width:1000px;margin:0 auto;padding:3rem 4% 2rem}
+.bike-hero-img{width:100%;max-width:900px;margin:0 auto 3rem;display:block;border-radius:10px}
+.section{margin-bottom:3.5rem}
+.section h2{font-family:var(--font-h);font-size:clamp(1.8rem,3.5vw,2.5rem);letter-spacing:.04em;color:var(--gold);margin-bottom:1rem}
+.section p{font-size:.88rem;color:var(--dim);line-height:1.8;margin-bottom:.8rem;max-width:750px}
+
+/* SPECS GRID */
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1.5rem 0 2rem}
+.spec{background:var(--card);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:1.2rem;text-align:center;transition:border-color .3s,transform .3s}
+.spec:hover{border-color:rgba(201,168,76,.15);transform:translateY(-3px)}
+.spec .val{font-family:var(--font-h);font-size:1.6rem;color:var(--gold)}
+.spec .lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:.2rem}
+
+/* IMAGE GALLERY */
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.gallery img{width:100%;border-radius:8px;transition:transform .5s var(--ease)}
+.gallery img:hover{transform:scale(1.03)}
+.gallery .full{grid-column:1/-1}
+
+/* FEATURES */
+.features{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:2rem 0}
+.feat{display:flex;gap:1rem;align-items:flex-start}
+.feat-icon{font-size:1.5rem;flex-shrink:0;margin-top:.2rem}
+.feat h4{font-family:var(--font-h);font-size:1rem;letter-spacing:.04em;margin-bottom:.2rem}
+.feat p{font-size:.78rem;color:var(--dim);line-height:1.6}
+
+/* VIDEO */
+.vid-section{margin:2rem 0}
+.vid-section video{width:100%;aspect-ratio:16/9;border-radius:10px;object-fit:cover}
+
+/* CTA */
+.cta-bar{position:sticky;bottom:0;left:0;right:0;z-index:100;background:rgba(5,5,5,.95);backdrop-filter:blur(15px);border-top:1px solid rgba(201,168,76,.1);padding:1rem 4%;display:flex;align-items:center;justify-content:space-between}
+.cta-info h3{font-family:var(--font-h);font-size:1.2rem;letter-spacing:.04em}
+.cta-info p{font-size:.7rem;color:var(--muted)}
+.bg{display:inline-flex;padding:.75rem 1.8rem;background:var(--gold);color:var(--black);font-family:var(--font-h);font-size:.85rem;letter-spacing:.1em;border-radius:2px;transition:all .3s var(--ease)}
+.bg:hover{background:var(--gold-light);transform:scale(1.05);box-shadow:0 4px 20px var(--gold-glow)}
+.bo{display:inline-flex;padding:.75rem 1.8rem;border:1.5px solid var(--gold);color:var(--gold);font-family:var(--font-h);font-size:.85rem;letter-spacing:.1em;border-radius:2px;transition:all .3s var(--ease)}
+.bo:hover{background:var(--gold);color:var(--black);transform:scale(1.05)}
+
+/* MODAL */
+.modal{position:fixed;inset:0;z-index:2000;background:rgba(5,5,5,.92);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center}.modal.show{display:flex}
+.mb{max-width:520px;width:90%;text-align:center;padding:2.5rem;position:relative}
+.mx{position:absolute;top:-.8rem;right:-.8rem;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .3s}.mx:hover{border-color:var(--gold);background:rgba(201,168,76,.1)}
+.cbox{max-width:550px;width:90%;padding:2.5rem;background:var(--card);border:1px solid rgba(201,168,76,.1);border-radius:10px;position:relative}
+.ci{padding:.8rem 0;border-bottom:1px solid rgba(255,255,255,.04)}.ci h4{font-family:var(--font-h);font-size:1rem}.ci p{font-size:.7rem;color:var(--muted)}
+.ct{display:flex;justify-content:space-between;padding:1rem 0;margin-top:.5rem}.ct span{font-family:var(--font-h);font-size:1.1rem}.ct .price{color:var(--gold);font-size:1.2rem}
+.pmsg{display:none;text-align:center;padding:1.2rem;margin-top:1rem;border:1px solid rgba(201,168,76,.12);border-radius:8px;background:rgba(201,168,76,.03)}.pmsg.show{display:block}.pmsg h3{font-family:var(--font-h);font-size:1.1rem;color:var(--gold);margin-bottom:.2rem}.pmsg p{color:var(--dim);font-size:.78rem}
+
+footer{padding:2rem 4% 1rem;background:#0a0a0a;border-top:1px solid rgba(255,255,255,.04);text-align:center;font-size:.6rem;color:var(--muted)}
+@media(max-width:768px){.nl{display:none}.gallery,.features{grid-template-columns:1fr}.cta-bar{flex-direction:column;gap:.8rem;text-align:center}}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-title">THE CYCLING SYNDICATE HUB</span>
+  <div class="nl"><a href="index.html">Inicio</a><a href="index.html#bikes">Bicicletas</a><a href="index.html#history">Historia</a></div>
+  <a href="bikes-road.html" class="back">&larr; Volver</a>
+</nav>
+
+<!-- HERO VIDEO -->
+<div class="hero">
+  <video autoplay muted loop playsinline>
+    <source src="https://cdn.shopify.com/videos/c/vp/d7f522ee836d4fdb9c87676e33a12e7a/d7f522ee836d4fdb9c87676e33a12e7a.HD-720p-3.0Mbps-80190283.mp4" type="video/mp4">
+  </video>
+  <div class="hero-ct">
+    <h1>COLNAGO <em>Y1Rs</em></h1>
+    <p>Aero — La bicicleta más aerodinámica de Colnago</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- IMAGEN PRINCIPAL -->
+  <img class="bike-hero-img" src="https://a.storyblok.com/f/263970/8215x5315/4b6325334b/colnago_y1rs_wcblack_prospettiva-ant-fondo-nero.jpg" alt="Colnago Y1Rs" loading="lazy">
+
+  <!-- INTRO -->
+  <div class="section">
+    <h2>LA BICICLETA MÁS AERODINÁMICA DE COLNAGO</h2>
+    <p>La Y1Rs es la bicicleta más aerodinámica en la historia de Colnago. Desarrollada durante 3 años con Khalifa University y Politecnico di Milano. Requiere 20 watts menos para mantener 50 km/h gracias a un área frontal 19% menor que la V4Rs.</p>
+    <p>Manillar CC.Y1 con tecnología WYND (diseño ala de gaviota). Tubo de sillín DEFY de doble unión. Es la bici que Pogačar usa en etapas llanas y Clásicas Monumento. Isaac del Toro la usa en versión "Dark".</p>
+  </div>
+
+  <!-- SPECS -->
+  <div class="section">
+    <h2>ESPECIFICACIONES</h2>
+    <div class="specs">
+      <div class="spec"><div class="val">-20W</div><div class="lbl">A 50km/h</div></div>
+      <div class="spec"><div class="val">-19%</div><div class="lbl">Área frontal</div></div>
+      <div class="spec"><div class="val">7.2kg</div><div class="lbl">Peso</div></div>
+      <div class="spec"><div class="val">€12,300</div><div class="lbl">Desde</div></div>
+      <div class="spec"><div class="val">Limitada</div><div class="lbl">Edición numerada</div></div>
+      <div class="spec"><div class="val">Columbus</div><div class="lbl">Carbono + Ti 3D</div></div>
+    </div>
+  </div>
+
+  <!-- GALERÍA -->
+  <div class="section">
+    <h2>GALERÍA</h2>
+    <div class="gallery">
+      <img src="https://a.storyblok.com/f/263970/3840x2400/37435a2b62/colnago-2025-y1rs-34-black-white.jpg" alt="Y1Rs negro blanco" loading="lazy">
+      <img src="https://a.storyblok.com/f/263970/8215x5315/5a34bd1e02/colnago-y1rs-viola-prospettiva-ant-fondo-nero-bagliore-oro.jpg" alt="Y1Rs viola" loading="lazy">
+      <img class="full" src="https://a.storyblok.com/f/263970/8215x5315/27d9ad71ec/y1rs-mondiale-bagliore-oro-prospettiva-anteriore.jpg" alt="Y1Rs mondiale" loading="lazy">
+      <img src="https://a.storyblok.com/f/263970/7952x5304/16bc9eb275/y1rs-teamman-particolari-3.jpg" alt="Y1Rs detalle team" loading="lazy">
+      <img src="https://a.storyblok.com/f/263970/7259x5126/a53b3096ab/y1rs-teamman-particolari-5.jpg" alt="Y1Rs detalle componentes" loading="lazy">
+      <img src="https://a.storyblok.com/f/263970/6870x4580/e7adff3f73/colnago-galleria-del-vento-bici-aero-70.jpg" alt="Y1Rs túnel de viento" loading="lazy">
+    </div>
+  </div>
+
+  <!-- CARACTERÍSTICAS -->
+  <div class="section">
+    <h2>CARACTERÍSTICAS PRINCIPALES</h2>
+    <div class="features">
+      <div class="feat">
+        <span class="feat-icon">💨</span>
+        <div><h4>Manillar CC.Y1 WYND</h4><p>Diseño ala de gaviota con mínima resistencia aerodinámica. Tecnología WYND exclusiva para la Y1Rs.</p></div>
+      </div>
+      <div class="feat">
+        <span class="feat-icon">🔧</span>
+        <div><h4>Tubos Columbus Carbono + Ti 3D</h4><p>Juntas de titanio impresas en 3D combinadas con tubos de carbono Columbus. Artesanía italiana de máximo nivel.</p></div>
+      </div>
+      <div class="feat">
+        <span class="feat-icon">⚡</span>
+        <div><h4>Tubo de Sillín DEFY</h4><p>Diseño de doble unión radical que optimiza la aerodinámica y la comodidad sin comprometer la rigidez.</p></div>
+      </div>
+      <div class="feat">
+        <span class="feat-icon">🔐</span>
+        <div><h4>Edición Limitada Numerada</h4><p>Cada cuadro está numerado individualmente con registro blockchain de autenticidad.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO -->
+  <div class="section">
+    <h2>EN DETALLE</h2>
+    <div class="vid-section">
+      <video autoplay muted loop playsinline>
+        <source src="https://a.storyblok.com/f/263970/x/22430f68dd/video-animation-reduced-1.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+</div>
+
+<!-- STICKY CTA -->
+<div class="cta-bar">
+  <div class="cta-info">
+    <h3>COLNAGO Y1Rs — Desde €12,300</h3>
+    <p>Edición limitada numerada — Registro blockchain</p>
+  </div>
+  <button class="bg cart" data-n="Colnago Y1Rs">AGREGAR AL CARRITO</button>
+</div>
+
+<!-- MODALS -->
+<div class="modal" id="cm"><div class="mb"><button class="mx" onclick="this.closest('.modal').classList.remove('show')">✕</button><div style="font-size:2.5rem;margin-bottom:1rem">🚴</div><h2 style="font-family:var(--font-h);font-size:1.5rem;letter-spacing:.05em;margin-bottom:.3rem">BICI AGREGADA</h2><p id="cn" style="color:var(--dim);font-size:.85rem;margin-bottom:1.8rem"></p><div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap"><button class="bg" id="bchk">COMPRA TOTAL</button><button class="bo" onclick="document.getElementById('cm').classList.remove('show')">SEGUIR NAVEGANDO</button></div></div></div>
+<div class="modal" id="chk"><div class="cbox"><button class="mx" onclick="cclose()">✕</button><h2 style="font-family:var(--font-h);font-size:1.3rem;letter-spacing:.05em;margin-bottom:1rem">TU CARRITO</h2><div id="citems"></div><div class="ct"><span>Total</span><span class="price">Próximamente</span></div><div style="text-align:center;margin-top:1rem"><button class="bg" id="bbuy">COMPRAR AHORA</button></div><div class="pmsg" id="pmsg"><h3>Próximamente</h3><p>La función de compra estará disponible pronto.</p><button class="bo" style="margin-top:.7rem" onclick="cclose()">CERRAR</button></div></div></div>
+
+<footer>© 2026 The Cycling Syndicate Hub — Distribuidor Autorizado Colnago</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+// Animate sections on scroll
+gsap.utils.toArray('.section').forEach(s=>gsap.from(s,{y:40,opacity:0,duration:.7,ease:'power2.out',scrollTrigger:{trigger:s,start:'top 80%'}}));
+// Gallery images
+gsap.utils.toArray('.gallery img').forEach(img=>gsap.from(img,{y:30,opacity:0,duration:.6,ease:'power2.out',scrollTrigger:{trigger:img,start:'top 85%'}}));
+// Specs
+gsap.from('.spec',{y:20,opacity:0,stagger:.08,duration:.5,ease:'power2.out',scrollTrigger:{trigger:'.specs',start:'top 80%'}});
+
+// Cart
+const cart=[];
+document.querySelectorAll('.cart').forEach(b=>b.addEventListener('click',()=>{cart.push({name:b.dataset.n});document.getElementById('cn').textContent=b.dataset.n;document.getElementById('cm').classList.add('show')}));
+document.getElementById('bchk').addEventListener('click',()=>{document.getElementById('cm').classList.remove('show');document.getElementById('citems').innerHTML=cart.map(i=>'<div class="ci"><h4>'+i.name+'</h4><p>Precio próximamente</p></div>').join('');document.getElementById('chk').classList.add('show')});
+document.getElementById('bbuy').addEventListener('click',()=>{document.getElementById('pmsg').classList.add('show')});
+function cclose(){document.getElementById('chk').classList.remove('show');document.getElementById('pmsg').classList.remove('show')}
+</script>
+</body>
+</html>
