@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Discipline">
+<meta name="theme-color" content="#0a0a0a">
+<title>Discipline</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/raccoon-idle.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--s1:#111111;--s2:#1a1a1a;--s3:#252525;--border:#2a2a2a;
+  --text:#fff;--muted:#666;--green:#4ade80;--orange:#ff9500;--red:#ef4444;--blue:#60a5fa;--purple:#a78bfa;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;touch-action:none}
+
+#viewport{width:100vw;height:100vh;overflow:hidden;position:relative}
+#panels{display:flex;width:300vw;height:100%;will-change:transform}
+#panels.animating{transition:transform .35s cubic-bezier(.25,.46,.45,.94)}
+.panel{width:100vw;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 20px;padding-top:calc(env(safe-area-inset-top,0px) + 24px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 80px)}
+
+#tab-bar{position:fixed;bottom:0;left:0;right:0;height:calc(58px + env(safe-area-inset-bottom,0px));background:#111;border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:8px;z-index:100}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tab-label{font-size:10px;color:#555;transition:color .2s}
+.tab-item.active .tab-label{color:var(--orange)}
+.tab-item svg path{stroke:#555;transition:stroke .2s}
+.tab-item svg rect{fill:#555;transition:fill .2s}
+.tab-item.active svg path{stroke:var(--orange)}
+.tab-item.active svg rect{fill:var(--orange)}
+
+/* HOME */
+.home-inner{display:flex;flex-direction:column;align-items:center}
+.fire-wrap{display:flex;justify-content:center;margin-bottom:4px}
+#fire-img{height:140px;width:auto}
+.raccoon-outer{display:flex;justify-content:center;margin:0 auto}
+#raccoon-img{height:200px;width:auto;will-change:transform;display:block}
+.bubble{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:10px 14px;font-size:13px;color:#ccc;line-height:1.45;max-width:270px;text-align:center;margin:10px 0 18px;position:relative}
+.bubble::before{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%);border:9px solid transparent;border-bottom-color:var(--border);border-top:none}
+.bubble::after{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);border:7px solid transparent;border-bottom-color:var(--s2);border-top:none}
+.xp-section{width:100%;margin-bottom:18px}
+.xp-head{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px}
+.xp-head b{color:var(--orange)}
+.xp-bg{background:var(--s3);border-radius:20px;height:8px;overflow:hidden}
+.xp-fill{height:100%;background:var(--green);border-radius:20px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;margin-bottom:18px}
+.sc{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:12px 6px;text-align:center}
+.sc .v{font-size:22px;font-weight:700;display:block}
+.sc .l{font-size:10px;color:var(--muted);display:block;margin-top:2px}
+.vo{color:var(--orange)}.vg{color:var(--green)}.vb{color:var(--blue)}.vp{color:var(--purple)}
+.today-card{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:14px 16px}
+.today-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.today-card-head strong{font-size:14px}
+.today-card-head span{font-size:12px;color:var(--muted)}
+.mini-dots{display:flex;gap:7px;flex-wrap:wrap}
+.mdot{width:11px;height:11px;border-radius:50%;background:var(--border);transition:background .3s}
+.mdot.done{background:var(--green)}
+.mdot.week{background:var(--border)}
+.mdot.week.done{background:var(--blue)}
+.mdot.month{background:var(--border)}
+.mdot.month.done{background:var(--purple)}
+
+/* TRACKER */
+.trk-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.trk-date-big{font-size:17px;font-weight:700}
+.trk-date-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.ring-wrap{position:relative;width:64px;height:64px;flex-shrink:0}
+.ring-wrap svg{position:absolute;top:0;left:0}
+
+.section-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:18px 0 10px}
+.section-label:first-child{margin-top:0}
+
+.goal-list{display:flex;flex-direction:column;gap:10px}
+.gi{display:flex;align-items:center;gap:14px;background:var(--s2);border:1.5px solid var(--border);border-radius:16px;padding:15px 14px;cursor:pointer;transition:border-color .2s,background .2s;-webkit-tap-highlight-color:transparent;user-select:none}
+.gi.done{background:rgba(74,222,128,.07);border-color:rgba(74,222,128,.35)}
+.gi.done-week{background:rgba(96,165,250,.07);border-color:rgba(96,165,250,.35)}
+.gi.done-month{background:rgba(167,139,250,.07);border-color:rgba(167,139,250,.35)}
+.gi:active{transform:scale(.98)}
+.gi-emoji{font-size:22px;flex-shrink:0}
+.gi-info{flex:1}
+.gi-name{font-size:15px;font-weight:500;transition:color .2s}
+.gi.done .gi-name,.gi.done-week .gi-name,.gi.done-month .gi-name{color:var(--muted);text-decoration:line-through}
+.gi-xp{font-size:11px;color:var(--orange);margin-top:2px}
+
+.check{width:28px;height:28px;border-radius:50%;border:2.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.check.done{background:var(--green);border-color:var(--green)}
+.check.done-w{background:var(--blue);border-color:var(--blue)}
+.check.done-m{background:var(--purple);border-color:var(--purple)}
+.check svg{opacity:0;transition:opacity .2s}
+.check.done svg,.check.done-w svg,.check.done-m svg{opacity:1}
+
+.counter-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.counter-btn{width:32px;height:32px;border-radius:50%;background:var(--s3);border:1.5px solid var(--border);color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s;line-height:1}
+.counter-btn:active{background:var(--orange);border-color:var(--orange)}
+.counter-val{font-size:13px;font-weight:700;color:var(--text);min-width:28px;text-align:center}
+.counter-val.full{color:var(--blue)}
+
+/* STATS */
+.stats-head{margin-bottom:18px}
+.stats-head h2{font-size:22px;font-weight:700}
+.stats-head p{font-size:12px;color:var(--muted);margin-top:3px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:18px}
+.tb{background:var(--s2);border:1.5px solid var(--border);border-radius:10px;padding:9px 4px;font-size:12px;color:var(--muted);cursor:pointer;text-align:center;font-family:inherit;transition:all .2s}
+.tb.active{background:var(--orange);border-color:var(--orange);color:#000;font-weight:700}
+.chart-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px}
+.cc-label{font-size:11px;color:var(--muted);margin-bottom:2px}
+.cc-val{font-size:26px;font-weight:700;margin-bottom:12px}
+.cc-val small{font-size:13px;color:var(--muted);font-weight:400;margin-left:4px}
+canvas{display:block;width:100%}
+.hmap{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:6px}
+.hday{font-size:9px;color:var(--muted);text-align:center;padding:2px 0}
+.hcell{aspect-ratio:1;border-radius:3px;background:var(--s2)}
+.hcell.p1{background:#14532d}.hcell.p2{background:#166534}.hcell.p3{background:#22c55e}.hcell.p4{background:#4ade80}
+.hcell.tr{outline:2px solid var(--orange);outline-offset:1px}
+
+.bonus-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.bonus-card{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+.bonus-card .bc-label{font-size:10px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.bonus-card .bc-val{font-size:20px;font-weight:700}
+.bc-week{color:var(--blue)}.bc-month{color:var(--purple)}
+.bc-bar{height:5px;background:var(--s3);border-radius:10px;margin-top:6px;overflow:hidden}
+.bc-bar-fill{height:100%;border-radius:10px;transition:width .5s cubic-bezier(.34,1.56,.64,1)}
+.bc-bar-fill.week{background:var(--blue)}.bc-bar-fill.month{background:var(--purple)}
+
+.xp-pop{position:fixed;font-size:17px;font-weight:700;color:var(--orange);pointer-events:none;z-index:999}
+.cpiece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:998}
+</style>
+</head>
+<body>
+<div id="viewport">
+<div id="panels">
+
+  <!-- PANEL 0: TRACKER -->
+  <div class="panel" id="p-tracker">
+    <div class="trk-head">
+      <div>
+        <div class="trk-date-big" id="trk-date"></div>
+        <div class="trk-date-sub">¿qué hiciste hoy?</div>
+      </div>
+      <div class="ring-wrap">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="#1a1a1a" stroke-width="5"/>
+          <circle id="ring-arc" cx="32" cy="32" r="26" fill="none" stroke="#4ade80" stroke-width="5"
+            stroke-dasharray="163.4" stroke-dashoffset="163.4"
+            stroke-linecap="round" transform="rotate(-90 32 32)"/>
+          <text id="ring-txt" x="32" y="37" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">0%</text>
+        </svg>
+      </div>
+    </div>
+    <div id="tracker-body"></div>
+  </div>
+
+  <!-- PANEL 1: HOME -->
+  <div class="panel" id="p-home">
+    <div class="home-inner">
+      <div class="fire-wrap">
+        <img id="fire-img" src="assets/fire-normal.png?v=2" alt="">
+      </div>
+      <div class="raccoon-outer">
+        <img id="raccoon-img" src="assets/raccoon-idle.png?v=2" alt="">
+      </div>
+      <div class="bubble" id="bubble">Toca una meta para empezar 👀</div>
+      <div class="xp-section">
+        <div class="xp-head"><span id="lvl-lbl">Nivel 1</span><b id="xp-lbl">0 / 100 XP</b></div>
+        <div class="xp-bg"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+      </div>
+      <div class="stats3">
+        <div class="sc"><span class="v vo" id="h-streak">0</span><span class="l">racha</span></div>
+        <div class="sc"><span class="v vg" id="h-today">0/6</span><span class="l">hoy</span></div>
+        <div class="sc"><span class="v vb" id="h-xp">0</span><span class="l">XP total</span></div>
+      </div>
+      <div class="today-card">
+        <div class="today-card-head">
+          <strong>Hoy</strong><span id="h-pct">0%</span>
+        </div>
+        <div class="mini-dots" id="mini-dots"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2: STATS -->
+  <div class="panel" id="p-stats">
+    <div class="stats-head">
+      <h2>Progreso</h2>
+      <p id="stats-sub">cargando...</p>
+    </div>
+    <div class="tabs">
+      <button class="tb active" data-t="week">Sem</button>
+      <button class="tb" data-t="month">Mes</button>
+      <button class="tb" data-t="year">Año</button>
+      <button class="tb" data-t="all">Todo</button>
+    </div>
+    <div id="stats-body"></div>
+  </div>
+
+</div>
+<div id="tab-bar">
+  <div class="tab-item" data-p="0" onclick="goPanel(0)">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="#555" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M9 12l2 2 4-4" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="tab-label">Tracker</span>
+  </div>
+  <div class="tab-item active" data-p="1" onclick="goPanel(1)">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M3 12l9-9 9 9M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" stroke="#ff9500" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="tab-label">Inicio</span>
+  </div>
+  <div class="tab-item" data-p="2" onclick="goPanel(2)">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="13" width="4" height="8" rx="1"/>
+      <rect x="10" y="8" width="4" height="13" rx="1"/>
+      <rect x="17" y="4" width="4" height="17" rx="1"/>
+    </svg>
+    <span class="tab-label">Stats</span>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+const DAILY = [
+  {id:1, name:'Despertarse temprano',  emoji:'🌅', xp:20},
+  {id:2, name:'Leer 10 páginas',       emoji:'📖', xp:20},
+  {id:3, name:'Hacer ejercicio',       emoji:'💪', xp:20},
+  {id:4, name:'1 hora al negocio',     emoji:'💼', xp:20},
+  {id:5, name:'Cero azúcar',           emoji:'🚫', xp:20},
+  {id:6, name:'Menos de 2h pantalla',  emoji:'📵', xp:20},
+]
+const WEEKLY = [
+  {id:7, name:'3 oportunidades de negocio', emoji:'🤝', xp:60, target:3},
+]
+const MONTHLY = [
+  {id:8, name:'Cerrar 1 venta',        emoji:'🏆', xp:150, target:1},
+]
+
+const MSG = {
+  check:  ['¡Así se hace!','¡Eso es!','¡Wey!','¡Vamoooos!','¡Arriba!'],
+  all:    ['¡PERFECTO! ¡ERES UN MONSTRUO! 🔥','¡RACHA SALVADA! ¡100%!','¡IMPARABLE! ¡TODO HECHO!'],
+  week:   ['¡Oportunidades al máximo! 🤝','¡Semana de negocios sólida! 💼'],
+  month:  ['¡¡VENDISTE!! ¡MAPACHE DE ORO! 🏆','¡VENTA CERRADA! ¡LEYENDA! 💰'],
+  idle:   ['¿Qué esperas? 👀','Oye, sigo aquí 🦝','La racha no se hace sola 😤','¿Vas a hacer tus cosas? 💪'],
+}
+
+const LEVEL_XP = [0,100,250,500,1000,2000,4000,8000,15000,30000]
+
+let STATE = {}
+let raccoonBusy = false
+let currentPanel = 1
+let currentTab = 'week'
+
+function today(){ return new Date().toISOString().slice(0,10) }
+function r(arr){ return arr[Math.floor(Math.random()*arr.length)] }
+
+function isoWeek(date){
+  const d = new Date(date)
+  d.setHours(0,0,0,0)
+  d.setDate(d.getDate()+3-(d.getDay()+6)%7)
+  const w = new Date(d.getFullYear(),0,4)
+  return d.getFullYear()+'-W'+String(1+Math.round(((d-w)/86400000-3+(w.getDay()+6)%7)/7)).padStart(2,'0')
+}
+
+function thisMonth(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` }
+function thisWeek(){ return isoWeek(today()) }
+
+function load(){
+  const raw = localStorage.getItem('dis_v2')
+  STATE = raw ? JSON.parse(raw) : {history:{}, weekly:{}, monthly:{}, createdAt:today()}
+  if(!STATE.weekly)  STATE.weekly  = {}
+  if(!STATE.monthly) STATE.monthly = {}
+}
+function save(){ localStorage.setItem('dis_v2',JSON.stringify(STATE)) }
+
+function todayDone(){ return STATE.history[today()]||[] }
+
+function weekProgress(){
+  const wk = thisWeek()
+  return STATE.weekly[wk]||{}
+}
+function monthProgress(){
+  const mo = thisMonth()
+  return STATE.monthly[mo]||{}
+}
+
+function streak(){
+  const t = today()
+  const done = todayDone()
+  const fullToday = done.length === DAILY.length
+  const d = new Date()
+  if(!fullToday){
+    d.setDate(d.getDate()-1)
+    const y = d.toISOString().slice(0,10)
+    if(!((STATE.history[y]||[]).length===DAILY.length)) return 0
+  }
+  let s=0
+  const start = new Date()
+  if(!fullToday) start.setDate(start.getDate()-1)
+  for(let i=0;i<365;i++){
+    const k=start.toISOString().slice(0,10)
+    if((STATE.history[k]||[]).length===DAILY.length){s++;start.setDate(start.getDate()-1)}
+    else break
+  }
+  return s
+}
+
+function longestStreak(){
+  const keys=Object.keys(STATE.history).sort()
+  let best=0,cur=0
+  for(const k of keys){
+    if((STATE.history[k]||[]).length===DAILY.length){cur++;best=Math.max(best,cur)}else cur=0
+  }
+  return best
+}
+
+function totalXp(){
+  let t=0
+  for(const d of Object.values(STATE.history)) t+=(d||[]).length*20
+  for(const wk of Object.values(STATE.weekly))
+    for(const g of WEEKLY){ if((wk[g.id]||0)>=g.target) t+=g.xp }
+  for(const mo of Object.values(STATE.monthly))
+    for(const g of MONTHLY){ if((mo[g.id]||0)>=g.target) t+=g.xp }
+  return t
+}
+
+function level(xp){
+  for(let i=LEVEL_XP.length-1;i>=0;i--) if(xp>=LEVEL_XP[i]) return i+1
+  return 1
+}
+function xpProgress(xp){
+  const lv=level(xp)-1
+  const cur=LEVEL_XP[Math.min(lv,LEVEL_XP.length-1)]||0
+  const nxt=LEVEL_XP[Math.min(lv+1,LEVEL_XP.length-1)]||cur+100
+  return {cur:xp-cur,need:nxt-cur}
+}
+
+function dayPct(ds){ return DAILY.length?(STATE.history[ds]||[]).length/DAILY.length:0 }
+function dStr(ago){ const d=new Date();d.setDate(d.getDate()-ago);return d.toISOString().slice(0,10) }
+
+/* ── RENDER TRACKER ── */
+function renderTracker(){
+  const done = todayDone()
+  const wk = weekProgress()
+  const mo = monthProgress()
+  const pct = DAILY.length?done.length/DAILY.length:0
+  const circ = 2*Math.PI*26
+
+  const arc = document.getElementById('ring-arc')
+  if(arc){
+    arc.style.strokeDashoffset = circ*(1-pct)
+    arc.style.stroke = pct===1?'#ff9500':'#4ade80'
+  }
+  const rt = document.getElementById('ring-txt')
+  if(rt) rt.textContent = Math.round(pct*100)+'%'
+
+  const body = document.getElementById('tracker-body')
+  body.innerHTML = `
+    <div class="section-label">Hoy</div>
+    <div class="goal-list">
+      ${DAILY.map(g=>`
+        <div class="gi ${done.includes(g.id)?'done':''}" onclick="toggleDaily(${g.id},event)">
+          <span class="gi-emoji">${g.emoji}</span>
+          <div class="gi-info">
+            <div class="gi-name">${g.name}</div>
+            <div class="gi-xp">+${g.xp} XP</div>
+          </div>
+          <div class="check ${done.includes(g.id)?'done':''}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7l3.5 3.5L12 3" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="section-label">Esta semana</div>
+    <div class="goal-list">
+      ${WEEKLY.map(g=>{
+        const cur = wk[g.id]||0
+        const full = cur>=g.target
+        return `
+        <div class="gi ${full?'done-week':''}">
+          <span class="gi-emoji">${g.emoji}</span>
+          <div class="gi-info">
+            <div class="gi-name">${g.name}</div>
+            <div class="gi-xp" style="color:var(--blue)">+${g.xp} XP al completar</div>
+          </div>
+          <div class="counter-wrap">
+            <button class="counter-btn" onclick="decCounter(${g.id},'weekly',${g.target},event)">−</button>
+            <div class="counter-val ${full?'full':''}">${cur}/${g.target}</div>
+            <button class="counter-btn" onclick="incCounter(${g.id},'weekly',${g.target},event)">+</button>
+          </div>
+        </div>`}).join('')}
+    </div>
+    <div class="section-label">Este mes</div>
+    <div class="goal-list">
+      ${MONTHLY.map(g=>{
+        const cur = mo[g.id]||0
+        const full = cur>=g.target
+        return `
+        <div class="gi ${full?'done-month':''}">
+          <span class="gi-emoji">${g.emoji}</span>
+          <div class="gi-info">
+            <div class="gi-name">${g.name}</div>
+            <div class="gi-xp" style="color:var(--purple)">+${g.xp} XP al cerrar</div>
+          </div>
+          <div class="counter-wrap">
+            <button class="counter-btn" onclick="decCounter(${g.id},'monthly',${g.target},event)">−</button>
+            <div class="counter-val ${full?'full':''}" style="${full?'color:var(--purple)':''}">${cur}/${g.target}</div>
+            <button class="counter-btn" onclick="incCounter(${g.id},'monthly',${g.target},event)">+</button>
+          </div>
+        </div>`}).join('')}
+    </div>
+  `
+}
+
+/* ── RENDER HOME ── */
+function renderHome(){
+  const done = todayDone()
+  const wk = weekProgress()
+  const mo = monthProgress()
+  const s = streak()
+  const xp = totalXp()
+  const lv = level(xp)
+  const xpp = xpProgress(xp)
+  const pct = DAILY.length?Math.round(done.length/DAILY.length*100):0
+
+  document.getElementById('h-streak').textContent = s
+  document.getElementById('h-today').textContent = `${done.length}/${DAILY.length}`
+  document.getElementById('h-xp').textContent = xp
+  document.getElementById('h-pct').textContent = pct+'%'
+  document.getElementById('lvl-lbl').textContent = 'Nivel '+lv
+  document.getElementById('xp-lbl').textContent = xpp.cur+' / '+xpp.need+' XP'
+  document.getElementById('xp-fill').style.width = (xpp.cur/xpp.need*100)+'%'
+
+  const fi = document.getElementById('fire-img')
+  if(s===0) fi.src='assets/fire-broken.png?v=2'
+  else if(s>=7) fi.src='assets/fire-onfire.png?v=2'
+  else fi.src='assets/fire-normal.png?v=2'
+
+  const dots = [
+    ...DAILY.map(g=>({done:done.includes(g.id), type:'day'})),
+    ...WEEKLY.map(g=>({done:(wk[g.id]||0)>=g.target, type:'week'})),
+    ...MONTHLY.map(g=>({done:(mo[g.id]||0)>=g.target, type:'month'})),
+  ]
+  document.getElementById('mini-dots').innerHTML = dots.map(d=>
+    `<div class="mdot ${d.type!=='day'?d.type:''} ${d.done?'done':''}"></div>`
+  ).join('')
+
+  if(!raccoonBusy){
+    const bub = document.getElementById('bubble')
+    if(s>0) bub.innerHTML=`¡Llevas <b>${s} día${s>1?'s':''}</b> sin fallar 🔥`
+    else bub.textContent='Toca una meta para empezar 👀'
+  }
+}
+
+function renderDate(){
+  const d=new Date()
+  const days=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+  const el=document.getElementById('trk-date')
+  if(el) el.textContent=`${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`
+}
+
+/* ── ACTIONS ── */
+function toggleDaily(id, e){
+  const t = today()
+  if(!STATE.history[t]) STATE.history[t]=[]
+  const done = STATE.history[t]
+  const wasAll = done.length===DAILY.length
+  if(done.includes(id)){
+    STATE.history[t]=done.filter(x=>x!==id)
+  } else {
+    done.push(id)
+    xpPop(e.clientX,e.clientY,'+20 XP')
+    animCheck()
+  }
+  save()
+  if(!wasAll && STATE.history[t].length===DAILY.length) setTimeout(animComplete,700)
+  renderTracker()
+  renderHome()
+}
+
+function incCounter(id, freq, target, e){
+  e.stopPropagation()
+  const key = freq==='weekly'?thisWeek():thisMonth()
+  const store = freq==='weekly'?STATE.weekly:STATE.monthly
+  if(!store[key]) store[key]={}
+  const cur = store[key][id]||0
+  if(cur>=target) return
+  store[key][id]=cur+1
+  save()
+  const goal = [...WEEKLY,...MONTHLY].find(g=>g.id===id)
+  if(store[key][id]>=target){
+    xpPop(e.clientX,e.clientY,`+${goal.xp} XP`)
+    const msg = freq==='weekly'?r(MSG.week):r(MSG.month)
+    animBonus(msg, freq==='monthly')
+  } else {
+    xpPop(e.clientX,e.clientY,'✓')
+  }
+  renderTracker()
+  renderHome()
+}
+
+function decCounter(id, freq, target, e){
+  e.stopPropagation()
+  const key = freq==='weekly'?thisWeek():thisMonth()
+  const store = freq==='weekly'?STATE.weekly:STATE.monthly
+  if(!store[key]) return
+  const cur = store[key][id]||0
+  if(cur<=0) return
+  store[key][id]=cur-1
+  save()
+  renderTracker()
+  renderHome()
+}
+
+function xpPop(x,y,txt){
+  const el=document.createElement('div')
+  el.className='xp-pop'; el.textContent=txt
+  el.style.cssText=`left:${x}px;top:${y}px`
+  document.body.appendChild(el)
+  gsap.to(el,{y:-65,opacity:0,duration:1.1,ease:'power2.out',onComplete:()=>el.remove()})
+}
+
+/* ── ANIMATIONS ── */
+function animCheck(){
+  if(raccoonBusy) return
+  raccoonBusy=true
+  const img=document.getElementById('raccoon-img')
+  const bub=document.getElementById('bubble')
+  img.src='assets/raccoon-hype.png?v=2'
+  bub.textContent=r(MSG.check)
+  gsap.fromTo(img,{y:0,scale:1},{y:-18,scale:1.08,duration:.22,ease:'power2.out',yoyo:true,repeat:1,
+    onComplete(){img.src='assets/raccoon-idle.png?v=2';raccoonBusy=false}})
+}
+
+function animComplete(){
+  raccoonBusy=true
+  const img=document.getElementById('raccoon-img')
+  const bub=document.getElementById('bubble')
+  img.src='assets/raccoon-frontflip.png?v=2'
+  bub.innerHTML='<b>'+r(MSG.all)+'</b>'
+  confetti()
+  gsap.fromTo(img,{rotation:0,y:0,scale:1},{rotation:360,y:-28,scale:1.12,duration:.65,ease:'power2.inOut',
+    onComplete(){
+      img.src='assets/raccoon-hype.png?v=2'
+      gsap.to(img,{scale:1,y:0,delay:.6,duration:.3,onComplete(){
+        img.src='assets/raccoon-idle.png?v=2';raccoonBusy=false;renderHome()
+      }})
+    }})
+}
+
+function animBonus(msg, isMonth){
+  raccoonBusy=true
+  const img=document.getElementById('raccoon-img')
+  const bub=document.getElementById('bubble')
+  img.src=isMonth?'assets/raccoon-backflip.png?v=2':'assets/raccoon-hype.png?v=2'
+  bub.innerHTML='<b>'+msg+'</b>'
+  if(isMonth) confetti()
+  gsap.fromTo(img,{y:0,scale:1},{y:-20,scale:1.1,duration:.3,ease:'power2.out',yoyo:true,repeat:1,
+    onComplete(){img.src='assets/raccoon-idle.png?v=2';raccoonBusy=false}})
+}
+
+function confetti(){
+  const cols=['#ff9500','#4ade80','#60a5fa','#f472b6','#a78bfa','#fbbf24']
+  for(let i=0;i<32;i++){
+    const el=document.createElement('div')
+    el.className='cpiece'; el.style.background=cols[i%cols.length]
+    el.style.left=(15+Math.random()*70)+'vw'; el.style.top='15vh'
+    document.body.appendChild(el)
+    gsap.to(el,{y:(Math.random()*55+35)+'vh',x:(Math.random()*80-40)+'px',
+      rotation:Math.random()*720,opacity:0,duration:1.3+Math.random()*.9,
+      delay:Math.random()*.25,ease:'power1.out',onComplete:()=>el.remove()})
+  }
+}
+
+function fireLoop(){ gsap.to('#fire-img',{scale:1.07,duration:.85,yoyo:true,repeat:-1,ease:'sine.inOut'}) }
+function raccoonBreath(){ gsap.to('#raccoon-img',{y:-5,duration:1.6,yoyo:true,repeat:-1,ease:'sine.inOut'}) }
+
+/* ── SWIPE ── */
+let tx=0,ty=0,dragging=false
+const vp=document.getElementById('viewport')
+const pan=document.getElementById('panels')
+
+vp.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;dragging=true},{passive:true})
+vp.addEventListener('touchmove',e=>{
+  if(!dragging) return
+  const dx=e.touches[0].clientX-tx, dy=e.touches[0].clientY-ty
+  if(Math.abs(dy)>Math.abs(dx)*1.4){dragging=false;return}
+  e.preventDefault()
+  pan.style.transition='none'
+  pan.style.transform=`translateX(calc(${-currentPanel*100}vw + ${dx}px))`
+},{passive:false})
+vp.addEventListener('touchend',e=>{
+  if(!dragging) return; dragging=false
+  const dx=e.changedTouches[0].clientX-tx
+  if(dx<-50) goPanel(currentPanel+1)
+  else if(dx>50) goPanel(currentPanel-1)
+  else goPanel(currentPanel)
+})
+
+function goPanel(n,anim=true){
+  currentPanel=Math.max(0,Math.min(2,n))
+  pan.classList.toggle('animating',anim)
+  if(anim) setTimeout(()=>pan.classList.remove('animating'),380)
+  pan.style.transform=`translateX(${-currentPanel*100}vw)`
+  document.querySelectorAll('.tab-item').forEach((d,i)=>d.classList.toggle('active',i===currentPanel))
+  if(currentPanel===2) renderStats()
+}
+
+function setupNotifications(){
+  if(!('Notification' in window)) return
+  if(Notification.permission==='granted') scheduleNotifs()
+  else if(Notification.permission!=='denied')
+    Notification.requestPermission().then(p=>{ if(p==='granted') scheduleNotifs() })
+}
+function scheduleNotifs(){
+  const now=new Date()
+  ;[{h:14,m:0},{h:19,m:0}].forEach(({h,m})=>{
+    const t=new Date(); t.setHours(h,m,0,0)
+    const ms=t-now
+    if(ms<=0) return
+    setTimeout(()=>{
+      const done=todayDone()
+      if(done.length<DAILY.length)
+        new Notification('Discipline 🦝',{
+          body:`Llevas ${done.length}/${DAILY.length} metas hoy. ¡No te rajes!`,
+          icon:'assets/raccoon-idle.png'
+        })
+    },ms)
+  })
+}
+
+/* ── STATS ── */
+document.querySelectorAll('.tb').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tb').forEach(x=>x.classList.remove('active'))
+    b.classList.add('active'); currentTab=b.dataset.t; renderStats()
+  })
+})
+
+function renderStats(){
+  const sb=document.getElementById('stats-body')
+  const mn=['Enero','Feb','Marzo','Abril','Mayo','Junio','Julio','Agosto','Sep','Oct','Nov','Dic']
+  const now=new Date()
+  const created=new Date(STATE.createdAt||today())
+  document.getElementById('stats-sub').textContent='desde '+mn[created.getMonth()]+' '+created.getFullYear()
+
+  const wk=weekProgress(), mo=monthProgress()
+  const weekGoal=WEEKLY[0], monthGoal=MONTHLY[0]
+  const weekCur=wk[weekGoal.id]||0, weekFull=weekCur>=weekGoal.target
+  const monthCur=mo[monthGoal.id]||0, monthFull=monthCur>=monthGoal.target
+
+  const bonusHTML=`
+    <div class="bonus-row">
+      <div class="bonus-card">
+        <div class="bc-label">Esta semana</div>
+        <div class="bc-val bc-week">${weekCur}/${weekGoal.target} 🤝</div>
+        <div class="bc-bar"><div class="bc-bar-fill week" style="width:${weekCur/weekGoal.target*100}%"></div></div>
+      </div>
+      <div class="bonus-card">
+        <div class="bc-label">Este mes</div>
+        <div class="bc-val bc-month">${monthCur}/${monthGoal.target} 🏆</div>
+        <div class="bc-bar"><div class="bc-bar-fill month" style="width:${monthCur/monthGoal.target*100}%"></div></div>
+      </div>
+    </div>`
+
+  if(currentTab==='week'){
+    const data=Array.from({length:7},(_,i)=>dayPct(dStr(6-i)))
+    const labels=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return ['D','L','M','X','J','V','S'][d.getDay()]})
+    const avg=Math.round(data.reduce((a,b)=>a+b,0)/7*100)
+    sb.innerHTML=`
+      ${bonusHTML}
+      <div class="chart-card">
+        <div class="cc-label">metas diarias esta semana</div>
+        <div class="cc-val">${avg}%<small>promedio</small></div>
+        <canvas id="cc" height="110"></canvas>
+      </div>
+      <div class="stats3" style="margin-bottom:0">
+        <div class="sc"><span class="v vo">${streak()}</span><span class="l">racha actual</span></div>
+        <div class="sc"><span class="v vg">${longestStreak()}</span><span class="l">récord</span></div>
+        <div class="sc"><span class="v vb">${totalXp()}</span><span class="l">XP total</span></div>
+      </div>`
+    drawChart('cc',data,labels,'#ff9500')
+
+  } else if(currentTab==='month'){
+    const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate()
+    const fd=new Date(now.getFullYear(),now.getMonth(),1).getDay()
+    const tod=today()
+    let cells=['D','L','M','X','J','V','S'].map(l=>`<div class="hday">${l}</div>`).join('')
+    for(let i=0;i<fd;i++) cells+=`<div></div>`
+    let perfect=0
+    for(let d=1;d<=dim;d++){
+      const ds=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
+      const p=dayPct(ds)
+      const cls=p===0?'':`p${p<=.25?1:p<=.5?2:p<=.75?3:4}`
+      if(p===1) perfect++
+      cells+=`<div class="hcell ${cls} ${ds===tod?'tr':''}"></div>`
+    }
+    sb.innerHTML=`
+      ${bonusHTML}
+      <div class="chart-card">
+        <div class="cc-label">${mn[now.getMonth()]} ${now.getFullYear()}</div>
+        <div class="cc-val">${perfect}<small>días perfectos</small></div>
+        <div class="hmap">${cells}</div>
+      </div>`
+
+  } else if(currentTab==='year'){
+    const data=Array.from({length:12},(_,m)=>{
+      const dim=new Date(now.getFullYear(),m+1,0).getDate()
+      let t=0
+      for(let d=1;d<=dim;d++){
+        const ds=`${now.getFullYear()}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
+        t+=dayPct(ds)
+      }
+      return t/dim
+    })
+    const labels=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+    const avg=Math.round(data.reduce((a,b)=>a+b,0)/12*100)
+    const best=labels[data.indexOf(Math.max(...data))]
+    sb.innerHTML=`
+      ${bonusHTML}
+      <div class="chart-card">
+        <div class="cc-label">promedio anual ${now.getFullYear()}</div>
+        <div class="cc-val">${avg}%<small>este año</small></div>
+        <canvas id="cc" height="110"></canvas>
+      </div>
+      <div class="stats3" style="margin-bottom:0">
+        <div class="sc"><span class="v vg" style="font-size:16px">${best}</span><span class="l">mejor mes</span></div>
+        <div class="sc"><span class="v vo">${longestStreak()}</span><span class="l">récord racha</span></div>
+        <div class="sc"><span class="v vb">${totalXp()}</span><span class="l">XP total</span></div>
+      </div>`
+    drawChart('cc',data,labels,'#4ade80')
+
+  } else {
+    const keys=Object.keys(STATE.history).sort()
+    const total=keys.length
+    const perfect=keys.filter(k=>(STATE.history[k]||[]).length===DAILY.length).length
+    const xp=totalXp()
+    const lv=level(xp)
+    const data=Array.from({length:30},(_,i)=>(STATE.history[dStr(29-i)]||[]).length*20)
+    let sum=0; const cum=data.map(v=>{sum+=v;return sum})
+    const max=Math.max(...cum,1); const norm=cum.map(v=>v/max)
+    const lbls=Array.from({length:30},(_,i)=>i%5===0?`-${29-i}d`:'')
+    sb.innerHTML=`
+      ${bonusHTML}
+      <div class="chart-card">
+        <div class="cc-label">XP acumulado (30 días)</div>
+        <div class="cc-val">${xp}<small>XP total</small></div>
+        <canvas id="cc" height="100"></canvas>
+      </div>
+      <div class="stats3" style="margin-bottom:14px">
+        <div class="sc"><span class="v vo">${total}</span><span class="l">días activos</span></div>
+        <div class="sc"><span class="v vg">${perfect}</span><span class="l">días perfectos</span></div>
+        <div class="sc"><span class="v vb">${longestStreak()}</span><span class="l">mejor racha</span></div>
+      </div>
+      <div class="stats3" style="margin-bottom:0">
+        <div class="sc"><span class="v vo">Niv.${lv}</span><span class="l">nivel</span></div>
+        <div class="sc"><span class="v vg">${total>0?Math.round(perfect/total*100):0}%</span><span class="l">éxito</span></div>
+        <div class="sc"><span class="v vp">${Object.values(STATE.monthly).reduce((a,mo)=>a+(MONTHLY.filter(g=>(mo[g.id]||0)>=g.target).length),0)}</span><span class="l">ventas totales</span></div>
+      </div>`
+    drawChart('cc',norm,lbls,'#60a5fa')
+  }
+}
+
+function drawChart(id,data,labels,color){
+  setTimeout(()=>{
+    const canvas=document.getElementById(id)
+    if(!canvas) return
+    const dpr=window.devicePixelRatio||1
+    const W=canvas.offsetWidth||300, H=parseInt(canvas.getAttribute('height'))||110
+    canvas.width=W*dpr; canvas.height=H*dpr
+    canvas.style.width=W+'px'; canvas.style.height=H+'px'
+    const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr)
+    const p={t:10,r:10,b:22,l:8}
+    const cw=W-p.l-p.r, ch=H-p.t-p.b
+    const max=Math.max(...data,.01), min=Math.min(...data)
+    const rng=max-min||1
+    const pts=data.map((v,i)=>({x:p.l+(i/(data.length-1))*cw,y:p.t+(1-(v-min)/rng)*ch}))
+    ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y)
+    for(let i=1;i<pts.length;i++){
+      const mx=(pts[i-1].x+pts[i].x)/2
+      ctx.bezierCurveTo(mx,pts[i-1].y,mx,pts[i].y,pts[i].x,pts[i].y)
+    }
+    ctx.lineTo(W-p.r,H-p.b); ctx.lineTo(p.l,H-p.b); ctx.closePath()
+    const g=ctx.createLinearGradient(0,p.t,0,H-p.b)
+    g.addColorStop(0,color+'55'); g.addColorStop(1,color+'00')
+    ctx.fillStyle=g; ctx.fill()
+    ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y)
+    for(let i=1;i<pts.length;i++){
+      const mx=(pts[i-1].x+pts[i].x)/2
+      ctx.bezierCurveTo(mx,pts[i-1].y,mx,pts[i].y,pts[i].x,pts[i].y)
+    }
+    ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke()
+    ctx.fillStyle='#555'; ctx.font=`9px -apple-system,sans-serif`; ctx.textAlign='center'
+    labels.forEach((l,i)=>{ if(!l) return; ctx.fillText(l,p.l+(i/(data.length-1))*cw,H-5) })
+    const last=pts[pts.length-1]
+    ctx.beginPath(); ctx.arc(last.x,last.y,4,0,Math.PI*2); ctx.fillStyle=color; ctx.fill()
+  },50)
+}
+
+setInterval(()=>{
+  if(!raccoonBusy && currentPanel===1){
+    const bub=document.getElementById('bubble')
+    const s=streak()
+    bub.innerHTML=s>0?`¡Llevas <b>${s} día${s>1?'s':''}</b> sin fallar 🔥`:r(MSG.idle)
+  }
+},9000)
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.unregister())
+  }).then(()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))
+}
+
+load()
+renderDate()
+renderTracker()
+renderHome()
+goPanel(1,false)
+fireLoop()
+raccoonBreath()
+setupNotifications()
+</script>
+</body>
+</html>
