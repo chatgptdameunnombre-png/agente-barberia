@@ -278,28 +278,24 @@ document.addEventListener("visibilitychange", () => {
 });
 window.addEventListener("pagehide", () => { tic(); enviar(true); });
 
-/* profundidad de scroll: hasta dónde bajó en la página */
-let scrollMax = 0;
-window.addEventListener("scroll", () => {
-  const alto = document.documentElement.scrollHeight - window.innerHeight;
-  if (alto <= 0) return;
-  const pct = Math.min(100, Math.round((window.scrollY / alto) * 100));
-  if (pct >= scrollMax + 25) {
-    scrollMax = pct - (pct % 25);
-    track("scroll", { hasta: scrollMax });
-  }
-}, { passive: true });
-
-/* clicks: solo los que dicen algo del interés, no cualquier botón */
+/* navegación: solo lo que cuenta una historia (menú, categorías, ver catálogo) */
 document.addEventListener("click", e => {
-  const b = e.target.closest("button, a");
+  const b = e.target.closest("a, button");
   if (!b) return;
-  const id = b.id || b.dataset.add || "";
-  const texto = (b.textContent || "").trim().slice(0, 40);
-  const relevante = id || b.classList.contains("add-btn") || b.classList.contains("cuadro") ||
-    b.closest("#filtrosPanel") || b.closest(".nav") || b.closest("#asesorPanel");
-  if (!relevante || !texto) return;
-  track("click", { texto, id });
+  const texto = (b.textContent || "").trim().replace(/\s+/g, " ").slice(0, 40);
+  if (!texto) return;
+  if (b.closest(".nav")) { track("navega", { hacia: texto }); return; }
+  if (b.closest(".cuadro")) { track("navega", { hacia: texto.replace(/Ver catálogo.*/i, "").trim() }); return; }
+  if (b.id === "checkout") { track("va_a_pagar", {}); return; }
 }, true);
+
+/* al salir: si no compró, queda registrado que se fue */
+window.addEventListener("pagehide", () => {
+  if (ses && !ses.compro && !ses.saliendo) {
+    ses.saliendo = true;
+    const conCarrito = Object.values(ses.productos).some(p => p.carrito);
+    track("salida", { conCarrito });
+  }
+});
 
 window.dmTrack = { track, trackProducto, cerrarProducto, marcarProducto, setCliente };
