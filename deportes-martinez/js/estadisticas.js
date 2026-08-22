@@ -8,7 +8,7 @@ const RAIZ = `https://firestore.googleapis.com/v1/projects/${PROJ}/databases/(de
 /* Campos ligeros: se pide TODO menos `eventos`, que es lo pesado.
    El detalle de una visita se baja solo cuando el dueño la abre. */
 const CAMPOS = ["inicio", "fin", "duracion", "dispositivo", "origen", "entrada", "paginas",
-  "compro", "clienteEmail", "vistos", "alCarrito", "favorito", "busquedas", "sinResultado", "tallas", "productos"];
+  "compro", "compraPorConfirmar", "clienteEmail", "vistos", "alCarrito", "favorito", "busquedas", "sinResultado", "tallas", "productos"];
 
 let sesiones = [];
 let cargando = false;
@@ -167,7 +167,8 @@ export function paso(ev) {
       case "asesor_cerrar": return "Cerró el asistente";
       case "asesor": return `Le preguntó al asistente: “${esc(ev.pregunta)}”${ev.resultados ? ` (le mostró ${ev.resultados})` : " (no encontró nada)"}`;
       case "checkout": case "va_a_pagar": case "comprar_directo": return "Se fue a pagar";
-      case "transferencia": return "Eligió pagar por transferencia";
+      case "transferencia": return "Vio los datos para transferir";
+      case "transferencia_fin": return "Terminó la transferencia (seguramente mandó su comprobante)";
       case "pago_mercadopago": return "Eligió pagar con tarjeta";
       case "sale_a_pagar": return `Salió a <b>${esc(ev.proveedor || "pagar")}</b> para pagar`;
       case "vuelve_de_pago": {
@@ -175,7 +176,9 @@ export function paso(ev) {
         return `Volvió de Mercado Pago: ${est[ev.estado] || esc(ev.estado)}`;
       }
       case "comprobante_whatsapp": return "Se fue a WhatsApp a mandar su comprobante de transferencia";
-      case "compra": return `<b>Compró</b>${ev.via ? " con " + esc(ev.via) : ""}`;
+      case "compra": return ev.porConfirmar
+        ? `<b>Compró por transferencia</b> — falta que confirmes el comprobante`
+        : `<b>Compró</b>${ev.via ? " con " + esc(ev.via) : ""}`;
       case "salida": return ev.conCarrito ? "Se fue dejando cosas en el carrito" : "Se fue sin comprar";
       default: return "";
     }
@@ -263,8 +266,8 @@ function listaBarras(obj, total) {
 function visitas(list) {
   if (!list.length) return vacio("Todavía no hay visitas en este periodo.");
   return `<div class="st-visitas">${list.slice(0, 30).map(s => {
-    const clase = s.compro ? "compro" : (s.alCarrito ? "carrito" : (s.vistos ? "miro" : "paso"));
-    const etiqueta = { compro: "Compró", carrito: "Dejó el carrito", miro: "Miró jerseys", paso: "Solo pasó" }[clase];
+    const clase = s.compro ? (s.compraPorConfirmar ? "porconfirmar" : "compro") : (s.alCarrito ? "carrito" : (s.vistos ? "miro" : "paso"));
+    const etiqueta = { compro: "Compró", porconfirmar: "Compró · por confirmar", carrito: "Dejó el carrito", miro: "Miró jerseys", paso: "Solo pasó" }[clase];
     return `<details class="st-visita">
       <summary class="st-visita__cab">
         <span class="st-visita__cuando">${hace(s.inicio)}</span>
