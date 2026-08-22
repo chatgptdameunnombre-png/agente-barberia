@@ -179,6 +179,7 @@ function resumenSesion(uid) {
     entrada: ses.entrada,
     paginas: ses.paginas.length,
     compro: ses.compro,
+    compraPorConfirmar: !!ses.compraPorConfirmar,
     clienteUid: ses.clienteUid || "",
     clienteEmail: ses.clienteEmail || "",
     vistos: prods.length,
@@ -236,7 +237,7 @@ export function track(evento, datos = {}) {
   if (evento === "busqueda" && datos.texto) ses.busquedas.push(String(datos.texto).slice(0, 80));
   if (evento === "busqueda_sin_resultado" && datos.texto) ses.sinResultado.push(String(datos.texto).slice(0, 80));
   if (evento === "filtro" && datos.campo === "talla" && datos.valor && datos.valor !== "Todas") ses.tallas.push(String(datos.valor));
-  if (evento === "compra") ses.compro = true;
+  if (evento === "compra") { ses.compro = true; ses.compraPorConfirmar = !!datos.porConfirmar; }
   if (evento === "sale_a_pagar") ses.pagando = Date.now();
   sucio = true;
   guardarLocal();
