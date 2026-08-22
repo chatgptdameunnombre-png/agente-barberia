@@ -1,36 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 /* ============================================================
    Deportes Martinez — tema oscuro premium (dorado / azul marino)
    (todas las clases que usa el JS se conservan)
    ============================================================ */
 :root {
-  --bg: #050506;
-  --bg-soft: #0f0f12;
-  --bg-card: #0e0e11;
-  --tile: #08080a;          /* fondo oscuro para fotos de producto (contain) */
-  --ink: #f3f3ef;
-  --ink-soft: #c6c6cb;
-  --muted: #7f7f87;
-  --line: #23232a;
-  --line-soft: #16161b;
+  --bg: #08070a;            /* negro cálido, base */
+  --bg-soft: #0b0a07;
+  --bg-card: #100d07;
+  --tile: #141109;          /* fondo de fotos de producto */
+  --ink: #f4f1e8;
+  --ink-soft: #b7ac8e;      /* texto secundario, tono tabaco */
+  --muted: #8a7d55;
+  --line: #241f14;
+  --line-soft: #1a1509;
   --accent: #e8b923;
   --accent-2: #f7d154;
   --accent-ink: #1a1405;
-  --azul: #2f6fd0;
+  --azul: #2f6fd0;          /* SOLO toques mínimos (plumas del logo) */
   --azul-suave: #4f8fd6;
-  --danger: #ff5a5f;
-  --ok: #7bd66a;
+  --danger: #d16a6a;
+  --ok: #4bc47c;
   --warn: #f0b429;
   --radius: 16px;
   --radius-lg: 22px;
   --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
   --shadow-lg: 0 24px 70px rgba(0,0,0,.6);
   --glow: 0 0 0 1px rgba(232,185,35,.55), 0 18px 50px rgba(232,185,35,.20);
-  --font: 'Inter', system-ui, sans-serif;
-  --display: 'Space Grotesk', system-ui, sans-serif;
+  --oro-metal: linear-gradient(180deg,#fff2c8,#e8b923 40%,#8a5f14 70%,#f3d774);
+  --oro-solido: linear-gradient(180deg,#f7d154,#c9911f);
+  --font: 'Manrope', system-ui, sans-serif;
+  --display: 'Cinzel', Georgia, serif;
   --mono: 'Space Mono', ui-monospace, monospace;
 }
+
+/* marca de agua del escudo, como en su Instagram */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: url('../fotos/logo/logo-cuadrado.webp') center / min(520px, 62vw) no-repeat;
+  opacity: .028;
+}
+
+/* dorado metálico recortado en texto */
+.oro-metal, .price, .prod__price, .drawer__total b, .hero-c__tag {
+  background-image: var(--oro-metal);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 [hidden] { display: none !important; }
@@ -689,3 +706,266 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
 
 /* el logo del pie va completo, no como icono cuadrado */
 .ftr__iso, .ftr__brand .ftr__iso { width: min(240px, 60vw); max-width: 240px; height: auto; object-fit: contain; margin-bottom: 14px; }
+
+/* ============================================================
+   REDISEÑO "1B" — negro cálido + dorado metálico
+   (handoff de diseño, 22-ago-2026). Solo estética: las clases
+   y los IDs que usa el JavaScript se conservan tal cual.
+   ============================================================ */
+
+/* ---------- Header ---------- */
+.hdr { background: rgba(6,5,7,.9); border-bottom: 1px solid var(--line-soft); }
+.brand__name { font-family: var(--display); font-weight: 700; letter-spacing: .16em; }
+.brand__sub { font-family: var(--mono); color: var(--muted); }
+.nav a { font-family: var(--mono); color: var(--ink-soft); }
+.nav a:hover { color: var(--accent); }
+.cart-btn { border-color: var(--line); }
+.cart-btn .count { background: var(--accent); color: var(--accent-ink); }
+
+/* ---------- Hero ---------- */
+.site-hero--green {
+  background:
+    radial-gradient(55% 55% at 50% 42%, rgba(232,185,35,.20), transparent 60%),
+    radial-gradient(45% 45% at 88% 96%, rgba(232,185,35,.10), transparent 60%),
+    #08070a;
+}
+.site-hero--green::after {
+  top: 44%; width: 720px; height: 720px;
+  background: radial-gradient(circle, rgba(232,185,35,.24), transparent 60%);
+  filter: blur(6px); animation: halo 6s ease-in-out infinite;
+}
+.site-hero--green::before {
+  content: ""; display: block; position: absolute; left: 0; right: 0; top: 14%;
+  height: 2px; z-index: 0; inset: auto 0 auto 0;
+  background: linear-gradient(90deg, transparent, rgba(232,185,35,.45), transparent);
+}
+.hero-c__logo { filter: drop-shadow(0 26px 84px rgba(232,185,35,.40)); }
+.hero-c__tag {
+  font-family: var(--display); font-weight: 700; letter-spacing: .24em;
+  text-transform: uppercase; font-size: clamp(13px, 1.7vw, 18px);
+}
+.scroll-cue { font-family: var(--mono); color: #6b5f3f; }
+@keyframes halo {
+  0%,100% { opacity: .8; transform: translate(-50%,-50%) scale(1); }
+  50%     { opacity: 1;  transform: translate(-50%,-50%) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-hero--green::after { animation: none; }
+}
+
+/* ---------- Encabezados de sección ---------- */
+.eyebrow { font-family: var(--mono); color: var(--accent); }
+.eyebrow::before { background: var(--azul); opacity: 1; }
+.sec-head h2, .sec__head h2 {
+  font-family: var(--display); font-weight: 900; text-transform: uppercase; letter-spacing: .02em;
+}
+.rule { background: linear-gradient(90deg,#8a5f14,#f3d774,#8a5f14); border-radius: 3px; }
+
+/* ---------- Categorías ---------- */
+.cuadro--plain {
+  background: radial-gradient(85% 78% at 12% 100%, rgba(232,185,35,.14), transparent 60%), var(--bg-card);
+  border: 1px solid #2a2410; border-radius: var(--radius-lg);
+}
+.cuadro__k { font-family: var(--mono); color: #c99a3a; letter-spacing: .28em; }
+.cuadro__txt h3 {
+  font-family: var(--display); font-weight: 700; text-transform: uppercase;
+  font-size: clamp(26px, 3vw, 44px); line-height: 1.02; letter-spacing: .01em;
+}
+.cuadro__k { font-size: 11px; line-height: 1.5; }
+.cuadro__cta { font-family: var(--mono); color: var(--accent); }
+.cuadro:hover { border-color: rgba(232,185,35,.55); box-shadow: var(--glow); }
+
+/* ---------- Novedades / slider ---------- */
+.bslider { border: 1px solid #3a3016; }
+.bslide__c { background: var(--tile); }
+.bslide__tag {
+  background: var(--oro-solido); color: var(--accent-ink);
+  font-family: var(--mono); font-weight: 800; letter-spacing: .08em;
+}
+.bslide__c h3 { font-family: var(--display); font-weight: 900; }
+.bslide__btn { background: var(--oro-solido); color: var(--accent-ink); font-weight: 800; }
+.bslider__dots span.on { background: var(--accent); }
+
+/* ---------- Tarjetas de catálogo ---------- */
+.card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); }
+.card:hover { border-color: rgba(232,185,35,.55); box-shadow: var(--glow); transform: translateY(-8px); }
+.card__media { background: var(--tile); }
+.card__cat { color: #c99a3a; font-family: var(--mono); }
+.card__brand { font-family: var(--mono); color: var(--accent); }
+.card__name { font-family: var(--display); font-weight: 700; }
+.card__flag--pre { background: var(--oro-solido); color: var(--accent-ink); }
+.card__flag--semi { background: rgba(10,8,4,.72); border: 1px solid var(--line); color: var(--accent); }
+.card__tallas span { border-color: var(--line); color: var(--ink-soft); }
+.price, .prod__price { font-family: var(--display); font-weight: 700; }
+.price span, .prod__price span { -webkit-text-fill-color: var(--muted); }
+.add-btn {
+  background: var(--oro-solido); color: var(--accent-ink);
+  font-family: var(--mono); text-transform: uppercase;
+}
+.add-btn:hover:not(:disabled) { background: linear-gradient(180deg,#ffe08a,#d9a127); color: var(--accent-ink); }
+.add-btn:disabled { background: var(--bg-soft); color: var(--muted); }
+.stock--ok { color: var(--ok); }
+.stock--out { color: var(--danger); }
+
+/* ---------- Filtros ---------- */
+.filtros-btn { background: var(--tile); border-color: var(--line); }
+.filtros-btn:hover { border-color: var(--accent); color: var(--accent); }
+.filtros-panel { background: var(--bg-card); border-color: var(--line); }
+.acc__h { font-family: var(--mono); color: var(--ink-soft); }
+.opt { border-color: var(--line); color: var(--ink-soft); }
+.opt.sel { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+/* ---------- Ficha de producto ---------- */
+.prod__main { background: var(--tile); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+.prod__brand { font-family: var(--mono); color: var(--accent); }
+.prod__name { font-family: var(--display); font-weight: 700; text-transform: uppercase; }
+.prod__spectitle { font-family: var(--display); }
+.rel-card { background: var(--bg-card); border-color: var(--line); }
+.rel-card:hover { border-color: rgba(232,185,35,.55); box-shadow: var(--glow); }
+.rel-card__name { font-family: var(--display); }
+.rel-card__price { font-family: var(--display); color: var(--accent); }
+.rel-card__flag { background: var(--oro-solido); color: var(--accent-ink); }
+
+/* ---------- Carrito ---------- */
+.drawer { background: var(--bg-soft); border-left: 1px solid var(--line); }
+.drawer__head h3 { font-family: var(--display); }
+.line__name { font-family: var(--display); }
+.checkout { background: var(--oro-solido); color: var(--accent-ink); }
+
+/* ---------- Footer ---------- */
+.ftr { background: var(--bg-soft); border-top: 1px solid var(--line-soft); }
+.ftr__col h4 { font-family: var(--mono); color: var(--accent); }
+.ftr__col a { color: #9a927e; }
+.ftr__col a:hover { color: var(--accent); }
+.ftr__name { font-family: var(--display); }
+
+/* ---------- Botones generales de la tienda ---------- */
+.btn-cta { background: var(--oro-solido); color: var(--accent-ink); font-weight: 800; }
+.btn-cta:hover { color: var(--accent-ink); box-shadow: 0 16px 40px rgba(201,145,31,.34); }
+
+/* ============================================================
+   PANEL DEL DUEÑO — mismo negro y dorado que la tienda
+   (mismos datos y estructura, solo cambia el aspecto)
+   ============================================================ */
+.admin-body {
+  --bg: #08070a; --bg-soft: #0b0a07; --bg-card: #100d07;
+  --ink: #f4f1e8; --ink-soft: #b7ac8e; --muted: #8a7d55;
+  --line: #241f14; --line-soft: #1a1509;
+  background: var(--bg-soft); color: var(--ink);
+}
+/* el panel es una herramienta de trabajo: sin marca de agua detrás de los datos */
+.admin-body::before { display: none; }
+.admin-body a { color: var(--ink); }
+
+.admin-top { background: rgba(6,5,7,.95); border-bottom: 1px solid var(--line); }
+.admin-brand__word b { font-family: var(--display); font-weight: 700; letter-spacing: .16em; color: var(--ink); }
+.admin-brand__word small { font-family: var(--mono); color: var(--muted); }
+.admin-head h1 { font-family: var(--display); font-weight: 700; color: var(--ink); }
+
+.login-screen { background: var(--bg-soft); }
+.login-card { background: var(--bg-card); border: 1px solid var(--line); box-shadow: var(--shadow-lg); }
+.login-card h1, .login-card h2 { font-family: var(--display); color: var(--ink); }
+
+.input { background: #0b0a07; border: 1px solid var(--line); color: var(--ink); }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,185,35,.14); outline: none; }
+.input::placeholder { color: #6b5f3f; }
+label, .field label { color: var(--ink-soft); }
+
+.btn { background: var(--oro-solido); color: var(--accent-ink); font-weight: 800; }
+.btn--ghost { background: #0b0a07; color: var(--ink); border: 1px solid var(--line); }
+.btn--ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn--accent { background: var(--oro-solido); color: var(--accent-ink); }
+.btn--danger { background: #0b0a07; color: var(--danger); border: 1px solid #40201f; }
+
+.stat { background: var(--bg-card); border: 1px solid #2a2410; position: relative; overflow: hidden; }
+.stat::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg,#fff2c8,#e8b923,#8a5f14);
+}
+.stat:hover { border-color: rgba(232,185,35,.45); box-shadow: var(--glow); }
+.stat .n {
+  font-family: var(--display); font-weight: 700;
+  background-image: linear-gradient(180deg,#fff2c8,#e8b923 55%,#a9741a);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.stat .l { color: #9a927e; }
+
+.p-table { background: var(--bg-card); border: 1px solid #2a2410; }
+.p-row { border-bottom: 1px solid var(--line-soft); }
+.p-row--head {
+  background: #0b0a07; font-family: var(--mono); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+.p-row:hover:not(.p-row--head) { background: #0d0b06; }
+.p-name b { font-family: var(--display); font-weight: 700; color: var(--ink); font-size: 15px; }
+.p-name span { color: #9a927e; }
+.p-thumb { background: #0b0a07; border: 1px solid var(--line); }
+.p-row .hide-sm { color: var(--ink-soft); }
+.stock-pill { font-weight: 600; }
+.edit-a { background: #0b0a07; border: 1px solid var(--line); color: var(--ink); }
+.edit-a:hover { border-color: var(--accent); color: var(--accent); }
+.del-a { color: var(--danger); }
+
+.modal-ov { background: rgba(0,0,0,.72); }
+.modal { background: var(--bg-card); border: 1px solid var(--line); }
+.modal__head { border-bottom: 1px solid var(--line); }
+.modal__head h3 { font-family: var(--display); color: var(--ink); }
+.modal__foot { border-top: 1px solid var(--line); background: #0b0a07; }
+.hint-foto { color: var(--muted); }
+.foto-mini { border: 1px solid var(--line); background: #0b0a07; }
+.icon-btn { color: var(--ink-soft); }
+.icon-btn:hover { color: var(--accent); }
+
+/* ---------- Estadísticas ---------- */
+.st-bloque__h { font-family: var(--display); font-weight: 700; color: var(--ink); }
+.st-bloque__ayuda { color: var(--muted); }
+.st-pie { color: var(--muted); }
+.st-vacio { background: #0b0a07; border: 1px dashed var(--line); color: var(--muted); }
+.st-cargando { color: var(--muted); }
+.st-error { color: var(--danger); }
+
+.st-barra__riel { background: #0b0a07; border: 1px solid var(--line); }
+.st-barra__fill--oro { background: linear-gradient(90deg,#8a5f14,#f7d154); }
+.st-barra__fill--azul { background: linear-gradient(90deg,#2b4f8f,#5b8def); }
+.st-barra__fill--morado { background: linear-gradient(90deg,#4a3a86,#7a63d6); }
+.st-barra__fill--verde { background: linear-gradient(90deg,#1d6b3f,#4bc47c); }
+.st-barra__txt { color: var(--ink-soft); }
+
+.st-embudo__paso { color: var(--ink-soft); }
+.st-prod { background: var(--bg-card); border: 1px solid #2a2410; }
+.st-prod:hover { border-color: rgba(232,185,35,.4); }
+.st-prod__nombre { font-family: var(--display); font-weight: 700; color: var(--ink); }
+.st-prod__equipo { color: var(--muted); }
+.st-prod__dato { color: var(--ink-soft); }
+.st-ok { color: var(--ok); }
+.st-mal { color: var(--danger); }
+
+.st-chip { background: #1c1405; border: 1px solid #3a3016; color: #f0d78a; }
+.st-lista__et { color: var(--ink-soft); }
+
+.st-visita { background: var(--bg-card); border: 1px solid #2a2410; }
+.st-visita__cuando { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+.st-visita__quien { color: var(--ink); }
+.st-visita__vio { color: var(--muted); }
+.st-visita__tiempo { color: var(--ink-soft); }
+.st-visita__cuerpo { color: var(--ink-soft); border-top: 1px solid var(--line-soft); padding-top: 10px; }
+.st-pasos { color: var(--ink-soft); }
+.st-tag--compro { background: #0f2a19; color: #6fd79b; }
+.st-tag--carrito { background: #2a1f05; color: #f0c65a; }
+.st-tag--miro { background: #131c33; color: #7fa6e8; }
+.st-tag--paso { background: #16140f; color: var(--muted); }
+
+/* tablas sueltas que quedaban en claro */
+.admin-body table th { color: var(--muted) !important; border-bottom-color: var(--line) !important; }
+.admin-body table td { border-bottom-color: var(--line-soft) !important; color: var(--ink-soft); }
+
+/* slider: la píldora y el botón no deben estirarse a lo ancho de la columna */
+.bslide__tag, .bslide__btn { align-self: flex-start; width: fit-content; }
+.bslide__c h3 { font-size: clamp(30px, 3.4vw, 46px); }
+@media (max-width: 700px) { .bslide__c h3 { font-size: 30px; } }
+
+/* botón deshabilitado: que se lea como botón apagado, no como hueco */
+.add-btn:disabled {
+  background: #12100a; color: #6b5f3f; border: 1px solid var(--line);
+}
