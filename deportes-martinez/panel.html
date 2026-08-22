@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel del dueño — Deportes Martínez</title>
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=3">
+  <link rel="stylesheet" href="css/styles.css?v=4">
 </head>
 <body class="admin-body">
 
@@ -58,14 +58,18 @@
       <section style="margin-top:40px" id="estad">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
           <h2 style="font-size:20px;margin:0">Estadísticas de la tienda</h2>
+          <div style="display:flex;gap:10px;align-items:center">
+          <span id="estadSello" style="font-size:12.5px;color:#8a8a90"></span>
+          <button class="btn btn--ghost" id="estadRefrescar" style="width:auto;padding:8px 14px">Actualizar</button>
           <select class="input" id="estadRango" style="width:auto">
             <option value="7">Últimos 7 días</option>
             <option value="30" selected>Últimos 30 días</option>
             <option value="90">Últimos 90 días</option>
             <option value="todo">Todo</option>
           </select>
+          </div>
         </div>
-        <p style="color:#666;font-size:13.5px;margin-bottom:14px">Qué vio cada persona que entró a tu página, cuánto tiempo, qué buscó y si compró.</p>
+        <p style="color:#666;font-size:13.5px;margin-bottom:14px">Qué está pasando en tu tienda: quién entra, qué mira, qué te piden y dónde se te caen las ventas.</p>
         <div id="estadBody"></div>
       </section>
     </main>
@@ -146,6 +150,6 @@
   </div>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=1"></script>
+  <script type="module" src="js/panel.js?v=2"></script>
 </body>
 </html>
