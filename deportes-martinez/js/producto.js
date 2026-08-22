@@ -1,10 +1,10 @@
-import { db, MODO } from "./db.js?v=2";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=2";
+import { db, MODO } from "./db.js?v=3";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=3";
 import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=2";
 import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=2";
 import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=1";
 import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=1";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=2";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=3";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -144,6 +144,7 @@ function render() {
 }
 
 function cardRel(x) {
+  /* el click en un relacionado se registra como ver_producto de la ficha destino */
   const precio = preciosVarian(x) ? `desde ${money(precioDesde(x))}` : money(precioDesde(x));
   const media = x.imagen
     ? `<img src="${x.imagen}" alt="${x.nombre}" loading="lazy" onerror="this.style.display='none'">`
@@ -266,23 +267,38 @@ function comprarDirecto() {
 document.addEventListener("click", e => {
   const th = e.target.closest("[data-thumb]");
   if (th) {
+    track("ver_foto", { id });
     $("#prodMainImg").src = th.dataset.thumb;
     document.querySelectorAll(".prod__thumb").forEach(t => t.classList.toggle("on", t === th));
     return;
   }
   const tb = e.target.closest(".talla-btn");
-  if (tb) { tallaSel = tb.dataset.talla; render(); return; }
+  if (tb) {
+    const p = productos.find(x => x.id === id);
+    const anterior = tallaSel;
+    tallaSel = tb.dataset.talla;
+    track(anterior ? "cambia_talla" : "elige_talla", { id, nombre: p?.nombre || "", talla: tallaSel, antes: anterior || "" });
+    render(); return;
+  }
   const eb = e.target.closest("[data-entrega]");
-  if (eb) { entregaProd = eb.dataset.entrega; pintarEntrega(); return; }
+  if (eb) {
+    entregaProd = eb.dataset.entrega;
+    track("elige_entrega", { entrega: entregaProd, donde: "producto" });
+    pintarEntrega(); return;
+  }
   const pb = e.target.closest("[data-pago]");
-  if (pb) { metodoPagoProd = pb.dataset.pago; pintarPago(); return; }
+  if (pb) {
+    metodoPagoProd = pb.dataset.pago;
+    track("elige_pago", { metodo: metodoPagoProd, donde: "producto" });
+    pintarPago(); return;
+  }
   const chk = e.target.closest("#persoChk");
   if (chk) {
     persoOn = chk.checked;
     const campos = $("#persoCampos");
     if (campos) campos.style.display = persoOn ? "flex" : "none";
     actualizarTotal();
-    track("personalizacion", { activada: persoOn, id });
+    track("personalizacion", { activada: persoOn, id, nombre: productos.find(x => x.id === id)?.nombre || "" });
     return;
   }
   if (e.target.closest("#addBtn2")) { agregar(); return; }
