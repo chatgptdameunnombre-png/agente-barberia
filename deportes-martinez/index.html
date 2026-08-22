@@ -12,7 +12,7 @@
   <link rel="icon" href="fotos/logo/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=10">
+  <link rel="stylesheet" href="css/styles.css?v=11">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -52,8 +52,11 @@
   <!-- ================= HERO ================= -->
   <section class="site-hero site-hero--green">
     <div class="hero-c hero-in">
-      <img class="hero-c__logo" src="fotos/logo/logo-horizontal.webp" alt="Deportes Martínez" fetchpriority="high"
-           onerror="this.onerror=null;this.src='fotos/logo/logo-horizontal.png'">
+      <picture>
+        <source media="(max-width: 760px)" srcset="fotos/logo/logo-cuadrado.webp">
+        <source srcset="fotos/logo/logo-horizontal.webp">
+        <img class="hero-c__logo" src="fotos/logo/logo-horizontal.png" alt="Deportes Martínez" fetchpriority="high">
+      </picture>
       <h1 class="visually-hidden">Deportes Martínez — jerseys de futbol, basketball y americano en Guadalajara</h1>
       <p class="hero-c__tag">Cumplimos sueños y vestimos campeones</p>
     </div>
