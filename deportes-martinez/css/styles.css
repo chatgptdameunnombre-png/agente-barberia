@@ -1017,3 +1017,58 @@ label, .field label { color: var(--ink-soft); }
   .pnav { top: 60px; }
   .pnav-fondo { inset: 60px 0 0 0; }
 }
+
+/* venta por transferencia: contada, pero marcada como "falta confirmar" */
+.st-tag--porconfirmar { background: #1e2a12; color: #b9d97a; }
+
+/* ===== Panel en teléfono: que se lea igual de fácil ===== */
+@media (max-width: 760px) {
+  .admin-main { padding: 20px 16px 60px; }   /* el atajo borraba el padding lateral del .wrap */
+  .admin-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .admin-head h1 { font-size: 24px; }
+  .admin-head > div { width: 100%; display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .admin-head .btn { width: 100% !important; font-size: 13px; padding: 12px 10px; }
+  .admin-top__in { height: 60px; }
+  .admin-brand img { width: 28px; height: 28px; }
+  .admin-brand__word b { font-size: 13px; letter-spacing: .1em; }
+  .admin-brand__word small { display: none; }
+  .admin-top__actions { gap: 8px; }
+  .admin-top__actions .btn { padding: 9px 11px; font-size: 12px; white-space: nowrap; }
+  .admin-top .wrap { padding: 0 14px; }
+
+  /* la tabla de jerseys se vuelve tarjetas */
+  .p-row--head { display: none; }
+  .p-row {
+    grid-template-columns: 56px 1fr; grid-auto-rows: min-content;
+    row-gap: 4px; padding: 14px; align-items: start;
+  }
+  .p-row .hide-sm { display: none; }
+  .p-name { grid-column: 2; }
+  .p-row > span:not(.hide-sm) { grid-column: 2; font-size: 13px; }
+  .p-actions { grid-column: 1 / -1; display: flex; gap: 8px; margin-top: 8px; }
+  .p-actions button { flex: 1; padding: 10px; }
+
+  /* estadísticas */
+  .st-tarjetas { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .admin-body .stat { padding: 14px 14px 14px 18px; }
+  .admin-body .stat .n { font-size: 22px; }
+  .admin-body .stat .l { font-size: 12px; }
+  .st-pie { font-size: 11px; }
+  .st-embudo__fila { grid-template-columns: 1fr; gap: 2px; }
+  .st-embudo__paso { font-size: 13px; }
+  .st-barra__riel { height: 18px; }
+  .st-barra__txt { min-width: 62px; font-size: 12px; }
+  .st-prod { grid-template-columns: 1fr; gap: 8px; padding: 12px; }
+  .st-prod__dato { text-align: left; font-size: 12.5px; }
+  .st-lista__fila { grid-template-columns: 96px 1fr; }
+  .st-visita__cab { grid-template-columns: 1fr auto; row-gap: 4px; }
+  .st-visita__cuando, .st-visita__tiempo { grid-column: 1 / -1; font-size: 12px; }
+  .st-visita__quien { font-size: 13.5px; }
+  .st-pasos { margin-left: 14px; font-size: 13px; }
+  .st-bloque__h { font-size: 16px; }
+  #estad > div:first-child { flex-direction: column; align-items: flex-start !important; }
+  #estad .input, #estad .btn { width: 100% !important; }
+  #estad > div:first-child > div { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  #estadSello { grid-column: 1 / -1; }
+  #estadSello { font-size: 12px; }
+}
