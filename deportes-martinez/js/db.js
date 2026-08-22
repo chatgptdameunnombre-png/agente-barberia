@@ -112,6 +112,7 @@ async function crearImplFirebase() {
       return snap.docs.map(d => ({ id: d.id, ...d.data() }))
         .sort((a, b) => String(b.inicio || "").localeCompare(String(a.inicio || "")));
     },
+    async token() { return auth.currentUser ? auth.currentUser.getIdToken() : null; },
     async borrarSesion(id) { await deleteDoc(doc(fdb, "sesiones", id)); },
     async seedIfEmpty() {
       const snap = await getDocs(col);
@@ -242,6 +243,7 @@ function crearImplDemo() {
     async resolverUniforme() {},
     async listarSesiones() { return []; },
     async borrarSesion() {},
+    async token() { return null; },
     async logout() { localStorage.removeItem(LS_AUTH); notificarAuth(); },
     onAuth(cb) { authListeners.add(cb); cb(usuarioActual()); return () => authListeners.delete(cb); },
     async seedIfEmpty() {
