@@ -1,4 +1,4 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=1";
+import { firebaseConfig, usaFirebase } from "./config.js?v=2";
 import { PRODUCTOS_SEED } from "./seed.js?v=1";
 
 const LS_KEY = "dm_productos";
@@ -41,7 +41,6 @@ async function crearImplFirebase() {
   const refCliente = uid => doc(fdb, "clientes", uid);
   const refSolic = uid => doc(fdb, "solicitudes_mayoreo", uid);
   const colSolic = collection(fdb, "solicitudes_mayoreo");
-  const colUni = collection(fdb, "solicitudes_equipo");
   const colSes = collection(fdb, "sesiones");
 
   async function escribirFotos(id, extra) {
@@ -94,19 +93,6 @@ async function crearImplFirebase() {
     async getMiMayoreo(uid) { try { const s = await getDoc(refSolic(uid)); return s.exists() ? s.data() : null; } catch { return null; } },
     async listarMayoreo() { const snap = await getDocs(colSolic); return snap.docs.map(d => ({ uid: d.id, ...d.data() })); },
     async resolverMayoreo(uid, aprobado) { await updateDoc(refSolic(uid), { estado: aprobado ? "aprobado" : "rechazado", resuelto: new Date().toISOString() }); },
-    async solicitarUniformes(data) {
-      const ref = doc(colUni);
-      await setDoc(ref, { ...data, estado: "nueva", creado: new Date().toISOString() });
-      return ref.id;
-    },
-    async listarUniformes() {
-      const snap = await getDocs(colUni);
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => String(b.creado).localeCompare(String(a.creado)));
-    },
-    async resolverUniforme(id, estado) {
-      await updateDoc(doc(fdb, "solicitudes_equipo", id), { estado, resuelto: new Date().toISOString() });
-    },
     async listarSesiones() {
       const snap = await getDocs(colSes);
       return snap.docs.map(d => ({ id: d.id, ...d.data() }))
@@ -233,14 +219,6 @@ function crearImplDemo() {
     async getMiMayoreo(uid) { try { return JSON.parse(localStorage.getItem("dm_mayoreo_" + uid)); } catch { return null; } },
     async listarMayoreo() { return []; },
     async resolverMayoreo() {},
-    async solicitarUniformes(data) {
-      const arr = JSON.parse(localStorage.getItem("dm_uniformes") || "[]");
-      arr.push({ id: "u_" + Date.now(), ...data, estado: "nueva", creado: new Date().toISOString() });
-      localStorage.setItem("dm_uniformes", JSON.stringify(arr));
-      return arr[arr.length - 1].id;
-    },
-    async listarUniformes() { try { return JSON.parse(localStorage.getItem("dm_uniformes") || "[]"); } catch { return []; } },
-    async resolverUniforme() {},
     async listarSesiones() { return []; },
     async borrarSesion() {},
     async token() { return null; },
