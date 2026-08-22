@@ -125,103 +125,94 @@ function tarjeta(num, txt, pie) {
   return `<div class="stat">
     <div class="n">${num}</div>
     <div class="l">${txt}</div>
-    ${pie ? `<div style="font-size:12px;color:#8a8a90;margin-top:4px">${pie}</div>` : ""}
+    ${pie ? `<div class="st-pie">${pie}</div>` : ""}
   </div>`;
 }
 
-function barra(valor, max, texto, color = "#c9a227") {
+function barra(valor, max, texto, tono = "oro") {
   const w = max ? Math.max(2, Math.round((valor / max) * 100)) : 0;
-  return `<div style="display:flex;align-items:center;gap:10px">
-    <div style="flex:1;min-width:60px;background:#f0f0f2;border-radius:6px;height:22px;position:relative;overflow:hidden">
-      <div style="width:${w}%;height:100%;background:${color};border-radius:6px"></div>
-    </div>
-    <span style="min-width:76px;font-size:13px;color:#444">${texto}</span>
+  return `<div class="st-barra">
+    <div class="st-barra__riel"><div class="st-barra__fill st-barra__fill--${tono}" style="width:${w}%"></div></div>
+    <span class="st-barra__txt">${texto}</span>
   </div>`;
 }
 
 function bloque(titulo, ayuda, cuerpo) {
-  return `<section style="margin:26px 0">
-    <h3 style="font-size:17px;margin:0 0 2px">${titulo}</h3>
-    ${ayuda ? `<p style="color:#777;font-size:13px;margin:0 0 12px">${ayuda}</p>` : '<div style="height:8px"></div>'}
+  return `<section class="st-bloque">
+    <h3 class="st-bloque__h">${titulo}</h3>
+    ${ayuda ? `<p class="st-bloque__ayuda">${ayuda}</p>` : ""}
     ${cuerpo}
   </section>`;
 }
 
 function vacio(txt) {
-  return `<p style="color:#9a9aa2;font-size:14px;background:#fafafa;border:1px dashed #e2e2e6;border-radius:12px;padding:16px;margin:0">${txt}</p>`;
+  return `<p class="st-vacio">${txt}</p>`;
 }
 
 function embudo(r) {
   const pasos = [
-    ["Entraron a la tienda", r.visitas, "#5b8def"],
-    ["Abrieron un jersey", r.vieron, "#7a63d6"],
-    ["Lo pusieron en el carrito", r.carrito, "#c9a227"],
-    ["Compraron", r.compraron, "#2e9e5b"]
+    ["Entraron a la tienda", r.visitas, "azul"],
+    ["Abrieron un jersey", r.vieron, "morado"],
+    ["Lo pusieron en el carrito", r.carrito, "oro"],
+    ["Compraron", r.compraron, "verde"]
   ];
-  return `<div style="display:grid;gap:10px">${pasos.map(([txt, n, c]) => `
-    <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:center">
-      <span style="font-size:14px;color:#333">${txt}</span>
-      ${barra(n, r.visitas, `${n} · ${pct(n, r.visitas)}%`, c)}
+  return `<div class="st-embudo">${pasos.map(([txt, n, tono]) => `
+    <div class="st-embudo__fila">
+      <span class="st-embudo__paso">${txt}</span>
+      ${barra(n, r.visitas, `${n} · ${pct(n, r.visitas)}%`, tono)}
     </div>`).join("")}</div>`;
 }
 
 function tablaProductos(prods, r) {
   if (!prods.length) return vacio("Todavía nadie ha abierto un jersey.");
   const max = Math.max(...prods.map(p => p.personas));
-  return `<div style="display:grid;gap:12px">${prods.map(p => `
-    <div style="display:grid;grid-template-columns:1fr 220px 130px;gap:14px;align-items:center;padding:12px 14px;background:#fff;border:1px solid #ececf0;border-radius:12px">
-      <div>
-        <div style="font-weight:600;font-size:14.5px">${esc(p.nombre)}</div>
-        <div style="font-size:12.5px;color:#888">${esc(p.equipo || "")}</div>
+  return `<div class="st-prods">${prods.map(p => `
+    <div class="st-prod">
+      <div class="st-prod__id">
+        <div class="st-prod__nombre">${esc(p.nombre)}</div>
+        <div class="st-prod__equipo">${esc(p.equipo || "")}</div>
       </div>
       ${barra(p.personas, max, `${p.personas} ${p.personas === 1 ? "persona" : "personas"}`)}
-      <div style="font-size:13px;color:#555;text-align:right">
+      <div class="st-prod__dato">
         ${tiempo(p.segundos / Math.max(1, p.personas))} de vista<br>
-        <b style="color:${p.carrito ? "#2e9e5b" : "#c62828"}">${p.carrito} al carrito</b>
+        <b class="${p.carrito ? "st-ok" : "st-mal"}">${p.carrito} al carrito</b>
       </div>
     </div>`).join("")}</div>`;
 }
 
-function chips(pares, colorFondo = "#fff6e0", colorTexto = "#7a5c00") {
+function chips(pares) {
   if (!pares.length) return null;
-  return `<div style="display:flex;flex-wrap:wrap;gap:8px">${pares.map(([t, n]) => `
-    <span style="background:${colorFondo};color:${colorTexto};border-radius:999px;padding:8px 14px;font-size:13.5px">
-      ${esc(t)} <b style="margin-left:4px">×${n}</b>
-    </span>`).join("")}</div>`;
+  return `<div class="st-chips">${pares.map(([t, n]) => `
+    <span class="st-chip">${esc(t)} <b>×${n}</b></span>`).join("")}</div>`;
 }
 
 function listaBarras(obj, total) {
   const e = Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, 6);
   if (!e.length) return vacio("Sin datos todavía.");
   const max = e[0][1];
-  return `<div style="display:grid;gap:9px">${e.map(([t, n]) => `
-    <div style="display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center">
-      <span style="font-size:13.5px;color:#333;text-transform:capitalize">${esc(t)}</span>
-      ${barra(n, max, `${n} · ${pct(n, total)}%`, "#5b8def")}
+  return `<div class="st-lista">${e.map(([t, n]) => `
+    <div class="st-lista__fila">
+      <span class="st-lista__et">${esc(t)}</span>
+      ${barra(n, max, `${n} · ${pct(n, total)}%`, "azul")}
     </div>`).join("")}</div>`;
 }
 
 function visitas(list) {
   if (!list.length) return vacio("Todavía no hay visitas en este periodo.");
-  return `<div style="display:grid;gap:8px">${list.slice(0, 30).map(s => {
-    const estado = s.compro
-      ? `<span style="background:#e6f6ec;color:#1d7a43;border-radius:999px;padding:4px 10px;font-size:12.5px">Compró</span>`
-      : (s.alCarrito
-        ? `<span style="background:#fff4e0;color:#9a6b00;border-radius:999px;padding:4px 10px;font-size:12.5px">Dejó el carrito</span>`
-        : (s.vistos
-          ? `<span style="background:#eef1fb;color:#3a55a8;border-radius:999px;padding:4px 10px;font-size:12.5px">Miró jerseys</span>`
-          : `<span style="background:#f4f4f5;color:#777;border-radius:999px;padding:4px 10px;font-size:12.5px">Solo pasó</span>`));
-    return `<details style="background:#fff;border:1px solid #ececf0;border-radius:12px;padding:12px 14px">
-      <summary style="cursor:pointer;display:grid;grid-template-columns:130px 1fr 150px 150px;gap:12px;align-items:center;list-style:none">
-        <span style="font-size:13px;color:#777">${hace(s.inicio)}</span>
-        <span style="font-size:14px">${esc(s.clienteEmail || "Visitante")}${s.favorito ? ` <span style="color:#888">· vio ${esc(s.favorito)}</span>` : ""}</span>
-        <span style="font-size:13px;color:#555">${tiempo(s.duracion)} · ${esc(s.dispositivo || "")}</span>
-        <span style="text-align:right">${estado}</span>
+  return `<div class="st-visitas">${list.slice(0, 30).map(s => {
+    const clase = s.compro ? "compro" : (s.alCarrito ? "carrito" : (s.vistos ? "miro" : "paso"));
+    const etiqueta = { compro: "Compró", carrito: "Dejó el carrito", miro: "Miró jerseys", paso: "Solo pasó" }[clase];
+    return `<details class="st-visita">
+      <summary class="st-visita__cab">
+        <span class="st-visita__cuando">${hace(s.inicio)}</span>
+        <span class="st-visita__quien">${esc(s.clienteEmail || "Visitante")}${s.favorito ? `<span class="st-visita__vio"> · vio ${esc(s.favorito)}</span>` : ""}</span>
+        <span class="st-visita__tiempo">${tiempo(s.duracion)} · ${esc(s.dispositivo || "")}</span>
+        <span class="st-tag st-tag--${clase}">${etiqueta}</span>
       </summary>
-      <div style="margin-top:10px;font-size:13.5px;color:#555" data-detalle="${s.id}">
+      <div class="st-visita__cuerpo">
         Llegó de <b>${esc(s.origen || "directo")}</b> · entró por <b>${esc(s.entrada || "index.html")}</b> · vio ${s.vistos || 0} jersey(s)
         ${(s.busquedas || []).length ? `<br>Buscó: ${(s.busquedas || []).map(esc).join(", ")}` : ""}
-        <br><button class="btn btn--ghost" data-ver="${s.id}" style="width:auto;margin-top:8px;padding:6px 12px">Ver qué hizo paso a paso</button>
+        <br><button class="btn btn--ghost st-vermas" data-ver="${s.id}">Ver qué hizo paso a paso</button>
       </div>
     </details>`;
   }).join("")}</div>`;
@@ -237,7 +228,7 @@ export function pintarLista(list) {
   const faltantes = Object.entries(r.faltantes).sort((a, b) => b[1] - a[1]).slice(0, 12);
 
   cont.innerHTML = `
-    <div class="stat-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:6px">
+    <div class="stat-row st-tarjetas">
       ${tarjeta(r.visitas, "Visitas", `${r.personas} ${r.personas === 1 ? "persona" : "personas"} distintas`)}
       ${tarjeta(tiempo(r.visitas ? r.segundos / r.visitas : 0), "Se quedan en promedio", "solo el tiempo que están activos")}
       ${tarjeta(r.carrito, "Llenaron el carrito", `${pct(r.carrito, r.visitas)}% de las visitas`)}
@@ -262,7 +253,7 @@ export function pintarLista(list) {
 
     ${bloque("Tallas que más buscan", "", Object.keys(r.tallas).length ? listaBarras(r.tallas, r.visitas) : vacio("Aún no filtran por talla."))}
 
-    ${bloque("De dónde llegan", "", `<div style="display:grid;grid-template-columns:1fr 1fr;gap:26px">
+    ${bloque("De dónde llegan", "", `<div class="st-dos">
       <div>${listaBarras(r.origenes, r.visitas)}</div>
       <div>${listaBarras(r.dispositivos, r.visitas)}</div>
     </div>`)}
@@ -278,7 +269,7 @@ export async function pintarEstadisticas(db) {
   if (!cont) return;
   if (cargando) return;
   cargando = true;
-  cont.innerHTML = `<p style="color:#9a9aa2;font-size:14px">Cargando…</p>`;
+  cont.innerHTML = `<p class="st-cargando">Cargando…</p>`;
   const dias = $("#estadRango")?.value || "30";
   try {
     sesiones = await bajarSesiones(dias);
@@ -286,7 +277,7 @@ export async function pintarEstadisticas(db) {
     const sello = $("#estadSello");
     if (sello) sello.textContent = `${sesiones.length} visitas · actualizado ${new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}`;
   } catch (e) {
-    cont.innerHTML = `<p style="color:#c62828;font-size:14px">No se pudieron leer las estadísticas: ${esc(e.message)}</p>`;
+    cont.innerHTML = `<p class="st-error">No se pudieron leer las estadísticas: ${esc(e.message)}</p>`;
   }
   cargando = false;
 }
@@ -305,11 +296,11 @@ document.addEventListener("click", async e => {
   const cont = b.parentElement;
   const nombre = { pagina: "Abrió", ver_producto: "Vio", agregar_carrito: "Agregó al carrito", filtro: "Filtró", click: "Tocó", asesor: "Le preguntó a la IA", checkout: "Fue a pagar", comprar_directo: "Fue a pagar", scroll: "Bajó hasta", personalizacion: "Personalización", transferencia: "Eligió transferencia", pago_mercadopago: "Eligió tarjeta", cotizacion_uniformes: "Pidió cotización de uniformes" };
   cont.innerHTML += eventos.length
-    ? `<ol style="margin:12px 0 0 18px;font-size:13.5px;color:#555;display:grid;gap:4px">${eventos.map(ev => {
+    ? `<ol class="st-pasos">${eventos.map(ev => {
         const hora = String(ev.t || "").slice(11, 16);
         const det = ev.nombre || ev.texto || ev.valor || ev.pregunta || (ev.hasta ? ev.hasta + "%" : "") || ev.url || "";
         return `<li>${hora} — ${esc(nombre[ev.e] || ev.e)}${det ? ": " + esc(det) : ""}</li>`;
       }).join("")}</ol>`
-    : `<p style="margin-top:10px;color:#999;font-size:13px">Sin detalle guardado.</p>`;
+    : `<p class="st-vacio">Sin detalle guardado.</p>`;
   b.remove();
 });
