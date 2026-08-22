@@ -672,9 +672,10 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
 }
 .hero-c__logo--iso { width: min(300px, 58vw); }
 .site-hero--green .hero-c__tag { margin-top: 10px; }
-@media (max-width: 720px) {
-  .hero-c__logo { width: 100vw; max-height: 42vh; }
-  .hero-c__logo--iso { width: 72vw; }
+@media (max-width: 760px) {
+  /* en el teléfono va el logo cuadrado: aprovecha el alto y se lee mucho mejor */
+  .hero-c__logo { width: 88vw; max-height: 58vh; }
+  .hero-c__logo--iso { width: 78vw; }
 }
 
 /* ===== Toques de azul de la marca (las alas del logo) ===== */
