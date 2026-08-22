@@ -1,8 +1,8 @@
-import { db, MODO } from "./db.js?v=2";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=2";
+import { db, MODO } from "./db.js?v=3";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=3";
 import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=1";
 import { onMayoreo, precioHTML } from "./mayoreo.js?v=1";
-import { track } from "./track.js?v=2";
+import { track } from "./track.js?v=3";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -162,13 +162,20 @@ function observarReveal() {
 }
 
 document.addEventListener("click", e => {
-  if (e.target.closest("#filtrosBtn")) { $("#filtrosPanel")?.toggleAttribute("hidden"); return; }
+  if (e.target.closest("#filtrosBtn")) {
+    const panel = $("#filtrosPanel");
+    const seAbre = panel?.hasAttribute("hidden");
+    if (seAbre) track("filtros_abrir", { categoria: CAT });
+    panel?.toggleAttribute("hidden");
+    return;
+  }
   const h = e.target.closest(".acc__h");
   if (h) { h.parentElement.classList.toggle("open"); return; }
   const opt = e.target.closest("#filtrosPanel .opt");
   if (opt) {
     f[opt.dataset.f] = opt.dataset.v;
-    track("filtro", { categoria: CAT, campo: opt.dataset.f, valor: opt.dataset.v });
+    const NOMBRE_F = { sub: "versión", liga: "liga", equipo: "equipo", temporada: "temporada", marca: "marca", talla: "talla", orden: "orden" };
+    track("filtro", { categoria: CAT, campo: opt.dataset.f, campoTxt: NOMBRE_F[opt.dataset.f] || opt.dataset.f, valor: opt.dataset.v });
     render();
     return;
   }
