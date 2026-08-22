@@ -6,15 +6,20 @@ const PROJ = firebaseConfig.projectId;
 const DOCS = `https://firestore.googleapis.com/v1/projects/${PROJ}/databases/(default)/documents`;
 const LS_ID = "dm_track_id";
 const SS_SES = "dm_track_ses";
-const MAX_EVENTOS = 300;
+const MAX_EVENTOS = 120;          // los que se guardan en la nube (los últimos)
+const INACTIVO_MS = 45000;        // sin tocar nada 45 s = ya no está mirando
+const LATIDO_MS = 5000;           // cada cuánto se suma tiempo activo
 
 let ident = null;
 let ses = null;
-let sucio = false;
 let enVuelo = false;
-let ultimoPing = 0;
+let pendientes = [];              // eventos que faltan por subir
+let sucio = false;
+let ultimaAccion = Date.now();
+let ultimoTic = Date.now();
+let productoAbierto = null;       // { id, nombre, equipo, categoria }
 
-/* ---------- identidad anónima (Firebase Auth REST) ---------- */
+/* ============ identidad anónima ============ */
 async function pedirAnonimo() {
   const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${KEY}`, {
     method: "POST", headers: { "Content-Type": "application/json" },
@@ -50,10 +55,9 @@ async function identidad() {
   return ident;
 }
 
-/* ---------- sesión ---------- */
-function nuevoId() {
-  return "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-}
+/* ============ sesión ============ */
+const nuevoId = () => "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const pagina = () => location.pathname.split("/").pop() || "index.html";
 
 function dispositivo() {
   const w = window.innerWidth;
@@ -64,46 +68,77 @@ function dispositivo() {
 
 function origen() {
   const u = new URLSearchParams(location.search);
-  const utm = u.get("utm_source") || u.get("fbclid") ? "campaña" : null;
-  if (utm) return utm;
+  const utm = u.get("utm_source");
+  if (utm) return utm.toLowerCase().slice(0, 30);
+  if (u.get("fbclid")) return "facebook";
   const r = document.referrer || "";
   if (!r) return "directo";
   try {
     const h = new URL(r).hostname.replace("www.", "");
     if (h.includes(location.hostname)) return "interno";
     if (h.includes("instagram")) return "instagram";
-    if (h.includes("facebook")) return "facebook";
+    if (h.includes("facebook") || h.includes("fb.")) return "facebook";
     if (h.includes("google")) return "google";
-    return h;
+    if (h.includes("t.co") || h.includes("twitter") || h.includes("x.com")) return "x";
+    if (h.includes("whatsapp") || h.includes("wa.me")) return "whatsapp";
+    if (h.includes("tiktok")) return "tiktok";
+    return h.slice(0, 30);
   } catch { return "directo"; }
 }
 
 function cargarSesion() {
   try {
     const g = JSON.parse(sessionStorage.getItem(SS_SES) || "null");
-    if (g && g.id) return g;
+    if (g && g.id) {
+      g.productos = g.productos || {};
+      g.paginas = g.paginas || [];
+      g.tallas = g.tallas || [];
+      return g;
+    }
   } catch { }
   return {
     id: nuevoId(),
     inicio: new Date().toISOString(),
     dispositivo: dispositivo(),
     origen: origen(),
-    entrada: location.pathname.split("/").pop() || "index.html",
-    eventos: [],
+    entrada: pagina(),
+    paginas: [],
     productos: {},
     busquedas: [],
     sinResultado: [],
+    tallas: [],
+    segundos: 0,          // tiempo ACTIVO (con la pestaña visible y la persona haciendo algo)
     compro: false,
     clienteUid: "",
     clienteEmail: ""
   };
 }
 
-function guardarLocal() {
-  try { sessionStorage.setItem(SS_SES, JSON.stringify(ses)); } catch { }
+const guardarLocal = () => { try { sessionStorage.setItem(SS_SES, JSON.stringify(ses)); } catch { } };
+
+/* ============ reloj de tiempo activo ============ */
+function activo() {
+  return document.visibilityState === "visible" && (Date.now() - ultimaAccion) < INACTIVO_MS;
 }
 
-/* ---------- Firestore ---------- */
+function tic() {
+  const ahora = Date.now();
+  const delta = Math.round((ahora - ultimoTic) / 1000);
+  ultimoTic = ahora;
+  if (!ses || delta <= 0 || !activo()) return;
+  ses.segundos += delta;
+  if (productoAbierto) {
+    const p = ses.productos[productoAbierto.id];
+    if (p) p.segundos += delta;
+  }
+  sucio = true;
+  guardarLocal();
+}
+
+["mousemove", "keydown", "scroll", "click", "touchstart", "pointerdown"].forEach(ev =>
+  window.addEventListener(ev, () => { ultimaAccion = Date.now(); }, { passive: true, capture: true }));
+
+/* ============ Firestore ============ */
 function val(v) {
   if (v === null || v === undefined) return { nullValue: null };
   if (typeof v === "boolean") return { booleanValue: v };
@@ -113,70 +148,106 @@ function val(v) {
   return { stringValue: String(v) };
 }
 
+function resumenSesion(uid) {
+  const prods = Object.entries(ses.productos);
+  const masVisto = prods.slice().sort((a, b) => b[1].segundos - a[1].segundos)[0];
+  return {
+    uid,
+    inicio: ses.inicio,
+    fin: new Date().toISOString(),
+    duracion: ses.segundos,
+    dispositivo: ses.dispositivo,
+    origen: ses.origen,
+    entrada: ses.entrada,
+    paginas: ses.paginas.length,
+    compro: ses.compro,
+    clienteUid: ses.clienteUid || "",
+    clienteEmail: ses.clienteEmail || "",
+    vistos: prods.length,
+    alCarrito: prods.filter(([, p]) => p.carrito).length,
+    favorito: masVisto ? masVisto[1].nombre : "",
+    busquedas: ses.busquedas.slice(-25),
+    sinResultado: ses.sinResultado.slice(-25),
+    tallas: ses.tallas.slice(-25),
+    productos: ses.productos
+  };
+}
+
+/** Manda solo lo que cambió: el resumen (chico) + los eventos nuevos como append. */
 async function enviar(keepalive = false) {
-  if (!usaFirebase || enVuelo || !sucio || !permiteMedicion()) return;
+  if (!usaFirebase || enVuelo || !permiteMedicion()) return;
+  if (!sucio && !pendientes.length) return;
   enVuelo = true;
+  const loteEventos = pendientes.slice(0, 60);
   try {
     const id = await identidad();
-    const cuerpo = {
-      fields: {
-        uid: val(id.uid),
-        inicio: val(ses.inicio),
-        fin: val(new Date().toISOString()),
-        duracion: val(Math.round((Date.now() - new Date(ses.inicio).getTime()) / 1000)),
-        dispositivo: val(ses.dispositivo),
-        origen: val(ses.origen),
-        entrada: val(ses.entrada),
-        compro: val(ses.compro),
-        clienteUid: val(ses.clienteUid || ""),
-        clienteEmail: val(ses.clienteEmail || ""),
-        busquedas: val(ses.busquedas.slice(-40)),
-        sinResultado: val(ses.sinResultado.slice(-40)),
-        productos: val(ses.productos),
-        eventos: val(ses.eventos.slice(-MAX_EVENTOS))
-      }
+    const campos = resumenSesion(id.uid);
+    const write = {
+      update: {
+        name: `projects/${PROJ}/databases/(default)/documents/sesiones/${ses.id}`,
+        fields: Object.fromEntries(Object.entries(campos).map(([k, v]) => [k, val(v)]))
+      },
+      updateMask: { fieldPaths: Object.keys(campos) }
     };
-    const campos = Object.keys(cuerpo.fields).map(k => `updateMask.fieldPaths=${k}`).join("&");
-    const r = await fetch(`${DOCS}/sesiones/${ses.id}?key=${KEY}&${campos}`, {
-      method: "PATCH",
+    if (loteEventos.length) {
+      write.updateTransforms = [{
+        fieldPath: "eventos",
+        appendMissingElements: { values: loteEventos.map(val) }
+      }];
+    }
+    const r = await fetch(`${DOCS}:commit?key=${KEY}`, {
+      method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${id.idToken}` },
-      body: JSON.stringify(cuerpo),
+      body: JSON.stringify({ writes: [write] }),
       keepalive
     });
-    if (r.ok) sucio = false;
+    if (r.ok) {
+      pendientes = pendientes.slice(loteEventos.length);
+      sucio = false;
+    }
   } catch { /* el tracking nunca debe romper la tienda */ }
   enVuelo = false;
 }
 
-/* ---------- API pública ---------- */
+/* ============ API ============ */
 export function track(evento, datos = {}) {
   if (!ses) return;
-  ses.eventos.push({ e: evento, t: new Date().toISOString(), ...datos });
-  if (ses.eventos.length > MAX_EVENTOS) ses.eventos = ses.eventos.slice(-MAX_EVENTOS);
+  const e = { e: evento, t: new Date().toISOString(), pg: pagina(), ...datos };
+  pendientes.push(e);
+  if (pendientes.length > MAX_EVENTOS) pendientes = pendientes.slice(-MAX_EVENTOS);
   if (evento === "busqueda" && datos.texto) ses.busquedas.push(String(datos.texto).slice(0, 80));
   if (evento === "busqueda_sin_resultado" && datos.texto) ses.sinResultado.push(String(datos.texto).slice(0, 80));
+  if (evento === "filtro" && datos.campo === "talla" && datos.valor && datos.valor !== "Todas") ses.tallas.push(String(datos.valor));
   if (evento === "compra") ses.compro = true;
   sucio = true;
   guardarLocal();
-  if (ses.eventos.length % 12 === 0) enviar();
+  if (pendientes.length >= 15) enviar();
 }
 
-export function trackProducto(p, segundos) {
-  if (!ses || !p) return;
-  const id = p.id || p;
-  const prev = ses.productos[id] || { nombre: p.nombre || "", vistas: 0, segundos: 0, carrito: false, comprado: false };
-  prev.vistas += segundos === undefined ? 1 : 0;
-  if (segundos) prev.segundos += Math.round(segundos);
+/** Abre la ficha de un producto: cuenta UNA vista por sesión y arranca su cronómetro. */
+export function trackProducto(p) {
+  if (!ses || !p || !p.id) return;
+  const id = p.id;
+  const prev = ses.productos[id] || { nombre: "", vistas: 0, segundos: 0, carrito: false, comprado: false };
+  prev.vistas += 1;
   if (p.nombre) prev.nombre = p.nombre;
   if (p.equipo) prev.equipo = p.equipo;
   if (p.categoria) prev.categoria = p.categoria;
   ses.productos[id] = prev;
+  productoAbierto = { id };
+  ultimoTic = Date.now();
   sucio = true;
   guardarLocal();
 }
 
+export function cerrarProducto() {
+  tic();
+  productoAbierto = null;
+}
+
 export function marcarProducto(id, campo) {
-  if (!ses || !ses.productos[id]) ses.productos[id] = { nombre: "", vistas: 0, segundos: 0, carrito: false, comprado: false };
+  if (!ses) return;
+  if (!ses.productos[id]) ses.productos[id] = { nombre: "", vistas: 0, segundos: 0, carrito: false, comprado: false };
   ses.productos[id][campo] = true;
   sucio = true;
   guardarLocal();
@@ -192,25 +263,43 @@ export function setCliente(uid, email) {
   enviar();
 }
 
-/* ---------- arranque ---------- */
+/* ============ arranque ============ */
 ses = cargarSesion();
+if (!ses.paginas.includes(pagina())) ses.paginas.push(pagina());
 guardarLocal();
-track("pagina", { url: location.pathname.split("/").pop() || "index.html" });
+track("pagina", { url: pagina() });
+
+setInterval(tic, LATIDO_MS);
+setInterval(() => enviar(), 20000);
 
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") enviar(true);
+  if (document.visibilityState === "hidden") { tic(); enviar(true); }
+  else { ultimoTic = Date.now(); ultimaAccion = Date.now(); }
 });
-window.addEventListener("pagehide", () => enviar(true));
-setInterval(() => {
-  if (Date.now() - ultimoPing > 25000) { ultimoPing = Date.now(); enviar(); }
-}, 25000);
+window.addEventListener("pagehide", () => { tic(); enviar(true); });
 
+/* profundidad de scroll: hasta dónde bajó en la página */
+let scrollMax = 0;
+window.addEventListener("scroll", () => {
+  const alto = document.documentElement.scrollHeight - window.innerHeight;
+  if (alto <= 0) return;
+  const pct = Math.min(100, Math.round((window.scrollY / alto) * 100));
+  if (pct >= scrollMax + 25) {
+    scrollMax = pct - (pct % 25);
+    track("scroll", { hasta: scrollMax });
+  }
+}, { passive: true });
+
+/* clicks: solo los que dicen algo del interés, no cualquier botón */
 document.addEventListener("click", e => {
   const b = e.target.closest("button, a");
   if (!b) return;
-  const txt = (b.textContent || "").trim().slice(0, 40);
-  if (!txt) return;
-  track("click", { texto: txt, id: b.id || b.dataset.add || "" });
+  const id = b.id || b.dataset.add || "";
+  const texto = (b.textContent || "").trim().slice(0, 40);
+  const relevante = id || b.classList.contains("add-btn") || b.classList.contains("cuadro") ||
+    b.closest("#filtrosPanel") || b.closest(".nav") || b.closest("#asesorPanel");
+  if (!relevante || !texto) return;
+  track("click", { texto, id });
 }, true);
 
-window.dmTrack = { track, trackProducto, marcarProducto, setCliente };
+window.dmTrack = { track, trackProducto, cerrarProducto, marcarProducto, setCliente };
