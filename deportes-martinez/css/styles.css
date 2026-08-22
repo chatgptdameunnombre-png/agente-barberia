@@ -570,3 +570,91 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
 .admin-body .stat .n { font-size: clamp(24px, 2.4vw, 32px); line-height: 1.1; white-space: nowrap; }
 .admin-body .stat { padding: 18px 20px; }
 .admin-body details > summary::-webkit-details-marker { display: none; }
+
+/* ============================================================
+   Panel del dueño — Estadísticas
+   Todo lo visual de la sección de estadísticas vive aquí:
+   el JS solo pinta la estructura con estas clases.
+   ============================================================ */
+.st-tarjetas { grid-template-columns: repeat(4, 1fr); margin-bottom: 6px; }
+.st-pie { font-size: 12px; color: #8a8a90; margin-top: 4px; }
+
+.st-bloque { margin: 26px 0; }
+.st-bloque__h { font-size: 17px; margin: 0 0 2px; }
+.st-bloque__ayuda { color: #777; font-size: 13px; margin: 0 0 12px; max-width: 70ch; }
+
+.st-vacio {
+  color: #9a9aa2; font-size: 14px; background: #fafafa;
+  border: 1px dashed #e2e2e6; border-radius: 12px; padding: 16px; margin: 10px 0 0;
+}
+.st-cargando { color: #9a9aa2; font-size: 14px; }
+.st-error { color: #c62828; font-size: 14px; }
+
+/* barras */
+.st-barra { display: flex; align-items: center; gap: 10px; }
+.st-barra__riel { flex: 1; min-width: 60px; height: 22px; background: #f0f0f2; border-radius: 6px; overflow: hidden; }
+.st-barra__fill { height: 100%; border-radius: 6px; transition: width .5s cubic-bezier(.2,.7,.2,1); }
+.st-barra__fill--oro { background: #c9a227; }
+.st-barra__fill--azul { background: #5b8def; }
+.st-barra__fill--morado { background: #7a63d6; }
+.st-barra__fill--verde { background: #2e9e5b; }
+.st-barra__txt { min-width: 76px; font-size: 13px; color: #444; }
+
+/* embudo */
+.st-embudo { display: grid; gap: 10px; }
+.st-embudo__fila { display: grid; grid-template-columns: 210px 1fr; gap: 12px; align-items: center; }
+.st-embudo__paso { font-size: 14px; color: #333; }
+
+/* jerseys */
+.st-prods { display: grid; gap: 12px; }
+.st-prod {
+  display: grid; grid-template-columns: 1fr 220px 140px; gap: 14px; align-items: center;
+  padding: 12px 14px; background: #fff; border: 1px solid #ececf0; border-radius: 12px;
+}
+.st-prod__nombre { font-weight: 600; font-size: 14.5px; }
+.st-prod__equipo { font-size: 12.5px; color: #888; }
+.st-prod__dato { font-size: 13px; color: #555; text-align: right; }
+.st-ok { color: #2e9e5b; }
+.st-mal { color: #c62828; }
+
+/* chips de "lo que piden y no hay" */
+.st-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.st-chip { background: #fff6e0; color: #7a5c00; border-radius: 999px; padding: 8px 14px; font-size: 13.5px; }
+.st-chip b { margin-left: 4px; }
+
+/* listas con barra */
+.st-lista { display: grid; gap: 9px; }
+.st-lista__fila { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center; }
+.st-lista__et { font-size: 13.5px; color: #333; text-transform: capitalize; }
+.st-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+
+/* visita por visita */
+.st-visitas { display: grid; gap: 8px; }
+.st-visita { background: #fff; border: 1px solid #ececf0; border-radius: 12px; padding: 12px 14px; }
+.st-visita__cab {
+  cursor: pointer; list-style: none;
+  display: grid; grid-template-columns: 120px 1fr 160px 130px; gap: 12px; align-items: center;
+}
+.st-visita__cuando { font-size: 13px; color: #777; }
+.st-visita__quien { font-size: 14px; }
+.st-visita__vio { color: #888; }
+.st-visita__tiempo { font-size: 13px; color: #555; }
+.st-visita__cuerpo { margin-top: 10px; font-size: 13.5px; color: #555; }
+.st-vermas { width: auto; margin-top: 8px; padding: 6px 12px; }
+.st-pasos { margin: 12px 0 0 18px; font-size: 13.5px; color: #555; display: grid; gap: 4px; }
+
+.st-tag { border-radius: 999px; padding: 4px 10px; font-size: 12.5px; text-align: center; }
+.st-tag--compro { background: #e6f6ec; color: #1d7a43; }
+.st-tag--carrito { background: #fff4e0; color: #9a6b00; }
+.st-tag--miro { background: #eef1fb; color: #3a55a8; }
+.st-tag--paso { background: #f4f4f5; color: #777; }
+
+@media (max-width: 900px) {
+  .st-tarjetas { grid-template-columns: repeat(2, 1fr); }
+  .st-embudo__fila { grid-template-columns: 1fr; gap: 4px; }
+  .st-prod { grid-template-columns: 1fr; gap: 8px; }
+  .st-prod__dato { text-align: left; }
+  .st-dos { grid-template-columns: 1fr; gap: 14px; }
+  .st-visita__cab { grid-template-columns: 1fr auto; row-gap: 6px; }
+  .st-visita__tiempo, .st-visita__cuando { grid-column: 1 / -1; }
+}
