@@ -969,3 +969,51 @@ label, .field label { color: var(--ink-soft); }
 .add-btn:disabled {
   background: #12100a; color: #6b5f3f; border: 1px solid var(--line);
 }
+
+/* ============================================================
+   Panel — menú de secciones (tres rayitas) y extras
+   ============================================================ */
+.pnav-btn {
+  width: 42px; height: 38px; border: 1px solid var(--line); border-radius: 10px;
+  background: #0b0a07; display: grid; place-content: center; gap: 5px; cursor: pointer;
+}
+.pnav-btn span { display: block; width: 18px; height: 2px; background: var(--accent); border-radius: 2px; transition: transform .2s, opacity .2s; }
+.pnav-btn.on span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.pnav-btn.on span:nth-child(2) { opacity: 0; }
+.pnav-btn.on span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.pnav {
+  position: fixed; top: 68px; left: 0; bottom: 0; width: min(300px, 84vw); z-index: 45;
+  background: var(--bg-card); border-right: 1px solid var(--line);
+  padding: 18px 14px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto;
+  box-shadow: 24px 0 60px rgba(0,0,0,.5);
+}
+.pnav-fondo { position: fixed; inset: 68px 0 0 0; z-index: 44; background: rgba(0,0,0,.5); }
+.pnav__item {
+  text-align: left; padding: 13px 14px; border-radius: 10px; border: 1px solid transparent;
+  color: var(--ink); font-family: var(--font); font-size: 14.5px; font-weight: 600; cursor: pointer; background: none;
+}
+.pnav__item:hover { background: #16130c; border-color: var(--line); }
+.pnav__item.on { background: rgba(232,185,35,.12); border-color: rgba(232,185,35,.45); color: var(--accent); }
+.pnav__subs { display: flex; flex-direction: column; gap: 2px; margin: 2px 0 6px 12px; padding-left: 10px; border-left: 1px solid var(--line); }
+.pnav__sub {
+  text-align: left; padding: 9px 12px; border-radius: 8px; background: none; border: none; cursor: pointer;
+  color: var(--ink-soft); font-family: var(--font); font-size: 13.5px;
+}
+.pnav__sub:hover { color: var(--accent); }
+.pnav__sub.on { color: var(--accent); background: rgba(232,185,35,.08); }
+
+/* encabezado de grupo en la lista de jerseys */
+.p-grupo {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent); background: #0b0a07; padding: 12px 18px; border-bottom: 1px solid var(--line);
+}
+
+/* hora en el paso a paso de cada visita */
+.st-hora { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-right: 6px; }
+.st-pasos li { line-height: 1.7; }
+
+@media (max-width: 620px) {
+  .pnav { top: 60px; }
+  .pnav-fondo { inset: 60px 0 0 0; }
+}
