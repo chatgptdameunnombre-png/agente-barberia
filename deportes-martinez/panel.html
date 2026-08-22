@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel del dueño — Deportes Martínez</title>
+  <link rel="icon" href="fotos/logo/iso-blanco.png">
+  <link rel="stylesheet" href="css/styles.css?v=1">
+</head>
+<body class="admin-body">
+
+  <div class="login-screen" id="loader">
+    <div style="text-align:center;color:var(--muted)">Cargando panel…</div>
+  </div>
+
+  <div id="dash" hidden>
+    <header class="admin-top">
+      <div class="wrap admin-top__in">
+        <a href="panel.html" class="admin-brand">
+          <img src="fotos/logo/iso-blanco.png" alt="">
+          <span class="admin-brand__word"><b>DEPORTES MARTÍNEZ</b><small>Panel del dueño</small></span>
+        </a>
+        <div class="admin-top__actions">
+          <a href="index.html" class="btn btn--ghost" target="_blank">Ver tienda ↗</a>
+          <button class="btn btn--ghost" id="logout">Salir</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap admin-main">
+      <div class="admin-head">
+        <h1>Mis jerseys</h1>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn--ghost" id="optBtn" style="width:auto">⚡ Optimizar fotos</button>
+          <button class="btn" id="addBtn" style="width:auto">+ Agregar jersey</button>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="n" id="stTotal">0</div><div class="l">Jerseys</div></div>
+        <div class="stat"><div class="n" id="stStock">0</div><div class="l">Unidades en stock</div></div>
+        <div class="stat"><div class="n" id="stOut">0</div><div class="l">Agotados</div></div>
+      </div>
+
+      <div class="p-table">
+        <div class="p-row p-row--head">
+          <span></span><span>Jersey</span><span class="hide-sm">Deporte</span>
+          <span class="hide-sm">Precio</span><span>Stock</span><span></span>
+        </div>
+        <div id="pList"></div>
+      </div>
+
+      <section style="margin-top:34px">
+        <h2 style="font-size:20px;margin:0 0 12px">Uniformes de equipo · solicitudes</h2>
+        <div id="uniList" style="display:flex;flex-direction:column;gap:10px"></div>
+      </section>
+
+      <section style="margin-top:40px" id="estad">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+          <h2 style="font-size:20px;margin:0">Estadísticas de la tienda</h2>
+          <select class="input" id="estadRango" style="width:auto">
+            <option value="7">Últimos 7 días</option>
+            <option value="30" selected>Últimos 30 días</option>
+            <option value="90">Últimos 90 días</option>
+            <option value="todo">Todo</option>
+          </select>
+        </div>
+        <p style="color:#666;font-size:13.5px;margin-bottom:14px">Qué vio cada persona que entró a tu página, cuánto tiempo, qué buscó y si compró.</p>
+        <div id="estadBody"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-ov" id="modalOv">
+    <div class="modal">
+      <div class="modal__head">
+        <h3 id="modalTitle">Nuevo jersey</h3>
+        <button class="icon-btn" id="modalClose">✕</button>
+      </div>
+      <form id="prodForm">
+        <div class="modal__body">
+          <input type="hidden" id="pId">
+          <div class="row-2">
+            <div class="field"><label>Nombre</label><input class="input" id="pNombre" required></div>
+            <div class="field"><label>Marca</label><input class="input" id="pMarca" required></div>
+          </div>
+          <div class="row-2">
+            <div class="field"><label>Deporte</label>
+              <select class="input" id="pCategoria" required>
+                <option value="">Elige…</option>
+                <option value="futbol">Futbol</option>
+                <option value="basket">Basketball</option>
+                <option value="americano">Americano</option>
+              </select>
+            </div>
+            <div class="field"><label>Versión</label>
+              <select class="input" id="pSub"><option value="">—</option></select>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field"><label>Equipo</label><input class="input" id="pEquipo" placeholder="Real Madrid, Selección de México…"></div>
+            <div class="field"><label>Liga / torneo</label><input class="input" id="pLiga" placeholder="LaLiga, Liga MX, NBA…"></div>
+          </div>
+          <div class="row-2">
+            <div class="field"><label>Temporada / año</label><input class="input" id="pTemporada" placeholder="2026-27, 1998…"></div>
+            <div class="field"><label>Uniforme</label><select class="input" id="pKit"><option value="">—</option></select></div>
+          </div>
+          <div class="row-2">
+            <div class="field"><label>Material (opcional)</label><input class="input" id="pMaterial" placeholder="Dry-fit, algodón…"></div>
+            <div class="field"><label>Tallas</label>
+              <select class="input" id="pTallaTipo">
+                <option value="universal">Talla universal (sin tallas)</option>
+                <option value="tallas">Tiene tallas (S · M · L · XL · 2XL · 3XL)</option>
+              </select>
+            </div>
+            <div class="field"><label>Precio (MXN)</label><input class="input" id="pPrecio" type="number" min="0"></div>
+          </div>
+          <div class="field" id="bloqueUniversal"><label>Stock (unidades)</label><input class="input" id="pStock" type="number" min="0"></div>
+          <div class="field" id="bloqueTallas" hidden>
+            <label>Inventario por talla</label>
+            <div id="tallasEditor"></div>
+            <p class="hint-foto">Activa las tallas que manejas y pon su stock. El precio por talla es opcional: si lo dejas vacío, usa el "Precio" de arriba.</p>
+          </div>
+          <div class="field">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0"><input type="checkbox" id="pRetro" style="width:auto"> Jersey retro / vintage</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:8px 0 0"><input type="checkbox" id="pUnica" style="width:auto"> Pieza única (solo tienes una)</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:8px 0 0"><input type="checkbox" id="pPerso" style="width:auto" checked> Se puede personalizar con nombre y número</label>
+            <p class="hint-foto">Retro y pieza única salen con etiqueta en el catálogo.</p>
+          </div>
+          <div class="field"><label>Descripción</label><textarea class="input" id="pDesc" rows="3" placeholder="Cuéntale al cliente cómo está el jersey, si es original, importado, etc."></textarea></div>
+          <div class="field"><label>Especificaciones (una por línea)</label><textarea class="input" id="pSpecs" rows="4" placeholder="Tela dry-fit&#10;Parches de liga incluidos&#10;Corte holgado"></textarea></div>
+          <div class="field">
+            <label>Fotos del jersey</label>
+            <input type="file" id="pFile" accept="image/*" multiple hidden>
+            <button type="button" class="btn btn--ghost" id="pFileBtn" style="width:100%">📷 Subir fotos desde tu dispositivo</button>
+            <p class="hint-foto">La primera foto es la principal. Se comprimen solas para que carguen rápido.</p>
+            <div class="fotos-grid" id="pFotos"></div>
+          </div>
+        </div>
+        <div class="modal__foot">
+          <button type="button" class="btn btn--ghost" id="modalCancel">Cancelar</button>
+          <button type="submit" class="btn btn--accent" style="width:auto">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toasts"></div>
+  <script type="module" src="js/panel.js?v=1"></script>
+</body>
+</html>
