@@ -557,3 +557,11 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
   border-radius:6px; padding:2px 7px;
 }
 .dm-azul { color:#4f8fd6; }
+
+/* ===== Ajustes móviles del hero (el nombre es largo) ===== */
+@media (max-width: 720px) {
+  .hero-c__title { white-space: normal; font-size: clamp(30px, 8.4vw, 54px); line-height: 1.02; }
+  .hero-c__tag { letter-spacing: .2em; font-size: 11px; }
+  .hero-c { gap: 18px; }
+  .hero-c__iso, .site-hero--green .hero-c__iso { width: 132px; height: 132px; }
+}
