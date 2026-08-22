@@ -1,7 +1,7 @@
 import { db, MODO } from "./db.js?v=1";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=1";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=2";
 import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=1";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=1";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=2";
 import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=1";
 import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=1";
 import { track, trackProducto, cerrarProducto } from "./track.js?v=2";
@@ -36,8 +36,8 @@ onMayoreo(() => render());
 function tallaBtn(t, on) {
   const ag = Number(t.stock) <= 0;
   const color = ag ? "#7a7a82" : (on ? "#e8b923" : "#f4f4f5");
-  const borde = on ? "#e8b923" : "#2a3244";
-  const fondo = on ? "rgba(232,185,35,.14)" : "#141a27";
+  const borde = on ? "#e8b923" : "#2a2a32";
+  const fondo = on ? "rgba(232,185,35,.14)" : "#141418";
   return `<button type="button" class="talla-btn" data-talla="${t.talla}" style="min-width:48px;padding:9px 13px;border-radius:11px;border:1px solid ${borde};background:${fondo};color:${color};cursor:pointer;font-weight:800;${ag ? "text-decoration:line-through" : ""}">${t.talla}</button>`;
 }
 
@@ -82,14 +82,14 @@ function render() {
     : "";
 
   const persoBloque = p.personalizable === false ? "" : `
-    <div style="margin-top:14px;border:1px solid #2a3244;background:#141a27;border-radius:12px;padding:12px">
+    <div style="margin-top:14px;border:1px solid #2a2a32;background:#141418;border-radius:12px;padding:12px">
       <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px">
         <input type="checkbox" id="persoChk" ${persoOn ? "checked" : ""} style="width:17px;height:17px;accent-color:#e8b923">
         <span>Ponle nombre y número <b style="color:#e8b923">+${money(PERSONALIZACION_PRECIO)}</b></span>
       </label>
       <div id="persoCampos" style="display:${persoOn ? "flex" : "none"};gap:8px;margin-top:10px">
-        <input id="persoNombre" maxlength="14" placeholder="NOMBRE" style="flex:2;min-width:0;background:#0f1420;border:1px solid #2a3244;color:#f4f4f5;border-radius:10px;padding:10px;font:inherit;text-transform:uppercase">
-        <input id="persoDorsal" maxlength="2" inputmode="numeric" placeholder="10" style="flex:1;min-width:0;background:#0f1420;border:1px solid #2a3244;color:#f4f4f5;border-radius:10px;padding:10px;font:inherit;text-align:center">
+        <input id="persoNombre" maxlength="14" placeholder="NOMBRE" style="flex:2;min-width:0;background:#0b0b0e;border:1px solid #2a2a32;color:#f4f4f5;border-radius:10px;padding:10px;font:inherit;text-transform:uppercase">
+        <input id="persoDorsal" maxlength="2" inputmode="numeric" placeholder="10" style="flex:1;min-width:0;background:#0b0b0e;border:1px solid #2a2a32;color:#f4f4f5;border-radius:10px;padding:10px;font:inherit;text-align:center">
       </div>
     </div>`;
 
@@ -118,13 +118,13 @@ function render() {
           <button class="add-btn add-btn--big" id="buyNow" ${puede ? "" : "disabled"} style="flex:1;margin:0;background:#e8b923;color:#1a1405">${labelBuy}</button>
         </div>
         <div style="display:flex;gap:8px;margin-top:12px">
-          <button type="button" class="entrega-op" data-entrega="tienda" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a3244;background:#141a27;color:#f4f4f5;font-size:13px;cursor:pointer">Recoger en tienda</button>
-          <button type="button" class="entrega-op" data-entrega="domicilio" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a3244;background:#141a27;color:#f4f4f5;font-size:13px;cursor:pointer">🏠 A domicilio +${money(ENVIO_DOMICILIO)}</button>
+          <button type="button" class="entrega-op" data-entrega="tienda" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">Recoger en tienda</button>
+          <button type="button" class="entrega-op" data-entrega="domicilio" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">🏠 A domicilio +${money(ENVIO_DOMICILIO)}</button>
         </div>
         <div style="margin-top:12px;font-size:12.5px;color:#9a9aa2">¿Cómo quieres pagar? <span style="color:#7a7a82">(al usar "Comprar")</span></div>
         <div style="display:flex;gap:8px;margin-top:6px">
-          <button type="button" class="pago-op" data-pago="tarjeta" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a3244;background:#141a27;color:#f4f4f5;font-size:13px;cursor:pointer">💳 Tarjeta</button>
-          <button type="button" class="pago-op" data-pago="transferencia" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a3244;background:#141a27;color:#f4f4f5;font-size:13px;cursor:pointer">🏦 Transferencia</button>
+          <button type="button" class="pago-op" data-pago="tarjeta" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">💳 Tarjeta</button>
+          <button type="button" class="pago-op" data-pago="transferencia" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">🏦 Transferencia</button>
         </div>
         <div id="prodTotal" style="margin-top:10px;font-weight:600;color:#e8b923"></div>
         ${p.descripcion ? `<p class="prod__desc">${p.descripcion}</p>` : ""}
@@ -180,8 +180,8 @@ function relacionados() {
 function pintarEntrega() {
   document.querySelectorAll(".entrega-op").forEach(b => {
     const on = b.dataset.entrega === entregaProd;
-    b.style.borderColor = on ? "#e8b923" : "#2a3244";
-    b.style.background = on ? "rgba(232,185,35,.14)" : "#141a27";
+    b.style.borderColor = on ? "#e8b923" : "#2a2a32";
+    b.style.background = on ? "rgba(232,185,35,.14)" : "#141418";
     b.style.color = on ? "#e8b923" : "#f4f4f5";
   });
   actualizarTotal();
@@ -190,8 +190,8 @@ function pintarEntrega() {
 function pintarPago() {
   document.querySelectorAll(".pago-op").forEach(b => {
     const on = b.dataset.pago === metodoPagoProd;
-    b.style.borderColor = on ? "#e8b923" : "#2a3244";
-    b.style.background = on ? "rgba(232,185,35,.14)" : "#141a27";
+    b.style.borderColor = on ? "#e8b923" : "#2a2a32";
+    b.style.background = on ? "rgba(232,185,35,.14)" : "#141418";
     b.style.color = on ? "#e8b923" : "#f4f4f5";
   });
 }
