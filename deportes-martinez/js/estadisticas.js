@@ -26,6 +26,16 @@ function tiempo(seg) {
   return Math.floor(m / 60) + "h " + (m % 60) + "m";
 }
 
+function hora12(iso) {
+  const d = new Date(iso || 0);
+  if (!d.getTime()) return "";
+  let h = d.getHours();
+  const m = String(d.getMinutes()).padStart(2, "0");
+  const ampm = h >= 12 ? "pm" : "am";
+  h = h % 12 || 12;
+  return `${h}:${m} ${ampm}`;
+}
+
 function hace(iso) {
   const t = new Date(iso || 0).getTime();
   if (!t) return "—";
@@ -102,8 +112,9 @@ function resumen(list) {
     if (claves.some(k => prods[k].carrito)) r.carrito++;
     if (s.compro) r.compraron++;
     if (!claves.length && Number(s.duracion || 0) < 10) r.rebotes++;
-    r.origenes[s.origen || "?"] = (r.origenes[s.origen || "?"] || 0) + 1;
-    r.dispositivos[s.dispositivo || "?"] = (r.dispositivos[s.dispositivo || "?"] || 0) + 1;
+    const APARATO = { movil: "Teléfono", tablet: "Tablet", escritorio: "Computadora" };
+    const ap = APARATO[s.dispositivo] || "Otro";
+    r.dispositivos[ap] = (r.dispositivos[ap] || 0) + 1;
     for (const [id, d] of Object.entries(prods)) {
       const p = r.productos[id] || { nombre: d.nombre || id, personas: 0, vistas: 0, segundos: 0, carrito: 0, equipo: d.equipo || "" };
       p.personas += 1;
@@ -118,6 +129,52 @@ function resumen(list) {
   }
   r.personas = r.personas.size;
   return r;
+}
+
+/* ---------------- cada acción, contada en español ---------------- */
+const PAGINA = {
+  "index.html": "la portada", "": "la portada",
+  "futbol.html": "el catálogo de futbol", "basket.html": "el catálogo de basketball",
+  "americano.html": "el catálogo de americano", "producto.html": "una ficha de jersey",
+  "cuenta.html": "su cuenta", "legales.html": "los términos"
+};
+const ENTREGA = { tienda: "recoger en tienda", domicilio: "envío a domicilio" };
+const PAGO = { tarjeta: "tarjeta", transferencia: "transferencia" };
+
+export function paso(ev) {
+  const h = hora12(ev.t);
+  const n = ev.nombre ? esc(ev.nombre) : "";
+  const frase = (() => {
+    switch (ev.e) {
+      case "pagina": return `Entró a ${PAGINA[ev.url] || esc(ev.url || "la tienda")}`;
+      case "navega": return `Fue a ${esc(ev.hacia)}`;
+      case "ver_producto": return `Abrió <b>${n}</b>`;
+      case "ver_foto": return "Vio otra foto del jersey";
+      case "elige_talla": return `Eligió la talla <b>${esc(ev.talla)}</b>`;
+      case "cambia_talla": return `Cambió de la talla ${esc(ev.antes)} a la <b>${esc(ev.talla)}</b>`;
+      case "personalizacion": return ev.activada ? "Activó ponerle nombre y número" : "Quitó lo del nombre y número";
+      case "agregar_carrito": return `Puso <b>${n}</b>${ev.talla ? " talla " + esc(ev.talla) : ""} en el carrito${ev.personalizado ? " (con nombre y número)" : ""}`;
+      case "carrito_abrir": return "Abrió el carrito";
+      case "carrito_cerrar": return "Cerró el carrito";
+      case "carrito_quitar": return `Quitó <b>${n}</b> del carrito`;
+      case "carrito_cantidad": return `Cambió la cantidad a ${esc(ev.cantidad)}`;
+      case "elige_entrega": return `Eligió ${ENTREGA[ev.entrega] || esc(ev.entrega)}`;
+      case "elige_pago": return `Eligió pagar con ${PAGO[ev.metodo] || esc(ev.metodo)}`;
+      case "filtros_abrir": return "Abrió los filtros";
+      case "filtro": return `Filtró por ${esc(ev.campoTxt || ev.campo)}: <b>${esc(ev.valor)}</b>`;
+      case "filtro_sin_resultado": return "Con esos filtros no le salió nada";
+      case "asesor_abrir": return "Abrió el asistente";
+      case "asesor_cerrar": return "Cerró el asistente";
+      case "asesor": return `Le preguntó al asistente: “${esc(ev.pregunta)}”${ev.resultados ? ` (le mostró ${ev.resultados})` : " (no encontró nada)"}`;
+      case "checkout": case "va_a_pagar": case "comprar_directo": return "Se fue a pagar";
+      case "transferencia": return "Eligió pagar por transferencia";
+      case "pago_mercadopago": return "Se fue a pagar con tarjeta";
+      case "compra": return "<b>Compró</b>";
+      case "salida": return ev.conCarrito ? "Se fue dejando cosas en el carrito" : "Se fue sin comprar";
+      default: return "";
+    }
+  })();
+  return frase ? `<span class="st-hora">${h}</span> ${frase}` : "";
 }
 
 /* ---------------- pintado ---------------- */
@@ -137,8 +194,8 @@ function barra(valor, max, texto, tono = "oro") {
   </div>`;
 }
 
-function bloque(titulo, ayuda, cuerpo) {
-  return `<section class="st-bloque">
+function bloque(titulo, ayuda, cuerpo, id) {
+  return `<section class="st-bloque"${id ? ` id="${id}" data-sub="${id}"` : ""}>
     <h3 class="st-bloque__h">${titulo}</h3>
     ${ayuda ? `<p class="st-bloque__ayuda">${ayuda}</p>` : ""}
     ${cuerpo}
@@ -224,7 +281,6 @@ export function pintarLista(list) {
   const r = resumen(list);
   const prods = Object.values(r.productos);
   const top = prods.slice().sort((a, b) => b.personas - a.personas || b.segundos - a.segundos).slice(0, 8);
-  const frios = prods.filter(p => p.personas >= 3 && p.carrito === 0).sort((a, b) => b.personas - a.personas).slice(0, 6);
   const faltantes = Object.entries(r.faltantes).sort((a, b) => b[1] - a[1]).slice(0, 12);
 
   cont.innerHTML = `
@@ -235,30 +291,23 @@ export function pintarLista(list) {
       ${tarjeta(r.compraron, "Compras", r.visitas ? `${pct(r.compraron, r.visitas)}% de las visitas` : "")}
     </div>
 
-    ${bloque("¿En qué parte se te caen?",
-      "De cada 100 que entran, cuántos llegan a cada paso. Donde la barra se cae de golpe, ahí está el problema.",
-      embudo(r))}
+    ${bloque("¿Dónde se te va la gente?",
+      "El camino que sigue una persona hasta comprarte. Cada barra es cuántos llegaron a ese paso. Donde la barra se hace chica de golpe, ahí es donde los estás perdiendo.",
+      embudo(r), "embudo")}
 
     ${bloque("Los jerseys que más miran",
       "Cuántas personas distintas lo abrieron, cuánto tiempo lo estuvieron viendo y cuántas lo pusieron en el carrito.",
-      tablaProductos(top, r))}
-
-    ${bloque("Los ven y no los compran",
-      "Los abrieron tres personas o más y nadie lo agregó. Casi siempre es el precio, la foto o que falta su talla.",
-      frios.length ? tablaProductos(frios, r) : vacio("Ninguno por ahora. Buena señal."))}
+      tablaProductos(top, r), "vistos")}
 
     ${bloque("Te están pidiendo esto y no lo tienes",
       "Búsquedas que no encontraron nada. Esto es lo que deberías conseguir para la próxima.",
-      chips(faltantes) || vacio("Nadie ha buscado algo que no tengas."))}
+      chips(faltantes) || vacio("Nadie ha buscado algo que no tengas."), "piden")}
 
-    ${bloque("Tallas que más buscan", "", Object.keys(r.tallas).length ? listaBarras(r.tallas, r.visitas) : vacio("Aún no filtran por talla."))}
+    ${bloque("Tallas que más buscan", "", Object.keys(r.tallas).length ? listaBarras(r.tallas, r.visitas) : vacio("Aún no filtran por talla."), "tallas")}
 
-    ${bloque("De dónde llegan", "", `<div class="st-dos">
-      <div>${listaBarras(r.origenes, r.visitas)}</div>
-      <div>${listaBarras(r.dispositivos, r.visitas)}</div>
-    </div>`)}
+    ${bloque("Desde qué aparato entran", "", listaBarras(r.dispositivos, r.visitas), "aparatos")}
 
-    ${bloque("Visita por visita", "Abre cualquiera para ver qué hizo esa persona.", visitas(list))}
+    ${bloque("Visita por visita", "Abre cualquiera para ver, paso a paso, qué hizo esa persona.", visitas(list), "detalle")}
   `;
 }
 
@@ -294,13 +343,8 @@ document.addEventListener("click", async e => {
   b.textContent = "Cargando…";
   const eventos = await bajarEventos(b.dataset.ver);
   const cont = b.parentElement;
-  const nombre = { pagina: "Abrió", ver_producto: "Vio", agregar_carrito: "Agregó al carrito", filtro: "Filtró", click: "Tocó", asesor: "Le preguntó a la IA", checkout: "Fue a pagar", comprar_directo: "Fue a pagar", scroll: "Bajó hasta", personalizacion: "Personalización", transferencia: "Eligió transferencia", pago_mercadopago: "Eligió tarjeta" };
   cont.innerHTML += eventos.length
-    ? `<ol class="st-pasos">${eventos.map(ev => {
-        const hora = String(ev.t || "").slice(11, 16);
-        const det = ev.nombre || ev.texto || ev.valor || ev.pregunta || (ev.hasta ? ev.hasta + "%" : "") || ev.url || "";
-        return `<li>${hora} — ${esc(nombre[ev.e] || ev.e)}${det ? ": " + esc(det) : ""}</li>`;
-      }).join("")}</ol>`
+    ? `<ol class="st-pasos">${eventos.map(paso).filter(Boolean).map(t => `<li>${t}</li>`).join("")}</ol>`
     : `<p class="st-vacio">Sin detalle guardado.</p>`;
   b.remove();
 });
