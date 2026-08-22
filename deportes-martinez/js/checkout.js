@@ -1,7 +1,7 @@
 import { COBRO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=2";
 import { db } from "./db.js?v=3";
 import { esMayorista as soyMayorista } from "./mayoreo.js?v=1";
-import { track } from "./track.js?v=4";
+import { track } from "./track.js?v=5";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -84,7 +84,13 @@ function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion 
     </div>`;
   document.body.appendChild(ov);
   const q = s => ov.querySelector(s);
-  const cerrar = () => ov.remove();
+  /* al cerrar el modal damos por terminada la transferencia: el cliente ya vio los datos
+     y se fue a pagar/mandar su comprobante. Queda como venta POR CONFIRMAR. */
+  const cerrar = () => {
+    track("transferencia_fin", { ref, total: totalFinal });
+    track("compra", { via: "transferencia", porConfirmar: true, ref, total: totalFinal });
+    ov.remove();
+  };
   q("#trClose").onclick = cerrar;
   ov.addEventListener("click", e => { if (e.target === ov) cerrar(); });
   ov.querySelector('a[href*="wa.me"]')?.addEventListener("click", () => {
