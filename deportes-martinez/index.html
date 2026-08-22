@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deportes Martínez — Jerseys de futbol, basketball y americano</title>
+  <meta name="description" content="Deportes Martínez · Jerseys retro y de temporada de futbol, basketball y americano. Versión jugador y fan, personalización con nombre y número, uniformes completos para equipos. Guadalajara, Jalisco.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Deportes Martínez — Cumplimos sueños y vestimos campeones">
+  <meta property="og:description" content="Jerseys retro y actuales de futbol, basketball y americano. Personalización con nombre y número. Guadalajara.">
+  <meta property="og:image" content="fotos/logo/iso-blanco.png">
+  <link rel="icon" href="fotos/logo/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/styles.css?v=1">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SportingGoodsStore",
+    "name": "Deportes Martínez",
+    "description": "Jerseys de futbol, basketball y americano. Retro, de temporada, versión jugador y fan. Uniformes para equipos.",
+    "image": "fotos/logo/iso-blanco.png",
+    "address": { "@type": "PostalAddress", "addressLocality": "Guadalajara", "addressRegion": "Jal.", "addressCountry": "MX" },
+    "telephone": "+523324469055"
+  }
+  </script>
+</head>
+<body>
+  <header class="hdr">
+    <div class="wrap hdr__in">
+      <a href="index.html" class="brand" aria-label="Deportes Martínez">
+        <img class="brand__iso" src="fotos/logo/iso-blanco.png" alt="">
+        <span class="brand__word">
+          <span class="brand__name">DEPORTES MARTÍNEZ</span>
+          <span class="brand__sub">Cumplimos sueños y vestimos campeones</span>
+        </span>
+      </a>
+      <nav class="nav">
+        <a href="futbol.html">Futbol</a>
+        <a href="basket.html">Basketball</a>
+        <a href="americano.html">Americano</a>
+        <a href="#uniformes">Uniformes</a>
+        <a href="#noticias">Novedades</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <button class="cart-btn" id="openCart">
+        <span>Carrito</span>
+        <span class="count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="site-hero site-hero--green">
+    <div class="hero-c hero-in">
+      <img class="hero-c__iso" src="fotos/logo/iso-blanco.png" alt="">
+      <h1 class="hero-c__title">Deportes Martínez</h1>
+      <p class="hero-c__tag">Cumplimos sueños y vestimos campeones</p>
+    </div>
+    <div class="scroll-cue"><span></span>Scroll</div>
+  </section>
+
+  <!-- ================= CATEGORÍAS ================= -->
+  <section class="wrap sec" id="categorias">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Explora la tienda</span>
+      <h2>Jerseys de las buenas</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="categorias">
+      <a href="futbol.html" class="cuadro cuadro--plain reveal">
+        <div class="cuadro__txt">
+          <span class="cuadro__k">Retro · Actuales · Jugador y fan</span>
+          <h3>Futbol</h3>
+          <span class="cuadro__cta">Ver catálogo →</span>
+        </div>
+      </a>
+      <a href="basket.html" class="cuadro cuadro--plain reveal" data-d="1">
+        <div class="cuadro__txt">
+          <span class="cuadro__k">NBA · Universitarios · Ediciones</span>
+          <h3>Basketball</h3>
+          <span class="cuadro__cta">Ver catálogo →</span>
+        </div>
+      </a>
+      <a href="americano.html" class="cuadro cuadro--plain reveal" data-d="2">
+        <div class="cuadro__txt">
+          <span class="cuadro__k">NFL · Colegiales · Fan y juego</span>
+          <h3>Americano</h3>
+          <span class="cuadro__cta">Ver catálogo →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ================= NOVEDADES ================= -->
+  <section class="wrap sec" id="noticias">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Lo nuevo</span>
+      <h2>Novedades y llegadas</h2>
+      <span class="rule"></span>
+    </div>
+    <div id="homeNoticias"></div>
+  </section>
+
+  <!-- ================= UNIFORMES DE EQUIPO ================= -->
+  <style>
+    .uni { background: var(--bg-soft); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: clamp(22px, 4vw, 40px); }
+    .uni__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .uni__lead { color: var(--ink-soft); margin-bottom: 14px; }
+    .uni__list { list-style: none; display: grid; gap: 10px; margin-top: 16px; }
+    .uni__list li { display: flex; gap: 10px; color: var(--ink-soft); }
+    .uni__list li::before { content: "✓"; color: var(--accent); font-weight: 700; }
+    .uni-form { display: grid; gap: 10px; }
+    .uni-inp { width: 100%; background: var(--bg-card); border: 1px solid var(--line); color: var(--ink);
+      border-radius: 12px; padding: 13px 14px; font: inherit; font-size: 15px; }
+    .uni-inp:focus { outline: none; border-color: var(--accent); }
+    .uni-row { display: flex; gap: 10px; }
+    .uni-btn { background: var(--accent); color: var(--accent-ink); font-weight: 700; border-radius: 12px;
+      padding: 14px 18px; font-size: 15px; }
+    .uni-btn:disabled { opacity: .55; }
+    .uni-msg { min-height: 22px; font-size: 14px; color: var(--accent); }
+    @media (max-width: 820px) { .uni__grid { grid-template-columns: 1fr; gap: 20px; } }
+  </style>
+  <section class="wrap sec" id="uniformes">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Para tu equipo</span>
+      <h2>Uniformes completos</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="uni reveal">
+      <div class="uni__grid">
+        <div>
+          <p class="uni__lead">Vestimos equipos completos: liga, escuela, empresa o torneo. Playera, short y medias, con los colores y el escudo de tu equipo, nombre y número de cada jugador.</p>
+          <ul class="uni__list">
+            <li>Precio especial por volumen</li>
+            <li>Nombre y número por jugador sin costo extra en pedidos de equipo</li>
+            <li>Escudo de tu equipo bordado o estampado</li>
+            <li>Te mandamos muestra antes de producir</li>
+          </ul>
+        </div>
+        <form class="uni-form" id="uniForm">
+          <input class="uni-inp" id="uniNombre" placeholder="Tu nombre" required>
+          <input class="uni-inp" id="uniTel" placeholder="Tu teléfono / WhatsApp" inputmode="tel" required>
+          <input class="uni-inp" id="uniEquipo" placeholder="Nombre del equipo">
+          <div class="uni-row">
+            <input class="uni-inp" id="uniCantidad" placeholder="¿Cuántos uniformes?" inputmode="numeric" style="flex:1;min-width:0">
+            <select class="uni-inp" id="uniDeporte" style="flex:1;min-width:0">
+              <option value="futbol">Futbol</option>
+              <option value="basket">Basketball</option>
+              <option value="americano">Americano</option>
+            </select>
+          </div>
+          <textarea class="uni-inp" id="uniNotas" rows="3" placeholder="Colores, escudo, fecha en que los necesitas…"></textarea>
+          <button class="uni-btn" id="uniGo" type="submit">Pedir cotización</button>
+          <div class="uni-msg" id="uniMsg"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONTACTO ================= -->
+  <style>
+    .cont__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .cont__card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; }
+    .cont__card h3 { font-family: var(--display); font-size: 20px; margin-bottom: 10px; }
+    .cont__card p, .cont__card a { color: var(--ink-soft); display: block; margin: 4px 0; }
+    .cont__card a:hover { color: var(--accent); }
+    @media (max-width: 820px) { .cont__grid { grid-template-columns: 1fr; } }
+  </style>
+  <section class="wrap sec" id="contacto">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Estamos para ayudarte</span>
+      <h2>Contacto</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="cont__grid reveal">
+      <div class="cont__card">
+        <h3>Teléfonos</h3>
+        <a href="tel:+523324469055">33 2446 9055</a>
+        <a href="tel:+523333895508">33 3389 5508</a>
+        <p>Guadalajara, Jalisco</p>
+      </div>
+      <div class="cont__card">
+        <h3>Síguenos</h3>
+        <a href="https://www.instagram.com/_deportes_martinez_/" target="_blank" rel="noopener">Instagram @_deportes_martinez_</a>
+        <p>También nos encuentras en expos y bazares deportivos de la ciudad.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="ftr">
+    <div class="wrap ftr__grid">
+      <div class="ftr__brand">
+        <img class="ftr__iso" src="fotos/logo/iso-blanco.png" alt="">
+        <div class="ftr__name">DEPORTES MARTÍNEZ</div>
+        <p class="ftr__tag">Cumplimos sueños y vestimos campeones</p>
+      </div>
+      <div class="ftr__col">
+        <h4>Tienda</h4>
+        <a href="futbol.html">Futbol</a>
+        <a href="basket.html">Basketball</a>
+        <a href="americano.html">Americano</a>
+        <a href="index.html#uniformes">Uniformes de equipo</a>
+      </div>
+      <div class="ftr__col">
+        <h4>Información</h4>
+        <a href="legales.html#terminos">Términos de servicio</a>
+        <a href="legales.html#privacidad">Aviso de privacidad</a>
+        <a href="legales.html#devoluciones">Cambios y devoluciones</a>
+        <a href="legales.html#envios">Envíos</a>
+      </div>
+      <div class="ftr__col">
+        <h4>Compra segura</h4>
+        <p>Jerseys revisados uno por uno.<br>Personalización con nombre y número.<br>Envíos a todo México.</p>
+      </div>
+      <div class="ftr__col">
+        <h4>Contáctanos</h4>
+        <a href="tel:+523324469055">33 2446 9055</a>
+        <a href="tel:+523333895508">33 3389 5508</a>
+        <a href="https://www.instagram.com/_deportes_martinez_/" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>
+    <div class="wrap ftr__bottom">
+      <span>© 2026 Deportes Martínez · Guadalajara, Jal.</span>
+      <span class="ftr__pay">Pagos seguros · Mercado Pago · Transferencia</span>
+    </div>
+  </footer>
+
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Carrito">
+    <div class="drawer__head">
+      <h3>Tu carrito</h3>
+      <button class="icon-btn" id="closeCart">✕</button>
+    </div>
+    <div class="drawer__body" id="cartBody"></div>
+    <div class="drawer__foot" id="cartFoot" hidden>
+      <div class="drawer__total"><span>Total</span><b id="cartTotal">$0</b></div>
+      <button class="checkout" id="checkout">
+        <span>Finalizar pedido<small>Te llevamos a completar tu compra</small></span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="toast-wrap" id="toasts"></div>
+
+  <script type="module" src="js/store.js?v=1"></script>
+  <script type="module" src="js/asesor.js?v=1"></script>
+  <script type="module" src="js/home-secciones.js?v=1"></script>
+  <script type="module" src="js/uniformes.js?v=1"></script>
+  <script type="module" src="js/auth.js?v=1"></script>
+  <script type="module" src="js/cookies.js?v=1"></script>
+</body>
+</html>
