@@ -687,4 +687,4 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
 .bslide__tag { background: var(--accent); color: var(--accent-ink); }
 
 /* el logo del pie va completo, no como icono cuadrado */
-.ftr__iso { width: auto; max-width: 260px; height: auto; }
+.ftr__iso, .ftr__brand .ftr__iso { width: min(240px, 60vw); max-width: 240px; height: auto; object-fit: contain; margin-bottom: 14px; }
