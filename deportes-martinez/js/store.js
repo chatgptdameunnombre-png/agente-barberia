@@ -2,7 +2,7 @@ import { db, MODO } from "./db.js?v=3";
 import { setProductos, initCart, enCarrito } from "./cart.js?v=3";
 import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=1";
 import { onMayoreo, precioHTML } from "./mayoreo.js?v=1";
-import { track } from "./track.js?v=3";
+import { track } from "./track.js?v=4";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
