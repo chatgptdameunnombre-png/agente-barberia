@@ -1,5 +1,6 @@
-import { db } from "./db.js?v=2";
-import { pintarEstadisticas } from "./estadisticas.js?v=4";
+import { db } from "./db.js?v=3";
+import { pintarEstadisticas } from "./estadisticas.js?v=6";
+import { mostrarSeccion } from "./panel-nav.js?v=1";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -35,7 +36,8 @@ async function arrancarDash() {
   inicializado = true;
   await db.seedIfEmpty();
   db.onProducts(list => { productos = list; render(); });
-  pintarEstadisticas(db, productos);
+  pintarEstadisticas(db);
+  mostrarSeccion("productos");
 }
 
 function stockPill(s) {
@@ -44,15 +46,37 @@ function stockPill(s) {
   return `<span class="stock-pill" style="color:var(--ink)">${s}</span>`;
 }
 
+const ORDEN_DEPORTE = { futbol: 0, basket: 1, americano: 2 };
+
+/* primero futbol, luego basketball, luego americano; dentro de cada uno por liga (A-Z) y nombre */
+function ordenar(lista) {
+  return lista.slice().sort((a, b) => {
+    const d = (ORDEN_DEPORTE[a.categoria] ?? 9) - (ORDEN_DEPORTE[b.categoria] ?? 9);
+    if (d) return d;
+    const l = String(a.liga || "zzz").localeCompare(String(b.liga || "zzz"), "es");
+    if (l) return l;
+    return String(a.nombre || "").localeCompare(String(b.nombre || ""), "es");
+  });
+}
+
 function render() {
   $("#stTotal").textContent = productos.length;
   $("#stStock").textContent = productos.reduce((a, p) => a + Number(p.stock || 0), 0);
   $("#stOut").textContent = productos.filter(p => p.stock <= 0).length;
 
-  $("#pList").innerHTML = productos.map(p => `
+  const DEPORTE_TXT = { futbol: "Futbol", basket: "Basketball", americano: "Americano" };
+  const enOrden = ordenar(productos);
+  let deporteActual = null;
+  $("#pList").innerHTML = enOrden.map(p => {
+    let encabezado = "";
+    if (p.categoria !== deporteActual) {
+      deporteActual = p.categoria;
+      encabezado = `<div class="p-grupo">${DEPORTE_TXT[p.categoria] || p.categoria || "Sin deporte"}</div>`;
+    }
+    return encabezado + `
     <div class="p-row">
       <img class="p-thumb" src="${p.imagen || ''}" alt="" onerror="this.style.visibility='hidden'">
-      <div class="p-name"><b>${p.nombre}${p.retro ? ` <span style="font-size:10px;font-weight:700;color:#b8860b;border:1px solid #b8860b;border-radius:5px;padding:1px 5px;vertical-align:middle;letter-spacing:.05em">RETRO</span>` : ""}</b><span>${[p.equipo, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span></div>
+      <div class="p-name"><b>${p.nombre}${p.retro ? ` <span style="font-size:10px;font-weight:700;color:#b8860b;border:1px solid #b8860b;border-radius:5px;padding:1px 5px;vertical-align:middle;letter-spacing:.05em">RETRO</span>` : ""}</b><span>${[p.equipo, p.liga, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span></div>
       <span class="hide-sm">${p.categoria}</span>
       <span class="hide-sm">${money(p.precio)}</span>
       <span>${stockPill(p.stock)}</span>
@@ -60,7 +84,8 @@ function render() {
         <button class="edit-a" data-edit="${p.id}">Editar</button>
         <button class="del-a" data-del="${p.id}">Borrar</button>
       </div>
-    </div>`).join("") || `<div style="padding:40px;text-align:center;color:var(--muted)">Sin productos. Agrega el primero.</div>`;
+    </div>`;
+  }).join("") || `<div style="padding:40px;text-align:center;color:var(--muted)">Sin jerseys todavía. Agrega el primero.</div>`;
 }
 
 /* ---------- subcategorías dependientes ---------- */
@@ -267,6 +292,7 @@ async function borrar(id) {
 
 /* ---------- eventos ---------- */
 $("#addBtn").onclick = nuevo;
+document.addEventListener("panel:nuevo", nuevo);
 $("#optBtn").onclick = async () => {
   if (!confirm("Optimiza las fotos de todos los productos para que la tienda cargue más rápido y gaste menos. Se corre una sola vez. ¿Continuar?")) return;
   const btn = $("#optBtn");
@@ -301,3 +327,70 @@ function toast(html) {
   $("#toasts").appendChild(t);
   setTimeout(() => t.remove(), 2600);
 }
+
+/* ============================================================
+   Cuentas de clientes (con candado de contraseña)
+   ============================================================ */
+let clientesCargados = null;
+
+document.addEventListener("panel:cuentas", () => {
+  if (clientesCargados) { $("#cuentasBody").hidden = false; $("#cuentasCandado").hidden = true; }
+});
+
+function filaCliente(c) {
+  const campos = [
+    ["Nombre", c.nombre], ["Correo", c.email], ["Teléfono", c.telefono],
+    ["Calle", c.calle], ["Colonia", c.colonia], ["C.P.", c.cp],
+    ["Ciudad", c.ciudad], ["Estado", c.estado], ["Referencias", c.referencias]
+  ];
+  const llenos = campos.filter(([, v]) => v && String(v).trim());
+  const faltan = campos.filter(([, v]) => !v || !String(v).trim()).map(([k]) => k);
+  const completo = Math.round((llenos.length / campos.length) * 100);
+  return `<details class="st-visita">
+    <summary class="st-visita__cab" style="grid-template-columns:1.4fr 1fr 140px 120px">
+      <span class="st-visita__quien">${c.nombre || "Sin nombre"}</span>
+      <span class="st-visita__tiempo">${c.email || c.uid}</span>
+      <span class="st-visita__tiempo">${c.telefono || "sin teléfono"}</span>
+      <span class="st-tag st-tag--${completo === 100 ? "compro" : (completo >= 50 ? "carrito" : "paso")}">${completo}% de datos</span>
+    </summary>
+    <div class="st-visita__cuerpo">
+      ${llenos.map(([k, v]) => `<div><b>${k}:</b> ${v}</div>`).join("")}
+      ${faltan.length ? `<div style="margin-top:8px;color:var(--muted)">Le falta llenar: ${faltan.join(", ")}</div>` : ""}
+      ${c.actualizado ? `<div style="margin-top:6px;color:var(--muted)">Última actualización: ${String(c.actualizado).replace("T", " ").slice(0, 16)}</div>` : ""}
+    </div>
+  </details>`;
+}
+
+function pintarClientes(lista) {
+  const cuerpo = $("#cuentasBody");
+  const conDatos = lista.filter(c => c.nombre || c.telefono).length;
+  cuerpo.innerHTML = `
+    <div class="stat-row st-tarjetas" style="margin-bottom:18px">
+      <div class="stat"><div class="n">${lista.length}</div><div class="l">Cuentas creadas</div></div>
+      <div class="stat"><div class="n">${conDatos}</div><div class="l">Ya llenaron sus datos</div></div>
+      <div class="stat"><div class="n">${lista.length - conDatos}</div><div class="l">Solo se registraron</div></div>
+    </div>
+    <p class="st-bloque__ayuda">Estos son los datos que cada cliente guardó en su cuenta. Trátalos con cuidado: son datos personales.</p>
+    <div class="st-visitas">${lista.length ? lista.map(filaCliente).join("") : `<p class="st-vacio">Todavía nadie ha creado su cuenta.</p>`}</div>`;
+  cuerpo.hidden = false;
+  $("#cuentasCandado").hidden = true;
+}
+
+$("#cuentasVer")?.addEventListener("click", async () => {
+  const btn = $("#cuentasVer"), msg = $("#cuentasMsg"), pass = $("#cuentasPass").value;
+  if (!pass) { msg.textContent = "Escribe tu contraseña."; return; }
+  btn.disabled = true; btn.textContent = "Revisando…"; msg.textContent = "";
+  try {
+    const usuario = await new Promise(r => { const off = db.onAuth(u => { off?.(); r(u); }); });
+    await db.revalidar(usuario.email, pass);
+    clientesCargados = await db.listarClientes();
+    $("#cuentasPass").value = "";
+    pintarClientes(clientesCargados);
+  } catch (err) {
+    const m = String(err?.code || err?.message || "");
+    msg.textContent = m.includes("permission") || m.includes("PERMISSION")
+      ? "Falta activar el permiso de lectura en la base de datos (regla de Firestore)."
+      : "Contraseña incorrecta.";
+  }
+  btn.disabled = false; btn.textContent = "Ver los datos";
+});
