@@ -1,5 +1,5 @@
 import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=1";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=1";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=2";
 import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=1";
 import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=1";
 import { track, marcarProducto } from "./track.js?v=2";
@@ -107,14 +107,14 @@ export function renderCart() {
   $("#cartTotal").textContent = money(total);
   document.querySelectorAll(".entrega-cart").forEach(b => {
     const on = b.dataset.ec === entrega;
-    b.style.borderColor = on ? "#e8b923" : "#2a3244";
-    b.style.background = on ? "rgba(232,185,35,.14)" : "#141a27";
+    b.style.borderColor = on ? "#e8b923" : "#2a2a32";
+    b.style.background = on ? "rgba(232,185,35,.14)" : "#141418";
     b.style.color = on ? "#e8b923" : "#f4f4f5";
   });
   document.querySelectorAll(".pago-cart").forEach(b => {
     const on = b.dataset.pm === metodoPago;
-    b.style.borderColor = on ? "#e8b923" : "#2a3244";
-    b.style.background = on ? "rgba(232,185,35,.14)" : "#141a27";
+    b.style.borderColor = on ? "#e8b923" : "#2a2a32";
+    b.style.background = on ? "rgba(232,185,35,.14)" : "#141418";
     b.style.color = on ? "#e8b923" : "#f4f4f5";
   });
   $("#cartFoot").hidden = false;
@@ -184,14 +184,14 @@ export function initCart() {
     const wrap = document.createElement("div");
     wrap.id = "entregaCart";
     wrap.style.cssText = "display:flex;gap:8px;margin-bottom:12px";
-    wrap.innerHTML = `<button type="button" class="entrega-cart" data-ec="tienda" style="flex:1;padding:10px;border-radius:10px;border:1px solid #2a3244;background:#141a27;color:#f4f4f5;font-size:12.5px;cursor:pointer">Recoger en tienda</button><button type="button" class="entrega-cart" data-ec="domicilio" style="flex:1;padding:10px;border-radius:10px;border:1px solid #2a3244;background:#141a27;color:#f4f4f5;font-size:12.5px;cursor:pointer">🏠 A domicilio +${money(ENVIO_DOMICILIO)}</button>`;
+    wrap.innerHTML = `<button type="button" class="entrega-cart" data-ec="tienda" style="flex:1;padding:10px;border-radius:10px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:12.5px;cursor:pointer">Recoger en tienda</button><button type="button" class="entrega-cart" data-ec="domicilio" style="flex:1;padding:10px;border-radius:10px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:12.5px;cursor:pointer">🏠 A domicilio +${money(ENVIO_DOMICILIO)}</button>`;
     foot.prepend(wrap);
   }
   if (foot && !$("#pagoCart")) {
     const w2 = document.createElement("div");
     w2.id = "pagoCart";
     w2.style.cssText = "display:flex;gap:8px;margin-bottom:12px";
-    w2.innerHTML = `<button type="button" class="pago-cart" data-pm="tarjeta" style="flex:1;padding:10px;border-radius:10px;border:1px solid #2a3244;background:#141a27;color:#f4f4f5;font-size:12.5px;cursor:pointer">💳 Tarjeta</button><button type="button" class="pago-cart" data-pm="transferencia" style="flex:1;padding:10px;border-radius:10px;border:1px solid #2a3244;background:#141a27;color:#f4f4f5;font-size:12.5px;cursor:pointer">🏦 Transferencia</button>`;
+    w2.innerHTML = `<button type="button" class="pago-cart" data-pm="tarjeta" style="flex:1;padding:10px;border-radius:10px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:12.5px;cursor:pointer">💳 Tarjeta</button><button type="button" class="pago-cart" data-pm="transferencia" style="flex:1;padding:10px;border-radius:10px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:12.5px;cursor:pointer">🏦 Transferencia</button>`;
     $("#entregaCart")?.after(w2);
   }
   renderCart();
