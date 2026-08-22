@@ -1,7 +1,7 @@
 import { COBRO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=2";
 import { db } from "./db.js?v=3";
 import { esMayorista as soyMayorista } from "./mayoreo.js?v=1";
-import { track } from "./track.js?v=3";
+import { track } from "./track.js?v=4";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -31,7 +31,11 @@ function enviarPago(payload, onError) {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...payload, uid: user?.uid || "" })
   }).then(r => r.json()).then(d => {
-    if (d.link) { window.location.href = d.link; return; }
+    if (d.link) {
+      track("sale_a_pagar", { proveedor: "Mercado Pago" });
+      setTimeout(() => { window.location.href = d.link; }, 220);
+      return;
+    }
     throw new Error("sin link");
   }).catch(() => { if (onError) onError(); });
 }
@@ -83,6 +87,9 @@ function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion 
   const cerrar = () => ov.remove();
   q("#trClose").onclick = cerrar;
   ov.addEventListener("click", e => { if (e.target === ov) cerrar(); });
+  ov.querySelector('a[href*="wa.me"]')?.addEventListener("click", () => {
+    track("comprobante_whatsapp", { ref, total: totalFinal });
+  });
   const btnCopy = q("#trCopy");
   if (btnCopy) btnCopy.onclick = () => {
     navigator.clipboard?.writeText(CLABE_TRANSFERENCIA);
