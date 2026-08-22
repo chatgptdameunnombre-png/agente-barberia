@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel del dueño — Deportes Martínez</title>
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=16">
+  <link rel="stylesheet" href="css/styles.css?v=17">
 </head>
 <body class="admin-body">
 
@@ -21,13 +21,31 @@
           <span class="admin-brand__word"><b>DEPORTES MARTÍNEZ</b><small>Panel del dueño</small></span>
         </a>
         <div class="admin-top__actions">
+          <button class="pnav-btn" id="pnavBtn" aria-label="Menú del panel"><span></span><span></span><span></span></button>
           <a href="index.html" class="btn btn--ghost" target="_blank">Ver tienda ↗</a>
           <button class="btn btn--ghost" id="logout">Salir</button>
         </div>
       </div>
     </header>
 
+    <nav class="pnav" id="pnav" hidden>
+      <button class="pnav__item" data-sec="agregar">＋ Agregar jersey</button>
+      <button class="pnav__item" data-sec="productos">Mis jerseys</button>
+      <button class="pnav__item pnav__item--padre" data-sec="visitas">Visitas</button>
+      <div class="pnav__subs">
+        <button class="pnav__sub" data-sub="embudo">Dónde se te va la gente</button>
+        <button class="pnav__sub" data-sub="vistos">Jerseys más vistos</button>
+        <button class="pnav__sub" data-sub="piden">Lo que te piden y no hay</button>
+        <button class="pnav__sub" data-sub="tallas">Tallas más buscadas</button>
+        <button class="pnav__sub" data-sub="aparatos">Desde qué aparato entran</button>
+        <button class="pnav__sub" data-sub="detalle">Visita por visita</button>
+      </div>
+      <button class="pnav__item" data-sec="cuentas">Cuentas de clientes</button>
+    </nav>
+    <div class="pnav-fondo" id="pnavFondo" hidden></div>
+
     <main class="wrap admin-main">
+      <div id="secProductos">
       <div class="admin-head">
         <h1>Mis jerseys</h1>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -49,6 +67,24 @@
         </div>
         <div id="pList"></div>
       </div>
+      </div>
+
+      <section id="secCuentas" hidden>
+        <div class="admin-head" style="margin-bottom:14px">
+          <h1>Cuentas de clientes</h1>
+        </div>
+        <div id="cuentasCandado">
+          <p style="color:var(--ink-soft);font-size:14px;max-width:60ch;margin-bottom:14px">
+            Aquí están los datos personales de tus clientes. Para verlos, vuelve a escribir tu contraseña.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;max-width:420px">
+            <input class="input" type="password" id="cuentasPass" placeholder="Tu contraseña" style="flex:1;min-width:200px">
+            <button class="btn" id="cuentasVer" style="width:auto">Ver los datos</button>
+          </div>
+          <div id="cuentasMsg" style="color:var(--danger);font-size:13px;min-height:18px;margin-top:8px"></div>
+        </div>
+        <div id="cuentasBody" hidden></div>
+      </section>
 
       <section style="margin-top:40px" id="estad">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
@@ -145,6 +181,6 @@
   </div>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=3"></script>
+  <script type="module" src="js/panel.js?v=4"></script>
 </body>
 </html>
