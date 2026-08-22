@@ -1,5 +1,5 @@
-import { db } from "./db.js?v=1";
-import { pintarEstadisticas } from "./estadisticas.js?v=3";
+import { db } from "./db.js?v=2";
+import { pintarEstadisticas } from "./estadisticas.js?v=4";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -35,44 +35,8 @@ async function arrancarDash() {
   inicializado = true;
   await db.seedIfEmpty();
   db.onProducts(list => { productos = list; render(); });
-  cargarUniformes();
   pintarEstadisticas(db, productos);
 }
-
-async function cargarUniformes() {
-  const cont = $("#uniList");
-  if (!cont) return;
-  let list = [];
-  try { list = await db.listarUniformes(); } catch (_) {}
-  if (!list.length) { cont.innerHTML = `<p style="color:var(--muted);font-size:14px">Sin solicitudes todavía.</p>`; return; }
-  const orden = { nueva: 0, contactada: 1, cerrada: 2 };
-  list.sort((a, b) => (orden[a.estado] ?? 3) - (orden[b.estado] ?? 3));
-  const color = e => e === "cerrada" ? "#2e7d32" : (e === "contactada" ? "#b26a00" : "#1565c0");
-  cont.innerHTML = list.map(s => `
-    <div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:12px 14px;margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
-        <div>
-          <b>${s.nombre || "Sin nombre"}</b> · ${s.equipo || "equipo sin nombre"}
-          <span style="color:${color(s.estado)};font-weight:700"> · ${s.estado}</span>
-          <div style="font-size:13px;color:#666">${s.cantidad || "?"} uniformes · ${s.deporte || ""} · ${(s.creado || "").slice(0, 10)}</div>
-          ${s.notas ? `<div style="font-size:13px;color:#666;margin-top:4px">“${s.notas}”</div>` : ""}
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <a class="btn" href="https://wa.me/52${(s.telefono || "").replace(/\D/g, "")}" target="_blank" rel="noopener" style="width:auto;padding:7px 14px;text-decoration:none">WhatsApp</a>
-          ${s.estado !== "contactada" ? `<button class="btn btn--ghost" data-uni-estado="${s.id}" data-valor="contactada" style="width:auto;padding:7px 14px">Contactada</button>` : ""}
-          ${s.estado !== "cerrada" ? `<button class="btn btn--ghost" data-uni-estado="${s.id}" data-valor="cerrada" style="width:auto;padding:7px 14px">Cerrada</button>` : ""}
-        </div>
-      </div>
-    </div>`).join("");
-}
-
-document.addEventListener("click", async e => {
-  const b = e.target.closest("[data-uni-estado]");
-  if (!b) return;
-  b.disabled = true;
-  try { await db.resolverUniforme(b.dataset.uniEstado, b.dataset.valor); await cargarUniformes(); toast("Solicitud actualizada"); }
-  catch { b.disabled = false; toast("Error, reintenta"); }
-});
 
 function stockPill(s) {
   if (s <= 0) return `<span class="stock-pill" style="color:var(--danger)">Agotado</span>`;
