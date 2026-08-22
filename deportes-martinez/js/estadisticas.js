@@ -168,8 +168,14 @@ export function paso(ev) {
       case "asesor": return `Le preguntó al asistente: “${esc(ev.pregunta)}”${ev.resultados ? ` (le mostró ${ev.resultados})` : " (no encontró nada)"}`;
       case "checkout": case "va_a_pagar": case "comprar_directo": return "Se fue a pagar";
       case "transferencia": return "Eligió pagar por transferencia";
-      case "pago_mercadopago": return "Se fue a pagar con tarjeta";
-      case "compra": return "<b>Compró</b>";
+      case "pago_mercadopago": return "Eligió pagar con tarjeta";
+      case "sale_a_pagar": return `Salió a <b>${esc(ev.proveedor || "pagar")}</b> para pagar`;
+      case "vuelve_de_pago": {
+        const est = { approved: "el pago salió bien ✅", pending: "el pago quedó pendiente", in_process: "el pago quedó en revisión", rejected: "el pago fue rechazado ❌", failure: "el pago falló ❌" };
+        return `Volvió de Mercado Pago: ${est[ev.estado] || esc(ev.estado)}`;
+      }
+      case "comprobante_whatsapp": return "Se fue a WhatsApp a mandar su comprobante de transferencia";
+      case "compra": return `<b>Compró</b>${ev.via ? " con " + esc(ev.via) : ""}`;
       case "salida": return ev.conCarrito ? "Se fue dejando cosas en el carrito" : "Se fue sin comprar";
       default: return "";
     }
