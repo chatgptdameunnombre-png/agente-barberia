@@ -2,7 +2,7 @@ import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=2";
 import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=2";
 import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=1";
 import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=1";
-import { track, marcarProducto } from "./track.js?v=2";
+import { track, marcarProducto } from "./track.js?v=3";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -157,9 +157,17 @@ function toast(html) {
 export function initCart() {
   document.addEventListener("click", e => {
     const ec = e.target.closest("[data-ec]");
-    if (ec) { entrega = ec.dataset.ec; renderCart(); return; }
+    if (ec) {
+      entrega = ec.dataset.ec;
+      track("elige_entrega", { entrega, donde: "carrito" });
+      renderCart(); return;
+    }
     const pm = e.target.closest("[data-pm]");
-    if (pm) { metodoPago = pm.dataset.pm; renderCart(); return; }
+    if (pm) {
+      metodoPago = pm.dataset.pm;
+      track("elige_pago", { metodo: metodoPago, donde: "carrito" });
+      renderCart(); return;
+    }
     const t = e.target.closest("[data-add],[data-inc],[data-dec],[data-rm]");
     if (!t) return;
     e.preventDefault();
@@ -169,14 +177,31 @@ export function initCart() {
       if (!c) return;
       const p = productos.find(x => x.id === c.id);
       const disp = p ? dispDe(p, tieneTallas(p) ? c.talla : null) : 0;
-      if (c.qty < disp) { c.qty++; guardar(); }
+      if (c.qty < disp) {
+        c.qty++;
+        track("carrito_cantidad", { id: c.id, nombre: p?.nombre || "", cantidad: c.qty });
+        guardar();
+      }
     }
-    else if (t.dataset.dec) { const k = t.dataset.dec; if (!cart[k]) return; cart[k].qty--; if (cart[k].qty <= 0) delete cart[k]; guardar(); }
-    else if (t.dataset.rm) { delete cart[t.dataset.rm]; guardar(); }
+    else if (t.dataset.dec) {
+      const k = t.dataset.dec; if (!cart[k]) return;
+      const c = cart[k];
+      const p = productos.find(x => x.id === c.id);
+      cart[k].qty--;
+      if (cart[k].qty <= 0) { delete cart[k]; track("carrito_quitar", { id: c.id, nombre: p?.nombre || "", talla: c.talla || "" }); }
+      else track("carrito_cantidad", { id: c.id, nombre: p?.nombre || "", cantidad: cart[k].qty });
+      guardar();
+    }
+    else if (t.dataset.rm) {
+      const c = cart[t.dataset.rm];
+      const p = c ? productos.find(x => x.id === c.id) : null;
+      if (c) track("carrito_quitar", { id: c.id, nombre: p?.nombre || "", talla: c.talla || "" });
+      delete cart[t.dataset.rm]; guardar();
+    }
   });
-  $("#openCart")?.addEventListener("click", openDrawer);
-  $("#closeCart")?.addEventListener("click", closeDrawer);
-  $("#overlay")?.addEventListener("click", closeDrawer);
+  $("#openCart")?.addEventListener("click", () => { track("carrito_abrir", { items: itemsCarrito().length }); openDrawer(); });
+  $("#closeCart")?.addEventListener("click", () => { track("carrito_cerrar", { items: itemsCarrito().length }); closeDrawer(); });
+  $("#overlay")?.addEventListener("click", () => { track("carrito_cerrar", { items: itemsCarrito().length }); closeDrawer(); });
   $("#checkout")?.addEventListener("click", checkout);
   onMayoreo(() => renderCart());
   const foot = $("#cartFoot");
