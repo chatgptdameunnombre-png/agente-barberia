@@ -4,7 +4,7 @@ import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=1";
 import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=1";
 import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=1";
 import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=1";
-import { track, trackProducto } from "./track.js?v=1";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=2";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -22,7 +22,6 @@ let tallaSel = null;
 let metodoPagoProd = "tarjeta";
 let persoOn = false;
 let trackeado = false;
-const entroA = Date.now();
 
 db.onProducts(async list => {
   productos = list;
@@ -293,9 +292,5 @@ document.addEventListener("cart:add", render);
 
 initCart();
 
-function cerrarVista() {
-  const p = productos.find(x => x.id === id);
-  if (p) trackProducto(p, (Date.now() - entroA) / 1000);
-}
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") cerrarVista(); });
-window.addEventListener("pagehide", cerrarVista);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") cerrarProducto(); });
+window.addEventListener("pagehide", cerrarProducto);
