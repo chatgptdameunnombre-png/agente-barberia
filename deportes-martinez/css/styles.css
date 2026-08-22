@@ -565,3 +565,8 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
   .hero-c { gap: 18px; }
   .hero-c__iso, .site-hero--green .hero-c__iso { width: 132px; height: 132px; }
 }
+
+/* ===== Panel del dueño: números de las tarjetas ===== */
+.admin-body .stat .n { font-size: clamp(24px, 2.4vw, 32px); line-height: 1.1; white-space: nowrap; }
+.admin-body .stat { padding: 18px 20px; }
+.admin-body details > summary::-webkit-details-marker { display: none; }
