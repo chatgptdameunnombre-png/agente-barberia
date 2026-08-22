@@ -1,5 +1,5 @@
 import { db } from "./db.js?v=1";
-import { pintarEstadisticas } from "./estadisticas.js?v=1";
+import { pintarEstadisticas } from "./estadisticas.js?v=2";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
