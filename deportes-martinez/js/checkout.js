@@ -59,13 +59,13 @@ function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion 
   ov.id = "trOverlay";
   ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(3px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px";
   ov.innerHTML = `
-    <div style="background:#121826;border:1px solid #26304a;border-radius:18px;max-width:440px;width:100%;padding:24px;font-family:inherit;color:#f4f4f5;max-height:92vh;overflow:auto">
+    <div style="background:#0f0f12;border:1px solid #26262e;border-radius:18px;max-width:440px;width:100%;padding:24px;font-family:inherit;color:#f4f4f5;max-height:92vh;overflow:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <h3 style="margin:0;font-size:19px;font-weight:800">Paga por transferencia</h3>
         <button id="trClose" style="background:none;border:none;color:#9a9aa2;font-size:22px;cursor:pointer;line-height:1">✕</button>
       </div>
       <p style="margin:0 0 16px;font-size:13px;color:#9a9aa2">Manda tu pedido por WhatsApp y te pasamos los datos para transferir. Apartamos tu jersey en cuanto confirmes el pago.</p>
-      <div style="background:#0e0e11;border:1px solid #2a3244;border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="background:#0e0e11;border:1px solid #2a2a32;border-radius:12px;padding:14px;margin-bottom:14px">
         ${CLABE_TRANSFERENCIA ? `
         <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:13px">Banco</span><b>${BANCO_TRANSFERENCIA}</b></div>
         <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:13px">Beneficiario</span><b style="text-align:right">${BENEFICIARIO_TRANSFERENCIA}</b></div>
@@ -96,7 +96,7 @@ function abrirModal(onConfirm, onCancel) {
   ov.id = "dirOverlay";
   ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(3px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px";
   ov.innerHTML = `
-    <div style="background:#121826;border:1px solid #26304a;border-radius:18px;max-width:440px;width:100%;padding:24px;font-family:inherit;color:#f4f4f5;max-height:92vh;overflow:auto">
+    <div style="background:#0f0f12;border:1px solid #26262e;border-radius:18px;max-width:440px;width:100%;padding:24px;font-family:inherit;color:#f4f4f5;max-height:92vh;overflow:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <h3 style="margin:0;font-size:19px;font-weight:800">¿A dónde te lo enviamos?</h3>
         <button id="dirClose" style="background:none;border:none;color:#9a9aa2;font-size:22px;cursor:pointer;line-height:1">✕</button>
@@ -147,5 +147,5 @@ function abrirModal(onConfirm, onCancel) {
 }
 
 function inp() { return `style="${inpBase()}"`; }
-function inpBase() { return "width:100%;padding:12px 14px;border-radius:11px;border:1px solid #2a3244;background:#0e1320;color:#f4f4f5;font-size:14px;outline:none;box-sizing:border-box"; }
+function inpBase() { return "width:100%;padding:12px 14px;border-radius:11px;border:1px solid #2a2a32;background:#0b0b0e;color:#f4f4f5;font-size:14px;outline:none;box-sizing:border-box"; }
 function inpS() { return inpBase(); }
