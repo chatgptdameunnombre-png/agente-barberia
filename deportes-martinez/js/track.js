@@ -1,5 +1,5 @@
 import { firebaseConfig, usaFirebase } from "./config.js?v=1";
-import { permiteMedicion } from "./cookies.js?v=1";
+import { permiteMedicion } from "./cookies.js?v=2";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
