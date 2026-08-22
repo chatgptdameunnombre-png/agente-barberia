@@ -6,6 +6,7 @@ const PROJ = firebaseConfig.projectId;
 const DOCS = `https://firestore.googleapis.com/v1/projects/${PROJ}/databases/(default)/documents`;
 const LS_ID = "dm_track_id";
 const SS_SES = "dm_track_ses";
+const VIDA_SESION = 3 * 3600e3;   // 3 h: aguanta el viaje a Mercado Pago y la vuelta
 const MAX_EVENTOS = 120;          // los que se guardan en la nube (los últimos)
 const INACTIVO_MS = 45000;        // sin tocar nada 45 s = ya no está mirando
 const LATIDO_MS = 5000;           // cada cuánto se suma tiempo activo
@@ -86,9 +87,20 @@ function origen() {
   } catch { return "directo"; }
 }
 
+function leerGuardada() {
+  /* primero localStorage (sobrevive salir a pagar y volver), luego sessionStorage por compatibilidad */
+  for (const almacen of [localStorage, sessionStorage]) {
+    try {
+      const g = JSON.parse(almacen.getItem(SS_SES) || "null");
+      if (g && g.id && (!g.ultimoUso || Date.now() - g.ultimoUso < VIDA_SESION)) return g;
+    } catch { }
+  }
+  return null;
+}
+
 function cargarSesion() {
   try {
-    const g = JSON.parse(sessionStorage.getItem(SS_SES) || "null");
+    const g = leerGuardada();
     if (g && g.id) {
       g.productos = g.productos || {};
       g.paginas = g.paginas || [];
@@ -114,7 +126,13 @@ function cargarSesion() {
   };
 }
 
-const guardarLocal = () => { try { sessionStorage.setItem(SS_SES, JSON.stringify(ses)); } catch { } };
+const guardarLocal = () => {
+  try {
+    ses.ultimoUso = Date.now();
+    localStorage.setItem(SS_SES, JSON.stringify(ses));
+    sessionStorage.setItem(SS_SES, JSON.stringify(ses));
+  } catch { }
+};
 
 /* ============ reloj de tiempo activo ============ */
 function activo() {
@@ -219,6 +237,7 @@ export function track(evento, datos = {}) {
   if (evento === "busqueda_sin_resultado" && datos.texto) ses.sinResultado.push(String(datos.texto).slice(0, 80));
   if (evento === "filtro" && datos.campo === "talla" && datos.valor && datos.valor !== "Todas") ses.tallas.push(String(datos.valor));
   if (evento === "compra") ses.compro = true;
+  if (evento === "sale_a_pagar") ses.pagando = Date.now();
   sucio = true;
   guardarLocal();
   if (pendientes.length >= 15) enviar();
@@ -269,6 +288,22 @@ if (!ses.paginas.includes(pagina())) ses.paginas.push(pagina());
 guardarLocal();
 track("pagina", { url: pagina() });
 
+/* ¿viene de regreso de Mercado Pago? el resultado viene en la dirección */
+(function volviendoDePago() {
+  const u = new URLSearchParams(location.search);
+  const estado = u.get("collection_status") || u.get("status");
+  if (!estado) return;
+  const idPago = u.get("payment_id") || u.get("collection_id") || "";
+  if (ses.ultimoPagoVisto === idPago + estado) return;
+  ses.ultimoPagoVisto = idPago + estado;
+  ses.pagando = 0;
+  ses.saliendo = false;
+  track("vuelve_de_pago", { estado, idPago });
+  if (estado === "approved") track("compra", { idPago, via: "tarjeta" });
+  guardarLocal();
+  enviar();
+})();
+
 setInterval(tic, LATIDO_MS);
 setInterval(() => enviar(), 20000);
 
@@ -291,7 +326,8 @@ document.addEventListener("click", e => {
 
 /* al salir: si no compró, queda registrado que se fue */
 window.addEventListener("pagehide", () => {
-  if (ses && !ses.compro && !ses.saliendo) {
+  const seFueAPagar = ses && ses.pagando && (Date.now() - ses.pagando) < 90000;
+  if (ses && !ses.compro && !ses.saliendo && !seFueAPagar) {
     ses.saliendo = true;
     const conCarrito = Object.values(ses.productos).some(p => p.carrito);
     track("salida", { conCarrito });
