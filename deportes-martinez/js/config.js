@@ -15,7 +15,6 @@ export const PERSONALIZACION_PRECIO = 150;
 
 export const COBRO_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-crear-pago";
 export const ASESOR_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-asesor";
-export const UNIFORMES_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-uniformes";
 
 export const NEGOCIO = {
   nombre: "Deportes Martínez",
