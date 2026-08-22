@@ -1,4 +1,4 @@
-import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=1";
+import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=2";
 import { track } from "./track.js?v=2";
 import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=1";
 
@@ -14,7 +14,7 @@ function setProductos(list) {
   if (alCargarProductos) alCargarProductos();
 }
 
-import("./db.js?v=1").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
+import("./db.js?v=2").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
 
 function fsVal(v) {
   const t = Object.keys(v)[0];
