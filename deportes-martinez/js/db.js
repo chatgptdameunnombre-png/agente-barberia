@@ -99,6 +99,14 @@ async function crearImplFirebase() {
         .sort((a, b) => String(b.inicio || "").localeCompare(String(a.inicio || "")));
     },
     async token() { return auth.currentUser ? auth.currentUser.getIdToken() : null; },
+    async listarClientes() {
+      const snap = await getDocs(collection(fdb, "clientes"));
+      return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+    },
+    async revalidar(email, pass) {
+      await signInWithEmailAndPassword(auth, email, pass);
+      return true;
+    },
     async borrarSesion(id) { await deleteDoc(doc(fdb, "sesiones", id)); },
     async seedIfEmpty() {
       const snap = await getDocs(col);
@@ -222,6 +230,8 @@ function crearImplDemo() {
     async listarSesiones() { return []; },
     async borrarSesion() {},
     async token() { return null; },
+    async listarClientes() { return []; },
+    async revalidar() { return true; },
     async logout() { localStorage.removeItem(LS_AUTH); notificarAuth(); },
     onAuth(cb) { authListeners.add(cb); cb(usuarioActual()); return () => authListeners.delete(cb); },
     async seedIfEmpty() {
