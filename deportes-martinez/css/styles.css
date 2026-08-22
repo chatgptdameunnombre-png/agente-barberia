@@ -5,18 +5,20 @@
    (todas las clases que usa el JS se conservan)
    ============================================================ */
 :root {
-  --bg: #0a0d14;
-  --bg-soft: #121826;
-  --bg-card: #111726;
-  --tile: #0d121d;          /* fondo oscuro para fotos de producto (contain) */
+  --bg: #050506;
+  --bg-soft: #0f0f12;
+  --bg-card: #0e0e11;
+  --tile: #08080a;          /* fondo oscuro para fotos de producto (contain) */
   --ink: #f3f3ef;
-  --ink-soft: #c0c0c4;
+  --ink-soft: #c6c6cb;
   --muted: #7f7f87;
-  --line: #232c3f;
-  --line-soft: #1a2233;
+  --line: #23232a;
+  --line-soft: #16161b;
   --accent: #e8b923;
   --accent-2: #f7d154;
   --accent-ink: #1a1405;
+  --azul: #2f6fd0;
+  --azul-suave: #4f8fd6;
   --danger: #ff5a5f;
   --ok: #7bd66a;
   --warn: #f0b429;
@@ -67,7 +69,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 /* ============ Header ============ */
 .hdr {
   position: sticky; top: 0; z-index: 40;
-  background: rgba(12,12,13,.7);
+  background: rgba(0,0,0,.72);
   backdrop-filter: blur(16px) saturate(120%);
   border-bottom: 1px solid var(--line-soft);
 }
@@ -100,15 +102,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -3;
 }
 .site-hero__fallback { background: #0a0a0b center/cover no-repeat; }
-.site-hero--green { background: radial-gradient(42% 42% at 9% 2%, rgba(232,185,35,.14), transparent 60%), radial-gradient(46% 46% at 97% 100%, rgba(40,90,170,.20), transparent 60%), #0a0d14; }
+.site-hero--green { background: radial-gradient(50% 50% at 50% 42%, rgba(232,185,35,.13), transparent 65%), radial-gradient(40% 40% at 92% 96%, rgba(47,111,208,.16), transparent 62%), #000; }
 .site-hero--green::before { display: none; }
 .site-hero--green::after { top: 40%; width: 760px; height: 760px; background: radial-gradient(circle, rgba(232,185,35,.18), transparent 62%); }
 .site-hero--green .hero-c__iso { width: 180px; height: 180px; opacity: 1; }
 .site-hero::before {
   content: ""; position: absolute; inset: 0; z-index: -2;
   background:
-    radial-gradient(120% 80% at 50% 12%, rgba(10,13,20,.15), rgba(10,13,20,.72) 60%, #0a0d14 100%),
-    linear-gradient(180deg, rgba(10,13,20,.55), rgba(10,13,20,.2) 35%, rgba(10,13,20,.9));
+    radial-gradient(120% 80% at 50% 12%, rgba(5,5,6,.15), rgba(5,5,6,.72) 60%, #050506 100%),
+    linear-gradient(180deg, rgba(5,5,6,.55), rgba(5,5,6,.2) 35%, rgba(5,5,6,.9));
 }
 .site-hero::after {
   content: ""; position: absolute; left: 50%; top: 30%; z-index: -1;
@@ -334,7 +336,7 @@ main.sec--top { max-width: none; padding-left: 34px; padding-right: 34px; }
 .bslide__c p { font-size: 16px; color: #d2d2d6; margin-bottom: 22px; max-width: 460px; }
 .bslide__btn { display: inline-block; background: var(--accent); color: var(--accent-ink); padding: 13px 26px; border-radius: 12px; font-weight: 800; font-size: 14px; text-decoration: none; transition: transform .2s; }
 .bslide__btn:hover { transform: translateY(-2px); }
-.bslider__nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(12,12,13,.55); border: 1px solid var(--line); color: #fff; width: 42px; height: 42px; border-radius: 50%; font-size: 24px; line-height: 1; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.bslider__nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,.6); border: 1px solid var(--line); color: #fff; width: 42px; height: 42px; border-radius: 50%; font-size: 24px; line-height: 1; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; transition: all .2s; }
 .bslider__nav:hover { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .bslider__prev { left: 16px; }
 .bslider__next { right: 16px; }
@@ -372,8 +374,8 @@ main.sec--top { max-width: none; padding-left: 34px; padding-right: 34px; }
 .stock--low { color: var(--warn); }
 .stock--out { color: var(--danger); }
 
-.add-btn { width: 100%; margin-top: 16px; background: var(--ink); color: #0c0c0d; padding: 13px; border-radius: 10px; font-weight: 700; font-size: 13px; letter-spacing: .03em; text-transform: uppercase; font-family: var(--mono); display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s, transform .15s, color .2s; }
-.add-btn:hover:not(:disabled) { background: var(--accent); color: var(--accent-ink); transform: translateY(-2px); }
+.add-btn { width: 100%; margin-top: 16px; background: var(--accent); color: var(--accent-ink); padding: 13px; border-radius: 10px; font-weight: 700; font-size: 13px; letter-spacing: .03em; text-transform: uppercase; font-family: var(--mono); display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s, transform .15s, color .2s; }
+.add-btn:hover:not(:disabled) { background: var(--accent-2); color: var(--accent-ink); transform: translateY(-2px); box-shadow: 0 10px 26px rgba(232,185,35,.3); }
 .add-btn:disabled { background: var(--bg-soft); color: var(--muted); cursor: not-allowed; }
 
 /* ============ Página de producto ============ */
@@ -658,3 +660,28 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
   .st-visita__cab { grid-template-columns: 1fr auto; row-gap: 6px; }
   .st-visita__tiempo, .st-visita__cuando { grid-column: 1 / -1; }
 }
+
+/* ===== Hero con el logo completo (ya trae el nombre, no van letras aparte) ===== */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.hero-c__logo {
+  width: min(860px, 90vw); max-height: 46vh; object-fit: contain;
+  filter: drop-shadow(0 18px 60px rgba(232,185,35,.22));
+}
+.hero-c__logo--iso { width: min(300px, 58vw); }
+.site-hero--green .hero-c__tag { margin-top: 10px; }
+@media (max-width: 720px) {
+  .hero-c__logo { width: 92vw; max-height: 34vh; }
+  .hero-c__logo--iso { width: 62vw; }
+}
+
+/* ===== Toques de azul de la marca (las alas del logo) ===== */
+.card__cat, .prod__brand { color: var(--azul-suave); }
+.card:hover { border-color: var(--accent); }
+.stock--ok { color: var(--azul-suave); }
+.eyebrow::before { background: var(--azul); opacity: .9; }
+.cuadro:hover .cuadro__cta { color: var(--accent); }
+.hdr .nav a:hover { color: var(--accent); }
+.bslide__tag { background: var(--accent); color: var(--accent-ink); }
