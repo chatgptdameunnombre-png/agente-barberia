@@ -1,5 +1,5 @@
-import { COBRO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=1";
-import { db } from "./db.js?v=1";
+import { COBRO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=2";
+import { db } from "./db.js?v=2";
 import { esMayorista as soyMayorista } from "./mayoreo.js?v=1";
 import { track } from "./track.js?v=2";
 
