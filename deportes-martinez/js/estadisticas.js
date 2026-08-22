@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=1";
+import { firebaseConfig } from "./config.js?v=2";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -294,7 +294,7 @@ document.addEventListener("click", async e => {
   b.textContent = "Cargando…";
   const eventos = await bajarEventos(b.dataset.ver);
   const cont = b.parentElement;
-  const nombre = { pagina: "Abrió", ver_producto: "Vio", agregar_carrito: "Agregó al carrito", filtro: "Filtró", click: "Tocó", asesor: "Le preguntó a la IA", checkout: "Fue a pagar", comprar_directo: "Fue a pagar", scroll: "Bajó hasta", personalizacion: "Personalización", transferencia: "Eligió transferencia", pago_mercadopago: "Eligió tarjeta", cotizacion_uniformes: "Pidió cotización de uniformes" };
+  const nombre = { pagina: "Abrió", ver_producto: "Vio", agregar_carrito: "Agregó al carrito", filtro: "Filtró", click: "Tocó", asesor: "Le preguntó a la IA", checkout: "Fue a pagar", comprar_directo: "Fue a pagar", scroll: "Bajó hasta", personalizacion: "Personalización", transferencia: "Eligió transferencia", pago_mercadopago: "Eligió tarjeta" };
   cont.innerHTML += eventos.length
     ? `<ol class="st-pasos">${eventos.map(ev => {
         const hora = String(ev.t || "").slice(11, 16);
