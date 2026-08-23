@@ -1,6 +1,6 @@
 import { db, MODO } from "./db.js?v=3";
 import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=3";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=2";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=3";
 import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=4";
 import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=1";
 import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=1";
