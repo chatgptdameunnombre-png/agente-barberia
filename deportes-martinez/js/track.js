@@ -6,6 +6,7 @@ const PROJ = firebaseConfig.projectId;
 const DOCS = `https://firestore.googleapis.com/v1/projects/${PROJ}/databases/(default)/documents`;
 const LS_ID = "dm_track_id";
 const SS_SES = "dm_track_ses";
+const LS_PEND = "dm_track_pend";
 const VIDA_SESION = 3 * 3600e3;   // 3 h: aguanta el viaje a Mercado Pago y la vuelta
 const MAX_EVENTOS = 120;          // los que se guardan en la nube (los últimos)
 const INACTIVO_MS = 45000;        // sin tocar nada 45 s = ya no está mirando
@@ -14,7 +15,7 @@ const LATIDO_MS = 2000;           // cada cuánto se suma tiempo activo
 let ident = null;
 let ses = null;
 let enVuelo = false;
-let pendientes = [];              // eventos que faltan por subir
+let pendientes = [];              // eventos que faltan por subir (se guardan por si cambia de página)
 let sucio = false;
 let ultimaAccion = Date.now();
 let ultimoTic = Date.now();
@@ -127,6 +128,10 @@ function cargarSesion() {
   };
 }
 
+const guardarPendientes = () => {
+  try { localStorage.setItem(LS_PEND, JSON.stringify(pendientes.slice(-MAX_EVENTOS))); } catch { }
+};
+
 const guardarLocal = () => {
   try {
     ses.ultimoUso = Date.now();
@@ -223,6 +228,7 @@ async function enviar(keepalive = false) {
     });
     if (r.ok) {
       pendientes = pendientes.slice(loteEventos.length);
+      guardarPendientes();
       sucio = false;
       fallos = 0;
     } else if (r.status === 403 || r.status === 401) {
@@ -259,6 +265,7 @@ export function track(evento, datos = {}) {
   if (evento === "sale_a_pagar") ses.pagando = Date.now();
   sucio = true;
   guardarLocal();
+  guardarPendientes();
   if (pendientes.length >= 15) enviar();
 }
 
@@ -294,6 +301,26 @@ export function marcarProducto(id, campo) {
 
 export function setCliente(uid, email) {
   if (!ses) return;
+  const cambioDeCuenta = ses.clienteUid && uid && ses.clienteUid !== uid;
+  const cerroSesion = ses.clienteUid && !uid;
+  if (cambioDeCuenta || cerroSesion) {
+    /* otra persona en el mismo teléfono: se cierra la visita anterior y se abre una nueva,
+       para que el registro de cada quien no se mezcle */
+    enviar(true);
+    const antes = ses;
+    ses = {
+      id: nuevoId(),
+      inicio: new Date().toISOString(),
+      dispositivo: antes.dispositivo,
+      origen: "interno",
+      entrada: pagina(),
+      paginas: [pagina()],
+      productos: {}, busquedas: [], sinResultado: [], tallas: [],
+      segundos: 0, compro: false, clienteUid: "", clienteEmail: ""
+    };
+    pendientes = [];
+    guardarPendientes();
+  }
   ses.clienteUid = uid || "";
   ses.clienteEmail = email || "";
   sucio = true;
