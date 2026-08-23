@@ -19,7 +19,8 @@ export const ASESOR_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-ase
 export const NEGOCIO = {
   nombre: "Deportes Martínez",
   claim: "Cumplimos sueños y vestimos campeones",
-  ciudad: "Guadalajara, Jal.",
+  ciudad: "",
+  mapa: "https://www.google.com/maps?q=20.546361,-103.467528",
   direccion: "",
   telefono: "33 2446 9055",
   telefono2: "33 3389 5508",
