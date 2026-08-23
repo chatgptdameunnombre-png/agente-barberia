@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=30";
+import { firebaseConfig } from "./config.js?v=31";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -191,7 +191,9 @@ export function paso(ev) {
 function sinRepetidos(lista) {
   const fuera = [];
   let anterior = "";
-  for (const ev of lista) {
+  /* los avisos llegan por lotes y no siempre en orden: se acomodan por hora */
+  const ordenada = lista.slice().sort((a, b) => String(a.t || "").localeCompare(String(b.t || "")));
+  for (const ev of ordenada) {
     const linea = paso(ev);
     if (!linea) continue;
     const cuerpo = linea.replace(/<span class="st-hora">.*?<\/span> /, "");
