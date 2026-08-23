@@ -1098,3 +1098,14 @@ label, .field label { color: var(--ink-soft); }
   background: rgba(232,185,35,.07); border: 1px solid var(--line);
   border-radius: 10px; padding: 9px 12px;
 }
+
+/* Cuentas de clientes en teléfono: el correo en una línea y el resto debajo */
+@media (max-width: 760px) {
+  #cuentasBody .st-visita__cab { grid-template-columns: 1fr !important; row-gap: 6px; }
+  #cuentasBody .st-visita__quien { font-size: 15px; font-weight: 600; }
+  #cuentasBody .st-visita__tiempo {
+    font-size: 13px; overflow-wrap: anywhere; word-break: break-all; line-height: 1.35;
+  }
+  #cuentasBody .st-tag { justify-self: start; }
+  #cuentasBody .st-visita { padding: 14px; }
+}
