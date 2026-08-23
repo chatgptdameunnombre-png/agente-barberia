@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=32";
-import { permiteMedicion } from "./cookies.js?v=32";
+import { firebaseConfig, usaFirebase } from "./config.js?v=33";
+import { permiteMedicion } from "./cookies.js?v=33";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
@@ -267,7 +267,7 @@ export function track(evento, datos = {}) {
   }
   if (evento === "filtro" && datos.campo === "talla" && datos.valor && datos.valor !== "Todas") ses.tallas.push(String(datos.valor));
   /* la talla que eligen dentro de la ficha vale igual que la que filtran en el catálogo */
-  if ((evento === "elige_talla" || evento === "cambia_talla") && datos.talla) ses.tallas.push(String(datos.talla));
+  if ((evento === "elige_talla" || evento === "cambia_talla") && datos.talla && datos.talla !== datos.antes) ses.tallas.push(String(datos.talla));
   /* todo lo que le preguntan al asistente, haya habido resultados o no */
   if (evento === "asesor" && datos.pregunta) ses.busquedas.push(String(datos.pregunta).slice(0, 80));
   if (evento === "compra") { ses.compro = true; ses.compraPorConfirmar = !!datos.porConfirmar; }
