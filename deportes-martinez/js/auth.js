@@ -209,7 +209,7 @@ else document.addEventListener("DOMContentLoaded", init);
 db.onAuth(u => {
   currentUser = u;
   updateButton();
-  import("./track.js?v=7").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
+  import("./track.js?v=8").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
 });
 
 export { currentUser };
