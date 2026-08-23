@@ -1,5 +1,5 @@
 import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=3";
-import { track } from "./track.js?v=7";
+import { track } from "./track.js?v=8";
 import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=1";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
