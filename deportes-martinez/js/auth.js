@@ -12,7 +12,7 @@ function injectStyles() {
   st.id = "authCss";
   st.textContent = `
   #authBtn{display:inline-flex;align-items:center;gap:7px;margin-left:24px;padding:8px 14px;border:1px solid #2f2f36;border-radius:999px;background:#17171b;color:#f4f4f5;font-family:var(--mono,monospace);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:border-color .2s,color .2s}
-  #authBtn:hover{border-color:var(--accent,#c6f032);color:var(--accent,#c6f032)}
+  #authBtn:hover{border-color:var(--accent,#e8b923);color:var(--accent,#e8b923)}
   #authBtn svg{width:15px;height:15px}
   #navHam{display:none;align-items:center;justify-content:center;margin-left:auto;width:44px;height:40px;border:1px solid #2f2f36;border-radius:10px;background:#17171b;cursor:pointer;color:#f4f4f5;padding:0}
   #navHam span,#navHam span::before,#navHam span::after{display:block;width:18px;height:2px;background:currentColor;border-radius:2px}
@@ -25,22 +25,22 @@ function injectStyles() {
   #navMenu.open{transform:none}
   #navMenu .nav-close{align-self:flex-end;font-size:26px;line-height:1;color:#9a9aa2;background:none;border:none;cursor:pointer;margin-bottom:4px}
   #navMenu a,#navMenu button.nav-item{display:block;width:100%;text-align:left;padding:15px 2px;color:#f4f4f5;font-family:var(--mono,monospace);font-size:14px;letter-spacing:.06em;text-transform:uppercase;border:none;background:none;border-bottom:1px solid #1e1e22;cursor:pointer}
-  #navMenu a:active,#navMenu a:hover,#navMenu button.nav-item:hover{color:var(--accent,#c6f032)}
+  #navMenu a:active,#navMenu a:hover,#navMenu button.nav-item:hover{color:var(--accent,#e8b923)}
   #navMenu .nav-acc{margin-top:auto;border-top:1px solid #26262c;padding-top:8px}
-  #navMenu .nav-acc .nav-item{color:var(--accent,#c6f032);font-weight:700}
+  #navMenu .nav-acc .nav-item{color:var(--accent,#e8b923);font-weight:700}
   @media(max-width:720px){#authBtn{display:none}#navHam{display:inline-flex}}
   #authOv{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(3px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px}
   #authCard{background:#141416;border:1px solid #26262c;border-radius:18px;max-width:400px;width:100%;padding:26px;font-family:inherit;color:#f4f4f5;max-height:92vh;overflow:auto}
   #authCard h3{margin:0;font-size:20px;font-weight:800}
   .authTabs{display:flex;gap:6px;background:#0e0e11;border:1px solid #26262c;border-radius:12px;padding:4px;margin:16px 0 18px}
   .authTab{flex:1;padding:9px;border:none;border-radius:9px;background:none;color:#9a9aa2;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
-  .authTab.on{background:#c6f032;color:#0a0a0a}
+  .authTab.on{background:linear-gradient(180deg,#f7d154,#c9911f);color:#1a1405}
   .authInp{width:100%;padding:12px 14px;border-radius:11px;border:1px solid #2a2a30;background:#0e0e11;color:#f4f4f5;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px}
-  .authInp:focus{border-color:var(--accent,#c6f032)}
-  .authGo{width:100%;background:#c6f032;color:#0a0a0a;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.3px}
+  .authInp:focus{border-color:var(--accent,#e8b923)}
+  .authGo{width:100%;background:linear-gradient(180deg,#f7d154,#c9911f);color:#1a1405;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.3px}
   .authGo:disabled{opacity:.6;cursor:default}
   .authErr{color:#ff6b6b;font-size:12.5px;min-height:16px;margin:2px 0 8px}
-  .authMsg{color:#c6f032;font-size:12.5px;min-height:16px;margin:2px 0 8px}
+  .authMsg{color:#e8b923;font-size:12.5px;min-height:16px;margin:2px 0 8px}
   .authLink{background:none;border:none;color:#9a9aa2;font-size:12.5px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit}
   .authFoot{text-align:center;margin-top:14px}`;
   document.head.appendChild(st);
