@@ -133,6 +133,7 @@ function render() {
       </div>
     </div>`;
   document.title = `${p.nombre} — Deportes Martínez`;
+  ponerDatosParaGoogle(p, precioActual, stockActual);
   if (!trackeado) {
     trackeado = true;
     trackProducto(p);
@@ -310,3 +311,33 @@ initCart();
 
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") cerrarProducto(); });
 window.addEventListener("pagehide", cerrarProducto);
+
+
+/* Datos estructurados de la ficha: así Google puede mostrar precio y existencia */
+function ponerDatosParaGoogle(p, precio, stock) {
+  const viejo = document.getElementById("ldProducto");
+  if (viejo) viejo.remove();
+  const url = location.origin + location.pathname + "?id=" + encodeURIComponent(p.id);
+  const datos = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: p.nombre,
+    description: p.descripcion || `Jersey de ${p.equipo || p.categoria}`,
+    image: p.imagen ? [p.imagen] : undefined,
+    brand: p.marca ? { "@type": "Brand", name: p.marca } : undefined,
+    category: p.categoria,
+    offers: {
+      "@type": "Offer",
+      url,
+      priceCurrency: "MXN",
+      price: String(precio || 0),
+      availability: stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      seller: { "@type": "Organization", name: "Deportes Martínez" }
+    }
+  };
+  const tag = document.createElement("script");
+  tag.type = "application/ld+json";
+  tag.id = "ldProducto";
+  tag.textContent = JSON.stringify(datos);
+  document.head.appendChild(tag);
+}
