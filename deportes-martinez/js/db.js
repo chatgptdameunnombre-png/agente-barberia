@@ -103,6 +103,7 @@ async function crearImplFirebase() {
       const snap = await getDocs(collection(fdb, "clientes"));
       return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
     },
+    async borrarCliente(uid) { await deleteDoc(refCliente(uid)); },
     async revalidar(email, pass) {
       await signInWithEmailAndPassword(auth, email, pass);
       return true;
@@ -231,6 +232,7 @@ function crearImplDemo() {
     async borrarSesion() {},
     async token() { return null; },
     async listarClientes() { return []; },
+    async borrarCliente() {},
     async revalidar() { return true; },
     async logout() { localStorage.removeItem(LS_AUTH); notificarAuth(); },
     onAuth(cb) { authListeners.add(cb); cb(usuarioActual()); return () => authListeners.delete(cb); },
