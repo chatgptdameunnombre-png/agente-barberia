@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=35";
-import { pintarEstadisticas } from "./estadisticas.js?v=35";
-import "./panel-nav.js?v=35";
+import { db } from "./db.js?v=36";
+import { pintarEstadisticas } from "./estadisticas.js?v=36";
+import "./panel-nav.js?v=36";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -107,7 +107,10 @@ function render() {
     </details>`;
   }).join("");
 
-  $("#pList").innerHTML = html || `<div style="padding:40px;text-align:center;color:var(--muted)">Sin jerseys todavía. Agrega el primero.</div>`;
+  const barra = html
+    ? `<div class="p-barra"><button class="p-todas p-todas--all" data-todo="1" type="button">Abrir todo</button></div>`
+    : "";
+  $("#pList").innerHTML = (barra + html) || `<div style="padding:40px;text-align:center;color:var(--muted)">Sin jerseys todavía. Agrega el primero.</div>`;
 }
 
 /* ---------- subcategorías dependientes ---------- */
@@ -334,6 +337,20 @@ $("#optBtn").onclick = async () => {
 $("#modalClose").onclick = cerrar;
 $("#modalCancel").onclick = cerrar;
 ov.addEventListener("click", e => { if (e.target === ov) cerrar(); });
+/* "Abrir todo": los tres deportes y todas sus ligas, en orden */
+document.addEventListener("click", e => {
+  const bg = e.target.closest("[data-todo]");
+  if (!bg) return;
+  e.preventDefault();
+  const deportes = [...document.querySelectorAll(".p-dep")];
+  const ligas = [...document.querySelectorAll(".p-liga")];
+  const abrir = deportes.some(d => !d.open) || ligas.some(l => !l.open);
+  bg.textContent = abrir ? "Cerrar todo" : "Abrir todo";
+  deportes.forEach(d => { d.open = abrir; });
+  document.querySelectorAll(".p-todas[data-todas]").forEach(b => { b.textContent = abrir ? "Cerrar todas" : "Abrir todas"; });
+  ligas.forEach((l, i) => setTimeout(() => { l.open = abrir; }, i * 45));
+});
+
 /* "Abrir todas" dentro de un deporte: las ligas se van abriendo en orden, de arriba a abajo */
 document.addEventListener("click", e => {
   const bt = e.target.closest("[data-todas]");
