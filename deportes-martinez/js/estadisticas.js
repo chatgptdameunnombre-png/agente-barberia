@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=33";
+import { firebaseConfig } from "./config.js?v=34";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -264,6 +264,20 @@ function tablaProductos(prods, r) {
     </div>`).join("")}</div>`;
 }
 
+/* separa lo que es pedir un jersey de lo que es una duda del negocio */
+const PALABRAS_DUDA = ["apartar", "aparto", "aparta", "envio", "envío", "envian", "envían", "mandan", "manda",
+  "pagar", "pago", "pagos", "tarjeta", "transferencia", "meses", "msi", "credito", "crédito",
+  "garantia", "garantía", "cambio", "cambios", "devolucion", "devolución", "devuelvo",
+  "horario", "horarios", "abren", "cierran", "donde", "dónde", "cuando", "cuándo", "como", "cómo",
+  "puedo", "pueden", "aceptan", "hacen", "tardan", "tarda", "llega", "llegan", "factura",
+  "direccion", "dirección", "sucursal", "tienda", "telefono", "teléfono", "whatsapp",
+  "original", "originales", "personalizar", "personalizacion", "personalización", "nombre y numero"];
+
+function esDuda(texto) {
+  const t = " " + String(texto).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") + " ";
+  return PALABRAS_DUDA.some(w => t.includes(" " + w.normalize("NFD").replace(/[\u0300-\u036f]/g, "")));
+}
+
 function chips(pares) {
   if (!pares.length) return null;
   return `<div class="st-chips">${pares.map(([t, n]) => `
@@ -308,8 +322,18 @@ export function pintarLista(list) {
   const r = resumen(list);
   const prods = Object.values(r.productos);
   const top = prods.slice().sort((a, b) => b.personas - a.personas || b.segundos - a.segundos).slice(0, 8);
-  const faltantes = Object.entries(r.faltantes).sort((a, b) => b[1] - a[1]).slice(0, 12);
-  const preguntas = Object.entries(r.busquedas).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  const orden = o => Object.entries(o).sort((a, b) => b[1] - a[1]);
+  const sinNada = orden(r.faltantes);
+  const pedidos = sinNada.filter(([t]) => !esDuda(t)).slice(0, 12);
+  const dudasSet = new Map(sinNada.filter(([t]) => esDuda(t)));
+  const otrasSet = new Map();
+  for (const [t, n] of orden(r.busquedas)) {
+    if (dudasSet.has(t)) continue;
+    if (esDuda(t)) dudasSet.set(t, n);
+    else if (!r.faltantes[t]) otrasSet.set(t, n);
+  }
+  const dudas = [...dudasSet.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
+  const otras = [...otrasSet.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
 
   cont.innerHTML = `
     <div class="stat-row st-tarjetas">
@@ -327,13 +351,17 @@ export function pintarLista(list) {
       "Cuántas personas distintas lo abrieron, cuánto tiempo lo estuvieron viendo y cuántas lo pusieron en el carrito.",
       tablaProductos(top, r), "vistos")}
 
-    ${bloque("Te están pidiendo esto y no lo tienes",
-      "Búsquedas que no encontraron nada. Esto es lo que deberías conseguir para la próxima.",
-      chips(faltantes) || vacio("Nadie ha buscado algo que no tengas."), "piden")}
-
-    ${bloque("Lo que le preguntan al asistente",
-      "Todo lo que la gente escribe en el chat de la tienda, encuentre o no. Aquí ves con qué palabras te buscan.",
-      preguntas.length ? chips(preguntas) : vacio("Todavía nadie le ha escrito al asistente."), "preguntas")}
+    ${bloque("Lo que te preguntan",
+      "Todo lo que la gente busca o le escribe al asistente, separado en dos: lo que querían comprar y no tenías, y las dudas que tienen de tu tienda.",
+      `<h4 class="st-sub">Te lo pidieron y no lo tienes</h4>
+       <p class="st-sub__ayuda">Jerseys que buscaron y no salió nada. Esto es lo que deberías conseguir.</p>
+       ${chips(pedidos) || vacio("Nadie ha buscado un jersey que no tengas.")}
+       <h4 class="st-sub">Dudas sobre tu tienda</h4>
+       <p class="st-sub__ayuda">Preguntas de apartados, envíos, pagos, horarios y demás. Si una se repite mucho, ponla en la página.</p>
+       ${chips(dudas) || vacio("Todavía nadie ha preguntado nada de la tienda.")}
+       <h4 class="st-sub">Otras búsquedas en el asistente</h4>
+       <p class="st-sub__ayuda">Lo que buscaron y sí les mostró jerseys.</p>
+       ${chips(otras) || vacio("Sin búsquedas todavía.")}`, "piden")}
 
     ${bloque("Tallas que más buscan",
       "Las tallas que la gente filtra en el catálogo y las que elige dentro de cada jersey.", Object.keys(r.tallas).length ? listaBarras(r.tallas, r.visitas) : vacio("Todavía nadie ha elegido talla."), "tallas")}
