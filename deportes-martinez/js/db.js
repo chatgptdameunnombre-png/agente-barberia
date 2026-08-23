@@ -1,4 +1,4 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=2";
+import { firebaseConfig, usaFirebase } from "./config.js?v=3";
 import { PRODUCTOS_SEED } from "./seed.js?v=1";
 
 const LS_KEY = "dm_productos";
