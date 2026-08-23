@@ -9,7 +9,7 @@ const SS_SES = "dm_track_ses";
 const VIDA_SESION = 3 * 3600e3;   // 3 h: aguanta el viaje a Mercado Pago y la vuelta
 const MAX_EVENTOS = 120;          // los que se guardan en la nube (los últimos)
 const INACTIVO_MS = 45000;        // sin tocar nada 45 s = ya no está mirando
-const LATIDO_MS = 5000;           // cada cuánto se suma tiempo activo
+const LATIDO_MS = 2000;           // cada cuánto se suma tiempo activo
 
 let ident = null;
 let ses = null;
@@ -237,6 +237,10 @@ export function track(evento, datos = {}) {
   if (evento === "busqueda" && datos.texto) ses.busquedas.push(String(datos.texto).slice(0, 80));
   if (evento === "busqueda_sin_resultado" && datos.texto) ses.sinResultado.push(String(datos.texto).slice(0, 80));
   if (evento === "filtro" && datos.campo === "talla" && datos.valor && datos.valor !== "Todas") ses.tallas.push(String(datos.valor));
+  /* la talla que eligen dentro de la ficha vale igual que la que filtran en el catálogo */
+  if ((evento === "elige_talla" || evento === "cambia_talla") && datos.talla) ses.tallas.push(String(datos.talla));
+  /* todo lo que le preguntan al asistente, haya habido resultados o no */
+  if (evento === "asesor" && datos.pregunta) ses.busquedas.push(String(datos.pregunta).slice(0, 80));
   if (evento === "compra") { ses.compro = true; ses.compraPorConfirmar = !!datos.porConfirmar; }
   if (evento === "sale_a_pagar") ses.pagando = Date.now();
   sucio = true;
@@ -287,7 +291,9 @@ export function setCliente(uid, email) {
 ses = cargarSesion();
 if (!ses.paginas.includes(pagina())) ses.paginas.push(pagina());
 guardarLocal();
-track("pagina", { url: pagina() });
+/* en producto.html no registramos "entró a una ficha": el evento "Abrió <jersey>"
+   ya lo cuenta y con nombre. Así no salen líneas repetidas. */
+if (pagina() !== "producto.html") track("pagina", { url: pagina() });
 
 /* ¿viene de regreso de Mercado Pago? el resultado viene en la dirección */
 (function volviendoDePago() {
@@ -321,7 +327,8 @@ document.addEventListener("click", e => {
   const texto = (b.textContent || "").trim().replace(/\s+/g, " ").slice(0, 40);
   if (!texto) return;
   if (b.closest(".nav")) { track("navega", { hacia: texto }); return; }
-  if (b.closest(".cuadro")) { track("navega", { hacia: texto.replace(/Ver catálogo.*/i, "").trim() }); return; }
+  const cuadro = b.closest(".cuadro");
+  if (cuadro) { track("navega", { hacia: (cuadro.querySelector("h3")?.textContent || texto).trim() }); return; }
   if (b.id === "checkout") { track("va_a_pagar", {}); return; }
 }, true);
 
