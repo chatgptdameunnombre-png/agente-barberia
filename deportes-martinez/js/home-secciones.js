@@ -30,7 +30,7 @@ const ANUNCIOS = [
 
 function bannerHTML(a, i) {
   const attrs = a.externo ? `target="_blank" rel="noopener"` : "";
-  const cta = a.cta || (a.externo ? "Ver en Instagram ↗" : "Ver más →");
+  const cta = a.cta || (a.externo ? "Ver en Instagram ↗" : "Ver jersey →");
   const btn = a.link ? `<a class="bslide__btn" href="${a.link}" ${attrs}>${cta}</a>` : "";
   return `
     <div class="bslide${i === 0 ? " on" : ""}">
