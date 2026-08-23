@@ -346,9 +346,9 @@ function filaCliente(c) {
   const faltan = campos.filter(([, v]) => !v || !String(v).trim()).map(([k]) => k);
   const completo = Math.round((llenos.length / campos.length) * 100);
   return `<details class="st-visita">
-    <summary class="st-visita__cab" style="grid-template-columns:1.4fr 1fr 140px 120px">
+    <summary class="st-visita__cab" style="grid-template-columns:1.2fr 1.4fr 130px 120px">
       <span class="st-visita__quien">${c.nombre || "Sin nombre"}</span>
-      <span class="st-visita__tiempo">${c.email || c.uid}</span>
+      <span class="st-visita__tiempo" title="${c.email || c.uid}">${c.email || c.uid}</span>
       <span class="st-visita__tiempo">${c.telefono || "sin teléfono"}</span>
       <span class="st-tag st-tag--${completo === 100 ? "compro" : (completo >= 50 ? "carrito" : "paso")}">${completo}% de datos</span>
     </summary>
