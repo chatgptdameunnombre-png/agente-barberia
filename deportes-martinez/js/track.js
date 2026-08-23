@@ -18,6 +18,7 @@ let pendientes = [];              // eventos que faltan por subir
 let sucio = false;
 let ultimaAccion = Date.now();
 let ultimoTic = Date.now();
+let fallos = 0;
 let productoAbierto = null;       // { id, nombre, equipo, categoria }
 
 /* ============ identidad anónima ============ */
@@ -223,6 +224,19 @@ async function enviar(keepalive = false) {
     if (r.ok) {
       pendientes = pendientes.slice(loteEventos.length);
       sucio = false;
+      fallos = 0;
+    } else if (r.status === 403 || r.status === 401) {
+      /* el documento pertenece a otra identidad (se borró el registro, se limpió el navegador,
+         caducó el token…). Se arranca una sesión nueva para no perder la visita. */
+      fallos++;
+      if (fallos <= 2) {
+        ident = null;
+        localStorage.removeItem(LS_ID);
+        ses.id = nuevoId();
+        guardarLocal();
+        enVuelo = false;
+        return enviar(keepalive);
+      }
     }
   } catch { /* el tracking nunca debe romper la tienda */ }
   enVuelo = false;
@@ -313,6 +327,8 @@ if (pagina() !== "producto.html") track("pagina", { url: pagina() });
 
 setInterval(tic, LATIDO_MS);
 setInterval(() => enviar(), 20000);
+/* primer envío rápido: si alguien entra y se va en 10 s, la visita igual queda registrada */
+setTimeout(() => enviar(), 3500);
 
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") { tic(); enviar(true); }
