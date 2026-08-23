@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=33";
-import { pintarEstadisticas } from "./estadisticas.js?v=33";
-import "./panel-nav.js?v=33";
+import { db } from "./db.js?v=34";
+import { pintarEstadisticas } from "./estadisticas.js?v=34";
+import "./panel-nav.js?v=34";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -65,14 +65,18 @@ function render() {
 
   const DEPORTE_TXT = { futbol: "Futbol", basket: "Basketball", americano: "Americano" };
   const enOrden = ordenar(productos);
-  let deporteActual = null;
-  $("#pList").innerHTML = enOrden.map(p => {
-    let encabezado = "";
-    if (p.categoria !== deporteActual) {
-      deporteActual = p.categoria;
-      encabezado = `<div class="p-grupo">${DEPORTE_TXT[p.categoria] || p.categoria || "Sin deporte"}</div>`;
-    }
-    return encabezado + `
+
+  const porDeporte = new Map();
+  for (const p of enOrden) {
+    const d = p.categoria || "otros";
+    if (!porDeporte.has(d)) porDeporte.set(d, new Map());
+    const ligas = porDeporte.get(d);
+    const l = p.liga || "Sin liga";
+    if (!ligas.has(l)) ligas.set(l, []);
+    ligas.get(l).push(p);
+  }
+
+  const fila = p => `
     <div class="p-row">
       <img class="p-thumb" src="${p.imagen || ''}" alt="" onerror="this.style.visibility='hidden'">
       <div class="p-name"><b>${p.nombre}${p.retro ? ` <span style="font-size:10px;font-weight:700;color:#b8860b;border:1px solid #b8860b;border-radius:5px;padding:1px 5px;vertical-align:middle;letter-spacing:.05em">RETRO</span>` : ""}</b><span>${[p.equipo, p.liga, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span></div>
@@ -84,7 +88,24 @@ function render() {
         <button class="del-a" data-del="${p.id}">Borrar</button>
       </div>
     </div>`;
-  }).join("") || `<div style="padding:40px;text-align:center;color:var(--muted)">Sin jerseys todavía. Agrega el primero.</div>`;
+
+  let primero = true;
+  const html = [...porDeporte.entries()].map(([dep, ligas]) => {
+    const cuantos = [...ligas.values()].reduce((a, l) => a + l.length, 0);
+    const abierto = primero ? " open" : "";
+    primero = false;
+    const dentro = [...ligas.entries()].map(([liga, lista]) => `
+      <details class="p-liga"${lista.length <= 6 ? " open" : ""}>
+        <summary class="p-liga__cab">${liga} <span class="p-cuenta">${lista.length}</span></summary>
+        ${lista.map(fila).join("")}
+      </details>`).join("");
+    return `<details class="p-dep"${abierto}>
+      <summary class="p-grupo">${DEPORTE_TXT[dep] || dep} <span class="p-cuenta">${cuantos}</span></summary>
+      ${dentro}
+    </details>`;
+  }).join("");
+
+  $("#pList").innerHTML = html || `<div style="padding:40px;text-align:center;color:var(--muted)">Sin jerseys todavía. Agrega el primero.</div>`;
 }
 
 /* ---------- subcategorías dependientes ---------- */
