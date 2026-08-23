@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=32";
-import { PRODUCTOS_SEED } from "./seed.js?v=32";
+import { firebaseConfig, usaFirebase } from "./config.js?v=33";
+import { PRODUCTOS_SEED } from "./seed.js?v=33";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
