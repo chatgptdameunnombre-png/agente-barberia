@@ -15,7 +15,9 @@ const LATIDO_MS = 2000;           // cada cuánto se suma tiempo activo
 let ident = null;
 let ses = null;
 let enVuelo = false;
-let pendientes = [];              // eventos que faltan por subir (se guardan por si cambia de página)
+let pendientes = (() => {         // eventos que faltan por subir; sobreviven el cambio de página
+  try { return JSON.parse(localStorage.getItem("dm_track_pend") || "[]"); } catch { return []; }
+})();
 let sucio = false;
 let ultimaAccion = Date.now();
 let ultimoTic = Date.now();
@@ -256,6 +258,10 @@ export function track(evento, datos = {}) {
   if (pendientes.length > MAX_EVENTOS) pendientes = pendientes.slice(-MAX_EVENTOS);
   if (evento === "busqueda" && datos.texto) ses.busquedas.push(String(datos.texto).slice(0, 80));
   if (evento === "busqueda_sin_resultado" && datos.texto) ses.sinResultado.push(String(datos.texto).slice(0, 80));
+  if (evento === "filtro_sin_resultado" && datos.filtros) {
+    const txt = Object.values(datos.filtros).filter(v => v && v !== "Todas" && v !== "Todos").join(" ");
+    if (txt) ses.sinResultado.push(txt.slice(0, 80));
+  }
   if (evento === "filtro" && datos.campo === "talla" && datos.valor && datos.valor !== "Todas") ses.tallas.push(String(datos.valor));
   /* la talla que eligen dentro de la ficha vale igual que la que filtran en el catálogo */
   if ((evento === "elige_talla" || evento === "cambia_talla") && datos.talla) ses.tallas.push(String(datos.talla));
@@ -363,16 +369,10 @@ document.addEventListener("visibilitychange", () => {
 });
 window.addEventListener("pagehide", () => { tic(); enviar(true); });
 
-/* navegación: solo lo que cuenta una historia (menú, categorías, ver catálogo) */
+/* dentro de la misma página: lo que no se ve en el "entró a" */
 document.addEventListener("click", e => {
   const b = e.target.closest("a, button");
-  if (!b) return;
-  const texto = (b.textContent || "").trim().replace(/\s+/g, " ").slice(0, 40);
-  if (!texto) return;
-  if (b.closest(".nav")) { track("navega", { hacia: texto }); return; }
-  const cuadro = b.closest(".cuadro");
-  if (cuadro) { track("navega", { hacia: (cuadro.querySelector("h3")?.textContent || texto).trim() }); return; }
-  if (b.id === "checkout") { track("va_a_pagar", {}); return; }
+  if (b && b.id === "checkout") track("va_a_pagar", {});
 }, true);
 
 /* al salir: si no compró, queda registrado que se fue */
