@@ -134,10 +134,10 @@ function resumen(list) {
 
 /* ---------------- cada acción, contada en español ---------------- */
 const PAGINA = {
-  "index.html": "la portada", "": "la portada",
-  "futbol.html": "el catálogo de futbol", "basket.html": "el catálogo de basketball",
-  "americano.html": "el catálogo de americano", "producto.html": "una ficha de jersey",
-  "cuenta.html": "su cuenta", "legales.html": "los términos"
+  "index.html": "al home", "": "al home",
+  "futbol.html": "a playeras de futbol", "basket.html": "a playeras de basketball",
+  "americano.html": "a playeras de americano", "producto.html": "a una playera",
+  "cuenta.html": "a su cuenta", "legales.html": "a los términos"
 };
 const ENTREGA = { tienda: "recoger en tienda", domicilio: "envío a domicilio" };
 const PAGO = { tarjeta: "tarjeta", transferencia: "transferencia" };
@@ -147,8 +147,8 @@ export function paso(ev) {
   const n = ev.nombre ? esc(ev.nombre) : "";
   const frase = (() => {
     switch (ev.e) {
-      case "pagina": return `Entró a ${PAGINA[ev.url] || esc(ev.url || "la tienda")}`;
-      case "navega": return `Fue a ${esc(ev.hacia)}`;
+      case "pagina": return `Entró ${PAGINA[ev.url] || "a " + esc(ev.url || "la tienda")}`;
+      case "navega": return "";
       case "ver_producto": return `Abrió <b>${n}</b>`;
       case "ver_foto": return "Vio otra foto del jersey";
       case "elige_talla": return `Eligió la talla <b>${esc(ev.talla)}</b>`;
@@ -185,6 +185,21 @@ export function paso(ev) {
     }
   })();
   return frase ? `<span class="st-hora">${h}</span> ${frase}` : "";
+}
+
+/* dos veces lo mismo seguido (recargó, o el aviso se mandó dos veces) = una sola línea */
+function sinRepetidos(lista) {
+  const fuera = [];
+  let anterior = "";
+  for (const ev of lista) {
+    const linea = paso(ev);
+    if (!linea) continue;
+    const cuerpo = linea.replace(/<span class="st-hora">.*?<\/span> /, "");
+    if (cuerpo === anterior) continue;
+    anterior = cuerpo;
+    fuera.push(linea);
+  }
+  return fuera;
 }
 
 /* ---------------- pintado ---------------- */
@@ -360,7 +375,7 @@ document.addEventListener("click", async e => {
   const eventos = await bajarEventos(b.dataset.ver);
   const cont = b.parentElement;
   cont.innerHTML += eventos.length
-    ? `<ol class="st-pasos">${eventos.map(paso).filter(Boolean).map(t => `<li>${t}</li>`).join("")}</ol>`
+    ? `<ol class="st-pasos">${sinRepetidos(eventos).map(t => `<li>${t}</li>`).join("")}</ol>`
     : `<p class="st-vacio">Sin detalle guardado.</p>`;
   b.remove();
 });
