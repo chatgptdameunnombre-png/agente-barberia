@@ -1,4 +1,4 @@
-import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=2";
+import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=3";
 import { track } from "./track.js?v=5";
 import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=1";
 
