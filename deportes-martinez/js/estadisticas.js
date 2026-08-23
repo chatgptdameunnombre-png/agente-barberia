@@ -101,7 +101,7 @@ function resumen(list) {
   const r = {
     visitas: list.length, personas: new Set(), segundos: 0,
     vieron: 0, carrito: 0, compraron: 0, rebotes: 0,
-    productos: {}, faltantes: {}, tallas: {}, origenes: {}, dispositivos: {}
+    productos: {}, faltantes: {}, busquedas: {}, tallas: {}, origenes: {}, dispositivos: {}
   };
   for (const s of list) {
     r.personas.add(s.clienteEmail || s.id);
@@ -125,6 +125,7 @@ function resumen(list) {
       r.productos[id] = p;
     }
     (s.sinResultado || []).forEach(t => { r.faltantes[t] = (r.faltantes[t] || 0) + 1; });
+    (s.busquedas || []).forEach(t => { r.busquedas[t] = (r.busquedas[t] || 0) + 1; });
     (s.tallas || []).forEach(t => { r.tallas[t] = (r.tallas[t] || 0) + 1; });
   }
   r.personas = r.personas.size;
@@ -291,6 +292,7 @@ export function pintarLista(list) {
   const prods = Object.values(r.productos);
   const top = prods.slice().sort((a, b) => b.personas - a.personas || b.segundos - a.segundos).slice(0, 8);
   const faltantes = Object.entries(r.faltantes).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  const preguntas = Object.entries(r.busquedas).sort((a, b) => b[1] - a[1]).slice(0, 12);
 
   cont.innerHTML = `
     <div class="stat-row st-tarjetas">
@@ -312,7 +314,12 @@ export function pintarLista(list) {
       "Búsquedas que no encontraron nada. Esto es lo que deberías conseguir para la próxima.",
       chips(faltantes) || vacio("Nadie ha buscado algo que no tengas."), "piden")}
 
-    ${bloque("Tallas que más buscan", "", Object.keys(r.tallas).length ? listaBarras(r.tallas, r.visitas) : vacio("Aún no filtran por talla."), "tallas")}
+    ${bloque("Lo que le preguntan al asistente",
+      "Todo lo que la gente escribe en el chat de la tienda, encuentre o no. Aquí ves con qué palabras te buscan.",
+      preguntas.length ? chips(preguntas) : vacio("Todavía nadie le ha escrito al asistente."), "preguntas")}
+
+    ${bloque("Tallas que más buscan",
+      "Las tallas que la gente filtra en el catálogo y las que elige dentro de cada jersey.", Object.keys(r.tallas).length ? listaBarras(r.tallas, r.visitas) : vacio("Todavía nadie ha elegido talla."), "tallas")}
 
     ${bloque("Desde qué aparato entran", "", listaBarras(r.dispositivos, r.visitas), "aparatos")}
 
