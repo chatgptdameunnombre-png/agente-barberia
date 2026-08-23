@@ -1,6 +1,6 @@
 import { db } from "./db.js?v=3";
 import { pintarEstadisticas } from "./estadisticas.js?v=8";
-import { mostrarSeccion } from "./panel-nav.js?v=1";
+import "./panel-nav.js?v=3";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -37,7 +37,6 @@ async function arrancarDash() {
   await db.seedIfEmpty();
   db.onProducts(list => { productos = list; render(); });
   pintarEstadisticas(db);
-  mostrarSeccion("productos");
 }
 
 function stockPill(s) {
