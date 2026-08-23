@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /deportes-martinez/
+Disallow: /deportes-martinez/panel.html
+Disallow: /deportes-martinez/admin.html
+Disallow: /deportes-martinez/cuenta.html
+
+Sitemap: https://tuagentedeia.com/deportes-martinez/sitemap.xml
