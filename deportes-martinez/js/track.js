@@ -1,4 +1,4 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=2";
+import { firebaseConfig, usaFirebase } from "./config.js?v=3";
 import { permiteMedicion } from "./cookies.js?v=2";
 
 const KEY = firebaseConfig.apiKey;
