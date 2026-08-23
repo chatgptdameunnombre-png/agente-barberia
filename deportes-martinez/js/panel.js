@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=34";
-import { pintarEstadisticas } from "./estadisticas.js?v=34";
-import "./panel-nav.js?v=34";
+import { db } from "./db.js?v=35";
+import { pintarEstadisticas } from "./estadisticas.js?v=35";
+import "./panel-nav.js?v=35";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -89,18 +89,20 @@ function render() {
       </div>
     </div>`;
 
-  let primero = true;
+  /* todo cerrado al entrar: el catálogo es largo y así se ve de un vistazo */
   const html = [...porDeporte.entries()].map(([dep, ligas]) => {
     const cuantos = [...ligas.values()].reduce((a, l) => a + l.length, 0);
-    const abierto = primero ? " open" : "";
-    primero = false;
     const dentro = [...ligas.entries()].map(([liga, lista]) => `
-      <details class="p-liga"${lista.length <= 6 ? " open" : ""}>
+      <details class="p-liga">
         <summary class="p-liga__cab">${liga} <span class="p-cuenta">${lista.length}</span></summary>
         ${lista.map(fila).join("")}
       </details>`).join("");
-    return `<details class="p-dep"${abierto}>
-      <summary class="p-grupo">${DEPORTE_TXT[dep] || dep} <span class="p-cuenta">${cuantos}</span></summary>
+    return `<details class="p-dep">
+      <summary class="p-grupo">
+        <span class="p-grupo__txt">${DEPORTE_TXT[dep] || dep}</span>
+        <span class="p-cuenta">${cuantos}</span>
+        <button class="p-todas" data-todas="${dep}" type="button">Abrir todas</button>
+      </summary>
       ${dentro}
     </details>`;
   }).join("");
@@ -332,6 +334,21 @@ $("#optBtn").onclick = async () => {
 $("#modalClose").onclick = cerrar;
 $("#modalCancel").onclick = cerrar;
 ov.addEventListener("click", e => { if (e.target === ov) cerrar(); });
+/* "Abrir todas" dentro de un deporte: las ligas se van abriendo en orden, de arriba a abajo */
+document.addEventListener("click", e => {
+  const bt = e.target.closest("[data-todas]");
+  if (!bt) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const dep = bt.closest(".p-dep");
+  if (!dep) return;
+  const ligas = [...dep.querySelectorAll(".p-liga")];
+  const abrir = ligas.some(l => !l.open);
+  dep.open = true;
+  bt.textContent = abrir ? "Cerrar todas" : "Abrir todas";
+  ligas.forEach((l, i) => setTimeout(() => { l.open = abrir; }, i * 70));
+});
+
 document.addEventListener("click", e => {
   const rm = e.target.closest("[data-rmfoto]");
   if (rm) { fotosActuales.splice(Number(rm.dataset.rmfoto), 1); renderFotos(); return; }
