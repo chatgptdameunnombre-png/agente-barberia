@@ -1,4 +1,4 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=2";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=3";
 import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=4";
 import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=1";
 import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=1";
