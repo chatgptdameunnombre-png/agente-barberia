@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel del dueño — Deportes Martínez</title>
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=19">
+  <link rel="stylesheet" href="css/styles.css?v=21">
 </head>
 <body class="admin-body">
 
@@ -16,12 +16,12 @@
   <div id="dash" hidden>
     <header class="admin-top">
       <div class="wrap admin-top__in">
+        <button class="pnav-btn" id="pnavBtn" aria-label="Menú del panel"><span></span><span></span><span></span></button>
         <a href="panel.html" class="admin-brand">
           <img src="fotos/logo/iso-blanco.png" alt="">
           <span class="admin-brand__word"><b>DEPORTES MARTÍNEZ</b><small>Panel del dueño</small></span>
         </a>
         <div class="admin-top__actions">
-          <button class="pnav-btn" id="pnavBtn" aria-label="Menú del panel"><span></span><span></span><span></span></button>
           <a href="index.html" class="btn btn--ghost" target="_blank">Ver tienda ↗</a>
           <button class="btn btn--ghost" id="logout">Salir</button>
         </div>
@@ -69,7 +69,7 @@
       </div>
       </div>
 
-      <section id="secCuentas" hidden>
+      <section id="secCuentas">
         <div class="admin-head" style="margin-bottom:14px">
           <h1>Cuentas de clientes</h1>
         </div>
@@ -181,6 +181,6 @@
   </div>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=4"></script>
+  <script type="module" src="js/panel.js?v=5"></script>
 </body>
 </html>
