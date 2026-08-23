@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=32";
+import { firebaseConfig } from "./config.js?v=33";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -152,7 +152,7 @@ export function paso(ev) {
       case "ver_producto": return `Abrió <b>${n}</b>`;
       case "ver_foto": return "Vio otra foto del jersey";
       case "elige_talla": return `Eligió la talla <b>${esc(ev.talla)}</b>`;
-      case "cambia_talla": return `Cambió de la talla ${esc(ev.antes)} a la <b>${esc(ev.talla)}</b>`;
+      case "cambia_talla": return ev.antes === ev.talla ? "" : `Cambió de la talla ${esc(ev.antes)} a la <b>${esc(ev.talla)}</b>`;
       case "personalizacion": return ev.activada ? "Activó ponerle nombre y número" : "Quitó lo del nombre y número";
       case "agregar_carrito": return `Puso <b>${n}</b>${ev.talla ? " talla " + esc(ev.talla) : ""} en el carrito${ev.personalizado ? " (con nombre y número)" : ""}`;
       case "carrito_abrir": return "Abrió el carrito";
