@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=31";
-import { permiteMedicion } from "./cookies.js?v=31";
+import { firebaseConfig, usaFirebase } from "./config.js?v=32";
+import { permiteMedicion } from "./cookies.js?v=32";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
@@ -339,6 +339,8 @@ export function setCliente(uid, email) {
 
 /* ============ arranque ============ */
 ses = cargarSesion();
+ses.saliendo = false;          // cada página arranca limpia: irse es lo último que pasa
+ses.interno = 0;
 if (!ses.paginas.includes(pagina())) ses.paginas.push(pagina());
 guardarLocal();
 /* en producto.html no registramos "entró a una ficha": el evento "Abrió <jersey>"
@@ -375,13 +377,21 @@ window.addEventListener("pagehide", () => { tic(); enviar(true); });
 /* dentro de la misma página: lo que no se ve en el "entró a" */
 document.addEventListener("click", e => {
   const b = e.target.closest("a, button");
-  if (b && b.id === "checkout") track("va_a_pagar", {});
+  if (!b) return;
+  if (b.id === "checkout") track("va_a_pagar", {});
+  /* cambiar de página dentro de la tienda no es irse */
+  const href = b.getAttribute && b.getAttribute("href");
+  if (href && !href.startsWith("#") && !/^https?:/i.test(href)) {
+    ses.interno = Date.now();
+    guardarLocal();
+  }
 }, true);
 
 /* al salir: si no compró, queda registrado que se fue */
 window.addEventListener("pagehide", () => {
   const seFueAPagar = ses && ses.pagando && (Date.now() - ses.pagando) < 90000;
-  if (ses && !ses.compro && !ses.saliendo && !seFueAPagar) {
+  const cambioDePagina = ses && ses.interno && (Date.now() - ses.interno) < 3000;
+  if (ses && !ses.compro && !ses.saliendo && !seFueAPagar && !cambioDePagina) {
     ses.saliendo = true;
     const conCarrito = Object.values(ses.productos).some(p => p.carrito);
     track("salida", { conCarrito });
