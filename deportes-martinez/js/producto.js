@@ -1,10 +1,10 @@
-import { db, MODO } from "./db.js?v=3";
+import { db, MODO } from "./db.js?v=4";
 import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=3";
 import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=3";
 import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=4";
 import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=1";
 import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=1";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=5";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=6";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -111,6 +111,7 @@ function render() {
         <h1 class="prod__name">${p.nombre}</h1>
         <div class="prod__price">${precioLinea} <span>MXN</span></div>
         <span class="stock stock--${st.cls}">${st.txt}</span>
+        <p class="prod__envio">🚚 Te llega en 72 horas después de que confirmes tu compra${p.personalizable === false ? "" : " (si lo pides con nombre y número, unos días más)"}</p>
         ${tallasBloque}
         ${persoBloque}
         <div style="display:flex;gap:10px;margin-top:12px">
