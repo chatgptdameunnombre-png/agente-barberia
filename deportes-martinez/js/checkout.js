@@ -1,7 +1,7 @@
-import { COBRO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=30";
-import { db } from "./db.js?v=30";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=30";
-import { track } from "./track.js?v=30";
+import { COBRO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=31";
+import { db } from "./db.js?v=31";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=31";
+import { track } from "./track.js?v=31";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
