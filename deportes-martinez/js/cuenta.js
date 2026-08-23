@@ -43,7 +43,7 @@ $("#cuentaGuardar")?.addEventListener("click", async () => {
     referencias: val("fRef"), email: user.email, actualizado: new Date().toISOString()
   };
   const btn = $("#cuentaGuardar"); btn.disabled = true; const o = btn.textContent; btn.textContent = "Guardando…";
-  const msg = $("#cuentaMsg"); msg.textContent = ""; msg.style.color = "#c6f032";
+  const msg = $("#cuentaMsg"); msg.textContent = ""; msg.style.color = "#e8b923";
   try {
     await db.guardarPerfil(user.uid, data);
     msg.textContent = "✓ Datos guardados.";
