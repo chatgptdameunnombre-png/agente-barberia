@@ -1033,6 +1033,11 @@ label, .field label { color: var(--ink-soft); }
   letter-spacing: .06em; text-transform: uppercase; font-family: var(--mono);
 }
 .p-todas:hover { border-color: var(--accent); background: rgba(232, 185, 35, .08); }
+.p-barra {
+  display: flex; justify-content: flex-end; padding: 11px 18px;
+  background: #0b0a07; border-bottom: 1px solid var(--line);
+}
+.p-todas--all { margin-left: 0; }
 
 /* sub-bloques dentro de una sección de estadísticas */
 .st-sub {
