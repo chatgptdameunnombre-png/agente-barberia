@@ -1072,3 +1072,22 @@ label, .field label { color: var(--ink-soft); }
   #estadSello { grid-column: 1 / -1; }
   #estadSello { font-size: 12px; }
 }
+
+/* el menú vive a la izquierda, junto al logo */
+.admin-top__in { gap: 14px; }
+.pnav-btn { margin-right: 4px; flex: 0 0 auto; }
+
+/* resaltar un momento la sección a la que te llevó el menú */
+.st-resalta, #secProductos.st-resalta, #secCuentas.st-resalta {
+  animation: resalta 1.4s ease-out;
+  border-radius: var(--radius);
+}
+@keyframes resalta {
+  0% { box-shadow: 0 0 0 2px rgba(232,185,35,.6), 0 0 40px rgba(232,185,35,.25); }
+  100% { box-shadow: 0 0 0 0 rgba(232,185,35,0), 0 0 0 rgba(232,185,35,0); }
+}
+@media (prefers-reduced-motion: reduce) { .st-resalta { animation: none; } }
+
+/* el encabezado del panel es fijo: que el menú no deje la sección debajo de él */
+#secProductos, #secCuentas, #estad, .st-bloque { scroll-margin-top: 92px; }
+@media (max-width: 760px) { #secProductos, #secCuentas, #estad, .st-bloque { scroll-margin-top: 76px; } }
