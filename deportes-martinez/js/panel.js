@@ -1,5 +1,5 @@
 import { db } from "./db.js?v=4";
-import { pintarEstadisticas } from "./estadisticas.js?v=9";
+import { pintarEstadisticas } from "./estadisticas.js?v=10";
 import "./panel-nav.js?v=3";
 
 const $ = s => document.querySelector(s);
