@@ -1,5 +1,5 @@
-import { db } from "./db.js?v=3";
-import { pintarEstadisticas } from "./estadisticas.js?v=8";
+import { db } from "./db.js?v=4";
+import { pintarEstadisticas } from "./estadisticas.js?v=9";
 import "./panel-nav.js?v=3";
 
 const $ = s => document.querySelector(s);
@@ -356,6 +356,7 @@ function filaCliente(c) {
       ${llenos.map(([k, v]) => `<div><b>${k}:</b> ${v}</div>`).join("")}
       ${faltan.length ? `<div style="margin-top:8px;color:var(--muted)">Le falta llenar: ${faltan.join(", ")}</div>` : ""}
       ${c.actualizado ? `<div style="margin-top:6px;color:var(--muted)">Última actualización: ${String(c.actualizado).replace("T", " ").slice(0, 16)}</div>` : ""}
+      <button class="btn btn--danger st-vermas" data-borrar-cliente="${c.uid}">Borrar esta cuenta</button>
     </div>
   </details>`;
 }
@@ -392,4 +393,25 @@ $("#cuentasVer")?.addEventListener("click", async () => {
       : "Contraseña incorrecta.";
   }
   btn.disabled = false; btn.textContent = "Ver los datos";
+});
+
+
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-borrar-cliente]");
+  if (!b) return;
+  const uid = b.dataset.borrarCliente;
+  if (!confirm("¿Borrar los datos de esta cuenta? El cliente podrá volver a llenarlos si entra otra vez.")) return;
+  b.disabled = true; b.textContent = "Borrando…";
+  try {
+    await db.borrarCliente(uid);
+    clientesCargados = (clientesCargados || []).filter(c => c.uid !== uid);
+    pintarClientes(clientesCargados);
+    toast("Cuenta borrada");
+  } catch (err) {
+    b.disabled = false; b.textContent = "Borrar esta cuenta";
+    const m = String(err?.code || err?.message || "");
+    toast(m.includes("permission") || m.includes("PERMISSION")
+      ? "Falta el permiso de borrado en la base de datos"
+      : "No se pudo borrar");
+  }
 });
