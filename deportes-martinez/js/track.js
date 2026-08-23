@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=30";
-import { permiteMedicion } from "./cookies.js?v=30";
+import { firebaseConfig, usaFirebase } from "./config.js?v=31";
+import { permiteMedicion } from "./cookies.js?v=31";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
@@ -259,7 +259,10 @@ export function track(evento, datos = {}) {
   if (evento === "busqueda" && datos.texto) ses.busquedas.push(String(datos.texto).slice(0, 80));
   if (evento === "busqueda_sin_resultado" && datos.texto) ses.sinResultado.push(String(datos.texto).slice(0, 80));
   if (evento === "filtro_sin_resultado" && datos.filtros) {
-    const txt = Object.values(datos.filtros).filter(v => v && v !== "Todas" && v !== "Todos").join(" ");
+    const fuera = ["orden", "sub", "categoria"];
+    const txt = Object.entries(datos.filtros)
+      .filter(([k, v]) => !fuera.includes(k) && v && v !== "Todas" && v !== "Todos")
+      .map(([, v]) => v).join(" ");
     if (txt) ses.sinResultado.push(txt.slice(0, 80));
   }
   if (evento === "filtro" && datos.campo === "talla" && datos.valor && datos.valor !== "Todas") ses.tallas.push(String(datos.valor));
