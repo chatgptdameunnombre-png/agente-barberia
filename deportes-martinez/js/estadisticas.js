@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=36";
+import { firebaseConfig } from "./config.js?v=37";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -395,6 +395,9 @@ export async function pintarEstadisticas(db) {
 document.addEventListener("change", e => {
   if (e.target.id === "estadRango" && bd) pintarEstadisticas(bd);
 });
+
+/* al borrar el historial de alguien, el panel se refresca solo */
+document.addEventListener("panel:recargar-estadisticas", () => { if (bd) pintarEstadisticas(bd); });
 
 document.addEventListener("click", async e => {
   if (e.target.id === "estadRefrescar" && bd) { pintarEstadisticas(bd); return; }
