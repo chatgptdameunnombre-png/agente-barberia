@@ -45,7 +45,14 @@
   <h1>Simulador de venta</h1>
   <p class="sub">Prueba el flujo completo <b>sin tocar Mercado Pago</b>: baja el stock de la talla, registra la venta en la nube y te manda el aviso con los datos del cliente. Úsalo para comprobar que todo jala.</p>
 
-  <div class="card">
+  <div class="card" id="candado">
+    <label for="clave">Clave de pruebas</label>
+    <p style="color:#9a9aa2;font-size:12.5px;margin:0 0 8px;line-height:1.5">Esta página baja stock de verdad, por eso pide clave. Se guarda en este dispositivo y ya no te la vuelve a pedir.</p>
+    <input id="clave" type="password" placeholder="Pega aquí la clave" autocomplete="off">
+    <button id="entrar" style="width:100%;margin-top:14px;background:#e8b923;color:#1a1405;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:15px;cursor:pointer">Entrar</button>
+  </div>
+
+  <div class="card" id="form" style="display:none">
     <label for="prod">Jersey</label>
     <select id="prod"><option>Cargando catálogo…</option></select>
 
@@ -94,6 +101,7 @@
   </div>
 
   <div id="res"></div>
+  <p class="foot" id="salir" style="display:none;cursor:pointer;text-decoration:underline">Olvidar la clave en este dispositivo</p>
   <p class="foot">Deportes Martínez · esta página es solo para pruebas. Cuando arranque producción, la venta la dispara Mercado Pago al aprobar el pago.</p>
 </div>
 
@@ -104,6 +112,24 @@ const ENVIO = 180, PERSO = 150;
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 let productos = [], entrega = "tienda";
+const LS_CLAVE = "dm_prueba_clave";
+let clave = localStorage.getItem(LS_CLAVE) || "";
+
+function abrir() {
+  $("#candado").style.display = "none";
+  $("#form").style.display = "block";
+  $("#salir").style.display = "block";
+  cargar();
+}
+$("#entrar").onclick = () => {
+  const v = $("#clave").value.trim();
+  if (!v) { $("#clave").focus(); return; }
+  clave = v;
+  localStorage.setItem(LS_CLAVE, v);
+  abrir();
+};
+$("#clave").addEventListener("keydown", e => { if (e.key === "Enter") $("#entrar").click(); });
+$("#salir").onclick = () => { localStorage.removeItem(LS_CLAVE); location.reload(); };
 
 async function cargar() {
   const campos = ["nombre", "equipo", "precio", "stock", "tallaTipo", "tallas", "personalizable"]
@@ -224,12 +250,18 @@ $("#go").onclick = async () => {
     const r = await fetch(WEBHOOK, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        test: true, total, ref: "PRUEBA-WEB",
+        test: true, secret: clave, total, ref: "PRUEBA-WEB",
         productos: [{ id: p.id, qty, title: p.nombre, talla, perso }],
         metadata: { entrega, cliente: nombre, telefono: tel, direccion: entrega === "domicilio" ? dir : "" }
       })
     });
     const d = await r.json();
+    if (!d.venta) {
+      $("#res").innerHTML = `<div class="err">La clave de pruebas no es correcta, o el jersey ya no tiene esa talla. Revisa la clave y vuelve a intentar.</div>`;
+      $("#res").style.display = "block";
+      $("#go").disabled = false; $("#go").textContent = "Simular venta";
+      return;
+    }
     const l = (d.lineas || [])[0];
     const bajado = l
       ? `${l.nombre}${l.talla ? " talla " + l.talla : ""} · quedan ${l.restante}`
@@ -252,7 +284,7 @@ $("#go").onclick = async () => {
   $("#go").disabled = false; $("#go").textContent = "Simular venta";
 };
 
-cargar();
+if (clave) abrir();
 </script>
 </body>
 </html>
