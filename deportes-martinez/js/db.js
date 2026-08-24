@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=36";
-import { PRODUCTOS_SEED } from "./seed.js?v=36";
+import { firebaseConfig, usaFirebase } from "./config.js?v=37";
+import { PRODUCTOS_SEED } from "./seed.js?v=37";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -25,7 +25,7 @@ async function crearImplFirebase() {
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js");
   const {
     getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, getDoc,
-    deleteDoc, getDocs, setDoc, deleteField, query, orderBy
+    deleteDoc, getDocs, setDoc, deleteField, query, orderBy, where
   } = await import("https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js");
   const {
     getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut,
@@ -109,6 +109,20 @@ async function crearImplFirebase() {
       return true;
     },
     async borrarSesion(id) { await deleteDoc(doc(fdb, "sesiones", id)); },
+    /* Borra TODAS las visitas de una persona: las de su cuenta y, si se pasa el correo,
+       también las que quedaron ligadas a ese correo. Devuelve cuántas borró. */
+    async borrarHistorialCliente(uid, email) {
+      const vistos = new Map();
+      const consultas = [];
+      if (uid) consultas.push(query(colSes, where("clienteUid", "==", uid)));
+      if (email) consultas.push(query(colSes, where("clienteEmail", "==", email)));
+      for (const q of consultas) {
+        const snap = await getDocs(q);
+        snap.docs.forEach(d => vistos.set(d.id, d.ref));
+      }
+      for (const ref of vistos.values()) await deleteDoc(ref);
+      return vistos.size;
+    },
     async seedIfEmpty() {
       const snap = await getDocs(col);
       if (snap.empty) {
@@ -233,6 +247,7 @@ function crearImplDemo() {
     async token() { return null; },
     async listarClientes() { return []; },
     async borrarCliente() {},
+    async borrarHistorialCliente() { return 0; },
     async revalidar() { return true; },
     async logout() { localStorage.removeItem(LS_AUTH); notificarAuth(); },
     onAuth(cb) { authListeners.add(cb); cb(usuarioActual()); return () => authListeners.delete(cb); },
