@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=36";
-import { pintarEstadisticas } from "./estadisticas.js?v=36";
-import "./panel-nav.js?v=36";
+import { db } from "./db.js?v=37";
+import { pintarEstadisticas } from "./estadisticas.js?v=37";
+import "./panel-nav.js?v=37";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -411,7 +411,10 @@ function filaCliente(c) {
       ${llenos.map(([k, v]) => `<div><b>${k}:</b> ${v}</div>`).join("")}
       ${faltan.length ? `<div style="margin-top:8px;color:var(--muted)">Le falta llenar: ${faltan.join(", ")}</div>` : ""}
       ${c.actualizado ? `<div style="margin-top:6px;color:var(--muted)">Última actualización: ${String(c.actualizado).replace("T", " ").slice(0, 16)}</div>` : ""}
-      <button class="btn btn--danger st-vermas" data-borrar-cliente="${c.uid}">Borrar esta cuenta</button>
+      <div class="cliente-acciones">
+        <button class="btn btn--ghost" data-borrar-historial="${c.uid}" data-correo="${c.email || ""}">Borrar su historial de visitas</button>
+        <button class="btn btn--danger" data-borrar-cliente="${c.uid}" data-correo="${c.email || ""}">Borrar esta cuenta</button>
+      </div>
     </div>
   </details>`;
 }
@@ -452,16 +455,38 @@ $("#cuentasVer")?.addEventListener("click", async () => {
 
 
 document.addEventListener("click", async e => {
+  const h = e.target.closest("[data-borrar-historial]");
+  if (h) {
+    const uid = h.dataset.borrarHistorial, correo = h.dataset.correo;
+    if (!confirm("¿Borrar todo el historial de visitas de esta persona?\n\nSu cuenta y sus datos se quedan; solo se borra lo que hizo en la tienda. Esto no se puede deshacer.")) return;
+    h.disabled = true; h.textContent = "Borrando…";
+    try {
+      const n = await db.borrarHistorialCliente(uid, correo);
+      h.disabled = false; h.textContent = "Borrar su historial de visitas";
+      toast(n ? `Historial borrado (${n} ${n === 1 ? "visita" : "visitas"})` : "Esta persona no tenía visitas guardadas");
+      document.dispatchEvent(new CustomEvent("panel:recargar-estadisticas"));
+    } catch (err) {
+      h.disabled = false; h.textContent = "Borrar su historial de visitas";
+      const m = String(err?.code || err?.message || "");
+      toast(m.includes("permission") || m.includes("PERMISSION")
+        ? "Falta el permiso de borrado en la base de datos"
+        : "No se pudo borrar el historial");
+    }
+    return;
+  }
   const b = e.target.closest("[data-borrar-cliente]");
   if (!b) return;
-  const uid = b.dataset.borrarCliente;
-  if (!confirm("¿Borrar los datos de esta cuenta? El cliente podrá volver a llenarlos si entra otra vez.")) return;
+  const uid = b.dataset.borrarCliente, correo = b.dataset.correo;
+  if (!confirm("¿Borrar los datos de esta cuenta? El cliente podrá volver a llenarlos si entra otra vez.\n\nTambién se borrará su historial de visitas.")) return;
   b.disabled = true; b.textContent = "Borrando…";
   try {
     await db.borrarCliente(uid);
+    let n = 0;
+    try { n = await db.borrarHistorialCliente(uid, correo); } catch { }
     clientesCargados = (clientesCargados || []).filter(c => c.uid !== uid);
     pintarClientes(clientesCargados);
-    toast("Cuenta borrada");
+    toast(n ? `Cuenta borrada y ${n} ${n === 1 ? "visita" : "visitas"} de su historial` : "Cuenta borrada");
+    document.dispatchEvent(new CustomEvent("panel:recargar-estadisticas"));
   } catch (err) {
     b.disabled = false; b.textContent = "Borrar esta cuenta";
     const m = String(err?.code || err?.message || "");
