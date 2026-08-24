@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=37";
+import { firebaseConfig } from "./config.js?v=38";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -310,7 +310,10 @@ function visitas(list) {
       <div class="st-visita__cuerpo">
         Llegó de <b>${esc(s.origen || "directo")}</b> · entró por <b>${esc(s.entrada || "index.html")}</b> · vio ${s.vistos || 0} jersey(s)
         ${(s.busquedas || []).length ? `<br>Buscó: ${(s.busquedas || []).map(esc).join(", ")}` : ""}
-        <br><button class="btn btn--ghost st-vermas" data-ver="${s.id}">Ver qué hizo paso a paso</button>
+        <div class="st-visita__acciones">
+          <button class="btn btn--ghost" data-ver="${s.id}">Ver qué hizo paso a paso</button>
+          <button class="btn btn--danger" data-borrar-visita="${s.id}">Borrar esta visita</button>
+        </div>
       </div>
     </details>`;
   }).join("")}</div>`;
@@ -401,14 +404,39 @@ document.addEventListener("panel:recargar-estadisticas", () => { if (bd) pintarE
 
 document.addEventListener("click", async e => {
   if (e.target.id === "estadRefrescar" && bd) { pintarEstadisticas(bd); return; }
+
+  /* borrar una visita suelta del registro */
+  const bor = e.target.closest("[data-borrar-visita]");
+  if (bor) {
+    const id = bor.dataset.borrarVisita;
+    if (!confirm("¿Borrar esta visita del registro?\n\nSe va todo lo que hizo esa persona en esa visita. Esto no se puede deshacer.")) return;
+    bor.disabled = true;
+    bor.textContent = "Borrando…";
+    try {
+      await bd.borrarSesion(id);
+      sesiones = sesiones.filter(x => x.id !== id);
+      pintarLista(sesiones);
+      const sello = $("#estadSello");
+      if (sello) sello.textContent = `${sesiones.length} visitas · actualizado ${new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}`;
+    } catch (err) {
+      bor.disabled = false;
+      bor.textContent = "Borrar esta visita";
+      const m = String(err?.code || err?.message || "");
+      alert(m.includes("permission") || m.includes("PERMISSION")
+        ? "Falta el permiso de borrado en la base de datos."
+        : "No se pudo borrar la visita.");
+    }
+    return;
+  }
+
   const b = e.target.closest("[data-ver]");
   if (!b) return;
   b.disabled = true;
   b.textContent = "Cargando…";
   const eventos = await bajarEventos(b.dataset.ver);
-  const cont = b.parentElement;
+  const cont = b.closest(".st-visita__cuerpo") || b.parentElement;
+  b.remove();
   cont.innerHTML += eventos.length
     ? `<ol class="st-pasos">${sinRepetidos(eventos).map(t => `<li>${t}</li>`).join("")}</ol>`
     : `<p class="st-vacio">Sin detalle guardado.</p>`;
-  b.remove();
 });
