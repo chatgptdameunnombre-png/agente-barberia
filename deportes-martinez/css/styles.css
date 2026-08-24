@@ -1039,6 +1039,11 @@ label, .field label { color: var(--ink-soft); }
 }
 .p-todas--all { margin-left: 0; }
 
+/* acciones dentro de una visita del registro */
+.st-visita__acciones { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
+.st-visita__acciones .btn { font-size: 12.5px; padding: 9px 14px; }
+@media (max-width: 520px) { .st-visita__acciones .btn { flex: 1 1 100%; } }
+
 /* acciones sobre una cuenta de cliente */
 .cliente-acciones { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
 .cliente-acciones .btn { font-size: 12.5px; padding: 9px 14px; }
