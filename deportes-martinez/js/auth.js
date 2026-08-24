@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=37";
+import { db } from "./db.js?v=38";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -209,7 +209,7 @@ else document.addEventListener("DOMContentLoaded", init);
 db.onAuth(u => {
   currentUser = u;
   updateButton();
-  import("./track.js?v=37").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
+  import("./track.js?v=38").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
 });
 
 export { currentUser };
