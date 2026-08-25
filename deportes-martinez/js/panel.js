@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=38";
-import { pintarEstadisticas } from "./estadisticas.js?v=38";
-import "./panel-nav.js?v=38";
+import { db } from "./db.js?v=39";
+import { pintarEstadisticas } from "./estadisticas.js?v=39";
+import "./panel-nav.js?v=39";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -79,7 +79,7 @@ function render() {
   const fila = p => `
     <div class="p-row">
       <img class="p-thumb" src="${p.imagen || ''}" alt="" onerror="this.style.visibility='hidden'">
-      <div class="p-name"><b>${p.nombre}${p.retro ? ` <span style="font-size:10px;font-weight:700;color:#b8860b;border:1px solid #b8860b;border-radius:5px;padding:1px 5px;vertical-align:middle;letter-spacing:.05em">RETRO</span>` : ""}</b><span>${[p.equipo, p.liga, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span></div>
+      <div class="p-name"><b>${p.nombre}${p.retro ? ` <span style="font-size:10px;font-weight:700;color:#b8860b;border:1px solid #b8860b;border-radius:5px;padding:1px 5px;vertical-align:middle;letter-spacing:.05em">RETRO</span>` : ""}${p.personalizable === false ? ` <span style="font-size:10px;font-weight:700;color:#8a8a92;border:1px solid #3a3a42;border-radius:5px;padding:1px 5px;vertical-align:middle;letter-spacing:.05em">SIN NOMBRE</span>` : ""}</b><span>${[p.equipo, p.liga, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span></div>
       <span class="hide-sm">${p.categoria}</span>
       <span class="hide-sm">${money(p.precio)}</span>
       <span>${stockPill(p.stock)}</span>
@@ -112,6 +112,53 @@ function render() {
     : "";
   $("#pList").innerHTML = (barra + html) || `<div style="padding:40px;text-align:center;color:var(--muted)">Sin jerseys todavía. Agrega el primero.</div>`;
 }
+
+/* ============================================================
+   Jerseys de jugador: si ya traen nombre y número estampado,
+   no se les puede poner otro. El panel lo detecta solo.
+   ============================================================ */
+const JUGADORES = [
+  "messi", "cristiano", "ronaldo", "haaland", "mbappe", "mbappé", "neymar", "benzema", "modric", "modrić",
+  "kaka", "kaká", "zidane", "ronaldinho", "beckham", "maradona", "pele", "pelé", "salah", "vinicius",
+  "bellingham", "lewandowski", "suarez", "suárez", "iniesta", "xavi", "pique", "piqué", "ramos", "buffon",
+  "totti", "del piero", "raul", "raúl", "figo", "henry", "drogba", "gerrard", "lampard", "rooney",
+  "chicharito", "hernandez", "hernández", "campos", "marquez", "márquez", "blanco", "borgetti", "ochoa",
+  "lozano", "jimenez", "jiménez", "alvarez", "álvarez", "gimenez", "giménez",
+  "tatum", "curry", "doncic", "dončić", "lebron", "james", "jordan", "kobe", "bryant", "durant",
+  "giannis", "antetokounmpo", "wembanyama", "shai", "gilgeous", "harden", "embiid", "jokic", "jokić",
+  "allen", "brady", "mahomes", "watt", "kelce", "burrow", "jefferson", "rodgers", "manning", "montana"
+];
+
+function pareceDeJugador(texto) {
+  const t = " " + String(texto).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") + " ";
+  if (/#\s*\d{1,2}\b/.test(t)) return "trae número";
+  const hit = JUGADORES.find(j => t.includes(" " + j.normalize("NFD").replace(/[\u0300-\u036f]/g, "")));
+  return hit ? "es de " + hit.charAt(0).toUpperCase() + hit.slice(1) : null;
+}
+
+function avisoPerso(auto) {
+  const aviso = $("#persoAviso");
+  if (!aviso) return;
+  const motivo = pareceDeJugador($("#pNombre").value);
+  if (motivo && !$("#pPerso").checked) {
+    aviso.innerHTML = `<b style="color:var(--accent)">Este jersey ${motivo}</b>, así que ya trae nombre y número estampado y no se le puede poner otro. ${auto ? "Le quité la personalización." : ""}`;
+  } else if (motivo && $("#pPerso").checked) {
+    aviso.innerHTML = `<b style="color:#ff9b9b">Ojo:</b> este jersey ${motivo}. Si ya viene estampado, quita la palomita de arriba.`;
+  } else {
+    aviso.textContent = "Retro y pieza única salen con etiqueta en el catálogo.";
+  }
+}
+
+let persoTocado = false;
+$("#pPerso")?.addEventListener("change", () => { persoTocado = true; avisoPerso(false); });
+$("#pNombre")?.addEventListener("input", () => {
+  if (!persoTocado && pareceDeJugador($("#pNombre").value) && $("#pPerso").checked) {
+    $("#pPerso").checked = false;
+    avisoPerso(true);
+    return;
+  }
+  avisoPerso(false);
+});
 
 /* ---------- subcategorías dependientes ---------- */
 function poblarSub(categoria, seleccion = "") {
@@ -234,6 +281,7 @@ function editar(id) {
   $("#pTemporada").value = p.temporada || "";
   $("#pKit").value = p.kit || "";
   $("#pMaterial").value = p.material || "";
+  persoTocado = true;   /* al editar uno que ya existe, se respeta lo que el dueño puso */
   $("#pRetro").checked = !!p.retro;
   $("#pUnica").checked = !!p.piezaUnica;
   $("#pPerso").checked = p.personalizable !== false;
