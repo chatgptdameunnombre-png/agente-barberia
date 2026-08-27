@@ -1067,7 +1067,7 @@ label, .field label { color: var(--ink-soft); }
 }
 
 /* venta por transferencia: contada, pero marcada como "falta confirmar" */
-.st-tag--porconfirmar { background: #1e2a12; color: #b9d97a; }
+.st-tag--porconfirmar { background: #2a2109; color: #f7d154; }
 
 /* ===== Panel en teléfono: que se lea igual de fácil ===== */
 @media (max-width: 760px) {
