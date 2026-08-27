@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=48";
+import { db } from "./db.js?v=49";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
