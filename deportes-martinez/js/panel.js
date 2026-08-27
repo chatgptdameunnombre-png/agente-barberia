@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=48";
-import { pintarEstadisticas } from "./estadisticas.js?v=48";
-import "./panel-nav.js?v=48";
+import { db } from "./db.js?v=49";
+import { pintarEstadisticas } from "./estadisticas.js?v=49";
+import "./panel-nav.js?v=49";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -673,6 +673,7 @@ const VT_ESTADO = {
 };
 let ventasCargadas = null;
 let vtFiltro = "por_cobrar";
+let vtTocado = false;
 
 const vtMoney = n => "$" + Number(n || 0).toLocaleString("es-MX");
 
@@ -703,70 +704,74 @@ function vtLineas(v) {
   return `<div class="vt-item">${v.productos || "sin detalle"}</div>`;
 }
 
+function vtWhats(tel, v) {
+  const num = String(tel || "").replace(/\D/g, "");
+  if (num.length < 10) return "";
+  const conLada = num.length === 10 ? "52" + num : num;
+  const que = v.estado === "por_cobrar"
+    ? `Hola ${v.cliente || ""}, te escribo de Deportes Martínez por tu pedido ${v.id}. ¿Ya pudiste hacer la transferencia?`
+    : `Hola ${v.cliente || ""}, te escribo de Deportes Martínez por tu pedido ${v.id}.`;
+  return `<a class="btn btn--ghost" href="https://wa.me/${conLada}?text=${encodeURIComponent(que)}" target="_blank" rel="noopener">Escribirle por WhatsApp</a>`;
+}
+
+function vtFoto(l) {
+  const p = productos.find(x => x.id === l.id);
+  return p && p.imagen
+    ? `<img class="vt-foto" src="${p.imagen}" alt="">`
+    : `<div class="vt-foto vt-foto--vacia"></div>`;
+}
+
 function vtFila(v) {
   const est = VT_ESTADO[v.estado] || VT_ESTADO.pagada;
   const porCobrar = v.estado === "por_cobrar";
-  return `<details class="st-visita">
-    <summary class="st-visita__cab" style="grid-template-columns:1.1fr 1.3fr 110px 130px">
-      <span class="st-visita__cuando">${vtCuando(v)}</span>
-      <span class="st-visita__quien">${v.cliente || v.clienteEmail || "Sin nombre"}${v.prueba ? " <em style='color:#8a8a92'>(prueba)</em>" : ""}</span>
-      <span class="st-visita__tiempo">${vtMoney(v.total)}</span>
+  const cancelada = v.estado === "cancelada";
+  let lineas = [];
+  try { lineas = JSON.parse(v.lineas || "[]"); } catch { }
+
+  const jerseys = lineas.length
+    ? lineas.map(l => `<div class="vt-jersey">
+        ${vtFoto(l)}
+        <div>
+          <b>${l.nombre || l.id}</b>
+          <div class="vt-jersey__det">
+            ${l.qty > 1 ? `<span class="vt-pill">${l.qty} piezas</span>` : ""}
+            ${l.talla ? `<span class="vt-pill">Talla ${l.talla}</span>` : ""}
+            ${l.perso ? `<span class="vt-pill vt-pill--oro">${l.perso}</span>` : ""}
+          </div>
+        </div>
+      </div>`).join("")
+    : `<div class="vt-jersey"><div><b>${v.productos || "sin detalle"}</b></div></div>`;
+
+  const dir = v.entrega === "domicilio"
+    ? `<div class="vt-envio">
+         <span class="vt-envio__k">Mandar a</span>
+         <span class="vt-envio__v">${v.direccion || "sin dirección"}</span>
+         ${v.direccion ? `<button class="vt-copiar" data-copiar="${encodeURIComponent(v.direccion)}">Copiar</button>` : ""}
+       </div>`
+    : `<div class="vt-envio"><span class="vt-envio__k">Pasa a recogerlo</span></div>`;
+
+  return `<article class="vt-card${porCobrar ? " vt-card--pendiente" : ""}${cancelada ? " vt-card--cancelada" : ""}">
+    <header class="vt-card__top">
       <span class="st-tag st-tag--${est.clase}">${est.etq}</span>
-    </summary>
-    <div class="st-visita__cuerpo">
-      ${vtLineas(v)}
-      <div class="vt-datos">
-        ${v.telefono ? `<div><b>Teléfono:</b> ${v.telefono}</div>` : ""}
-        ${v.clienteEmail ? `<div><b>Correo:</b> ${v.clienteEmail}</div>` : ""}
-        <div><b>Entrega:</b> ${v.entrega === "domicilio" ? "a domicilio" : "recoge en tienda"}</div>
-        ${v.direccion ? `<div><b>Dirección:</b> ${v.direccion}</div>` : ""}
-        <div><b>Pagó con:</b> ${v.metodo === "transferencia" ? "transferencia" : "tarjeta"}</div>
-        <div><b>Referencia:</b> ${v.id}</div>
-      </div>
-      ${porCobrar ? `<div class="cliente-acciones">
-        <button class="btn" data-vt-pagada="${v.id}">Ya me pagó</button>
-        <button class="btn btn--danger" data-vt-cancelar="${v.id}">No pagó · cancelar</button>
-      </div>
-      <p class="hint-foto" style="margin-top:8px">El jersey ya está apartado. Si cancelas, regresa al catálogo.</p>` : ""}
+      <span class="vt-cuando">${vtCuando(v)}</span>
+      <b class="vt-total">${vtMoney(v.total)}</b>
+    </header>
+
+    ${jerseys}
+
+    <div class="vt-quien">
+      <b>${v.cliente || v.clienteEmail || "Sin nombre"}</b>${v.prueba ? ` <span class="vt-pill">prueba</span>` : ""}
+      ${v.telefono ? `<span class="vt-quien__tel">${v.telefono}</span>` : ""}
     </div>
-  </details>`;
-}
+    ${dir}
+    <div class="vt-pie">Pagó con ${v.metodo === "transferencia" ? "transferencia" : "tarjeta"} · ref ${v.id}</div>
 
-function pintarVentas() {
-  const cuerpo = $("#ventasBody");
-  if (!cuerpo || !ventasCargadas) return;
-  const cuenta = e => ventasCargadas.filter(v => (v.estado || "pagada") === e).length;
-  const nCobrar = cuenta("por_cobrar");
-  $("#vtNumCobrar").textContent = nCobrar;
-  $("#vtNumPagadas").textContent = cuenta("pagada");
-  $("#vtNumCanceladas").textContent = cuenta("cancelada");
-  const chip = $("#pnavPorCobrar");
-  if (chip) { chip.textContent = nCobrar; chip.hidden = !nCobrar; }
-
-  const lista = ventasCargadas.filter(v => (v.estado || "pagada") === vtFiltro);
-  const vacio = {
-    por_cobrar: "Nadie te debe nada ahora mismo.",
-    pagada: "Todavía no hay ventas pagadas.",
-    cancelada: "No has cancelado ningún pedido."
-  }[vtFiltro];
-  const total = lista.reduce((a, v) => a + Number(v.total || 0), 0);
-  if (!lista.length) { cuerpo.innerHTML = `<p class="st-vacio">${vacio}</p>`; return; }
-
-  /* Separado por cómo lo recibe: lo de domicilio hay que empaquetar y mandar,
-     lo de tienda solo apartarlo y esperar a que pasen. Son dos trabajos distintos. */
-  const domicilio = lista.filter(v => v.entrega === "domicilio");
-  const tienda = lista.filter(v => v.entrega !== "domicilio");
-  const grupo = (titulo, ayuda, arr) => {
-    if (!arr.length) return "";
-    const suma = arr.reduce((a, v) => a + Number(v.total || 0), 0);
-    return `<h4 class="st-sub">${titulo} <span class="vt-num">${arr.length}</span></h4>
-      <p class="st-sub__ayuda">${ayuda} · ${vtMoney(suma)}</p>
-      <div class="st-visitas">${arr.map(vtFila).join("")}</div>`;
-  };
-  cuerpo.innerHTML =
-    `<p class="st-bloque__ayuda">${lista.length} ${lista.length === 1 ? "pedido" : "pedidos"} · ${vtMoney(total)} en total</p>` +
-    grupo("🏠 Hay que enviarlos", "Estos van a domicilio: prepáralos y mándalos", domicilio) +
-    grupo("🏪 Pasan a recogerlos", "Estos los recogen en la tienda: tenlos apartados", tienda);
+    ${porCobrar ? `<div class="vt-acciones">
+      <button class="btn" data-vt-pagada="${v.id}">✓ Ya me pagó</button>
+      ${vtWhats(v.telefono, v)}
+      <button class="btn btn--danger" data-vt-cancelar="${v.id}">No pagó · cancelar</button>
+    </div>` : (cancelada ? "" : `<div class="vt-acciones">${vtWhats(v.telefono, v)}</div>`)}
+  </article>`;
 }
 
 async function cargarVentas() {
@@ -774,6 +779,10 @@ async function cargarVentas() {
   if (!cuerpo) return;
   try {
     ventasCargadas = await db.listarVentas();
+    /* si hay pedidos esperando pago, se abre ahí: es lo que hay que atender */
+    if (!vtTocado && ventasCargadas.some(v => v.estado === "por_cobrar")) vtFiltro = "por_cobrar";
+    else if (!vtTocado) vtFiltro = "pagada";
+    document.querySelectorAll(".vt-tab").forEach(t => t.classList.toggle("on", t.dataset.vt === vtFiltro));
     pintarVentas();
   } catch (e) {
     cuerpo.innerHTML = `<p class="st-error">No se pudieron leer las ventas: ${e.message}</p>`;
@@ -784,11 +793,23 @@ document.addEventListener("click", async e => {
   const tab = e.target.closest("[data-vt]");
   if (tab) {
     vtFiltro = tab.dataset.vt;
+    vtTocado = true;
     document.querySelectorAll(".vt-tab").forEach(t => t.classList.toggle("on", t === tab));
     pintarVentas();
     return;
   }
   if (e.target.id === "ventasRefrescar") { cargarVentas(); return; }
+
+  const cop = e.target.closest("[data-copiar]");
+  if (cop) {
+    const txt = decodeURIComponent(cop.dataset.copiar);
+    try {
+      await navigator.clipboard.writeText(txt);
+      cop.textContent = "¡Copiada!";
+      setTimeout(() => { cop.textContent = "Copiar"; }, 1600);
+    } catch { toast("No se pudo copiar"); }
+    return;
+  }
 
   const pag = e.target.closest("[data-vt-pagada]");
   if (pag) {
