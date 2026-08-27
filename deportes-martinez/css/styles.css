@@ -20,7 +20,7 @@
   --azul: #2f6fd0;          /* SOLO toques mínimos (plumas del logo) */
   --azul-suave: #4f8fd6;
   --danger: #d16a6a;
-  --ok: #4bc47c;
+  --ok: #e8b923;            /* nada de verde: el acierto se marca en dorado */
   --warn: #f0b429;
   --radius: 16px;
   --radius-lg: 22px;
@@ -119,10 +119,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -3;
 }
 .site-hero__fallback { background: #0a0a0b center/cover no-repeat; }
-.site-hero--green { background: radial-gradient(50% 50% at 50% 42%, rgba(232,185,35,.13), transparent 65%), radial-gradient(40% 40% at 92% 96%, rgba(47,111,208,.16), transparent 62%), #000; }
-.site-hero--green::before { display: none; }
-.site-hero--green::after { top: 40%; width: 760px; height: 760px; background: radial-gradient(circle, rgba(232,185,35,.18), transparent 62%); }
-.site-hero--green .hero-c__iso { width: 180px; height: 180px; opacity: 1; }
+.site-hero--oro { background: radial-gradient(50% 50% at 50% 42%, rgba(232,185,35,.13), transparent 65%), radial-gradient(40% 40% at 92% 96%, rgba(47,111,208,.16), transparent 62%), #000; }
+.site-hero--oro::before { display: none; }
+.site-hero--oro::after { top: 40%; width: 760px; height: 760px; background: radial-gradient(circle, rgba(232,185,35,.18), transparent 62%); }
+.site-hero--oro .hero-c__iso { width: 180px; height: 180px; opacity: 1; }
 .site-hero::before {
   content: ""; position: absolute; inset: 0; z-index: -2;
   background:
@@ -582,7 +582,7 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
   .hero-c__title { white-space: normal; font-size: clamp(30px, 8.4vw, 54px); line-height: 1.02; }
   .hero-c__tag { letter-spacing: .2em; font-size: 11px; }
   .hero-c { gap: 18px; }
-  .hero-c__iso, .site-hero--green .hero-c__iso { width: 132px; height: 132px; }
+  .hero-c__iso, .site-hero--oro .hero-c__iso { width: 132px; height: 132px; }
 }
 
 /* ===== Panel del dueño: números de las tarjetas ===== */
@@ -616,7 +616,7 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
 .st-barra__fill--oro { background: #c9a227; }
 .st-barra__fill--azul { background: #5b8def; }
 .st-barra__fill--morado { background: #7a63d6; }
-.st-barra__fill--verde { background: #2e9e5b; }
+.st-barra__fill--verde { background: #f7d154; }
 .st-barra__txt { min-width: 76px; font-size: 13px; color: #444; }
 
 /* embudo */
@@ -633,7 +633,7 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
 .st-prod__nombre { font-weight: 600; font-size: 14.5px; }
 .st-prod__equipo { font-size: 12.5px; color: #888; }
 .st-prod__dato { font-size: 13px; color: #555; text-align: right; }
-.st-ok { color: #2e9e5b; }
+.st-ok { color: #e8b923; }
 .st-mal { color: #c62828; }
 
 /* chips de "lo que piden y no hay" */
@@ -663,7 +663,7 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
 .st-pasos { margin: 12px 0 0 18px; font-size: 13.5px; color: #555; display: grid; gap: 4px; }
 
 .st-tag { border-radius: 999px; padding: 4px 10px; font-size: 12.5px; text-align: center; }
-.st-tag--compro { background: #e6f6ec; color: #1d7a43; }
+.st-tag--compro { background: #fdf3d4; color: #7a5c0b; }
 .st-tag--carrito { background: #fff4e0; color: #9a6b00; }
 .st-tag--miro { background: #eef1fb; color: #3a55a8; }
 .st-tag--paso { background: #f4f4f5; color: #777; }
@@ -688,7 +688,7 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
   filter: drop-shadow(0 24px 90px rgba(232,185,35,.28));
 }
 .hero-c__logo--iso { width: min(300px, 58vw); }
-.site-hero--green .hero-c__tag { margin-top: 10px; }
+.site-hero--oro .hero-c__tag { margin-top: 10px; }
 @media (max-width: 760px) {
   /* en el teléfono va el logo cuadrado: aprovecha el alto y se lee mucho mejor */
   .hero-c__logo { width: 88vw; max-height: 58vh; }
@@ -723,18 +723,18 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
 .cart-btn .count { background: var(--accent); color: var(--accent-ink); }
 
 /* ---------- Hero ---------- */
-.site-hero--green {
+.site-hero--oro {
   background:
     radial-gradient(55% 55% at 50% 42%, rgba(232,185,35,.20), transparent 60%),
     radial-gradient(45% 45% at 88% 96%, rgba(232,185,35,.10), transparent 60%),
     #08070a;
 }
-.site-hero--green::after {
+.site-hero--oro::after {
   top: 44%; width: 720px; height: 720px;
   background: radial-gradient(circle, rgba(232,185,35,.24), transparent 60%);
   filter: blur(6px); animation: halo 6s ease-in-out infinite;
 }
-.site-hero--green::before {
+.site-hero--oro::before {
   content: ""; display: block; position: absolute; left: 0; right: 0; top: 14%;
   height: 2px; z-index: 0; inset: auto 0 auto 0;
   background: linear-gradient(90deg, transparent, rgba(232,185,35,.45), transparent);
@@ -750,7 +750,7 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
   50%     { opacity: 1;  transform: translate(-50%,-50%) scale(1.06); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .site-hero--green::after { animation: none; }
+  .site-hero--oro::after { animation: none; }
 }
 
 /* ---------- Encabezados de sección ---------- */
@@ -929,7 +929,7 @@ label, .field label { color: var(--ink-soft); }
 .st-barra__fill--oro { background: linear-gradient(90deg,#8a5f14,#f7d154); }
 .st-barra__fill--azul { background: linear-gradient(90deg,#2b4f8f,#5b8def); }
 .st-barra__fill--morado { background: linear-gradient(90deg,#4a3a86,#7a63d6); }
-.st-barra__fill--verde { background: linear-gradient(90deg,#1d6b3f,#4bc47c); }
+.st-barra__fill--verde { background: linear-gradient(90deg,#b8860b,#f7d154); }
 .st-barra__txt { color: var(--ink-soft); }
 
 .st-embudo__paso { color: var(--ink-soft); }
@@ -951,7 +951,7 @@ label, .field label { color: var(--ink-soft); }
 .st-visita__tiempo { color: var(--ink-soft); }
 .st-visita__cuerpo { color: var(--ink-soft); border-top: 1px solid var(--line-soft); padding-top: 10px; }
 .st-pasos { color: var(--ink-soft); }
-.st-tag--compro { background: #0f2a19; color: #6fd79b; }
+.st-tag--compro { background: #2a2109; color: #f7d154; }
 .st-tag--carrito { background: #2a1f05; color: #f0c65a; }
 .st-tag--miro { background: #131c33; color: #7fa6e8; }
 .st-tag--paso { background: #16140f; color: var(--muted); }
