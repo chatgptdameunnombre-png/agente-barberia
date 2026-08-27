@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=55";
+import { db } from "./db.js?v=56";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -144,6 +144,11 @@ async function pintarCompras(uid) {
         ${jerseys}
         ${barraPasos(v)}
         ${nota ? `<p class="mc-nota">${nota}</p>` : ""}
+        <div class="mc-folio">
+          <span class="mc-folio__k">Número de pedido</span>
+          <b class="mc-folio__v">${v.folio || v.id}</b>
+          <button class="mc-folio__cp" data-folio="${v.folio || v.id}">Copiar</button>
+        </div>
         <footer class="mc-card__pie">
           <span>${v.entrega === "domicilio" ? "Envío a domicilio" : "Recoges en tienda"}</span>
           <b>${dinero(v.total)}</b>
@@ -179,3 +184,15 @@ $("#cuentaGuardar")?.addEventListener("click", async () => {
 });
 
 $("#cuentaSalir")?.addEventListener("click", async () => { await db.logout(); });
+
+/* copiar el número de pedido para mandarlo por WhatsApp */
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-folio]");
+  if (!b) return;
+  try {
+    await navigator.clipboard.writeText(b.dataset.folio);
+    const antes = b.textContent;
+    b.textContent = "¡Copiado!";
+    setTimeout(() => { b.textContent = antes; }, 1600);
+  } catch { }
+});
