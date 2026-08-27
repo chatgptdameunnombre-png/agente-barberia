@@ -1,8 +1,8 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=49";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=49";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=49";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=49";
-import { track, marcarProducto } from "./track.js?v=49";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=50";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=50";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=50";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=50";
+import { track, marcarProducto } from "./track.js?v=50";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
