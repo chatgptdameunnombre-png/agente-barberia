@@ -6,6 +6,7 @@ const $ = s => document.querySelector(s);
 const DESTINO = {
   productos: "#secProductos",
   visitas: "#estad",
+  ventas: "#secVentas",
   cuentas: "#secCuentas"
 };
 
