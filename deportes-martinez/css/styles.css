@@ -521,6 +521,17 @@ main.sec--top { max-width: none; padding-left: 34px; padding-right: 34px; }
 .admin-brand__word b { font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: .16em; color: var(--ink); }
 .admin-brand__word small { font-family: var(--mono); font-size: 9px; letter-spacing: .26em; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
 .admin-main { padding: 36px 0 80px; }
+
+/* ===== Aire entre las secciones del panel =====
+   Cada sección grande (jerseys, ventas, cuentas, estadísticas) queda separada
+   con espacio y una línea, para que no se lean como un solo bloque. */
+.admin-main > #secProductos,
+.admin-main > #secVentas,
+.admin-main > #secCuentas,
+.admin-main > #estad { padding-top: 46px; margin-top: 46px; border-top: 1px solid #1e1e24; }
+.admin-main > #secProductos:first-child { padding-top: 0; margin-top: 0; border-top: 0; }
+.admin-main > section > .admin-head,
+.admin-main > div > .admin-head { margin-bottom: 24px; }
 .admin-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; gap: 16px; flex-wrap: wrap; }
 .admin-head h1 { font-family: var(--display); font-size: 30px; letter-spacing: -.02em; }
 .admin-head .btn { width: auto; }
@@ -598,9 +609,9 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
 .st-tarjetas { grid-template-columns: repeat(4, 1fr); margin-bottom: 6px; }
 .st-pie { font-size: 12px; color: #8a8a90; margin-top: 4px; }
 
-.st-bloque { margin: 26px 0; }
-.st-bloque__h { font-size: 17px; margin: 0 0 2px; }
-.st-bloque__ayuda { color: #777; font-size: 13px; margin: 0 0 12px; max-width: 70ch; }
+.st-bloque { margin: 38px 0; padding-top: 4px; }
+.st-bloque__h { font-size: 18px; margin: 0 0 4px; }
+.st-bloque__ayuda { color: #777; font-size: 13px; margin: 0 0 18px; max-width: 70ch; line-height: 1.6; }
 
 .st-vacio {
   color: #9a9aa2; font-size: 14px; background: #fafafa;
@@ -1040,7 +1051,7 @@ label, .field label { color: var(--ink-soft); }
 .p-todas--all { margin-left: 0; }
 
 /* ===== Ventas del panel ===== */
-.vt-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.vt-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 22px; }
 .vt-tab {
   background: #16161a; border: 1px solid #2a2a32; color: #b8b8be;
   border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 700;
@@ -1060,12 +1071,12 @@ label, .field label { color: var(--ink-soft); }
 /* ---- tarjeta de pedido: todo a la vista, sin abrir nada ---- */
 .vt-aviso {
   background: #1a1608; border: 1px solid #3a3216; border-radius: 12px;
-  padding: 12px 15px; margin-bottom: 14px; font-size: 13.5px; color: #d8c88a; line-height: 1.6;
+  padding: 14px 17px; margin-bottom: 20px; font-size: 13.5px; color: #d8c88a; line-height: 1.6;
 }
 .vt-aviso b { color: #f7d154; }
 .vt-card {
   background: #131317; border: 1px solid #26262e; border-radius: 14px;
-  padding: 15px 17px; margin-bottom: 12px;
+  padding: 18px 20px; margin-bottom: 16px;
 }
 .vt-card--pendiente { border-color: #4a3f18; background: #17150f; }
 .vt-card--entregar { border-color: #3a3520; }
@@ -1129,11 +1140,11 @@ label, .field label { color: var(--ink-soft); }
 
 /* sub-bloques dentro de una sección de estadísticas */
 .st-sub {
-  font-size: 13.5px; font-weight: 800; color: #eee; margin: 20px 0 3px;
-  letter-spacing: .01em;
+  font-size: 14.5px; font-weight: 800; color: #eee; margin: 34px 0 4px;
+  letter-spacing: .01em; display: flex; align-items: center; gap: 9px;
 }
-.st-sub:first-of-type { margin-top: 4px; }
-.st-sub__ayuda { font-size: 12.5px; color: var(--muted); margin: 0 0 10px; line-height: 1.5; }
+.st-sub:first-of-type { margin-top: 6px; }
+.st-sub__ayuda { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; line-height: 1.5; }
 
 /* hora en el paso a paso de cada visita */
 .st-hora { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-right: 6px; }
@@ -1150,6 +1161,10 @@ label, .field label { color: var(--ink-soft); }
 /* ===== Panel en teléfono: que se lea igual de fácil ===== */
 @media (max-width: 760px) {
   .admin-main { padding: 20px 16px 60px; }   /* el atajo borraba el padding lateral del .wrap */
+  .admin-main > #secVentas,
+  .admin-main > #secCuentas,
+  .admin-main > #estad { padding-top: 34px; margin-top: 34px; }
+  .st-sub { margin-top: 26px; }
   .admin-head { flex-direction: column; align-items: flex-start; gap: 12px; }
   .admin-head h1 { font-size: 24px; }
   .admin-head > div { width: 100%; display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; }
