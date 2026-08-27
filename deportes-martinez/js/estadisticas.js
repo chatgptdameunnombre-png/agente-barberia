@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=56";
+import { firebaseConfig } from "./config.js?v=57";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -193,7 +193,12 @@ function sinRepetidos(lista) {
   let anterior = "";
   /* los avisos llegan por lotes y no siempre en orden: se acomodan por hora */
   const ordenada = lista.slice().sort((a, b) => String(a.t || "").localeCompare(String(b.t || "")));
-  for (const ev of ordenada) {
+  /* "se fue" solo la última vez: cambiar de página también dispara el aviso y
+     salían tres o cuatro salidas en medio del recorrido, como si se hubiera ido
+     y vuelto. La que cuenta es la del final. */
+  const ultimaSalida = ordenada.reduce((idx, ev, i) => ev.e === "salida" ? i : idx, -1);
+  for (const [i, ev] of ordenada.entries()) {
+    if (ev.e === "salida" && i !== ultimaSalida) continue;
     const linea = paso(ev);
     if (!linea) continue;
     const cuerpo = linea.replace(/<span class="st-hora">.*?<\/span> /, "");
