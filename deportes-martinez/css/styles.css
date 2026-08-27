@@ -1117,6 +1117,22 @@ label, .field label { color: var(--ink-soft); }
 }
 .vt-copiar:hover { border-color: var(--accent); }
 .vt-pie { margin-top: 9px; font-size: 12px; color: #6e6e78; font-family: var(--mono); }
+
+/* folio del pedido: es el comprobante que enseña el cliente */
+.vt-folio {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px;
+  background: #17171c; border: 1px dashed #2e2e38; border-radius: 9px; padding: 8px 12px;
+}
+.vt-folio__k { font-size: 11px; color: #8a8a92; letter-spacing: .06em; text-transform: uppercase; }
+.vt-folio__v { font-family: var(--mono); font-size: 15px; letter-spacing: .08em; color: #f4f4f5; }
+.vt-folio__m { margin-left: auto; font-size: 11.5px; color: #6e6e78; }
+
+/* buscador de pedidos */
+.vt-buscar { display: flex; gap: 9px; align-items: center; margin: 2px 0 10px; flex-wrap: wrap; }
+.vt-buscar .input { flex: 1; min-width: 220px; }
+.vt-buscar .btn { width: auto; padding: 11px 16px; }
+.vt-aviso--malo { background: #2a1414; border-color: #4a2020; color: #ffb4b4; }
+.vt-aviso--malo b { color: #ff9b9b; }
 .vt-acciones { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
 .vt-acciones .btn { font-size: 13px; padding: 10px 15px; width: auto; }
 @media (max-width: 560px) {
