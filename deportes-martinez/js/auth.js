@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=39";
+import { db } from "./db.js?v=40";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -35,7 +35,7 @@ function injectStyles() {
   .authTabs{display:flex;gap:6px;background:#0e0e11;border:1px solid #26262c;border-radius:12px;padding:4px;margin:16px 0 18px}
   .authTab{flex:1;padding:9px;border:none;border-radius:9px;background:none;color:#9a9aa2;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
   .authTab.on{background:linear-gradient(180deg,#f7d154,#c9911f);color:#1a1405}
-  .authInp{width:100%;padding:12px 14px;border-radius:11px;border:1px solid #2a2a30;background:#0e0e11;color:#f4f4f5;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px}
+  .authInp{width:100%;padding:12px 14px;border-radius:11px;border:1px solid #2a2a30;background:#0e0e11;color:#f4f4f5;font-size:16px;outline:none;box-sizing:border-box;margin-bottom:10px}
   .authInp:focus{border-color:var(--accent,#e8b923)}
   .authGo{width:100%;background:linear-gradient(180deg,#f7d154,#c9911f);color:#1a1405;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.3px}
   .authGo:disabled{opacity:.6;cursor:default}
@@ -156,11 +156,14 @@ function openModal(mode) {
         <button class="authTab" data-m="register">Crear cuenta</button>
       </div>
       <p id="authSub" style="margin:-6px 0 14px;font-size:13px;color:#9a9aa2"></p>
-      <input id="authEmail" class="authInp" type="email" placeholder="Correo" autocomplete="email">
-      <input id="authPass" class="authInp" type="password" placeholder="Contraseña" autocomplete="current-password">
+      <input id="authEmail" class="authInp" type="email" placeholder="Correo" autocomplete="email"
+             inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <input id="authPass" class="authInp" type="password" placeholder="Contraseña" autocomplete="current-password"
+             autocapitalize="none" autocorrect="off" spellcheck="false">
       <div class="authErr" id="authErr"></div>
       <div class="authMsg" id="authMsg"></div>
       <button class="authGo" id="authGo">Entrar</button>
+      <button id="authOlvide" style="background:none;border:none;color:#9a9aa2;font-size:13px;text-decoration:underline;cursor:pointer;padding:10px 0 0;width:100%">Olvidé mi contraseña</button>
     </div>`;
   document.body.appendChild(ov);
   const q = s => ov.querySelector(s);
@@ -181,10 +184,28 @@ function openModal(mode) {
   ov.querySelectorAll(".authTab").forEach(t => t.onclick = () => setMode(t.dataset.m));
   setMode(mode);
 
+  /* "Olvidé mi contraseña": Firebase le manda el correo para ponerse una nueva */
+  q("#authOlvide").onclick = async () => {
+    const email = q("#authEmail").value.trim().toLowerCase();
+    q("#authErr").textContent = ""; q("#authMsg").textContent = "";
+    if (!email) { q("#authErr").textContent = "Escribe tu correo y vuelve a tocar aquí."; q("#authEmail").focus(); return; }
+    const b = q("#authOlvide"); b.disabled = true; b.textContent = "Enviando…";
+    try {
+      await db.resetPass(email);
+      q("#authMsg").textContent = "Te mandamos un correo para poner una contraseña nueva. Revisa tu bandeja (y el spam).";
+    } catch (err) {
+      q("#authMsg").textContent = "Te mandamos un correo para poner una contraseña nueva. Revisa tu bandeja (y el spam).";
+    }
+    b.disabled = false; b.textContent = "Olvidé mi contraseña";
+  };
+
   q("#authGo").onclick = async () => {
-    const email = q("#authEmail").value.trim(), pass = q("#authPass").value;
+    /* el trim de la contraseña es a propósito: en el teléfono el teclado y el
+       autocompletado meten un espacio al final y la cuenta "no entra" sin decir por qué */
+    const email = q("#authEmail").value.trim().toLowerCase(), pass = q("#authPass").value.trim();
     q("#authErr").textContent = ""; q("#authMsg").textContent = "";
     if (!email || !pass) { q("#authErr").textContent = "Completa correo y contraseña."; return; }
+    if (m === "register" && pass.length < 6) { q("#authErr").textContent = "La contraseña necesita al menos 6 letras o números."; return; }
     const btn = q("#authGo"); btn.disabled = true; const orig = btn.textContent; btn.textContent = "Un momento…";
     try {
       if (m === "login") {
@@ -197,6 +218,9 @@ function openModal(mode) {
       cerrar();
     } catch (err) {
       q("#authErr").textContent = traducirError(err);
+      if (m === "login") {
+        q("#authMsg").textContent = "Si no la recuerdas, toca «Olvidé mi contraseña» y te llega un correo.";
+      }
       btn.disabled = false; btn.textContent = orig;
     }
   };
@@ -209,7 +233,7 @@ else document.addEventListener("DOMContentLoaded", init);
 db.onAuth(u => {
   currentUser = u;
   updateButton();
-  import("./track.js?v=39").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
+  import("./track.js?v=40").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
 });
 
 export { currentUser };
