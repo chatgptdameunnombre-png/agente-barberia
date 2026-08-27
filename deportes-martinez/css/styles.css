@@ -1056,6 +1056,61 @@ label, .field label { color: var(--ink-soft); }
 .vt-item { padding: 3px 0; font-size: 14px; }
 .vt-datos { margin-top: 10px; font-size: 13px; color: #a8a8b0; line-height: 1.7; }
 .vt-datos b { color: #d8d8de; font-weight: 700; }
+
+/* ---- tarjeta de pedido: todo a la vista, sin abrir nada ---- */
+.vt-aviso {
+  background: #1a1608; border: 1px solid #3a3216; border-radius: 12px;
+  padding: 12px 15px; margin-bottom: 14px; font-size: 13.5px; color: #d8c88a; line-height: 1.6;
+}
+.vt-aviso b { color: #f7d154; }
+.vt-card {
+  background: #131317; border: 1px solid #26262e; border-radius: 14px;
+  padding: 15px 17px; margin-bottom: 12px;
+}
+.vt-card--pendiente { border-color: #4a3f18; background: #17150f; }
+.vt-card--cancelada { opacity: .62; }
+.vt-card__top {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding-bottom: 12px; border-bottom: 1px solid #22222a; margin-bottom: 12px;
+}
+.vt-cuando { font-size: 12.5px; color: #8a8a92; }
+.vt-total { margin-left: auto; font-size: 19px; color: var(--accent); }
+
+.vt-jersey { display: flex; gap: 12px; align-items: center; padding: 6px 0; }
+.vt-jersey b { font-size: 14.5px; display: block; }
+.vt-jersey__det { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
+.vt-foto {
+  width: 52px; height: 52px; border-radius: 9px; object-fit: cover;
+  background: #0e121d; flex: 0 0 auto;
+}
+.vt-foto--vacia { border: 1px dashed #2e2e38; }
+.vt-pill {
+  font-size: 11.5px; font-weight: 700; color: #b8b8c0;
+  background: #1e1e26; border-radius: 6px; padding: 2px 8px;
+}
+.vt-pill--oro { background: #2a2109; color: #f7d154; }
+
+.vt-quien {
+  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid #22222a; font-size: 14px;
+}
+.vt-quien__tel { font-family: var(--mono); font-size: 13px; color: #a8a8b0; }
+.vt-envio { display: flex; gap: 9px; align-items: baseline; flex-wrap: wrap; margin-top: 7px; font-size: 13.5px; }
+.vt-envio__k { color: #8a8a92; font-size: 12.5px; }
+.vt-envio__v { color: #d8d8de; flex: 1; min-width: 180px; }
+.vt-copiar {
+  background: none; border: 1px solid #2e2e38; color: var(--accent);
+  border-radius: 7px; padding: 4px 10px; font-size: 11.5px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+.vt-copiar:hover { border-color: var(--accent); }
+.vt-pie { margin-top: 9px; font-size: 12px; color: #6e6e78; font-family: var(--mono); }
+.vt-acciones { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
+.vt-acciones .btn { font-size: 13px; padding: 10px 15px; width: auto; }
+@media (max-width: 560px) {
+  .vt-acciones .btn { flex: 1 1 100%; }
+  .vt-total { margin-left: 0; width: 100%; }
+}
 .pnav__badge {
   font-family: var(--mono); font-size: 10.5px; background: var(--accent); color: #1a1405;
   border-radius: 20px; padding: 1px 7px; margin-left: 6px; font-weight: 700;
