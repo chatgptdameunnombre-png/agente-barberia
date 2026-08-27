@@ -1,9 +1,18 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=55";
-import { db } from "./db.js?v=55";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=55";
-import { track } from "./track.js?v=55";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=56";
+import { db } from "./db.js?v=56";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=56";
+import { track } from "./track.js?v=56";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
+
+/* Folio del pedido: 6 caracteres al azar, sin letras que se confundan.
+   Es lo que el cliente enseña como comprobante y lo que el dueño busca en el panel. */
+function nuevoFolio() {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let f = "";
+  for (let i = 0; i < 6; i++) f += abc[Math.floor(Math.random() * abc.length)];
+  return "DM-" + f;
+}
 
 /* Los datos bancarios reales los da el cliente. Mientras no existan, el flujo de
    transferencia manda el pedido por WhatsApp y ahí se pasan los datos de pago. */
@@ -29,7 +38,7 @@ function enviarPago(payload, onError) {
   track("pago_mercadopago", { entrega: payload.entrega, items: (payload.items || []).length });
   fetch(COBRO_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...payload, uid: user?.uid || "" })
+    body: JSON.stringify({ ...payload, uid: user?.uid || "", folio: nuevoFolio() })
   }).then(r => r.json()).then(d => {
     if (d.link) {
       track("sale_a_pagar", { proveedor: "Mercado Pago" });
@@ -56,6 +65,7 @@ function registrarPedido({ productos, entrega, total, cliente, telefono, direcci
     body: JSON.stringify({
       metodo: "transferencia",
       ref,
+      folio: ref,
       total,
       productos: (productos || []).map(p => ({ id: p.id, qty: p.qty, talla: p.talla || "", perso: p.perso || null })),
       uid: user?.uid || "",
@@ -73,7 +83,7 @@ function registrarPedido({ productos, entrega, total, cliente, telefono, direcci
 
 function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion }) {
   if (document.getElementById("trOverlay")) return;
-  const ref = "DM-" + Date.now().toString().slice(-6);
+  const ref = nuevoFolio();
   registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref });
   const desc = 0;
   const totalFinal = total - desc;
