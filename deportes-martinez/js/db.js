@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=45";
-import { PRODUCTOS_SEED } from "./seed.js?v=45";
+import { firebaseConfig, usaFirebase } from "./config.js?v=46";
+import { PRODUCTOS_SEED } from "./seed.js?v=46";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -128,6 +128,57 @@ async function crearImplFirebase() {
       return true;
     },
     async borrarSesion(id) { await deleteDoc(doc(fdb, "sesiones", id)); },
+
+    /* ---------- ventas ---------- */
+    async listarVentas() {
+      const snap = await getDocs(collection(fdb, "ventas"));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => String(b.fechaISO || b.fecha || "").localeCompare(String(a.fechaISO || a.fecha || "")));
+    },
+    /* las compras de una persona: se filtra por su uid (así lo exigen las reglas)
+       y se ordena aquí, para no tener que crear un índice en Firestore */
+    async misCompras(uid) {
+      if (!uid) return [];
+      const snap = await getDocs(query(collection(fdb, "ventas"), where("clienteUid", "==", uid)));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => String(b.fechaISO || "").localeCompare(String(a.fechaISO || "")));
+    },
+    async marcarVentaPagada(id) {
+      await updateDoc(doc(fdb, "ventas", id), {
+        estado: "pagada",
+        confirmada: new Date().toISOString()
+      });
+    },
+    /* Cancelar devuelve el stock que se había apartado. Se lee de `lineas`
+       (lo que se apartó de verdad), no del carrito. */
+    async cancelarVenta(id) {
+      const ref = doc(fdb, "ventas", id);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return 0;
+      const v = snap.data();
+      let lineas = [];
+      try { lineas = JSON.parse(v.lineas || "[]"); } catch { lineas = []; }
+      let devueltos = 0;
+      for (const l of lineas) {
+        if (!l.id || !l.qty) continue;
+        const rp = refProd(l.id);
+        const ps = await getDoc(rp);
+        if (!ps.exists()) continue;
+        const p = ps.data();
+        if (Array.isArray(p.tallas) && p.tallas.length && l.talla) {
+          const tallas = p.tallas.map(t => t.talla === l.talla
+            ? { ...t, stock: Number(t.stock || 0) + Number(l.qty) } : t);
+          const total = tallas.reduce((a, t) => a + Number(t.stock || 0), 0);
+          await updateDoc(rp, { tallas, stock: total });
+        } else {
+          await updateDoc(rp, { stock: Number(p.stock || 0) + Number(l.qty) });
+        }
+        devueltos += Number(l.qty);
+      }
+      await updateDoc(ref, { estado: "cancelada", cancelada: new Date().toISOString() });
+      return devueltos;
+    },
+    async borrarVenta(id) { await deleteDoc(doc(fdb, "ventas", id)); },
     /* Borra TODAS las visitas de una persona: las de su cuenta y, si se pasa el correo,
        también las que quedaron ligadas a ese correo. Devuelve cuántas borró. */
     async borrarHistorialCliente(uid, email) {
@@ -267,6 +318,11 @@ function crearImplDemo() {
     async listarClientes() { return []; },
     async borrarCliente() {},
     async borrarHistorialCliente() { return 0; },
+    async listarVentas() { return []; },
+    async misCompras() { return []; },
+    async marcarVentaPagada() {},
+    async cancelarVenta() { return 0; },
+    async borrarVenta() {},
     async revalidar() { return true; },
     async logout() { localStorage.removeItem(LS_AUTH); notificarAuth(); },
     usuarioAhora() { return usuarioActual(); },
