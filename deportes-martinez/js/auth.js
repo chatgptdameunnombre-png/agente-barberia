@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=40";
+import { db } from "./db.js?v=41";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -163,7 +163,6 @@ function openModal(mode) {
       <div class="authErr" id="authErr"></div>
       <div class="authMsg" id="authMsg"></div>
       <button class="authGo" id="authGo">Entrar</button>
-      <button id="authOlvide" style="background:none;border:none;color:#9a9aa2;font-size:13px;text-decoration:underline;cursor:pointer;padding:10px 0 0;width:100%">Olvidé mi contraseña</button>
     </div>`;
   document.body.appendChild(ov);
   const q = s => ov.querySelector(s);
@@ -184,21 +183,6 @@ function openModal(mode) {
   ov.querySelectorAll(".authTab").forEach(t => t.onclick = () => setMode(t.dataset.m));
   setMode(mode);
 
-  /* "Olvidé mi contraseña": Firebase le manda el correo para ponerse una nueva */
-  q("#authOlvide").onclick = async () => {
-    const email = q("#authEmail").value.trim().toLowerCase();
-    q("#authErr").textContent = ""; q("#authMsg").textContent = "";
-    if (!email) { q("#authErr").textContent = "Escribe tu correo y vuelve a tocar aquí."; q("#authEmail").focus(); return; }
-    const b = q("#authOlvide"); b.disabled = true; b.textContent = "Enviando…";
-    try {
-      await db.resetPass(email);
-      q("#authMsg").textContent = "Te mandamos un correo para poner una contraseña nueva. Revisa tu bandeja (y el spam).";
-    } catch (err) {
-      q("#authMsg").textContent = "Te mandamos un correo para poner una contraseña nueva. Revisa tu bandeja (y el spam).";
-    }
-    b.disabled = false; b.textContent = "Olvidé mi contraseña";
-  };
-
   q("#authGo").onclick = async () => {
     /* el trim de la contraseña es a propósito: en el teléfono el teclado y el
        autocompletado meten un espacio al final y la cuenta "no entra" sin decir por qué */
@@ -218,9 +202,6 @@ function openModal(mode) {
       cerrar();
     } catch (err) {
       q("#authErr").textContent = traducirError(err);
-      if (m === "login") {
-        q("#authMsg").textContent = "Si no la recuerdas, toca «Olvidé mi contraseña» y te llega un correo.";
-      }
       btn.disabled = false; btn.textContent = orig;
     }
   };
@@ -233,7 +214,7 @@ else document.addEventListener("DOMContentLoaded", init);
 db.onAuth(u => {
   currentUser = u;
   updateButton();
-  import("./track.js?v=40").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
+  import("./track.js?v=41").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
 });
 
 export { currentUser };
