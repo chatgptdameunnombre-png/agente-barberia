@@ -54,6 +54,11 @@
   </div>
 
   <div class="card" id="form" style="display:none">
+    <p style="background:#1a1608;border:1px solid #3a3216;border-radius:11px;padding:11px 14px;margin:0 0 18px;font-size:13px;color:#d8c88a;line-height:1.6">
+      Todas las pruebas quedan a nombre de <b>cuentadeprueba@deportesmartinez.mx</b>,
+      así puedes revisar el circuito completo: el pedido en el panel, las compras del cliente
+      y cómo lo ve él desde su cuenta.
+    </p>
     <label for="prod">Jersey</label>
     <select id="prod"><option>Cargando catálogo…</option></select>
 
@@ -69,12 +74,12 @@
       </div>
       <div style="flex:2">
         <label for="tel">Teléfono del cliente</label>
-        <input id="tel" inputmode="tel" placeholder="33 1234 5678">
+        <input id="tel" inputmode="tel" placeholder="33 1234 5678" value="33 1111 1111">
       </div>
     </div>
 
     <label for="nom">Nombre del cliente</label>
-    <input id="nom" placeholder="Nombre y apellido" value="Cliente Prueba">
+    <input id="nom" placeholder="Nombre y apellido" value="Cuenta de Prueba">
 
     <div class="perso" id="persoBox">
       <label class="perso__cab" for="persoChk">
@@ -94,8 +99,17 @@
 
     <div id="dirBox" style="display:none">
       <label for="dir">Dirección de entrega</label>
-      <textarea id="dir" placeholder="Calle y número, colonia, ciudad, estado, C.P., referencias"></textarea>
+      <textarea id="dir" placeholder="Calle y número, colonia, ciudad, estado, C.P., referencias">Av. Prueba 100, Centro, 44100, Guadalajara, Jalisco</textarea>
     </div>
+
+    <label>Cómo pagó</label>
+    <div class="ent">
+      <button type="button" data-met="tarjeta" class="on">💳 Tarjeta — queda pagada</button>
+      <button type="button" data-met="transferencia">🏦 Transferencia — queda por cobrar</button>
+    </div>
+    <p style="color:#8a8a92;font-size:12.5px;margin:-4px 0 14px;line-height:1.5" id="metNota">
+      Con tarjeta la venta entra directo como pagada, igual que cuando Mercado Pago aprueba el cobro.
+    </p>
 
     <div id="tot"></div>
     <p id="falta" style="display:none;color:#ff9b9b;font-size:13px;margin:10px 0 0;line-height:1.5"></p>
@@ -110,10 +124,23 @@
 <script type="module">
 const WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-pago-ok";
 const PROJ = "deportes-martinez", KEY = "AIzaSyAp8rqvnOZ77R9pl_2vj1gipCJ0oAq2KHw";
+/* Todas las ventas de prueba se registran a nombre de esta cuenta.
+   Así se puede revisar el circuito completo: el pedido en el panel, las compras
+   dentro de la ficha del cliente, y "Mis pedidos" entrando con ella.
+   NO BORRAR esta cuenta: es la de pruebas del sistema.
+   Correo: cuentadeprueba@deportesmartinez.mx · Contraseña: PruebaBorrar2026 */
+const CLIENTE_PRUEBA = {
+  uid: "XIrkA8DsXIQqGrvDBhLemkWI2oi2",
+  correo: "cuentadeprueba@deportesmartinez.mx",
+  nombre: "Cuenta de Prueba",
+  telefono: "33 1111 1111",
+  direccion: "Av. Prueba 100, Centro, 44100, Guadalajara, Jalisco"
+};
 const ENVIO = 180, PERSO = 150;
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
-let productos = [], entrega = "tienda";
+let productos = [], entrega = "tienda", metodo = "tarjeta";
+const metodoPago = () => metodo;
 const DUENO = "admindeportesmartinez@gmail.com";
 const LS_SESION = "dm_prueba_sesion";
 let sesion = null;
@@ -282,6 +309,15 @@ function actualizar() {
   $("#go").disabled = faltan.length > 0;
 }
 
+document.querySelectorAll("[data-met]").forEach(b => b.onclick = () => {
+  metodo = b.dataset.met;
+  document.querySelectorAll("[data-met]").forEach(x => x.classList.toggle("on", x === b));
+  $("#metNota").textContent = metodo === "transferencia"
+    ? "Con transferencia el pedido queda como «falta que pague» y el jersey se aparta. Lo confirmas o lo cancelas en el panel → Ventas."
+    : "Con tarjeta la venta entra directo como pagada, igual que cuando Mercado Pago aprueba el cobro.";
+  actualizar();
+});
+
 document.querySelectorAll("[data-ent]").forEach(b => b.onclick = () => {
   entrega = b.dataset.ent;
   document.querySelectorAll("[data-ent]").forEach(x => x.classList.toggle("on", x === b));
@@ -317,9 +353,17 @@ $("#go").onclick = async () => {
     const r = await fetch(WEBHOOK, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        test: true, idToken: await token(), total, ref: "PRUEBA-WEB",
+        test: true, idToken: await token(), total,
+        ref: "PRUEBA-" + Date.now().toString().slice(-6),
+        metodo: metodoPago(),
+        uid: CLIENTE_PRUEBA.uid,
+        correo: CLIENTE_PRUEBA.correo,
         productos: [{ id: p.id, qty, title: p.nombre, talla, perso }],
-        metadata: { entrega, cliente: nombre, telefono: tel, direccion: entrega === "domicilio" ? dir : "" }
+        metadata: {
+          entrega, cliente: nombre, telefono: tel,
+          direccion: entrega === "domicilio" ? dir : "",
+          correo: CLIENTE_PRUEBA.correo
+        }
       })
     });
     const d = await r.json();
@@ -341,6 +385,13 @@ $("#go").onclick = async () => {
       ${l && l.perso ? `<div class="chk">✍️ <span>Personalizado: <b>${l.perso}</b></span></div>` : ""}
       <div class="chk">📍 <span>Entrega: <b>${entrega === "domicilio" ? dir : "recoger en tienda"}</b></span></div>
       <div class="chk">💰 <span>Total: <b>${money(d.total || total)}</b></span></div>
+      <div class="chk">${metodo === "transferencia" ? "🏦" : "💳"} <span>Estado: <b>${metodo === "transferencia" ? "falta que pague — confírmala en el panel → Ventas" : "pagada"}</b></span></div>
+      <div class="chk">👤 <span>Quedó en la cuenta: <b>${CLIENTE_PRUEBA.correo}</b></span></div>
+      <p style="color:#8a8a92;font-size:12.5px;margin:12px 0 0;line-height:1.6">
+        Para verla como la ve el cliente, entra a
+        <a href="cuenta.html" style="color:#e8b923">Mi cuenta</a> con
+        <b>${CLIENTE_PRUEBA.correo}</b> y la contraseña de pruebas.
+      </p>
     </div>`;
     $("#res").style.display = "block";
     cargar();
