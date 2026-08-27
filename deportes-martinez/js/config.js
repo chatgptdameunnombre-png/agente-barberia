@@ -14,6 +14,9 @@ export const ENVIO_DOMICILIO = 180;
 export const PERSONALIZACION_PRECIO = 150;
 
 export const COBRO_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-crear-pago";
+/* los pedidos por transferencia se registran aquí: aparta el stock, guarda la venta
+   como "por cobrar" y le avisa al dueño */
+export const PEDIDO_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-pago-ok";
 export const ASESOR_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-asesor";
 
 export const NEGOCIO = {
