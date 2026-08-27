@@ -1,8 +1,8 @@
-import { db, MODO } from "./db.js?v=47";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=47";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=47";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=47";
-import { track } from "./track.js?v=47";
+import { db, MODO } from "./db.js?v=48";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=48";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=48";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=48";
+import { track } from "./track.js?v=48";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
