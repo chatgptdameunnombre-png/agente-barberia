@@ -1,7 +1,7 @@
-import { COBRO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=45";
-import { db } from "./db.js?v=45";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=45";
-import { track } from "./track.js?v=45";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=46";
+import { db } from "./db.js?v=46";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=46";
+import { track } from "./track.js?v=46";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -48,9 +48,33 @@ export function iniciarTransferencia({ productos, entrega, total, onError }) {
   }
 }
 
+/* Deja el pedido registrado como "por cobrar": aparta el stock y le avisa al dueño.
+   Si el cliente nunca paga, el dueño lo cancela en el panel y el stock regresa. */
+function registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref }) {
+  return fetch(PEDIDO_WEBHOOK, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      metodo: "transferencia",
+      ref,
+      total,
+      productos: (productos || []).map(p => ({ id: p.id, qty: p.qty, talla: p.talla || "", perso: p.perso || null })),
+      uid: user?.uid || "",
+      correo: user?.email || "",
+      metadata: {
+        entrega,
+        cliente: cliente || perfil?.nombre || "",
+        telefono: telefono || perfil?.telefono || "",
+        direccion: direccion || "",
+        correo: user?.email || ""
+      }
+    })
+  }).then(r => r.json()).catch(() => null);
+}
+
 function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion }) {
   if (document.getElementById("trOverlay")) return;
   const ref = "DM-" + Date.now().toString().slice(-6);
+  registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref });
   const desc = 0;
   const totalFinal = total - desc;
   const resumen = (productos || []).map(p => `${p.qty}x ${p.title}${p.talla ? " (T " + p.talla + ")" : ""}`).join(", ");
