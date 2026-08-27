@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=47";
+import { db } from "./db.js?v=48";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -55,7 +55,9 @@ async function pintarCompras(uid) {
   const cont = document.getElementById("misCompras");
   if (!cont) return;
   try {
-    const compras = (await db.misCompras(uid)).filter(v => !v.prueba);
+    /* las de prueba SÍ se muestran, marcadas: es la única forma de que Kiki
+       revise el circuito completo con el simulador */
+    const compras = await db.misCompras(uid);
     if (!compras.length) {
       cont.innerHTML = `<p style="color:#9a9aa2;font-size:13px;margin:0">Todavía no has hecho ningún pedido. Cuando compres, aquí te aparece.</p>`;
       return;
@@ -69,7 +71,7 @@ async function pintarCompras(uid) {
         : (v.productos || "");
       return `<div style="border:1px solid #26262c;border-radius:12px;padding:13px 15px;margin-bottom:10px;background:#0f0f12">
         <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline">
-          <b style="font-size:14px">${dinero(v.total)}</b>
+          <b style="font-size:14px">${dinero(v.total)}${v.prueba ? ` <span style="font-size:10px;font-weight:700;color:#8a8a92;border:1px solid #3a3a42;border-radius:5px;padding:1px 6px;vertical-align:middle">PRUEBA</span>` : ""}</b>
           <span style="font-size:12px;font-weight:700;color:${e.c}">${e.t}</span>
         </div>
         <div style="font-size:13px;color:#c8c8ce;margin-top:6px;line-height:1.6">${detalle}</div>
