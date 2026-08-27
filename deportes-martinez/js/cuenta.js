@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=53";
+import { db } from "./db.js?v=54";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -42,6 +42,18 @@ function asentar(u) {
   render();
   if (u) { loadPerfil(u.uid); pintarCompras(u.uid); }
 }
+
+db.onAuth(u => asentar(u));
+
+/* Igual que en auth.js: en Safari el aviso de Firebase puede no llegar, así que
+   se revisa un par de veces si ya hay sesión puesta. */
+let intentos = 0;
+const revisar = setInterval(() => {
+  intentos++;
+  const u = db.usuarioAhora?.();
+  if (u && !user) asentar(u);
+  if (intentos >= 6 || (u && user)) clearInterval(revisar);
+}, 700);
 
 /* ---------- mis pedidos ---------- */
 const PASOS = {
