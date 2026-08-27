@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=40";
-import { PRODUCTOS_SEED } from "./seed.js?v=40";
+import { firebaseConfig, usaFirebase } from "./config.js?v=41";
+import { PRODUCTOS_SEED } from "./seed.js?v=41";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -28,13 +28,26 @@ async function crearImplFirebase() {
     deleteDoc, getDocs, setDoc, deleteField, query, orderBy, where
   } = await import("https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js");
   const {
-    getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut,
-    createUserWithEmailAndPassword, sendPasswordResetEmail
+    getAuth, initializeAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut,
+    createUserWithEmailAndPassword, sendPasswordResetEmail,
+    indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence
   } = await import("https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js");
 
   const app = initializeApp(firebaseConfig);
   const fdb = getFirestore(app);
-  const auth = getAuth(app);
+  /* Firebase guarda la sesión en IndexedDB. En varios teléfonos (Safari con las cookies
+     bloqueadas, modos de ahorro, navegadores con el almacenamiento restringido) IndexedDB
+     falla y la sesión NO se guarda: la persona entra y sigue apareciendo como desconectada.
+     Con esta lista el SDK intenta IndexedDB y, si no puede, se va a localStorage —
+     que en esos mismos teléfonos sí funciona. */
+  let auth;
+  try {
+    auth = initializeAuth(app, {
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence]
+    });
+  } catch (e) {
+    auth = getAuth(app);
+  }
   const col = collection(fdb, "productos");
   const refProd = id => doc(fdb, "productos", id);
   const refFotos = id => doc(fdb, "productos_fotos", id);
