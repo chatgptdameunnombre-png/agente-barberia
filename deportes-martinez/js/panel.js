@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=50";
-import { pintarEstadisticas } from "./estadisticas.js?v=50";
-import "./panel-nav.js?v=50";
+import { db } from "./db.js?v=51";
+import { pintarEstadisticas } from "./estadisticas.js?v=51";
+import "./panel-nav.js?v=51";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -668,7 +668,8 @@ document.addEventListener("click", async e => {
    ============================================================ */
 const VT_ESTADO = {
   por_cobrar: { etq: "Falta que pague", clase: "carrito" },
-  pagada: { etq: "Pagada", clase: "compro" },
+  pagada: { etq: "Pagada · falta entregar", clase: "porconfirmar" },
+  entregada: { etq: "Terminada", clase: "compro" },
   cancelada: { etq: "Cancelada", clase: "paso" }
 };
 let ventasCargadas = null;
@@ -750,7 +751,7 @@ function vtFila(v) {
        </div>`
     : `<div class="vt-envio"><span class="vt-envio__k">Pasa a recogerlo</span></div>`;
 
-  return `<article class="vt-card${porCobrar ? " vt-card--pendiente" : ""}${cancelada ? " vt-card--cancelada" : ""}">
+  return `<article class="vt-card${porCobrar ? " vt-card--pendiente" : ""}${v.estado === "pagada" ? " vt-card--entregar" : ""}${cancelada ? " vt-card--cancelada" : ""}">
     <header class="vt-card__top">
       <span class="st-tag st-tag--${est.clase}">${est.etq}</span>
       <span class="vt-cuando">${vtCuando(v)}</span>
@@ -770,7 +771,12 @@ function vtFila(v) {
       <button class="btn" data-vt-pagada="${v.id}">✓ Ya me pagó</button>
       ${vtWhats(v.telefono, v)}
       <button class="btn btn--danger" data-vt-cancelar="${v.id}">No pagó · cancelar</button>
-    </div>` : (cancelada ? "" : `<div class="vt-acciones">${vtWhats(v.telefono, v)}</div>`)}
+    </div>` : ""}
+    ${v.estado === "pagada" ? `<div class="vt-acciones">
+      <button class="btn" data-vt-entregada="${v.id}">${v.entrega === "domicilio" ? "✓ Ya lo envié" : "✓ Ya lo recogió"}</button>
+      ${vtWhats(v.telefono, v)}
+    </div>` : ""}
+    ${v.estado === "entregada" || cancelada ? (v.telefono ? `<div class="vt-acciones">${vtWhats(v.telefono, v)}</div>` : "") : ""}
   </article>`;
 }
 
@@ -781,14 +787,19 @@ function pintarVentas() {
   const nCobrar = cuenta("por_cobrar");
   $("#vtNumCobrar").textContent = nCobrar;
   $("#vtNumPagadas").textContent = cuenta("pagada");
+  const nEntregadas = $("#vtNumEntregadas");
+  if (nEntregadas) nEntregadas.textContent = cuenta("entregada");
   $("#vtNumCanceladas").textContent = cuenta("cancelada");
+  /* el número del menú suma lo que requiere acción: cobrar + entregar */
+  const pendientes = nCobrar + cuenta("pagada");
   const chip = $("#pnavPorCobrar");
-  if (chip) { chip.textContent = nCobrar; chip.hidden = !nCobrar; }
+  if (chip) { chip.textContent = pendientes; chip.hidden = !pendientes; }
 
   const lista = ventasCargadas.filter(v => (v.estado || "pagada") === vtFiltro);
   const vacio = {
     por_cobrar: "Todo al corriente: nadie te debe nada.",
-    pagada: "Todavía no hay ventas pagadas.",
+    pagada: "No tienes nada pendiente de entregar.",
+    entregada: "Todavía no has terminado ningún pedido.",
     cancelada: "No has cancelado ningún pedido."
   }[vtFiltro];
   const total = lista.reduce((a, v) => a + Number(v.total || 0), 0);
@@ -805,14 +816,21 @@ function pintarVentas() {
       <p class="st-sub__ayuda">${ayuda} · ${vtMoney(suma)}</p>
       ${arr.map(vtFila).join("")}`;
   };
-  const aviso = vtFiltro === "por_cobrar"
-    ? `<div class="vt-aviso">Estas personas ya apartaron su jersey pero <b>todavía no te pagan</b>.
-         Cuando te llegue el dinero dale a <b>Ya me pagó</b>. Si al final no pagan, cancélalo y el jersey vuelve al catálogo.</div>`
-    : "";
+  const AVISOS = {
+    por_cobrar: `Estas personas ya apartaron su jersey pero <b>todavía no te pagan</b>.
+      Cuando te llegue el dinero dale a <b>Ya me pagó</b>. Si al final no pagan, cancélalo y el jersey vuelve al catálogo.`,
+    pagada: `Ya te pagaron: <b>falta entregarlos</b>. Los de domicilio hay que empaquetar y mandar;
+      los de tienda, tenerlos apartados hasta que pasen. Cuando salga cada uno, dale al botón y pasa a Terminadas.`,
+    entregada: `Pedidos cerrados: pagados y entregados. Nada que hacer con ellos.`
+  };
+  const aviso = AVISOS[vtFiltro] ? `<div class="vt-aviso">${AVISOS[vtFiltro]}</div>` : "";
+  const titulos = vtFiltro === "pagada"
+    ? ["📦 Hay que enviarlos", "Empaquétalos y mándalos", "🏪 Pasan a recogerlos", "Tenlos apartados hasta que vengan"]
+    : ["🏠 A domicilio", "Se mandaron por paquetería", "🏪 Recogieron en tienda", "Pasaron por él"];
   cuerpo.innerHTML = aviso +
     `<p class="st-bloque__ayuda">${lista.length} ${lista.length === 1 ? "pedido" : "pedidos"} · ${vtMoney(total)} en total</p>` +
-    grupo("🏠 Hay que enviarlos", "Prepáralos y mándalos", domicilio) +
-    grupo("🏪 Pasan a recogerlos", "Tenlos apartados", tienda);
+    grupo(titulos[0], titulos[1], domicilio) +
+    grupo(titulos[2], titulos[3], tienda);
 }
 
 async function cargarVentas() {
@@ -821,8 +839,12 @@ async function cargarVentas() {
   try {
     ventasCargadas = await db.listarVentas();
     /* si hay pedidos esperando pago, se abre ahí: es lo que hay que atender */
-    if (!vtTocado && ventasCargadas.some(v => v.estado === "por_cobrar")) vtFiltro = "por_cobrar";
-    else if (!vtTocado) vtFiltro = "pagada";
+    /* abre en lo que hay que atender: primero cobrar, luego entregar */
+    if (!vtTocado) {
+      if (ventasCargadas.some(v => v.estado === "por_cobrar")) vtFiltro = "por_cobrar";
+      else if (ventasCargadas.some(v => v.estado === "pagada")) vtFiltro = "pagada";
+      else vtFiltro = "entregada";
+    }
     document.querySelectorAll(".vt-tab").forEach(t => t.classList.toggle("on", t.dataset.vt === vtFiltro));
     pintarVentas();
   } catch (e) {
@@ -862,6 +884,25 @@ document.addEventListener("click", async e => {
       await cargarVentas();
     } catch (err) {
       pag.disabled = false; pag.textContent = "Ya me pagó";
+      toast("No se pudo guardar");
+    }
+    return;
+  }
+
+  const ent = e.target.closest("[data-vt-entregada]");
+  if (ent) {
+    const esEnvio = ent.textContent.includes("envié");
+    if (!confirm(esEnvio
+      ? "¿Ya mandaste este pedido?\n\nPasa a Terminadas."
+      : "¿Ya pasó el cliente por su jersey?\n\nPasa a Terminadas.")) return;
+    ent.disabled = true; ent.textContent = "Guardando…";
+    try {
+      await db.marcarVentaEntregada(ent.dataset.vtEntregada);
+      toast(esEnvio ? "Pedido enviado · queda terminado" : "Pedido entregado · queda terminado");
+      await cargarVentas();
+    } catch (err) {
+      ent.disabled = false;
+      ent.textContent = esEnvio ? "✓ Ya lo envié" : "✓ Ya lo recogió";
       toast("No se pudo guardar");
     }
     return;
