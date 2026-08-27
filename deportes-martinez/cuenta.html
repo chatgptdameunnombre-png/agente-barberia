@@ -21,7 +21,7 @@
   <meta name="twitter:description" content="Tu cuenta de Deportes Martínez: tus datos de envío y tus pedidos.">
   <meta name="twitter:image" content="https://tuagentedeia.com/deportes-martinez/fotos/logo/logo-horizontal.png">
   <link rel="icon" href="fotos/logo/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=52">
+  <link rel="stylesheet" href="css/styles.css?v=53">
 </head>
 <body>
   <header class="hdr">
@@ -56,34 +56,40 @@
     </div>
 
     <div id="cuentaIn" style="display:none">
-      <p style="color:#9a9aa2;font-size:14px;margin-bottom:18px">Sesión iniciada como <b id="cuentaEmail" style="color:#f4f4f5"></b></p>
+      <p class="mc-quien">Tu cuenta: <b id="cuentaEmail"></b></p>
 
       <div id="cuentaPanel" style="display:none;margin:0 0 22px">
         <a href="panel.html" class="btn-cta" style="display:inline-block">Ir al Panel del dueño →</a>
       </div>
 
-      <h3 style="font-size:16px;margin:0 0 12px">Datos de entrega</h3>
-      <p style="color:#9a9aa2;font-size:13px;margin:0 0 14px">Guárdalos una vez y en tus próximas compras solo los confirmas.</p>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <input id="fNombre" class="cInp" placeholder="Nombre completo">
-        <input id="fTel" class="cInp" placeholder="Teléfono" inputmode="tel">
-        <input id="fCalle" class="cInp" placeholder="Calle y número">
-        <div style="display:flex;gap:10px">
-          <input id="fCol" class="cInp" placeholder="Colonia" style="flex:2">
-          <input id="fCP" class="cInp" placeholder="C.P." inputmode="numeric" style="flex:1">
+      <section class="mc-sec">
+        <h3 class="mc-h">Mis pedidos</h3>
+        <div id="misCompras"><p class="mc-vacio">Cargando…</p></div>
+      </section>
+
+      <details class="mc-datos">
+        <summary class="mc-datos__cab">
+          <span>Mis datos de entrega</span>
+          <span class="mc-datos__pista" id="mcPista"></span>
+        </summary>
+        <p class="mc-datos__ayuda">Guárdalos una vez y en tus próximas compras solo los confirmas.</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <input id="fNombre" class="cInp" placeholder="Nombre completo">
+          <input id="fTel" class="cInp" placeholder="Teléfono" inputmode="tel">
+          <input id="fCalle" class="cInp" placeholder="Calle y número">
+          <div style="display:flex;gap:10px">
+            <input id="fCol" class="cInp" placeholder="Colonia" style="flex:2">
+            <input id="fCP" class="cInp" placeholder="C.P." inputmode="numeric" style="flex:1">
+          </div>
+          <div style="display:flex;gap:10px">
+            <input id="fCiudad" class="cInp" placeholder="Ciudad" style="flex:1">
+            <input id="fEstado" class="cInp" placeholder="Estado" style="flex:1">
+          </div>
+          <input id="fRef" class="cInp" placeholder="Referencias (opcional)">
+          <div id="cuentaMsg" style="min-height:18px;font-size:13px"></div>
+          <button id="cuentaGuardar" class="btn-cta" type="button">Guardar mis datos</button>
         </div>
-        <div style="display:flex;gap:10px">
-          <input id="fCiudad" class="cInp" placeholder="Ciudad" style="flex:1">
-          <input id="fEstado" class="cInp" placeholder="Estado" style="flex:1">
-        </div>
-        <input id="fRef" class="cInp" placeholder="Referencias (opcional)">
-        <div id="cuentaMsg" style="min-height:18px;font-size:13px"></div>
-        <button id="cuentaGuardar" class="btn-cta" type="button">Guardar mis datos</button>
-      </div>
-      <div style="border-top:1px solid #26262c;margin:26px 0 0;padding-top:18px">
-        <h3 style="font-size:16px;margin:0 0 10px">Mis pedidos</h3>
-        <div id="misCompras"><p style="color:#9a9aa2;font-size:13px;margin:0">Cargando…</p></div>
-      </div>
+      </details>
 
       <div style="margin-top:26px">
         <button id="cuentaSalir" class="btn-ghost" type="button">Cerrar sesión</button>
@@ -94,13 +100,70 @@
   <div class="toast-wrap" id="toasts"></div>
 
   <style>
-    .cInp{width:100%;padding:12px 14px;border-radius:11px;border:1px solid #2a2a30;background:#0e0e11;color:#f4f4f5;font-size:14px;outline:none;box-sizing:border-box}
+    .cInp{width:100%;padding:12px 14px;border-radius:11px;border:1px solid #2a2a30;background:#0e0e11;color:#f4f4f5;font-size:16px;outline:none;box-sizing:border-box}
+
+    /* ===== Mi cuenta: los pedidos primero ===== */
+    .mc-quien{color:#8a8a92;font-size:13px;margin:0 0 22px;word-break:break-word}
+    .mc-quien b{color:#d8d8de;font-weight:700}
+    .mc-h{font-family:var(--display,serif);font-size:22px;margin:0 0 16px}
+    .mc-sec{margin-bottom:34px}
+
+    .mc-card{background:#101014;border:1px solid #24242c;border-radius:16px;padding:16px 17px;margin-bottom:14px}
+    .mc-card__top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    .mc-estado{font-size:12px;font-weight:800;letter-spacing:.03em;border:1px solid;border-radius:999px;padding:4px 12px}
+    .mc-fecha{font-size:12.5px;color:#7a7a82;margin-left:auto}
+
+    .mc-jersey{display:flex;gap:13px;align-items:center;padding:4px 0}
+    .mc-jersey b{font-size:15px;display:block;line-height:1.35}
+    .mc-foto{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#0e121d;flex:0 0 auto}
+    .mc-foto--vacia{border:1px dashed #2e2e38}
+    .mc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+    .mc-tag{font-size:11.5px;font-weight:700;color:#b8b8c0;background:#1c1c24;border-radius:6px;padding:3px 9px}
+    .mc-tag--oro{background:#2a2109;color:#f7d154}
+
+    /* los tres pasos del pedido */
+    .mc-pasos{display:flex;align-items:center;gap:6px;margin:16px 0 0}
+    .mc-paso{display:flex;align-items:center;gap:7px;flex:1;font-size:11.5px;color:#6e6e78;letter-spacing:.02em}
+    .mc-paso__bola{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+      background:#1a1a20;border:1px solid #2c2c36;font-size:11px;font-weight:800;flex:0 0 auto}
+    .mc-paso.hecho{color:#a8a8b0}
+    .mc-paso.hecho .mc-paso__bola{background:#2a2109;border-color:#4a3f18;color:#f7d154}
+    .mc-paso.ahora{color:#f4f4f5;font-weight:800}
+    .mc-paso.ahora .mc-paso__bola{background:var(--accent,#e8b923);border-color:var(--accent,#e8b923);color:#1a1405}
+
+    .mc-nota{font-size:13px;color:#c0c0c8;line-height:1.6;margin:14px 0 0;
+      background:#15151a;border-radius:10px;padding:11px 13px}
+    .mc-card__pie{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+      margin-top:14px;padding-top:13px;border-top:1px solid #22222a;font-size:13px;color:#8a8a92}
+    .mc-card__pie b{font-size:17px;color:var(--accent,#e8b923)}
+
+    .mc-vacio{background:#101014;border:1px dashed #2a2a32;border-radius:14px;padding:26px 20px;text-align:center;color:#9a9aa2;font-size:13.5px}
+    .mc-vacio b{display:block;color:#f4f4f5;font-size:16px;margin-bottom:6px}
+    .mc-vacio p{margin:0 0 14px;line-height:1.6}
+
+    /* los datos de entrega van plegados: ya los llenó una vez */
+    .mc-datos{background:#101014;border:1px solid #24242c;border-radius:14px;padding:2px 17px;margin-bottom:26px}
+    .mc-datos__cab{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;
+      padding:15px 0;font-size:14.5px;font-weight:700}
+    .mc-datos__cab::-webkit-details-marker{display:none}
+    .mc-datos__cab::before{content:"▸";color:var(--accent,#e8b923);font-size:13px;transition:transform .18s}
+    .mc-datos[open] .mc-datos__cab::before{transform:rotate(90deg)}
+    .mc-datos__pista{margin-left:auto;font-size:12px;font-weight:400;color:#8a8a92}
+    .mc-datos__ayuda{color:#8a8a92;font-size:13px;margin:0 0 14px;line-height:1.6}
+    .mc-datos[open]{padding-bottom:18px}
+
+    @media (max-width:520px){
+      .mc-paso span:not(.mc-paso__bola){display:none}
+      .mc-paso{flex:0 0 auto}
+      .mc-pasos{gap:10px}
+      .mc-pasos::after{content:"";flex:1}
+    }
     .cInp:focus{border-color:var(--accent,#e8b923)}
   </style>
 
-  <script type="module" src="js/auth.js?v=52"></script>
-  <script type="module" src="js/cuenta.js?v=52"></script>
-  <script type="module" src="js/cookies.js?v=52"></script>
-  <script type="module" src="js/track.js?v=52"></script>
+  <script type="module" src="js/auth.js?v=53"></script>
+  <script type="module" src="js/cuenta.js?v=53"></script>
+  <script type="module" src="js/cookies.js?v=53"></script>
+  <script type="module" src="js/track.js?v=53"></script>
 </body>
 </html>
