@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=55";
-import { pintarEstadisticas } from "./estadisticas.js?v=55";
-import "./panel-nav.js?v=55";
+import { db } from "./db.js?v=56";
+import { pintarEstadisticas } from "./estadisticas.js?v=56";
+import "./panel-nav.js?v=56";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -675,6 +675,7 @@ const VT_ESTADO = {
 let ventasCargadas = null;
 let vtFiltro = "por_cobrar";
 let vtTocado = false;
+let vtBusca = "";
 
 const vtMoney = n => "$" + Number(n || 0).toLocaleString("es-MX");
 
@@ -765,7 +766,11 @@ function vtFila(v) {
       ${v.telefono ? `<span class="vt-quien__tel">${v.telefono}</span>` : ""}
     </div>
     ${dir}
-    <div class="vt-pie">Pagó con ${v.metodo === "transferencia" ? "transferencia" : "tarjeta"} · ref ${v.id}</div>
+    <div class="vt-folio">
+      <span class="vt-folio__k">Pedido</span>
+      <b class="vt-folio__v">${v.folio || v.id}</b>
+      <span class="vt-folio__m">pagó con ${v.metodo === "transferencia" ? "transferencia" : "tarjeta"}</span>
+    </div>
 
     ${porCobrar ? `<div class="vt-acciones">
       <button class="btn" data-vt-pagada="${v.id}">✓ Ya me pagó</button>
@@ -794,6 +799,23 @@ function pintarVentas() {
   const pendientes = nCobrar + cuenta("pagada");
   const chip = $("#pnavPorCobrar");
   if (chip) { chip.textContent = pendientes; chip.hidden = !pendientes; }
+
+  /* Buscar por folio, nombre o teléfono. Con folio se busca en TODAS las pestañas:
+     es la forma de comprobar si un pedido que te dicen por WhatsApp existe de verdad. */
+  if (vtBusca) {
+    const q = vtBusca.toLowerCase().replace(/\s/g, "");
+    const hallados = ventasCargadas.filter(v =>
+      String(v.folio || v.id).toLowerCase().replace(/\s/g, "").includes(q) ||
+      String(v.cliente || "").toLowerCase().includes(vtBusca.toLowerCase()) ||
+      String(v.telefono || "").replace(/\D/g, "").includes(q.replace(/\D/g, "")) && q.replace(/\D/g, "").length >= 4
+    );
+    cuerpo.innerHTML = hallados.length
+      ? `<div class="vt-aviso">Encontré <b>${hallados.length}</b> ${hallados.length === 1 ? "pedido" : "pedidos"} con «${vtBusca}».</div>` +
+        hallados.map(vtFila).join("")
+      : `<div class="vt-aviso vt-aviso--malo">No hay ningún pedido con «${vtBusca}».
+           Si alguien te dio ese número, <b>no es un pedido real</b> de tu tienda.</div>`;
+    return;
+  }
 
   const lista = ventasCargadas.filter(v => (v.estado || "pagada") === vtFiltro);
   const vacio = {
@@ -862,6 +884,9 @@ document.addEventListener("click", async e => {
     return;
   }
   if (e.target.id === "ventasRefrescar") { cargarVentas(); return; }
+  if (e.target.id === "vtBuscarX") {
+    vtBusca = ""; $("#vtBuscar").value = ""; $("#vtBuscarX").hidden = true; pintarVentas(); return;
+  }
 
   const cop = e.target.closest("[data-copiar]");
   if (cop) {
@@ -922,4 +947,12 @@ document.addEventListener("click", async e => {
     }
     return;
   }
+});
+
+document.addEventListener("input", e => {
+  if (e.target.id !== "vtBuscar") return;
+  vtBusca = e.target.value.trim();
+  const x = $("#vtBuscarX");
+  if (x) x.hidden = !vtBusca;
+  pintarVentas();
 });
