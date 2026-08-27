@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=45";
-import { pintarEstadisticas } from "./estadisticas.js?v=45";
-import "./panel-nav.js?v=45";
+import { db } from "./db.js?v=46";
+import { pintarEstadisticas } from "./estadisticas.js?v=46";
+import "./panel-nav.js?v=46";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -37,6 +37,7 @@ async function arrancarDash() {
   await db.seedIfEmpty();
   db.onProducts(list => { productos = list; render(); });
   pintarEstadisticas(db);
+  cargarVentas();
 }
 
 function stockPill(s) {
@@ -640,5 +641,150 @@ document.addEventListener("click", async e => {
     toast(m.includes("permission") || m.includes("PERMISSION")
       ? "Falta el permiso de borrado en la base de datos"
       : "No se pudo borrar");
+  }
+});
+
+/* ============================================================
+   Ventas: los pedidos que faltan por cobrar y los ya pagados
+   ============================================================ */
+const VT_ESTADO = {
+  por_cobrar: { etq: "Falta que pague", clase: "carrito" },
+  pagada: { etq: "Pagada", clase: "compro" },
+  cancelada: { etq: "Cancelada", clase: "paso" }
+};
+let ventasCargadas = null;
+let vtFiltro = "por_cobrar";
+
+const vtMoney = n => "$" + Number(n || 0).toLocaleString("es-MX");
+
+function vtCuando(v) {
+  const iso = v.fechaISO;
+  if (!iso) return v.fecha || "";
+  const d = new Date(iso);
+  if (!d.getTime()) return v.fecha || "";
+  const h = d.getHours() % 12 || 12;
+  const ampm = d.getHours() >= 12 ? "pm" : "am";
+  const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+  const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+    "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  const hoy = new Date();
+  const mismoDia = d.toDateString() === hoy.toDateString();
+  const cuando = mismoDia ? "hoy" : `${dias[d.getDay()]} ${d.getDate()} de ${meses[d.getMonth()]}`;
+  return `${cuando} a las ${h}:${String(d.getMinutes()).padStart(2, "0")} ${ampm}`;
+}
+
+function vtLineas(v) {
+  let lineas = [];
+  try { lineas = JSON.parse(v.lineas || "[]"); } catch { lineas = []; }
+  if (lineas.length) {
+    return lineas.map(l => `<div class="vt-item">
+      <b>${l.qty}×</b> ${l.nombre || l.id}${l.talla ? ` · talla ${l.talla}` : ""}${l.perso ? ` · <span style="color:var(--accent)">${l.perso}</span>` : ""}
+    </div>`).join("");
+  }
+  return `<div class="vt-item">${v.productos || "sin detalle"}</div>`;
+}
+
+function vtFila(v) {
+  const est = VT_ESTADO[v.estado] || VT_ESTADO.pagada;
+  const porCobrar = v.estado === "por_cobrar";
+  return `<details class="st-visita">
+    <summary class="st-visita__cab" style="grid-template-columns:1.1fr 1.3fr 110px 130px">
+      <span class="st-visita__cuando">${vtCuando(v)}</span>
+      <span class="st-visita__quien">${v.cliente || v.clienteEmail || "Sin nombre"}${v.prueba ? " <em style='color:#8a8a92'>(prueba)</em>" : ""}</span>
+      <span class="st-visita__tiempo">${vtMoney(v.total)}</span>
+      <span class="st-tag st-tag--${est.clase}">${est.etq}</span>
+    </summary>
+    <div class="st-visita__cuerpo">
+      ${vtLineas(v)}
+      <div class="vt-datos">
+        ${v.telefono ? `<div><b>Teléfono:</b> ${v.telefono}</div>` : ""}
+        ${v.clienteEmail ? `<div><b>Correo:</b> ${v.clienteEmail}</div>` : ""}
+        <div><b>Entrega:</b> ${v.entrega === "domicilio" ? "a domicilio" : "recoge en tienda"}</div>
+        ${v.direccion ? `<div><b>Dirección:</b> ${v.direccion}</div>` : ""}
+        <div><b>Pagó con:</b> ${v.metodo === "transferencia" ? "transferencia" : "tarjeta"}</div>
+        <div><b>Referencia:</b> ${v.id}</div>
+      </div>
+      ${porCobrar ? `<div class="cliente-acciones">
+        <button class="btn" data-vt-pagada="${v.id}">Ya me pagó</button>
+        <button class="btn btn--danger" data-vt-cancelar="${v.id}">No pagó · cancelar</button>
+      </div>
+      <p class="hint-foto" style="margin-top:8px">El jersey ya está apartado. Si cancelas, regresa al catálogo.</p>` : ""}
+    </div>
+  </details>`;
+}
+
+function pintarVentas() {
+  const cuerpo = $("#ventasBody");
+  if (!cuerpo || !ventasCargadas) return;
+  const cuenta = e => ventasCargadas.filter(v => (v.estado || "pagada") === e).length;
+  const nCobrar = cuenta("por_cobrar");
+  $("#vtNumCobrar").textContent = nCobrar;
+  $("#vtNumPagadas").textContent = cuenta("pagada");
+  $("#vtNumCanceladas").textContent = cuenta("cancelada");
+  const chip = $("#pnavPorCobrar");
+  if (chip) { chip.textContent = nCobrar; chip.hidden = !nCobrar; }
+
+  const lista = ventasCargadas.filter(v => (v.estado || "pagada") === vtFiltro);
+  const vacio = {
+    por_cobrar: "Nadie te debe nada ahora mismo.",
+    pagada: "Todavía no hay ventas pagadas.",
+    cancelada: "No has cancelado ningún pedido."
+  }[vtFiltro];
+  const total = lista.reduce((a, v) => a + Number(v.total || 0), 0);
+  cuerpo.innerHTML = lista.length
+    ? `<p class="st-bloque__ayuda">${lista.length} ${lista.length === 1 ? "pedido" : "pedidos"} · ${vtMoney(total)} en total</p>
+       <div class="st-visitas">${lista.map(vtFila).join("")}</div>`
+    : `<p class="st-vacio">${vacio}</p>`;
+}
+
+async function cargarVentas() {
+  const cuerpo = $("#ventasBody");
+  if (!cuerpo) return;
+  try {
+    ventasCargadas = await db.listarVentas();
+    pintarVentas();
+  } catch (e) {
+    cuerpo.innerHTML = `<p class="st-error">No se pudieron leer las ventas: ${e.message}</p>`;
+  }
+}
+
+document.addEventListener("click", async e => {
+  const tab = e.target.closest("[data-vt]");
+  if (tab) {
+    vtFiltro = tab.dataset.vt;
+    document.querySelectorAll(".vt-tab").forEach(t => t.classList.toggle("on", t === tab));
+    pintarVentas();
+    return;
+  }
+  if (e.target.id === "ventasRefrescar") { cargarVentas(); return; }
+
+  const pag = e.target.closest("[data-vt-pagada]");
+  if (pag) {
+    if (!confirm("¿Ya te llegó el dinero de este pedido?\n\nVa a pasar a Ya pagadas.")) return;
+    pag.disabled = true; pag.textContent = "Guardando…";
+    try {
+      await db.marcarVentaPagada(pag.dataset.vtPagada);
+      toast("Pedido marcado como pagado");
+      await cargarVentas();
+    } catch (err) {
+      pag.disabled = false; pag.textContent = "Ya me pagó";
+      toast("No se pudo guardar");
+    }
+    return;
+  }
+
+  const can = e.target.closest("[data-vt-cancelar]");
+  if (can) {
+    if (!confirm("¿Cancelar este pedido?\n\nLos jerseys que estaban apartados regresan al catálogo.")) return;
+    can.disabled = true; can.textContent = "Cancelando…";
+    try {
+      const n = await db.cancelarVenta(can.dataset.vtCancelar);
+      toast(n ? `Pedido cancelado · ${n} ${n === 1 ? "jersey regresó" : "jerseys regresaron"} al catálogo` : "Pedido cancelado");
+      await cargarVentas();
+    } catch (err) {
+      can.disabled = false; can.textContent = "No pagó · cancelar";
+      toast("No se pudo cancelar");
+    }
+    return;
   }
 });
