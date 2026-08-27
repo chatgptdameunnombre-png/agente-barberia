@@ -1,10 +1,10 @@
-import { db, MODO } from "./db.js?v=41";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=41";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=41";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=41";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=41";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=41";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=41";
+import { db, MODO } from "./db.js?v=42";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=42";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=42";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=42";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=42";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=42";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=42";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
