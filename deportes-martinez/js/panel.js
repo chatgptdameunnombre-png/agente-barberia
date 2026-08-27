@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=47";
-import { pintarEstadisticas } from "./estadisticas.js?v=47";
-import "./panel-nav.js?v=47";
+import { db } from "./db.js?v=48";
+import { pintarEstadisticas } from "./estadisticas.js?v=48";
+import "./panel-nav.js?v=48";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -750,10 +750,23 @@ function pintarVentas() {
     cancelada: "No has cancelado ningún pedido."
   }[vtFiltro];
   const total = lista.reduce((a, v) => a + Number(v.total || 0), 0);
-  cuerpo.innerHTML = lista.length
-    ? `<p class="st-bloque__ayuda">${lista.length} ${lista.length === 1 ? "pedido" : "pedidos"} · ${vtMoney(total)} en total</p>
-       <div class="st-visitas">${lista.map(vtFila).join("")}</div>`
-    : `<p class="st-vacio">${vacio}</p>`;
+  if (!lista.length) { cuerpo.innerHTML = `<p class="st-vacio">${vacio}</p>`; return; }
+
+  /* Separado por cómo lo recibe: lo de domicilio hay que empaquetar y mandar,
+     lo de tienda solo apartarlo y esperar a que pasen. Son dos trabajos distintos. */
+  const domicilio = lista.filter(v => v.entrega === "domicilio");
+  const tienda = lista.filter(v => v.entrega !== "domicilio");
+  const grupo = (titulo, ayuda, arr) => {
+    if (!arr.length) return "";
+    const suma = arr.reduce((a, v) => a + Number(v.total || 0), 0);
+    return `<h4 class="st-sub">${titulo} <span class="vt-num">${arr.length}</span></h4>
+      <p class="st-sub__ayuda">${ayuda} · ${vtMoney(suma)}</p>
+      <div class="st-visitas">${arr.map(vtFila).join("")}</div>`;
+  };
+  cuerpo.innerHTML =
+    `<p class="st-bloque__ayuda">${lista.length} ${lista.length === 1 ? "pedido" : "pedidos"} · ${vtMoney(total)} en total</p>` +
+    grupo("🏠 Hay que enviarlos", "Estos van a domicilio: prepáralos y mándalos", domicilio) +
+    grupo("🏪 Pasan a recogerlos", "Estos los recogen en la tienda: tenlos apartados", tienda);
 }
 
 async function cargarVentas() {
