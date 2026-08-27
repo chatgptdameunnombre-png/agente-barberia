@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=46";
-import { pintarEstadisticas } from "./estadisticas.js?v=46";
-import "./panel-nav.js?v=46";
+import { db } from "./db.js?v=47";
+import { pintarEstadisticas } from "./estadisticas.js?v=47";
+import "./panel-nav.js?v=47";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -559,12 +559,31 @@ function filaCliente(c) {
       ${llenos.map(([k, v]) => `<div><b>${k}:</b> ${v}</div>`).join("")}
       ${faltan.length ? `<div style="margin-top:8px;color:var(--muted)">Le falta llenar: ${faltan.join(", ")}</div>` : ""}
       ${c.actualizado ? `<div style="margin-top:6px;color:var(--muted)">Última actualización: ${String(c.actualizado).replace("T", " ").slice(0, 16)}</div>` : ""}
+      ${comprasDe(c.uid)}
       <div class="cliente-acciones">
         <button class="btn btn--ghost" data-borrar-historial="${c.uid}" data-correo="${c.email || ""}">Borrar su historial de visitas</button>
         <button class="btn btn--danger" data-borrar-cliente="${c.uid}" data-correo="${c.email || ""}">Borrar esta cuenta</button>
       </div>
     </div>
   </details>`;
+}
+
+/* Lo que ha comprado esa persona. Se saca de las ventas ya cargadas,
+   así no hay que volver a consultar la base por cada cliente. */
+function comprasDe(uid) {
+  if (!ventasCargadas) return "";
+  const suyas = ventasCargadas.filter(v => v.clienteUid === uid && !v.prueba);
+  if (!suyas.length) return `<div class="vt-datos" style="margin-top:12px">Todavía no te ha comprado nada.</div>`;
+  const gastado = suyas.filter(v => v.estado !== "cancelada").reduce((a, v) => a + Number(v.total || 0), 0);
+  return `<div class="vt-datos" style="margin-top:12px">
+    <b>Sus compras (${suyas.length}) · ${vtMoney(gastado)} en total</b>
+    ${suyas.map(v => {
+      const est = VT_ESTADO[v.estado] || VT_ESTADO.pagada;
+      return `<div style="padding:3px 0">${vtCuando(v)} — ${vtMoney(v.total)}
+        <span class="st-tag st-tag--${est.clase}" style="font-size:10px;padding:1px 7px">${est.etq}</span><br>
+        <span style="color:#8a8a92">${v.productos || ""}</span></div>`;
+    }).join("")}
+  </div>`;
 }
 
 function pintarClientes(lista) {
