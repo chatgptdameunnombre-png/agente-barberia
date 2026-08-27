@@ -21,7 +21,7 @@
   <meta name="twitter:description" content="Tu cuenta de Deportes Martínez: tus datos de envío y tus pedidos.">
   <meta name="twitter:image" content="https://tuagentedeia.com/deportes-martinez/fotos/logo/logo-horizontal.png">
   <link rel="icon" href="fotos/logo/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=54">
+  <link rel="stylesheet" href="css/styles.css?v=55">
 </head>
 <body>
   <header class="hdr">
@@ -62,12 +62,7 @@
         <a href="panel.html" class="btn-cta" style="display:inline-block">Ir al Panel del dueño →</a>
       </div>
 
-      <section class="mc-sec">
-        <h3 class="mc-h">Mis pedidos</h3>
-        <div id="misCompras"><p class="mc-vacio">Cargando…</p></div>
-      </section>
-
-      <details class="mc-datos">
+      <details class="mc-datos" open>
         <summary class="mc-datos__cab">
           <span>Mis datos de entrega</span>
           <span class="mc-datos__pista" id="mcPista"></span>
@@ -90,6 +85,11 @@
           <button id="cuentaGuardar" class="btn-cta" type="button">Guardar mis datos</button>
         </div>
       </details>
+
+      <section class="mc-sec">
+        <h3 class="mc-h">Mis pedidos</h3>
+        <div id="misCompras"><p class="mc-vacio">Cargando…</p></div>
+      </section>
 
       <div style="margin-top:26px">
         <button id="cuentaSalir" class="btn-ghost" type="button">Cerrar sesión</button>
@@ -142,9 +142,9 @@
     .mc-vacio p{margin:0 0 14px;line-height:1.6}
 
     /* los datos de entrega van plegados: ya los llenó una vez */
-    .mc-datos{background:#101014;border:1px solid #24242c;border-radius:14px;padding:2px 17px;margin-bottom:26px}
+    .mc-datos{background:#101014;border:1px solid #24242c;border-radius:14px;padding:2px 17px;margin-bottom:34px}
     .mc-datos__cab{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;
-      padding:15px 0;font-size:14.5px;font-weight:700}
+      padding:16px 0;font-size:16px;font-weight:700}
     .mc-datos__cab::-webkit-details-marker{display:none}
     .mc-datos__cab::before{content:"▸";color:var(--accent,#e8b923);font-size:13px;transition:transform .18s}
     .mc-datos[open] .mc-datos__cab::before{transform:rotate(90deg)}
@@ -161,9 +161,9 @@
     .cInp:focus{border-color:var(--accent,#e8b923)}
   </style>
 
-  <script type="module" src="js/auth.js?v=54"></script>
-  <script type="module" src="js/cuenta.js?v=54"></script>
-  <script type="module" src="js/cookies.js?v=54"></script>
-  <script type="module" src="js/track.js?v=54"></script>
+  <script type="module" src="js/auth.js?v=55"></script>
+  <script type="module" src="js/cuenta.js?v=55"></script>
+  <script type="module" src="js/cookies.js?v=55"></script>
+  <script type="module" src="js/track.js?v=55"></script>
 </body>
 </html>
