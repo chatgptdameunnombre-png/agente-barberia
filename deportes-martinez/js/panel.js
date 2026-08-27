@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=42";
-import { pintarEstadisticas } from "./estadisticas.js?v=42";
-import "./panel-nav.js?v=42";
+import { db } from "./db.js?v=43";
+import { pintarEstadisticas } from "./estadisticas.js?v=43";
+import "./panel-nav.js?v=43";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -206,21 +206,101 @@ $("#tallasEditor").addEventListener("change", e => {
 });
 
 /* ---------- fotos: subir + comprimir ---------- */
-function comprimirImagen(file, size = 1000, calidad = 0.82) {
+const FONDO_FOTO = [14, 18, 29];     /* el mismo negro azulado de las tarjetas de la web */
+const MARGEN_FOTO = 0.04;
+
+/* Deja transparente el fondo, sea blanco, negro o de un color plano.
+   Solo borra desde los bordes hacia dentro, así un jersey blanco no se agujera. */
+function quitarFondoCanvas(d, w, h) {
+  const p = d.data;
+  const k = Math.max(4, Math.min(w, h) >> 5);
+  let r = 0, g = 0, b = 0, n = 0;
+  const esquina = (x0, y0) => {
+    for (let y = y0; y < y0 + k; y++) for (let x = x0; x < x0 + k; x++) {
+      const i = (y * w + x) * 4; r += p[i]; g += p[i + 1]; b += p[i + 2]; n++;
+    }
+  };
+  esquina(0, 0); esquina(w - k, 0); esquina(0, h - k); esquina(w - k, h - k);
+  r /= n; g /= n; b /= n;
+  const luz = (r + g + b) / 3;
+  const esFondo = i => {
+    const R = p[i], G = p[i + 1], B = p[i + 2];
+    const min = Math.min(R, G, B), max = Math.max(R, G, B);
+    if (luz > 225) return min > 232 && max - min < 16;
+    if (luz < 42) return max < 46 && max - min < 22;
+    return Math.abs(R - r) + Math.abs(G - g) + Math.abs(B - b) < 30;
+  };
+  const pila = [];
+  const meter = (x, y) => { if (x >= 0 && y >= 0 && x < w && y < h) pila.push(y * w + x); };
+  for (let x = 0; x < w; x++) { meter(x, 0); meter(x, h - 1); }
+  for (let y = 0; y < h; y++) { meter(0, y); meter(w - 1, y); }
+  const visto = new Uint8Array(w * h);
+  while (pila.length) {
+    const q = pila.pop();
+    if (visto[q]) continue;
+    const i = q * 4;
+    if (!esFondo(i)) continue;
+    visto[q] = 1;
+    p[i + 3] = 0;
+    const x = q % w, y = (q - x) / w;
+    meter(x + 1, y); meter(x - 1, y); meter(x, y + 1); meter(x, y - 1);
+  }
+}
+
+function recorteVisible(d, w, h) {
+  const p = d.data;
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (p[(y * w + x) * 4 + 3] > 10) {
+      if (x < x0) x0 = x; if (x > x1) x1 = x;
+      if (y < y0) y0 = y; if (y > y1) y1 = y;
+    }
+  }
+  return x1 < 0 ? { x0: 0, y0: 0, w, h } : { x0, y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+}
+
+/* Deja la foto lista para el catálogo: sin su fondo, centrada, del tamaño de la
+   caja (la amplía si viene chica) y sobre el fondo de la web. */
+function comprimirImagen(file, size = 1000, calidad = 0.9) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
       URL.revokeObjectURL(url);
+      /* se trabaja sobre una copia de máximo 1400 px: con fotos de 3000 px el
+         barrido del fondo tardaría demasiado en el navegador */
+      const tope = 1400;
+      const esc0 = Math.min(1, tope / Math.max(img.width, img.height));
+      const tw = Math.max(1, Math.round(img.width * esc0));
+      const th = Math.max(1, Math.round(img.height * esc0));
+      const t = document.createElement("canvas");
+      t.width = tw; t.height = th;
+      const tc = t.getContext("2d", { willReadFrequently: true });
+      tc.drawImage(img, 0, 0, tw, th);
+
+      let caja = { x0: 0, y0: 0, w: tw, h: th };
+      try {
+        const d = tc.getImageData(0, 0, tw, th);
+        quitarFondoCanvas(d, tw, th);
+        tc.putImageData(d, 0, 0);
+        caja = recorteVisible(d, tw, th);
+      } catch (_) { /* si el navegador no deja leer el canvas, se sigue sin recortar */ }
+
       const c = document.createElement("canvas");
       c.width = size; c.height = size;
       const ctx = c.getContext("2d");
-      ctx.fillStyle = "#101013";
+      ctx.fillStyle = `rgb(${FONDO_FOTO[0]},${FONDO_FOTO[1]},${FONDO_FOTO[2]})`;
       ctx.fillRect(0, 0, size, size);
-      const escala = Math.min(size / img.width, size / img.height);
-      const w = img.width * escala, h = img.height * escala;
-      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
-      resolve(c.toDataURL("image/jpeg", calidad));
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+
+      const cajaPx = size * (1 - MARGEN_FOTO * 2);
+      const esc = cajaPx / Math.max(caja.w, caja.h);   /* siempre a la caja: amplía si hace falta */
+      const w = caja.w * esc, h = caja.h * esc;
+      ctx.drawImage(t, caja.x0, caja.y0, caja.w, caja.h, (size - w) / 2, (size - h) / 2, w, h);
+
+      const chica = (caja.w / esc0) < 620 && (caja.h / esc0) < 620;
+      resolve({ data: c.toDataURL("image/jpeg", calidad), chica });
     };
     img.onerror = reject;
     img.src = url;
@@ -240,11 +320,18 @@ $("#pFileBtn").onclick = () => $("#pFile").click();
 $("#pFile").addEventListener("change", async e => {
   const files = [...e.target.files];
   e.target.value = "";
+  let chicas = 0;
   for (const f of files) {
-    try { fotosActuales.push(await comprimirImagen(f)); }
-    catch { toast("No se pudo procesar una imagen"); }
+    try {
+      const r = await comprimirImagen(f);
+      fotosActuales.push(r.data);
+      if (r.chica) chicas++;
+    } catch { toast("No se pudo procesar una imagen"); }
   }
   renderFotos();
+  if (chicas) toast(chicas === 1
+    ? "Una foto venía muy chica y se va a ver borrosa. Busca una más grande."
+    : `${chicas} fotos venían muy chicas y se van a ver borrosas. Busca otras más grandes.`);
 });
 
 /* ---------- modal ---------- */
