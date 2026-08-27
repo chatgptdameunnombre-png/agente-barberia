@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=50";
+import { db } from "./db.js?v=51";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -37,7 +37,8 @@ function asentar(u) {
 /* ---------- mis pedidos ---------- */
 const ESTADO_TXT = {
   por_cobrar: { t: "Falta que pagues", c: "#f7d154" },
-  pagada: { t: "Pagado", c: "#8fe0a8" },
+  pagada: { t: "Pagado · preparándolo", c: "#f7d154" },
+  entregada: { t: "Entregado", c: "#f7d154" },
   cancelada: { t: "Cancelado", c: "#ff9b9b" }
 };
 
@@ -81,6 +82,8 @@ async function pintarCompras(uid) {
           ref ${v.id}
         </div>
         ${v.estado === "por_cobrar" ? `<div style="font-size:12.5px;color:#f7d154;margin-top:8px">Ya apartamos tu jersey. En cuanto recibamos tu pago te lo confirmamos.</div>` : ""}
+        ${v.estado === "pagada" ? `<div style="font-size:12.5px;color:#f7d154;margin-top:8px">${v.entrega === "domicilio" ? "Ya recibimos tu pago. Estamos preparando tu envío." : "Ya recibimos tu pago. Tu jersey está apartado, pasa por él cuando quieras."}</div>` : ""}
+        ${v.estado === "entregada" ? `<div style="font-size:12.5px;color:#8a8a92;margin-top:8px">${v.entrega === "domicilio" ? "Enviado" : "Entregado en tienda"}. ¡Gracias por tu compra!</div>` : ""}
       </div>`;
     }).join("");
   } catch (e) {
