@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=49";
-import { pintarEstadisticas } from "./estadisticas.js?v=49";
-import "./panel-nav.js?v=49";
+import { db } from "./db.js?v=50";
+import { pintarEstadisticas } from "./estadisticas.js?v=50";
+import "./panel-nav.js?v=50";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -772,6 +772,47 @@ function vtFila(v) {
       <button class="btn btn--danger" data-vt-cancelar="${v.id}">No pagó · cancelar</button>
     </div>` : (cancelada ? "" : `<div class="vt-acciones">${vtWhats(v.telefono, v)}</div>`)}
   </article>`;
+}
+
+function pintarVentas() {
+  const cuerpo = $("#ventasBody");
+  if (!cuerpo || !ventasCargadas) return;
+  const cuenta = e => ventasCargadas.filter(v => (v.estado || "pagada") === e).length;
+  const nCobrar = cuenta("por_cobrar");
+  $("#vtNumCobrar").textContent = nCobrar;
+  $("#vtNumPagadas").textContent = cuenta("pagada");
+  $("#vtNumCanceladas").textContent = cuenta("cancelada");
+  const chip = $("#pnavPorCobrar");
+  if (chip) { chip.textContent = nCobrar; chip.hidden = !nCobrar; }
+
+  const lista = ventasCargadas.filter(v => (v.estado || "pagada") === vtFiltro);
+  const vacio = {
+    por_cobrar: "Todo al corriente: nadie te debe nada.",
+    pagada: "Todavía no hay ventas pagadas.",
+    cancelada: "No has cancelado ningún pedido."
+  }[vtFiltro];
+  const total = lista.reduce((a, v) => a + Number(v.total || 0), 0);
+  if (!lista.length) { cuerpo.innerHTML = `<p class="st-vacio">${vacio}</p>`; return; }
+
+  /* Separado por cómo lo recibe: lo de domicilio hay que empaquetar y mandar,
+     lo de tienda solo apartarlo y esperar a que pasen. Son dos trabajos distintos. */
+  const domicilio = lista.filter(v => v.entrega === "domicilio");
+  const tienda = lista.filter(v => v.entrega !== "domicilio");
+  const grupo = (titulo, ayuda, arr) => {
+    if (!arr.length) return "";
+    const suma = arr.reduce((a, v) => a + Number(v.total || 0), 0);
+    return `<h4 class="st-sub">${titulo} <span class="vt-num">${arr.length}</span></h4>
+      <p class="st-sub__ayuda">${ayuda} · ${vtMoney(suma)}</p>
+      ${arr.map(vtFila).join("")}`;
+  };
+  const aviso = vtFiltro === "por_cobrar"
+    ? `<div class="vt-aviso">Estas personas ya apartaron su jersey pero <b>todavía no te pagan</b>.
+         Cuando te llegue el dinero dale a <b>Ya me pagó</b>. Si al final no pagan, cancélalo y el jersey vuelve al catálogo.</div>`
+    : "";
+  cuerpo.innerHTML = aviso +
+    `<p class="st-bloque__ayuda">${lista.length} ${lista.length === 1 ? "pedido" : "pedidos"} · ${vtMoney(total)} en total</p>` +
+    grupo("🏠 Hay que enviarlos", "Prepáralos y mándalos", domicilio) +
+    grupo("🏪 Pasan a recogerlos", "Tenlos apartados", tienda);
 }
 
 async function cargarVentas() {
