@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=52";
-import { PRODUCTOS_SEED } from "./seed.js?v=52";
+import { firebaseConfig, usaFirebase } from "./config.js?v=53";
+import { PRODUCTOS_SEED } from "./seed.js?v=53";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -137,6 +137,11 @@ async function crearImplFirebase() {
     },
     /* las compras de una persona: se filtra por su uid (así lo exigen las reglas)
        y se ordena aquí, para no tener que crear un índice en Firestore */
+    /* solo lo necesario para la miniatura de los pedidos del cliente */
+    async productosParaFoto() {
+      const snap = await getDocs(col);
+      return snap.docs.map(d => ({ id: d.id, imagen: d.data().imagen || "" }));
+    },
     async misCompras(uid) {
       if (!uid) return [];
       const snap = await getDocs(query(collection(fdb, "ventas"), where("clienteUid", "==", uid)));
@@ -327,6 +332,7 @@ function crearImplDemo() {
     async borrarHistorialCliente() { return 0; },
     async listarVentas() { return []; },
     async misCompras() { return []; },
+    async productosParaFoto() { return []; },
     async marcarVentaPagada() {},
     async marcarVentaEntregada() {},
     async cancelarVenta() { return 0; },
