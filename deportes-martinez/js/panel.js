@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=44";
-import { pintarEstadisticas } from "./estadisticas.js?v=44";
-import "./panel-nav.js?v=44";
+import { db } from "./db.js?v=45";
+import { pintarEstadisticas } from "./estadisticas.js?v=45";
+import "./panel-nav.js?v=45";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -206,6 +206,7 @@ $("#tallasEditor").addEventListener("change", e => {
 });
 
 /* ---------- fotos: subir + comprimir ---------- */
+const MAX_FOTOS = 5;                 /* más que eso nadie las ve y la ficha se hace lenta */
 const FONDO_FOTO = [14, 18, 29];     /* el mismo negro azulado de las tarjetas de la web */
 const MARGEN_FOTO = 0.04;
 
@@ -308,6 +309,15 @@ function comprimirImagen(file, size = 1000, calidad = 0.9) {
 }
 
 function renderFotos() {
+  const btn = $("#pFileBtn");
+  if (btn) {
+    btn.disabled = fotosActuales.length >= MAX_FOTOS;
+    btn.textContent = fotosActuales.length >= MAX_FOTOS
+      ? `Ya tienes ${MAX_FOTOS} fotos (el máximo)`
+      : (fotosActuales.length
+          ? `📷 Agregar otra foto (${fotosActuales.length}/${MAX_FOTOS})`
+          : "📷 Subir fotos desde tu dispositivo");
+  }
   $("#pFotos").innerHTML = fotosActuales.map((src, i) => `
     <div class="foto-mini">
       <img src="${src}" alt="">
@@ -320,8 +330,9 @@ $("#pFileBtn").onclick = () => $("#pFile").click();
 $("#pFile").addEventListener("change", async e => {
   const files = [...e.target.files];
   e.target.value = "";
-  let chicas = 0;
+  let chicas = 0, sobraron = 0;
   for (const f of files) {
+    if (fotosActuales.length >= MAX_FOTOS) { sobraron++; continue; }
     try {
       const r = await comprimirImagen(f);
       fotosActuales.push(r.data);
@@ -329,6 +340,7 @@ $("#pFile").addEventListener("change", async e => {
     } catch { toast("No se pudo procesar una imagen"); }
   }
   renderFotos();
+  if (sobraron) toast(`Son máximo ${MAX_FOTOS} fotos por jersey. ${sobraron === 1 ? "Una no entró" : `${sobraron} no entraron`}: borra alguna si quieres cambiarla.`);
   if (chicas) toast(chicas === 1
     ? "Una foto venía muy chica y se va a ver borrosa. Busca una más grande."
     : `${chicas} fotos venían muy chicas y se van a ver borrosas. Busca otras más grandes.`);
