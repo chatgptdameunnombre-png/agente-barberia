@@ -1,6 +1,6 @@
-import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=56";
-import { track } from "./track.js?v=56";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=56";
+import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=57";
+import { track } from "./track.js?v=57";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=57";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 const SID_KEY = "deportes-martinez_asesor_sid";
@@ -14,7 +14,7 @@ function setProductos(list) {
   if (alCargarProductos) alCargarProductos();
 }
 
-import("./db.js?v=56").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
+import("./db.js?v=57").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
 
 function fsVal(v) {
   const t = Object.keys(v)[0];
