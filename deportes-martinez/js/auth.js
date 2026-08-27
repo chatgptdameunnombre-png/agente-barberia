@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=41";
+import { db } from "./db.js?v=42";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -192,13 +192,20 @@ function openModal(mode) {
     if (m === "register" && pass.length < 6) { q("#authErr").textContent = "La contraseña necesita al menos 6 letras o números."; return; }
     const btn = q("#authGo"); btn.disabled = true; const orig = btn.textContent; btn.textContent = "Un momento…";
     try {
+      let cred = null;
       if (m === "login") {
-        await db.login(email, pass);
+        cred = await db.login(email, pass);
       } else {
-        const cred = await db.registrar(email, pass);
+        cred = await db.registrar(email, pass);
         const uid = cred?.user?.uid;
         if (uid) { try { await db.guardarPerfil(uid, { email, creado: new Date().toISOString() }); } catch (_) {} }
       }
+      /* No se espera el aviso de Firebase para pintar la interfaz.
+         En Safari de iPhone ese aviso a veces tarda o no llega, y la persona se
+         quedaba viendo "Iniciar sesión" aunque su cuenta ya estuviera creada. */
+      aplicarUsuario(cred?.user
+        ? { email: cred.user.email, uid: cred.user.uid }
+        : (db.usuarioAhora?.() || { email, uid: "" }));
       cerrar();
     } catch (err) {
       q("#authErr").textContent = traducirError(err);
@@ -211,10 +218,24 @@ function init() { injectButton(); buildNav(); }
 injectStyles();
 if (document.querySelector(".hdr__in")) init();
 else document.addEventListener("DOMContentLoaded", init);
-db.onAuth(u => {
+/* Un solo lugar donde se asienta quién está dentro: lo usa el aviso de Firebase
+   y también el propio modal en cuanto el login responde. */
+function aplicarUsuario(u) {
   currentUser = u;
   updateButton();
-  import("./track.js?v=41").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
-});
+  import("./track.js?v=42").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
+}
+
+db.onAuth(u => aplicarUsuario(u));
+
+/* Red de seguridad para Safari: si el aviso de Firebase no llegó pero la sesión
+   sí está puesta, se pinta igual. Se revisa un par de veces y se deja de insistir. */
+let intentos = 0;
+const revisar = setInterval(() => {
+  intentos++;
+  const u = db.usuarioAhora?.();
+  if (u && !currentUser) aplicarUsuario(u);
+  if (intentos >= 6 || (u && currentUser)) clearInterval(revisar);
+}, 700);
 
 export { currentUser };
