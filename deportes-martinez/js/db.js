@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=50";
-import { PRODUCTOS_SEED } from "./seed.js?v=50";
+import { firebaseConfig, usaFirebase } from "./config.js?v=51";
+import { PRODUCTOS_SEED } from "./seed.js?v=51";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -147,6 +147,13 @@ async function crearImplFirebase() {
       await updateDoc(doc(fdb, "ventas", id), {
         estado: "pagada",
         confirmada: new Date().toISOString()
+      });
+    },
+    /* ya salió de la tienda: enviado o recogido, según cómo lo pidió */
+    async marcarVentaEntregada(id) {
+      await updateDoc(doc(fdb, "ventas", id), {
+        estado: "entregada",
+        entregada: new Date().toISOString()
       });
     },
     /* Cancelar devuelve el stock que se había apartado. Se lee de `lineas`
@@ -321,6 +328,7 @@ function crearImplDemo() {
     async listarVentas() { return []; },
     async misCompras() { return []; },
     async marcarVentaPagada() {},
+    async marcarVentaEntregada() {},
     async cancelarVenta() { return 0; },
     async borrarVenta() {},
     async revalidar() { return true; },
