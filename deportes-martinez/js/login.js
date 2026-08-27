@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=49";
+import { db } from "./db.js?v=50";
 
 const $ = s => document.querySelector(s);
 
