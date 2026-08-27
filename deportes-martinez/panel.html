@@ -6,7 +6,7 @@
   <title>Panel del dueño — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=55">
+  <link rel="stylesheet" href="css/styles.css?v=56">
 </head>
 <body class="admin-body">
 
@@ -76,6 +76,13 @@
           <h1>Ventas</h1>
           <button class="btn btn--ghost" id="ventasRefrescar" style="width:auto;padding:9px 15px">Actualizar</button>
         </div>
+        <div class="vt-buscar">
+          <input class="input" id="vtBuscar" placeholder="Buscar por número de pedido, nombre o teléfono" autocomplete="off">
+          <button class="btn btn--ghost" id="vtBuscarX" hidden>Limpiar</button>
+        </div>
+        <p class="hint-foto" id="vtBuscarNota" style="margin:-6px 0 16px">
+          Si alguien te dice que ya pagó, pídele su número de pedido y búscalo aquí. Si no aparece, el pedido no existe.
+        </p>
         <div class="vt-tabs">
           <button class="vt-tab on" data-vt="por_cobrar">Falta que paguen <span class="vt-num" id="vtNumCobrar">0</span></button>
           <button class="vt-tab" data-vt="pagada">Por entregar <span class="vt-num" id="vtNumPagadas">0</span></button>
@@ -197,6 +204,6 @@
   </div>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=55"></script>
+  <script type="module" src="js/panel.js?v=56"></script>
 </body>
 </html>
