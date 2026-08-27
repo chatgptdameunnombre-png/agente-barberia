@@ -1,7 +1,7 @@
-import { COBRO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=43";
-import { db } from "./db.js?v=43";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=43";
-import { track } from "./track.js?v=43";
+import { COBRO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=44";
+import { db } from "./db.js?v=44";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=44";
+import { track } from "./track.js?v=44";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -80,7 +80,7 @@ function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion 
           : `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:13px">Monto</span><b style="color:#e8b923;font-size:18px">${money(totalFinal)}</b></div>`}
         <div style="display:flex;justify-content:space-between"><span style="color:#9a9aa2;font-size:13px">Referencia</span><b>${ref}</b></div>
       </div>
-      <a href="${waLink}" target="_blank" rel="noopener" style="display:block;text-align:center;background:#25D366;color:#fff;border-radius:12px;padding:14px;font-weight:800;font-size:15px;text-decoration:none">Enviar comprobante por WhatsApp</a>
+      <a href="${waLink}" target="_blank" rel="noopener" style="display:block;text-align:center;background:linear-gradient(135deg,#e8b923,#f7d154);color:#1a1405;border-radius:12px;padding:14px;font-weight:800;font-size:15px;text-decoration:none">Enviar comprobante por WhatsApp</a>
     </div>`;
   document.body.appendChild(ov);
   const q = s => ov.querySelector(s);
