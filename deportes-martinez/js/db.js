@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=41";
-import { PRODUCTOS_SEED } from "./seed.js?v=41";
+import { firebaseConfig, usaFirebase } from "./config.js?v=42";
+import { PRODUCTOS_SEED } from "./seed.js?v=42";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -35,15 +35,16 @@ async function crearImplFirebase() {
 
   const app = initializeApp(firebaseConfig);
   const fdb = getFirestore(app);
-  /* Firebase guarda la sesión en IndexedDB. En varios teléfonos (Safari con las cookies
-     bloqueadas, modos de ahorro, navegadores con el almacenamiento restringido) IndexedDB
-     falla y la sesión NO se guarda: la persona entra y sigue apareciendo como desconectada.
-     Con esta lista el SDK intenta IndexedDB y, si no puede, se va a localStorage —
-     que en esos mismos teléfonos sí funciona. */
+  /* La sesión se guarda en localStorage ANTES que en IndexedDB, a propósito.
+     En Safari de iPhone IndexedDB no siempre falla: a veces se queda colgado sin
+     responder, y entonces `onAuthStateChanged` NUNCA dispara — la persona entra,
+     la cuenta se crea de verdad, pero la web sigue diciendo "Iniciar sesión".
+     localStorage es sincrónico y en Safari sí responde. IndexedDB queda como
+     segunda opción (solo aporta compartir sesión entre pestañas). */
   let auth;
   try {
     auth = initializeAuth(app, {
-      persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence]
+      persistence: [browserLocalPersistence, indexedDBLocalPersistence, browserSessionPersistence, inMemoryPersistence]
     });
   } catch (e) {
     auth = getAuth(app);
@@ -97,6 +98,11 @@ async function crearImplFirebase() {
     },
     login(email, pass) { return signInWithEmailAndPassword(auth, email, pass); },
     registrar(email, pass) { return createUserWithEmailAndPassword(auth, email, pass); },
+    /* quién está dentro AHORA, sin esperar al aviso de Firebase */
+    usuarioAhora() {
+      const u = auth.currentUser;
+      return u ? { email: u.email, uid: u.uid } : null;
+    },
     resetPass(email) { return sendPasswordResetEmail(auth, email); },
     logout() { return signOut(auth); },
     onAuth(cb) { return onAuthStateChanged(auth, u => cb(u ? { email: u.email, uid: u.uid } : null)); },
@@ -263,6 +269,7 @@ function crearImplDemo() {
     async borrarHistorialCliente() { return 0; },
     async revalidar() { return true; },
     async logout() { localStorage.removeItem(LS_AUTH); notificarAuth(); },
+    usuarioAhora() { return usuarioActual(); },
     onAuth(cb) { authListeners.add(cb); cb(usuarioActual()); return () => authListeners.delete(cb); },
     async seedIfEmpty() {
       if (leer().length === 0) guardar(PRODUCTOS_SEED.map(p => ({ ...p })));
