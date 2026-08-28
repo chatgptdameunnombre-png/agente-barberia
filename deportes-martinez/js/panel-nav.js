@@ -7,6 +7,7 @@ const DESTINO = {
   productos: "#secProductos",
   visitas: "#estad",
   ventas: "#secVentas",
+  promos: "#secPromos",
   cuentas: "#secCuentas"
 };
 
