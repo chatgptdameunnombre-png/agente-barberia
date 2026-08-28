@@ -23,6 +23,7 @@ function mostrar() {
   b.innerHTML = `
     <p style="flex:1;min-width:240px;margin:0;font-size:13.5px;color:#c0c0c4;line-height:1.5">
       Usamos almacenamiento del navegador para tu carrito y para medir de forma anónima qué jerseys se ven más.
+      Si sigues navegando, entendemos que estás de acuerdo.
       <a href="legales.html#datos" style="color:#e8b923;text-decoration:underline">Cómo lo usamos</a>.
     </p>
     <div style="display:flex;gap:8px">
@@ -30,6 +31,18 @@ function mostrar() {
     </div>`;
   document.body.appendChild(b);
   b.querySelector("#ckSi").onclick = () => { guardar("si"); b.remove(); };
+
+  /* Si sigue navegando sin tocar el aviso, se toma como que está de acuerdo —
+     es lo que dice el propio aviso. Así no le vuelve a salir en cada página. */
+  const aceptarNavegando = () => { guardar("si"); b.remove(); limpiar(); };
+  const alScroll = () => { if (window.scrollY > 600) aceptarNavegando(); };
+  const alClickEnlace = e => { if (e.target.closest("a[href]")) aceptarNavegando(); };
+  function limpiar() {
+    window.removeEventListener("scroll", alScroll);
+    document.removeEventListener("click", alClickEnlace, true);
+  }
+  window.addEventListener("scroll", alScroll, { passive: true });
+  document.addEventListener("click", alClickEnlace, true);
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mostrar);
