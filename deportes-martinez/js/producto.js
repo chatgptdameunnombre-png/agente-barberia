@@ -1,10 +1,10 @@
-import { db, MODO } from "./db.js?v=65";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=65";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=65";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=65";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=65";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=65";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=65";
+import { db, MODO } from "./db.js?v=66";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=66";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=66";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=66";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=66";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=66";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=66";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -20,6 +20,17 @@ let fotosCache = null;
 let entregaProd = null;
 let tallaSel = null;
 let metodoPagoProd = "tarjeta";
+let promoProd = null;   /* {codigo, descuento, etiqueta} — lo que dijo el servidor */
+
+/* Revisa el código con el servidor. Igual que en el carrito: la página nunca
+   decide el descuento, solo pinta lo que le contestaron. */
+async function revisarPromoProd(codigo, subtotal) {
+  const r = await fetch(PROMO_WEBHOOK, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ codigo, subtotal })
+  });
+  return r.json();
+}
 let persoOn = false;
 let trackeado = false;
 
@@ -114,8 +125,26 @@ function render() {
         <p class="prod__envio">🚚 Te llega en 72 horas después de que confirmes tu compra${p.personalizable === false ? "" : " (si lo pides con nombre y número, unos días más)"}</p>
         ${tallasBloque}
         ${persoBloque}
-        <div style="margin-top:12px">
-          <button class="add-btn add-btn--big" id="addBtn2" ${puede && !topeAdd ? "" : "disabled"} style="width:100%;margin:0">${labelAdd}</button>
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="add-btn add-btn--big" id="addBtn2" ${puede && !topeAdd ? "" : "disabled"} style="flex:1;margin:0">${labelAdd}</button>
+          <button class="add-btn add-btn--big" id="buyNow" ${puede ? "" : "disabled"} style="flex:1;margin:0;background:#e8b923;color:#1a1405">${labelBuy}</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button type="button" class="entrega-op" data-entrega="tienda" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">Recoger en tienda</button>
+          <button type="button" class="entrega-op" data-entrega="domicilio" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">🏠 A domicilio +${money(ENVIO_DOMICILIO)}</button>
+        </div>
+        <div style="margin-top:12px;font-size:12.5px;color:#9a9aa2">¿Cómo quieres pagar? <span style="color:#7a7a82">(al usar "Comprar")</span></div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button type="button" class="pago-op" data-pago="tarjeta" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">💳 Tarjeta</button>
+          <button type="button" class="pago-op" data-pago="transferencia" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">🏦 Transferencia</button>
+        </div>
+        <div class="promo-caja" style="margin-top:12px;border:0;padding:0">
+          <button type="button" class="promo-abrir" id="pdPromoAbrir">¿Tienes un código de descuento?</button>
+          <div class="promo-campo" id="pdPromoCampo" hidden>
+            <input id="pdPromoInput" placeholder="Escríbelo aquí" autocapitalize="characters" autocomplete="off">
+            <button type="button" id="pdPromoAplicar">Aplicar</button>
+          </div>
+          <p class="promo-aviso" id="pdPromoAviso" hidden></p>
         </div>
         <div id="prodTotal" style="margin-top:10px;font-weight:600;color:#e8b923"></div>
         ${p.descripcion ? `<p class="prod__desc">${p.descripcion}</p>` : ""}
@@ -200,9 +229,17 @@ function actualizarTotal() {
   if (!p || !el) return;
   el.style.color = "#e8b923";
   const base = precioMay(precioSel(p)) + (persoOn ? PERSONALIZACION_PRECIO : 0);
-  if (entregaProd === "domicilio") el.textContent = `Total: ${money(base + ENVIO_DOMICILIO)} (con envío)`;
-  else if (entregaProd === "tienda") el.textContent = `Total: ${money(base)} (recoges en tienda)`;
-  else el.textContent = "";
+  if (!entregaProd) { el.textContent = ""; return; }
+  const conEnvio = base + (entregaProd === "domicilio" ? ENVIO_DOMICILIO : 0);
+  const cola = entregaProd === "domicilio" ? "(con envío)" : "(recoges en tienda)";
+  /* el descuento lo calculó el servidor sobre el precio del jersey, sin el envío */
+  const desc = promoProd ? Math.min(promoProd.descuento, base - 1) : 0;
+  if (desc > 0) {
+    el.innerHTML = `Total: <s style="color:#7a7a82;font-weight:400;margin-right:6px">${money(conEnvio)}</s>` +
+      `${money(conEnvio - desc)} <span style="color:#9a9aa2;font-weight:400;font-size:13px">${cola}</span>`;
+  } else {
+    el.textContent = `Total: ${money(conEnvio)} ${cola}`;
+  }
 }
 
 function err(txt) {
@@ -239,10 +276,12 @@ function comprarDirecto() {
   if (persoOn && !pe) { err("Escribe el nombre o el número"); return; }
   const precio = precioSel(p) + (pe ? PERSONALIZACION_PRECIO : 0);
   const prodInfo = [{ id: p.id, qty: 1, title: p.nombre, talla: sized ? tallaSel : "", perso: pe }];
-  track("comprar_directo", { id: p.id, nombre: p.nombre, metodo: metodoPagoProd });
+  track("comprar_directo", { id: p.id, nombre: p.nombre, metodo: metodoPagoProd, promo: promoProd?.codigo || "" });
+  const promo = promoProd?.codigo || "";
   if (metodoPagoProd === "transferencia") {
-    const total = precio + (entregaProd === "domicilio" ? ENVIO_DOMICILIO : 0);
-    iniciarTransferencia({ productos: prodInfo, entrega: entregaProd, total, onError: () => err("No se pudo, intenta de nuevo") });
+    const bruto = precio + (entregaProd === "domicilio" ? ENVIO_DOMICILIO : 0);
+    const total = promoProd ? Math.max(1, bruto - Math.min(promoProd.descuento, precio - 1)) : bruto;
+    iniciarTransferencia({ productos: prodInfo, entrega: entregaProd, total, promo, onError: () => err("No se pudo, intenta de nuevo") });
     return;
   }
   const title = (sized ? `${p.nombre} — Talla ${tallaSel}` : p.nombre) + (pe ? " (personalizado)" : "");
@@ -252,11 +291,12 @@ function comprarDirecto() {
     items,
     productos: prodInfo,
     entrega: entregaProd,
+    promo,
     onError: () => err("No se pudo generar el pago, intenta de nuevo")
   });
 }
 
-document.addEventListener("click", e => {
+document.addEventListener("click", async e => {
   const th = e.target.closest("[data-thumb]");
   if (th) {
     track("ver_foto", { id });
@@ -294,6 +334,49 @@ document.addEventListener("click", e => {
     return;
   }
   if (e.target.closest("#addBtn2")) { agregar(); return; }
+  if (e.target.closest("#pdPromoAbrir")) {
+    document.getElementById("pdPromoCampo").hidden = false;
+    e.target.hidden = true;
+    document.getElementById("pdPromoInput")?.focus();
+    return;
+  }
+  if (e.target.closest("#pdPromoQuitar")) {
+    promoProd = null;
+    const av = $("#pdPromoAviso"); av.hidden = true; av.className = "promo-aviso";
+    const inp = $("#pdPromoInput"); if (inp) inp.value = "";
+    actualizarTotal();
+    return;
+  }
+  if (e.target.closest("#pdPromoAplicar")) {
+    const p = productos.find(x => x.id === id);
+    const inp = $("#pdPromoInput"), av = $("#pdPromoAviso"), btn = e.target;
+    const cod = inp.value.trim().toUpperCase().replace(/\s+/g, "");
+    if (!cod || !p) { inp.focus(); return; }
+    inp.value = cod;
+    btn.disabled = true; btn.textContent = "Revisando…";
+    av.hidden = false; av.className = "promo-aviso"; av.textContent = "Revisando tu código…";
+    const base = precioMay(precioSel(p)) + (persoOn ? PERSONALIZACION_PRECIO : 0);
+    try {
+      const d = await revisarPromoProd(cod, base);
+      if (d && d.ok) {
+        promoProd = { codigo: d.codigo, descuento: d.descuento, etiqueta: d.etiqueta };
+        av.className = "promo-aviso promo-aviso--ok";
+        av.innerHTML = `Se aplicó <b>${d.codigo}</b> — ${d.etiqueta}. <button type="button" id="pdPromoQuitar" class="promo-quitar">Quitar</button>`;
+        track("promo_aplicada", { codigo: d.codigo, descuento: d.descuento, donde: "ficha" });
+      } else {
+        promoProd = null;
+        av.className = "promo-aviso promo-aviso--mal";
+        av.textContent = (d && d.motivo) || "Ese código no sirve";
+      }
+    } catch (err) {
+      promoProd = null;
+      av.className = "promo-aviso promo-aviso--mal";
+      av.textContent = "No se pudo revisar. Intenta otra vez.";
+    }
+    btn.disabled = false; btn.textContent = "Aplicar";
+    actualizarTotal();
+    return;
+  }
   if (e.target.closest("#buyNow")) comprarDirecto();
 });
 document.addEventListener("cart:add", render);
