@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=62";
-import { PRODUCTOS_SEED } from "./seed.js?v=62";
+import { firebaseConfig, usaFirebase } from "./config.js?v=63";
+import { PRODUCTOS_SEED } from "./seed.js?v=63";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -128,6 +128,17 @@ async function crearImplFirebase() {
       return true;
     },
     async borrarSesion(id) { await deleteDoc(doc(fdb, "sesiones", id)); },
+
+    /* ---------- códigos de promoción ---------- */
+    async listarPromos() {
+      const snap = await getDocs(collection(fdb, "promos"));
+      return snap.docs.map(d => ({ codigo: d.id, ...d.data() }))
+        .sort((a, b) => String(b.creado || "").localeCompare(String(a.creado || "")));
+    },
+    async guardarPromo(codigo, datos) {
+      await setDoc(doc(fdb, "promos", codigo), datos, { merge: true });
+    },
+    async borrarPromo(codigo) { await deleteDoc(doc(fdb, "promos", codigo)); },
 
     /* ---------- ventas ---------- */
     async listarVentas() {
@@ -330,6 +341,9 @@ function crearImplDemo() {
     async listarClientes() { return []; },
     async borrarCliente() {},
     async borrarHistorialCliente() { return 0; },
+    async listarPromos() { return []; },
+    async guardarPromo() {},
+    async borrarPromo() {},
     async listarVentas() { return []; },
     async misCompras() { return []; },
     async productosParaFoto() { return []; },
