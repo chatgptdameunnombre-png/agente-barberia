@@ -1,8 +1,8 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=63";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=63";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=63";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=63";
-import { track, marcarProducto } from "./track.js?v=63";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=64";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=64";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=64";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=64";
+import { track, marcarProducto } from "./track.js?v=64";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -104,7 +104,22 @@ export function renderCart() {
       </div>
       <button class="line__rm" data-rm="${i.key}">Quitar</button>
     </div>`).join("");
-  $("#cartTotal").textContent = money(total);
+  /* si hay descuento, el total viejo va tachado y abajo el nuevo */
+  const desc = promoAplicada ? Math.min(promoAplicada.descuento, subtotal - 1) : 0;
+  const totalFinal = Math.max(0, total - desc);
+  const tot = $("#cartTotal");
+  if (desc > 0) {
+    tot.innerHTML = `<s class="tot-antes">${money(total)}</s> ${money(totalFinal)}`;
+    const fila = $("#cartDesc");
+    if (fila) {
+      fila.hidden = false;
+      fila.innerHTML = `<span>Descuento ${promoAplicada.codigo}</span><b>−${money(desc)}</b>`;
+    }
+  } else {
+    tot.textContent = money(total);
+    const fila = $("#cartDesc");
+    if (fila) fila.hidden = true;
+  }
   document.querySelectorAll(".entrega-cart").forEach(b => {
     const on = b.dataset.ec === entrega;
     b.style.borderColor = on ? "#e8b923" : "#2a2a32";
@@ -123,6 +138,28 @@ export function renderCart() {
 /* El código lo teclea el cliente aquí, pero quien decide si vale es el servidor.
    Aquí solo se guarda para mandarlo con el pedido. */
 let promoEscrita = "";
+let promoAplicada = null;   /* {codigo, descuento, etiqueta} — lo que dijo el servidor */
+
+/* El descuento se enseña en el carrito, pero lo calcula el servidor.
+   La página nunca decide cuánto se descuenta: solo pinta lo que le contestaron. */
+async function revisarPromo(codigo) {
+  const items = itemsCarrito();
+  const subtotal = items.reduce((a, i) => a + i.qty * i.precio, 0);
+  const r = await fetch(PROMO_WEBHOOK, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ codigo, subtotal })
+  });
+  return r.json();
+}
+
+function quitarPromo() {
+  promoAplicada = null; promoEscrita = "";
+  const av = document.getElementById("promoAviso");
+  if (av) { av.hidden = true; av.className = "promo-aviso"; }
+  const inp = document.getElementById("promoInput");
+  if (inp) inp.value = "";
+  renderCart();
+}
 
 document.addEventListener("click", e => {
   if (e.target.id === "promoAbrir") {
@@ -132,16 +169,38 @@ document.addEventListener("click", e => {
     document.getElementById("promoInput")?.focus();
     return;
   }
+  if (e.target.id === "promoQuitar") { quitarPromo(); return; }
+
   if (e.target.id === "promoAplicar") {
     const inp = document.getElementById("promoInput");
     const av = document.getElementById("promoAviso");
+    const btn = e.target;
     const cod = inp.value.trim().toUpperCase().replace(/\s+/g, "");
     if (!cod) { inp.focus(); return; }
-    promoEscrita = cod;
     inp.value = cod;
-    av.hidden = false;
-    av.textContent = `Listo: al pagar se aplica el código ${cod}. Si no existe o ya venció, se cobra el precio normal.`;
-    track("promo_escrita", { codigo: cod });
+    btn.disabled = true; btn.textContent = "Revisando…";
+    av.hidden = false; av.className = "promo-aviso"; av.textContent = "Revisando tu código…";
+    try {
+      const d = await revisarPromo(cod);
+      if (d && d.ok) {
+        promoAplicada = { codigo: d.codigo, descuento: d.descuento, etiqueta: d.etiqueta };
+        promoEscrita = d.codigo;
+        av.className = "promo-aviso promo-aviso--ok";
+        av.innerHTML = `Se aplicó <b>${d.codigo}</b> — ${d.etiqueta}. <button type="button" id="promoQuitar" class="promo-quitar">Quitar</button>`;
+        track("promo_aplicada", { codigo: d.codigo, descuento: d.descuento });
+      } else {
+        promoAplicada = null; promoEscrita = "";
+        av.className = "promo-aviso promo-aviso--mal";
+        av.textContent = (d && d.motivo) || "Ese código no sirve";
+        track("promo_rechazada", { codigo: cod, motivo: (d && d.motivo) || "" });
+      }
+    } catch (err) {
+      promoAplicada = null; promoEscrita = "";
+      av.className = "promo-aviso promo-aviso--mal";
+      av.textContent = "No se pudo revisar. Revisa tu internet e intenta otra vez.";
+    }
+    btn.disabled = false; btn.textContent = "Aplicar";
+    renderCart();
   }
 });
 
