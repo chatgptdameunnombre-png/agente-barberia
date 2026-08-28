@@ -19,7 +19,8 @@ function mostrar() {
   if (elegido) return;
   const b = document.createElement("div");
   b.id = "ckBanner";
-  b.style.cssText = "position:fixed;left:16px;right:16px;bottom:16px;z-index:9998;background:#0f0f12;border:1px solid #26262e;border-radius:16px;padding:16px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;box-shadow:0 20px 50px rgba(0,0,0,.5);max-width:720px;margin:0 auto";
+  /* sube por encima del botón del asistente, que vive en la esquina de abajo */
+  b.style.cssText = "position:fixed;left:16px;right:16px;bottom:92px;z-index:9998;background:#0f0f12;border:1px solid #26262e;border-radius:16px;padding:16px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;box-shadow:0 20px 50px rgba(0,0,0,.5);max-width:720px;margin:0 auto";
   b.innerHTML = `
     <p style="flex:1;min-width:240px;margin:0;font-size:13.5px;color:#c0c0c4;line-height:1.55">
       Guardamos tu carrito y medimos de forma anónima qué jerseys se ven más. Si sigues navegando, estás de acuerdo. <a href="legales.html#datos" style="color:#e8b923;text-decoration:underline;white-space:nowrap">Cómo lo usamos</a>
