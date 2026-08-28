@@ -4,6 +4,11 @@ function guardar(v) {
   try { localStorage.setItem(KEY, v); } catch { }
 }
 
+/* Quien no quiera que se mida su visita lo puede desactivar desde los términos
+   (legales.html): ahí vive el botón, el aviso de inicio solo confirma. */
+export function apagarMedicion() { guardar("no"); }
+export function prenderMedicion() { guardar("si"); }
+
 export function permiteMedicion() {
   try { return localStorage.getItem(KEY) !== "no"; } catch { return true; }
 }
@@ -21,12 +26,10 @@ function mostrar() {
       <a href="legales.html#datos" style="color:#e8b923;text-decoration:underline">Cómo lo usamos</a>.
     </p>
     <div style="display:flex;gap:8px">
-      <button id="ckNo" style="background:none;border:1px solid #2a2a32;color:#c0c0c4;border-radius:10px;padding:10px 14px;font-size:13.5px;cursor:pointer">Solo lo necesario</button>
-      <button id="ckSi" style="background:#e8b923;border:none;color:#1a1405;border-radius:10px;padding:10px 18px;font-weight:700;font-size:13.5px;cursor:pointer">Entendido</button>
+      <button id="ckSi" style="background:#e8b923;border:none;color:#1a1405;border-radius:10px;padding:10px 22px;font-weight:700;font-size:13.5px;cursor:pointer">Entendido</button>
     </div>`;
   document.body.appendChild(b);
   b.querySelector("#ckSi").onclick = () => { guardar("si"); b.remove(); };
-  b.querySelector("#ckNo").onclick = () => { guardar("no"); b.remove(); };
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mostrar);
