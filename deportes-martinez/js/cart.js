@@ -1,8 +1,8 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=62";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=62";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=62";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=62";
-import { track, marcarProducto } from "./track.js?v=62";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=63";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=63";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=63";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=63";
+import { track, marcarProducto } from "./track.js?v=63";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -120,16 +120,42 @@ export function renderCart() {
   $("#cartFoot").hidden = false;
 }
 
+/* El código lo teclea el cliente aquí, pero quien decide si vale es el servidor.
+   Aquí solo se guarda para mandarlo con el pedido. */
+let promoEscrita = "";
+
+document.addEventListener("click", e => {
+  if (e.target.id === "promoAbrir") {
+    const c = document.getElementById("promoCampo");
+    c.hidden = false;
+    e.target.hidden = true;
+    document.getElementById("promoInput")?.focus();
+    return;
+  }
+  if (e.target.id === "promoAplicar") {
+    const inp = document.getElementById("promoInput");
+    const av = document.getElementById("promoAviso");
+    const cod = inp.value.trim().toUpperCase().replace(/\s+/g, "");
+    if (!cod) { inp.focus(); return; }
+    promoEscrita = cod;
+    inp.value = cod;
+    av.hidden = false;
+    av.textContent = `Listo: al pagar se aplica el código ${cod}. Si no existe o ya venció, se cobra el precio normal.`;
+    track("promo_escrita", { codigo: cod });
+  }
+});
+
 function checkout() {
   const items = itemsCarrito();
   if (!items.length) return;
   if (!entrega) { toast("Elige cómo lo recibes: <b>recoger</b> o <b>a domicilio</b>"); return; }
   const productos = items.map(i => ({ id: i.id, qty: i.qty, title: i.nombre, talla: i.talla || "", perso: i.perso || null }));
+  const promo = promoEscrita;
   track("checkout", { metodo: metodoPago, entrega, items: items.length });
   if (metodoPago === "transferencia") {
     const subtotal = items.reduce((a, i) => a + i.qty * i.precio, 0);
     const total = subtotal + (entrega === "domicilio" ? ENVIO_DOMICILIO : 0);
-    iniciarTransferencia({ productos, entrega, total, onError: () => toast("No se pudo, intenta de nuevo") });
+    iniciarTransferencia({ productos, entrega, total, promo, onError: () => toast("No se pudo, intenta de nuevo") });
     return;
   }
   const mpItems = items.map(i => ({ title: (i.talla ? `${i.nombre} — Talla ${i.talla}` : i.nombre) + (i.perso ? " (personalizado)" : ""), quantity: i.qty, unit_price: i.precio, currency_id: "MXN" }));
@@ -138,6 +164,7 @@ function checkout() {
     items: mpItems,
     productos,
     entrega,
+    promo,
     onError: () => toast("No se pudo generar el pago, intenta de nuevo")
   });
 }
