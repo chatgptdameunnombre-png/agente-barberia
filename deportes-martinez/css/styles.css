@@ -520,6 +520,9 @@ main.sec--top { max-width: none; padding-left: 34px; padding-right: 34px; }
 .admin-brand__word { display: flex; flex-direction: column; line-height: 1; }
 .admin-brand__word b { font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: .16em; color: var(--ink); }
 .admin-brand__word small { font-family: var(--mono); font-size: 9px; letter-spacing: .26em; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
+/* El panel se usa con prisa y a veces desde el teléfono: la letra base es más
+   grande que la de la tienda. Se hace por escala, para no perseguir cada regla. */
+.admin-body { font-size: 16.5px; }
 .admin-main { padding: 36px 0 80px; }
 
 /* ===== Aire entre las secciones del panel =====
@@ -533,7 +536,7 @@ main.sec--top { max-width: none; padding-left: 34px; padding-right: 34px; }
 .admin-main > section > .admin-head,
 .admin-main > div > .admin-head { margin-bottom: 24px; }
 .admin-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; gap: 16px; flex-wrap: wrap; }
-.admin-head h1 { font-family: var(--display); font-size: 30px; letter-spacing: -.02em; }
+.admin-head h1 { font-family: var(--display); font-size: 33px; letter-spacing: -.02em; }
 .admin-head .btn { width: auto; }
 .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 30px; }
 @media (max-width: 620px) { .stat-row { grid-template-columns: 1fr; } }
@@ -610,8 +613,8 @@ select.input { appearance: none; background-image: url('data:image/svg+xml;utf8,
 .st-pie { font-size: 12px; color: #8a8a90; margin-top: 4px; }
 
 .st-bloque { margin: 38px 0; padding-top: 4px; }
-.st-bloque__h { font-size: 18px; margin: 0 0 4px; }
-.st-bloque__ayuda { color: #777; font-size: 13px; margin: 0 0 18px; max-width: 70ch; line-height: 1.6; }
+.st-bloque__h { font-size: 20px; margin: 0 0 4px; }
+.st-bloque__ayuda { color: #777; font-size: 14.5px; margin: 0 0 18px; max-width: 70ch; line-height: 1.6; }
 
 .st-vacio {
   color: #9a9aa2; font-size: 14px; background: #fafafa;
@@ -923,7 +926,7 @@ label, .field label { color: var(--ink-soft); }
 .modal__head { border-bottom: 1px solid var(--line); }
 .modal__head h3 { font-family: var(--display); color: var(--ink); }
 .modal__foot { border-top: 1px solid var(--line); background: #0b0a07; }
-.hint-foto { color: var(--muted); }
+.hint-foto { color: var(--muted); font-size: 13.5px; }
 .foto-mini { border: 1px solid var(--line); background: #0b0a07; }
 .icon-btn { color: var(--ink-soft); }
 .icon-btn:hover { color: var(--accent); }
@@ -1016,7 +1019,7 @@ label, .field label { color: var(--ink-soft); }
 
 /* encabezado de grupo en la lista de jerseys */
 .p-grupo {
-  font-family: var(--mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+  font-family: var(--mono); font-size: 12.5px; letter-spacing: .18em; text-transform: uppercase;
   color: var(--accent); background: #0b0a07; padding: 12px 18px; border-bottom: 1px solid var(--line);
 }
 
@@ -1027,7 +1030,7 @@ label, .field label { color: var(--ink-soft); }
 .p-dep[open] > .p-grupo::before { transform: rotate(90deg); }
 .p-liga__cab {
   cursor: pointer; list-style: none; display: flex; align-items: center; gap: 9px;
-  font-size: 12.5px; font-weight: 700; color: #d8d8d8; letter-spacing: .04em;
+  font-size: 14px; font-weight: 700; color: #d8d8d8; letter-spacing: .04em;
   padding: 10px 18px 10px 34px; background: #0f0e0b; border-bottom: 1px solid var(--line);
 }
 .p-liga__cab::-webkit-details-marker { display: none; }
@@ -1050,11 +1053,47 @@ label, .field label { color: var(--ink-soft); }
 }
 .p-todas--all { margin-left: 0; }
 
+/* ===== Código de descuento en el carrito ===== */
+.promo-caja { padding: 0 0 12px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+.promo-abrir {
+  background: none; border: 1px dashed var(--line); color: var(--accent);
+  border-radius: 10px; padding: 10px 14px; width: 100%; font-size: 13.5px;
+  font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.promo-abrir:hover { border-color: var(--accent); }
+.promo-campo { display: flex; gap: 8px; }
+.promo-campo input {
+  flex: 1; min-width: 0; padding: 11px 13px; border-radius: 10px;
+  border: 1px solid var(--line); background: #0e0e11; color: #f4f4f5;
+  font-size: 16px; letter-spacing: .06em; outline: none; font-family: var(--mono);
+}
+.promo-campo input:focus { border-color: var(--accent); }
+.promo-campo button {
+  background: var(--accent); border: none; color: #1a1405; border-radius: 10px;
+  padding: 11px 18px; font-weight: 800; font-size: 13.5px; cursor: pointer; font-family: inherit;
+}
+.promo-aviso { font-size: 12.5px; color: var(--accent); margin: 9px 0 0; line-height: 1.5; }
+
+/* ===== Códigos de descuento en el panel ===== */
+.pr-card { background: #131317; border: 1px solid #26262e; border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; }
+.pr-card--off { opacity: .58; }
+.pr-card__top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.pr-codigo { font-family: var(--mono); font-size: 18px; letter-spacing: .1em; color: var(--accent); }
+.pr-desc { font-size: 14px; color: #d8d8de; font-weight: 700; }
+.pr-card__top .st-tag { margin-left: auto; }
+.pr-datos { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #8a8a92; }
+.pr-tipo { display: flex; gap: 8px; flex-wrap: wrap; }
+.pr-op {
+  background: #16161a; border: 1px solid #2a2a32; color: #b8b8be; border-radius: 10px;
+  padding: 10px 15px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.pr-op.on { background: var(--accent); border-color: var(--accent); color: #1a1405; }
+
 /* ===== Ventas del panel ===== */
 .vt-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 22px; }
 .vt-tab {
   background: #16161a; border: 1px solid #2a2a32; color: #b8b8be;
-  border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 700;
+  border-radius: 999px; padding: 11px 18px; font-size: 14.5px; font-weight: 700;
   cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 7px;
 }
 .vt-tab:hover { border-color: var(--accent); color: #eee; }
@@ -1071,7 +1110,7 @@ label, .field label { color: var(--ink-soft); }
 /* ---- tarjeta de pedido: todo a la vista, sin abrir nada ---- */
 .vt-aviso {
   background: #1a1608; border: 1px solid #3a3216; border-radius: 12px;
-  padding: 14px 17px; margin-bottom: 20px; font-size: 13.5px; color: #d8c88a; line-height: 1.6;
+  padding: 15px 18px; margin-bottom: 20px; font-size: 15px; color: #d8c88a; line-height: 1.6;
 }
 .vt-aviso b { color: #f7d154; }
 .vt-card {
@@ -1085,11 +1124,11 @@ label, .field label { color: var(--ink-soft); }
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   padding-bottom: 12px; border-bottom: 1px solid #22222a; margin-bottom: 12px;
 }
-.vt-cuando { font-size: 12.5px; color: #8a8a92; }
-.vt-total { margin-left: auto; font-size: 19px; color: var(--accent); }
+.vt-cuando { font-size: 13.5px; color: #8a8a92; }
+.vt-total { margin-left: auto; font-size: 21px; color: var(--accent); }
 
 .vt-jersey { display: flex; gap: 12px; align-items: center; padding: 6px 0; }
-.vt-jersey b { font-size: 14.5px; display: block; }
+.vt-jersey b { font-size: 16px; display: block; }
 .vt-jersey__det { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
 .vt-foto {
   width: 52px; height: 52px; border-radius: 9px; object-fit: cover;
@@ -1097,18 +1136,18 @@ label, .field label { color: var(--ink-soft); }
 }
 .vt-foto--vacia { border: 1px dashed #2e2e38; }
 .vt-pill {
-  font-size: 11.5px; font-weight: 700; color: #b8b8c0;
+  font-size: 12.5px; font-weight: 700; color: #b8b8c0;
   background: #1e1e26; border-radius: 6px; padding: 2px 8px;
 }
 .vt-pill--oro { background: #2a2109; color: #f7d154; }
 
 .vt-quien {
   display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
-  margin-top: 12px; padding-top: 12px; border-top: 1px solid #22222a; font-size: 14px;
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid #22222a; font-size: 15.5px;
 }
-.vt-quien__tel { font-family: var(--mono); font-size: 13px; color: #a8a8b0; }
-.vt-envio { display: flex; gap: 9px; align-items: baseline; flex-wrap: wrap; margin-top: 7px; font-size: 13.5px; }
-.vt-envio__k { color: #8a8a92; font-size: 12.5px; }
+.vt-quien__tel { font-family: var(--mono); font-size: 14px; color: #a8a8b0; }
+.vt-envio { display: flex; gap: 9px; align-items: baseline; flex-wrap: wrap; margin-top: 7px; font-size: 15px; }
+.vt-envio__k { color: #8a8a92; font-size: 13.5px; }
 .vt-envio__v { color: #d8d8de; flex: 1; min-width: 180px; }
 .vt-copiar {
   background: none; border: 1px solid #2e2e38; color: var(--accent);
@@ -1124,7 +1163,7 @@ label, .field label { color: var(--ink-soft); }
   background: #17171c; border: 1px dashed #2e2e38; border-radius: 9px; padding: 8px 12px;
 }
 .vt-folio__k { font-size: 11px; color: #8a8a92; letter-spacing: .06em; text-transform: uppercase; }
-.vt-folio__v { font-family: var(--mono); font-size: 15px; letter-spacing: .08em; color: #f4f4f5; }
+.vt-folio__v { font-family: var(--mono); font-size: 17px; letter-spacing: .08em; color: #f4f4f5; }
 .vt-folio__m { margin-left: auto; font-size: 11.5px; color: #6e6e78; }
 
 /* buscador de pedidos */
@@ -1134,7 +1173,7 @@ label, .field label { color: var(--ink-soft); }
 .vt-aviso--malo { background: #2a1414; border-color: #4a2020; color: #ffb4b4; }
 .vt-aviso--malo b { color: #ff9b9b; }
 .vt-acciones { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
-.vt-acciones .btn { font-size: 13px; padding: 10px 15px; width: auto; }
+.vt-acciones .btn { font-size: 14.5px; padding: 12px 18px; width: auto; }
 @media (max-width: 560px) {
   .vt-acciones .btn { flex: 1 1 100%; }
   .vt-total { margin-left: 0; width: 100%; }
@@ -1156,11 +1195,11 @@ label, .field label { color: var(--ink-soft); }
 
 /* sub-bloques dentro de una sección de estadísticas */
 .st-sub {
-  font-size: 14.5px; font-weight: 800; color: #eee; margin: 34px 0 4px;
+  font-size: 16px; font-weight: 800; color: #eee; margin: 34px 0 4px;
   letter-spacing: .01em; display: flex; align-items: center; gap: 9px;
 }
 .st-sub:first-of-type { margin-top: 6px; }
-.st-sub__ayuda { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; line-height: 1.5; }
+.st-sub__ayuda { font-size: 14px; color: var(--muted); margin: 0 0 14px; line-height: 1.5; }
 
 /* hora en el paso a paso de cada visita */
 .st-hora { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-right: 6px; }
@@ -1182,7 +1221,7 @@ label, .field label { color: var(--ink-soft); }
   .admin-main > #estad { padding-top: 34px; margin-top: 34px; }
   .st-sub { margin-top: 26px; }
   .admin-head { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .admin-head h1 { font-size: 24px; }
+  .admin-head h1 { font-size: 26px; }
   .admin-head > div { width: 100%; display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; }
   .admin-head .btn { width: 100% !important; font-size: 13px; padding: 12px 10px; }
   .admin-top__in { height: 60px; }
