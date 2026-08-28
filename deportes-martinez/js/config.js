@@ -17,6 +17,8 @@ export const COBRO_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-crea
 /* los pedidos por transferencia se registran aquí: aparta el stock, guarda la venta
    como "por cobrar" y le avisa al dueño */
 export const PEDIDO_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-pago-ok";
+/* revisa un código de descuento y dice cuánto quita, para poder enseñarlo en el carrito */
+export const PROMO_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-promo";
 export const ASESOR_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-asesor";
 
 export const NEGOCIO = {
