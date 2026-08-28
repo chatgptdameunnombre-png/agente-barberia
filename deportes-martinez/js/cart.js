@@ -1,8 +1,8 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=64";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=64";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=64";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=64";
-import { track, marcarProducto } from "./track.js?v=64";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=65";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=65";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=65";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=65";
+import { track, marcarProducto } from "./track.js?v=65";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -161,7 +161,7 @@ function quitarPromo() {
   renderCart();
 }
 
-document.addEventListener("click", e => {
+document.addEventListener("click", async e => {
   if (e.target.id === "promoAbrir") {
     const c = document.getElementById("promoCampo");
     c.hidden = false;
