@@ -21,7 +21,7 @@
   <meta name="twitter:description" content="Términos de servicio, aviso de privacidad, envíos, cambios y devoluciones de Deportes Martínez.">
   <meta name="twitter:image" content="https://tuagentedeia.com/deportes-martinez/fotos/logo/logo-horizontal.png">
   <link rel="icon" href="fotos/logo/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=57">
+  <link rel="stylesheet" href="css/styles.css?v=58">
   <style>
     .legal { max-width: 820px; margin: 0 auto; }
     .legal h2 { font-family: var(--display); font-size: 26px; color: var(--ink); margin: 38px 0 6px; }
@@ -124,6 +124,11 @@
           <li>Tipo de dispositivo y desde dónde llegaste (por ejemplo Instagram o Google).</li>
         </ul>
         <p>Esta medición usa un identificador anónimo guardado en tu navegador. <b>No incluye tu nombre ni tu correo</b>, salvo que inicies sesión con tu cuenta: en ese caso las compras quedan asociadas a tu perfil para darte mejor servicio.</p>
+        <p><b>Si no quieres que midamos tu visita</b>, apágalo aquí. La tienda sigue funcionando igual: tu carrito y tus compras no se ven afectados.</p>
+        <div id="medicionCaja" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px">
+          <button id="medicionBtn" type="button" style="background:none;border:1px solid #2a2a32;color:#e8b923;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Cargando…</button>
+          <span id="medicionEstado" style="font-size:13.5px;color:#9a9aa2"></span>
+        </div>
       </section>
 
       <section id="envios">
@@ -207,8 +212,20 @@
       <span class="ftr__pay">Pagos seguros · Mercado Pago · Transferencia</span>
     </div>
   </footer>
-  <script type="module" src="js/auth.js?v=57"></script>
-  <script type="module" src="js/cookies.js?v=57"></script>
-  <script type="module" src="js/track.js?v=57"></script>
+  <script type="module" src="js/auth.js?v=58"></script>
+  <script type="module" src="js/cookies.js?v=58"></script>
+  <script type="module" src="js/track.js?v=58"></script>
+<script type="module">
+  import { permiteMedicion, apagarMedicion, prenderMedicion } from "./js/cookies.js?v=58";
+  const btn = document.getElementById("medicionBtn");
+  const txt = document.getElementById("medicionEstado");
+  function pintar() {
+    const on = permiteMedicion();
+    btn.textContent = on ? "Apagar la medición" : "Volver a activarla";
+    txt.textContent = on ? "Ahora mismo sí medimos tu visita." : "Listo: ya no estamos midiendo tu visita.";
+  }
+  btn.onclick = () => { permiteMedicion() ? apagarMedicion() : prenderMedicion(); pintar(); };
+  pintar();
+</script>
 </body>
 </html>
