@@ -1,7 +1,7 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=62";
-import { db } from "./db.js?v=62";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=62";
-import { track } from "./track.js?v=62";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=63";
+import { db } from "./db.js?v=63";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=63";
+import { track } from "./track.js?v=63";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -26,11 +26,11 @@ db.onAuth(async u => {
   perfil = u ? await db.getPerfil(u.uid).catch(() => null) : null;
 });
 
-export function iniciarPago({ items, productos, entrega, onError }) {
+export function iniciarPago({ items, productos, entrega, promo, onError }) {
   if (entrega === "domicilio") {
-    abrirModal(datos => enviarPago({ items, productos, entrega, ...datos }, onError), onError);
+    abrirModal(datos => enviarPago({ items, productos, entrega, promo, ...datos }, onError), onError);
   } else {
-    enviarPago({ items, productos, entrega }, onError);
+    enviarPago({ items, productos, entrega, promo }, onError);
   }
 }
 
@@ -49,7 +49,7 @@ function enviarPago(payload, onError) {
   }).catch(() => { if (onError) onError(); });
 }
 
-export function iniciarTransferencia({ productos, entrega, total, onError }) {
+export function iniciarTransferencia({ productos, entrega, total, promo, onError }) {
   if (entrega === "domicilio") {
     abrirModal(datos => mostrarClabe({ productos, entrega, total, ...datos }), onError);
   } else {
