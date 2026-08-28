@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=62";
-import { pintarEstadisticas } from "./estadisticas.js?v=62";
-import "./panel-nav.js?v=62";
+import { db } from "./db.js?v=63";
+import { pintarEstadisticas } from "./estadisticas.js?v=63";
+import "./panel-nav.js?v=63";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -38,6 +38,7 @@ async function arrancarDash() {
   db.onProducts(list => { productos = list; render(); });
   pintarEstadisticas(db);
   cargarVentas();
+  cargarPromos();
 }
 
 function stockPill(s) {
@@ -955,4 +956,211 @@ document.addEventListener("input", e => {
   const x = $("#vtBuscarX");
   if (x) x.hidden = !vtBusca;
   pintarVentas();
+});
+
+/* ============================================================
+   Códigos de descuento
+   ============================================================ */
+let promosCargadas = null;
+let prTipo = "porcentaje";
+let prDur = "siempre";
+let prEditando = null;
+
+const prOv = $("#promoOv");
+const prAbrir = () => prOv.classList.add("open");
+const prCerrar = () => prOv.classList.remove("open");
+
+function prPintarEjemplo() {
+  const v = Number($("#prValor").value || 0);
+  const el = $("#prEjemplo");
+  if (!el) return;
+  if (!v) { el.textContent = ""; return; }
+  el.textContent = prTipo === "porcentaje"
+    ? `En un jersey de $1,000 el cliente pagaría ${vtMoney(1000 - Math.round(1000 * v / 100))}.`
+    : `En un jersey de $1,000 el cliente pagaría ${vtMoney(Math.max(0, 1000 - v))}.`;
+}
+
+function prSetTipo(t) {
+  prTipo = t;
+  document.querySelectorAll("[data-tipo]").forEach(b => b.classList.toggle("on", b.dataset.tipo === t));
+  $("#prUnidad").textContent = t === "porcentaje" ? "%" : "$";
+  prPintarEjemplo();
+}
+
+function prSetDur(d) {
+  prDur = d;
+  document.querySelectorAll("[data-dur]").forEach(b => b.classList.toggle("on", b.dataset.dur === d));
+  $("#prDiasBox").style.display = d === "dias" ? "" : "none";
+  $("#prFechaBox").style.display = d === "fecha" ? "" : "none";
+}
+
+function prLimpiar() {
+  prEditando = null;
+  $("#promoTitulo").textContent = "Nuevo código";
+  $("#prCodigo").value = ""; $("#prCodigo").disabled = false;
+  $("#prValor").value = ""; $("#prDias").value = ""; $("#prFecha").value = "";
+  $("#prMinimo").value = ""; $("#prUsosMax").value = "";
+  $("#prActivo").checked = true;
+  prSetTipo("porcentaje"); prSetDur("siempre"); prPintarEjemplo();
+}
+
+/* cómo se lee el vencimiento en la lista */
+function prVigencia(p) {
+  if (!p.vence) return { txt: "Sin fecha límite", vencido: false };
+  const hasta = new Date(p.vence + "T23:59:59");
+  const vencido = hasta.getTime() < Date.now();
+  const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const txt = `${hasta.getDate()} ${meses[hasta.getMonth()]} ${hasta.getFullYear()}`;
+  if (vencido) return { txt: `Se venció el ${txt}`, vencido: true };
+  const dias = Math.ceil((hasta.getTime() - Date.now()) / 86400000);
+  return { txt: dias <= 7 ? `Vence en ${dias} ${dias === 1 ? "día" : "días"} (${txt})` : `Vence el ${txt}`, vencido: false };
+}
+
+function prFila(p) {
+  const v = prVigencia(p);
+  const usos = Number(p.usos || 0);
+  const tope = Number(p.usosMax || 0);
+  const agotado = tope > 0 && usos >= tope;
+  const apagado = p.activo === false;
+  const muerto = apagado || v.vencido || agotado;
+  const razon = apagado ? "Apagado" : (v.vencido ? "Vencido" : (agotado ? "Se acabaron los usos" : "Funcionando"));
+  return `<article class="pr-card${muerto ? " pr-card--off" : ""}">
+    <header class="pr-card__top">
+      <b class="pr-codigo">${p.codigo}</b>
+      <span class="pr-desc">${p.tipo === "fijo" ? vtMoney(p.valor) + " menos" : p.valor + "% de descuento"}</span>
+      <span class="st-tag st-tag--${muerto ? "paso" : "compro"}">${razon}</span>
+    </header>
+    <div class="pr-datos">
+      <span>${v.txt}</span>
+      <span>Usado ${usos} ${usos === 1 ? "vez" : "veces"}${tope ? ` de ${tope}` : ""}</span>
+      ${p.minimo ? `<span>Solo en compras de ${vtMoney(p.minimo)} o más</span>` : ""}
+    </div>
+    <div class="vt-acciones">
+      <button class="btn btn--ghost" data-pr-editar="${p.codigo}">Editar</button>
+      <button class="btn btn--ghost" data-pr-toggle="${p.codigo}">${apagado ? "Encender" : "Apagar"}</button>
+      <button class="btn btn--danger" data-pr-borrar="${p.codigo}">Borrar</button>
+    </div>
+  </article>`;
+}
+
+function pintarPromos() {
+  const cont = $("#promosBody");
+  if (!cont || !promosCargadas) return;
+  if (!promosCargadas.length) {
+    cont.innerHTML = `<div class="st-vacio">Todavía no tienes códigos.
+      Crea uno para repartirlo en la próxima expo.</div>`;
+    return;
+  }
+  const vivos = promosCargadas.filter(p => {
+    const v = prVigencia(p);
+    const tope = Number(p.usosMax || 0);
+    return p.activo !== false && !v.vencido && !(tope > 0 && Number(p.usos || 0) >= tope);
+  });
+  cont.innerHTML =
+    `<p class="st-bloque__ayuda">${vivos.length} funcionando de ${promosCargadas.length}</p>` +
+    promosCargadas.map(prFila).join("");
+}
+
+async function cargarPromos() {
+  const cont = $("#promosBody");
+  if (!cont) return;
+  try {
+    promosCargadas = await db.listarPromos();
+    pintarPromos();
+  } catch (e) {
+    cont.innerHTML = `<p class="st-error">No se pudieron leer los códigos: ${e.message}</p>`;
+  }
+}
+
+$("#promoNueva")?.addEventListener("click", () => { prLimpiar(); prAbrir(); });
+$("#promoX")?.addEventListener("click", prCerrar);
+$("#prCancelar")?.addEventListener("click", prCerrar);
+prOv?.addEventListener("click", e => { if (e.target === prOv) prCerrar(); });
+$("#prValor")?.addEventListener("input", prPintarEjemplo);
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-tipo]");
+  if (t) { prSetTipo(t.dataset.tipo); return; }
+  const d = e.target.closest("[data-dur]");
+  if (d) { prSetDur(d.dataset.dur); return; }
+});
+
+$("#prGuardar")?.addEventListener("click", async () => {
+  const codigo = $("#prCodigo").value.trim().toUpperCase().replace(/\s+/g, "");
+  const valor = Number($("#prValor").value || 0);
+  if (!codigo) { toast("Ponle un código"); $("#prCodigo").focus(); return; }
+  if (!/^[A-Z0-9-]{3,24}$/.test(codigo)) { toast("Solo letras, números y guiones (3 a 24)"); return; }
+  if (!valor || valor <= 0) { toast("Pon cuánto descuenta"); $("#prValor").focus(); return; }
+  if (prTipo === "porcentaje" && valor > 90) { toast("Un descuento de más del 90% seguro es un error"); return; }
+
+  let vence = "";
+  if (prDur === "dias") {
+    const dias = Number($("#prDias").value || 0);
+    if (!dias) { toast("¿Cuántos días dura?"); $("#prDias").focus(); return; }
+    const d2 = new Date(); d2.setDate(d2.getDate() + dias);
+    vence = d2.toISOString().slice(0, 10);
+  } else if (prDur === "fecha") {
+    vence = $("#prFecha").value;
+    if (!vence) { toast("Elige la fecha"); $("#prFecha").focus(); return; }
+  }
+
+  const datos = {
+    tipo: prTipo,
+    valor,
+    vence,
+    minimo: Number($("#prMinimo").value || 0),
+    usosMax: Number($("#prUsosMax").value || 0),
+    activo: $("#prActivo").checked,
+    actualizado: new Date().toISOString()
+  };
+  if (!prEditando) { datos.creado = new Date().toISOString(); datos.usos = 0; }
+
+  const btn = $("#prGuardar"); btn.disabled = true; btn.textContent = "Guardando…";
+  try {
+    await db.guardarPromo(codigo, datos);
+    toast(prEditando ? "Código actualizado" : `Código <b>${codigo}</b> listo para repartir`);
+    prCerrar();
+    await cargarPromos();
+  } catch (err) { toast("No se pudo guardar"); }
+  btn.disabled = false; btn.textContent = "Guardar código";
+});
+
+document.addEventListener("click", async e => {
+  const ed = e.target.closest("[data-pr-editar]");
+  if (ed) {
+    const p = (promosCargadas || []).find(x => x.codigo === ed.dataset.prEditar);
+    if (!p) return;
+    prLimpiar();
+    prEditando = p.codigo;
+    $("#promoTitulo").textContent = "Editar " + p.codigo;
+    $("#prCodigo").value = p.codigo; $("#prCodigo").disabled = true;
+    $("#prValor").value = p.valor || "";
+    $("#prMinimo").value = p.minimo || "";
+    $("#prUsosMax").value = p.usosMax || "";
+    $("#prActivo").checked = p.activo !== false;
+    prSetTipo(p.tipo === "fijo" ? "fijo" : "porcentaje");
+    if (p.vence) { prSetDur("fecha"); $("#prFecha").value = p.vence; } else prSetDur("siempre");
+    prPintarEjemplo();
+    prAbrir();
+    return;
+  }
+  const tg = e.target.closest("[data-pr-toggle]");
+  if (tg) {
+    const p = (promosCargadas || []).find(x => x.codigo === tg.dataset.prToggle);
+    if (!p) return;
+    tg.disabled = true;
+    try {
+      await db.guardarPromo(p.codigo, { activo: p.activo === false, actualizado: new Date().toISOString() });
+      await cargarPromos();
+    } catch { toast("No se pudo"); tg.disabled = false; }
+    return;
+  }
+  const bo = e.target.closest("[data-pr-borrar]");
+  if (bo) {
+    const cod = bo.dataset.prBorrar;
+    if (!confirm(`¿Borrar el código ${cod}?\n\nSi alguien ya lo tiene en la mano, dejará de funcionar.`)) return;
+    bo.disabled = true;
+    try { await db.borrarPromo(cod); toast("Código borrado"); await cargarPromos(); }
+    catch { toast("No se pudo borrar"); bo.disabled = false; }
+  }
 });
