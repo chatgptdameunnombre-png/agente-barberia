@@ -1,10 +1,10 @@
-import { db, MODO } from "./db.js?v=63";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=63";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=63";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=63";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=63";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=63";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=63";
+import { db, MODO } from "./db.js?v=64";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=64";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO } from "./config.js?v=64";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=64";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=64";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=64";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=64";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -114,18 +114,8 @@ function render() {
         <p class="prod__envio">🚚 Te llega en 72 horas después de que confirmes tu compra${p.personalizable === false ? "" : " (si lo pides con nombre y número, unos días más)"}</p>
         ${tallasBloque}
         ${persoBloque}
-        <div style="display:flex;gap:10px;margin-top:12px">
-          <button class="add-btn add-btn--big" id="addBtn2" ${puede && !topeAdd ? "" : "disabled"} style="flex:1;margin:0">${labelAdd}</button>
-          <button class="add-btn add-btn--big" id="buyNow" ${puede ? "" : "disabled"} style="flex:1;margin:0;background:#e8b923;color:#1a1405">${labelBuy}</button>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button type="button" class="entrega-op" data-entrega="tienda" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">Recoger en tienda</button>
-          <button type="button" class="entrega-op" data-entrega="domicilio" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">🏠 A domicilio +${money(ENVIO_DOMICILIO)}</button>
-        </div>
-        <div style="margin-top:12px;font-size:12.5px;color:#9a9aa2">¿Cómo quieres pagar? <span style="color:#7a7a82">(al usar "Comprar")</span></div>
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <button type="button" class="pago-op" data-pago="tarjeta" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">💳 Tarjeta</button>
-          <button type="button" class="pago-op" data-pago="transferencia" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">🏦 Transferencia</button>
+        <div style="margin-top:12px">
+          <button class="add-btn add-btn--big" id="addBtn2" ${puede && !topeAdd ? "" : "disabled"} style="width:100%;margin:0">${labelAdd}</button>
         </div>
         <div id="prodTotal" style="margin-top:10px;font-weight:600;color:#e8b923"></div>
         ${p.descripcion ? `<p class="prod__desc">${p.descripcion}</p>` : ""}
