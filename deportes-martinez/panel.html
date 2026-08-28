@@ -6,7 +6,7 @@
   <title>Panel del dueño — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=67">
+  <link rel="stylesheet" href="css/styles.css?v=68">
 </head>
 <body class="admin-body">
 
@@ -16,39 +16,35 @@
 
   <div id="dash" hidden>
     <header class="admin-top">
-      <div class="wrap admin-top__in">
+      <div class="admin-top__in">
         <button class="pnav-btn" id="pnavBtn" aria-label="Menú del panel"><span></span><span></span><span></span></button>
-        <a href="panel.html" class="admin-brand">
-          <img src="fotos/logo/iso-blanco.png" alt="">
-          <span class="admin-brand__word"><b>DEPORTES MARTÍNEZ</b><small>Panel del dueño</small></span>
-        </a>
+        <span class="admin-top__titulo" id="secTitulo">Ventas</span>
         <div class="admin-top__actions">
           <a href="index.html" class="btn btn--ghost" target="_blank">Ver tienda ↗</a>
-          <button class="btn btn--ghost" id="logout">Salir</button>
         </div>
       </div>
     </header>
 
-    <nav class="pnav" id="pnav" hidden>
-      <button class="pnav__item" data-sec="agregar">＋ Agregar jersey</button>
-      <button class="pnav__item" data-sec="productos">Mis jerseys</button>
-      <button class="pnav__item pnav__item--padre" data-sec="visitas">Visitas</button>
-      <div class="pnav__subs">
-        <button class="pnav__sub" data-sub="embudo">Dónde se te va la gente</button>
-        <button class="pnav__sub" data-sub="vistos">Jerseys más vistos</button>
-        <button class="pnav__sub" data-sub="piden">Lo que te preguntan</button>
-        <button class="pnav__sub" data-sub="tallas">Tallas más buscadas</button>
-        <button class="pnav__sub" data-sub="aparatos">Desde qué aparato entran</button>
-        <button class="pnav__sub" data-sub="detalle">Visita por visita</button>
+    <aside class="pnav" id="pnav">
+      <div class="pnav__marca">
+        <img src="fotos/logo/iso-blanco.png" alt="">
+        <span><b>Deportes Martínez</b><small>Panel del dueño</small></span>
       </div>
-      <button class="pnav__item" data-sec="ventas">Ventas <span class="pnav__badge" id="pnavPorCobrar" hidden>0</span></button>
-      <button class="pnav__item" data-sec="promos">Códigos de descuento</button>
-      <button class="pnav__item" data-sec="cuentas">Cuentas de clientes</button>
-    </nav>
+      <button class="pnav__item" data-sec="ventas"><span class="pnav__ico">🧾</span>Ventas <span class="pnav__badge" id="pnavPorCobrar" hidden>0</span></button>
+      <button class="pnav__item" data-sec="productos"><span class="pnav__ico">👕</span>Mis jerseys</button>
+      <button class="pnav__item" data-sec="visitas"><span class="pnav__ico">📊</span>Estadísticas</button>
+      <button class="pnav__item" data-sec="promos"><span class="pnav__ico">🏷️</span>Códigos de descuento</button>
+      <button class="pnav__item" data-sec="cuentas"><span class="pnav__ico">👥</span>Cuentas de clientes</button>
+      <div class="pnav__sep"></div>
+      <button class="pnav__item pnav__item--accion" data-sec="agregar"><span class="pnav__ico">＋</span>Agregar jersey</button>
+      <div class="pnav__pie">
+        <button class="pnav__item pnav__item--salir" id="logout"><span class="pnav__ico">↩</span>Cerrar sesión</button>
+      </div>
+    </aside>
     <div class="pnav-fondo" id="pnavFondo" hidden></div>
 
-    <main class="wrap admin-main">
-      <div id="secProductos">
+    <main class="admin-main">
+      <div class="psec" id="secProductos" hidden>
       <div class="admin-head">
         <h1>Mis jerseys</h1>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -72,7 +68,7 @@
       </div>
       </div>
 
-      <section id="secVentas">
+      <section class="psec" id="secVentas" hidden>
         <div class="admin-head" style="margin-bottom:14px">
           <h1>Ventas</h1>
           <button class="btn btn--ghost" id="ventasRefrescar" style="width:auto;padding:9px 15px">Actualizar</button>
@@ -93,7 +89,7 @@
         <div id="ventasBody"><p class="st-vacio">Cargando…</p></div>
       </section>
 
-      <section id="secPromos">
+      <section class="psec" id="secPromos" hidden>
         <div class="admin-head" style="margin-bottom:14px">
           <h1>Códigos de descuento</h1>
           <button class="btn" id="promoNueva" style="width:auto">＋ Nuevo código</button>
@@ -105,7 +101,7 @@
         <div id="promosBody"><p class="st-vacio">Cargando…</p></div>
       </section>
 
-      <section id="secCuentas">
+      <section class="psec" id="secCuentas" hidden>
         <div class="admin-head" style="margin-bottom:14px">
           <h1>Cuentas de clientes</h1>
         </div>
@@ -122,9 +118,9 @@
         <div id="cuentasBody" hidden></div>
       </section>
 
-      <section style="margin-top:40px" id="estad">
+      <section class="psec" id="estad" hidden>
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
-          <h2 style="font-size:20px;margin:0">Estadísticas de la tienda</h2>
+          <h1 style="margin:0">Estadísticas de la tienda</h1>
           <div style="display:flex;gap:10px;align-items:center">
           <span id="estadSello" style="font-size:12.5px;color:#8a8a90"></span>
           <button class="btn btn--ghost" id="estadRefrescar" style="width:auto;padding:8px 14px">Actualizar</button>
@@ -281,6 +277,6 @@
   </div>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=67"></script>
+  <script type="module" src="js/panel.js?v=68"></script>
 </body>
 </html>
