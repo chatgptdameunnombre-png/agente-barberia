@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=60";
-import { pintarEstadisticas } from "./estadisticas.js?v=60";
-import "./panel-nav.js?v=60";
+import { db } from "./db.js?v=61";
+import { pintarEstadisticas } from "./estadisticas.js?v=61";
+import "./panel-nav.js?v=61";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
