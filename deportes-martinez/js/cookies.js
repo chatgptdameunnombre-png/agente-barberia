@@ -32,16 +32,13 @@ function mostrar() {
   document.body.appendChild(b);
   b.querySelector("#ckSi").onclick = () => { guardar("si"); b.remove(); };
 
-  /* Si sigue navegando sin tocar el aviso, se toma como que está de acuerdo —
-     es lo que dice el propio aviso. Así no le vuelve a salir en cada página. */
+  /* Se queda mientras la persona esté en la página, para que alcance a leerlo.
+     Solo se toma como aceptado cuando se va a otra parte del sitio (toca un
+     enlace): así no le vuelve a salir en cada página. Con el scroll NO se cierra,
+     porque se iba en dos segundos y nadie alcanzaba a verlo. */
   const aceptarNavegando = () => { guardar("si"); b.remove(); limpiar(); };
-  const alScroll = () => { if (window.scrollY > 600) aceptarNavegando(); };
   const alClickEnlace = e => { if (e.target.closest("a[href]")) aceptarNavegando(); };
-  function limpiar() {
-    window.removeEventListener("scroll", alScroll);
-    document.removeEventListener("click", alClickEnlace, true);
-  }
-  window.addEventListener("scroll", alScroll, { passive: true });
+  function limpiar() { document.removeEventListener("click", alClickEnlace, true); }
   document.addEventListener("click", alClickEnlace, true);
 }
 
