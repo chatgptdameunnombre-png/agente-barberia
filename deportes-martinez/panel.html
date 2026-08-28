@@ -6,7 +6,7 @@
   <title>Panel del dueño — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=62">
+  <link rel="stylesheet" href="css/styles.css?v=63">
 </head>
 <body class="admin-body">
 
@@ -42,6 +42,7 @@
         <button class="pnav__sub" data-sub="detalle">Visita por visita</button>
       </div>
       <button class="pnav__item" data-sec="ventas">Ventas <span class="pnav__badge" id="pnavPorCobrar" hidden>0</span></button>
+      <button class="pnav__item" data-sec="promos">Códigos de descuento</button>
       <button class="pnav__item" data-sec="cuentas">Cuentas de clientes</button>
     </nav>
     <div class="pnav-fondo" id="pnavFondo" hidden></div>
@@ -90,6 +91,18 @@
           <button class="vt-tab" data-vt="cancelada">Canceladas <span class="vt-num" id="vtNumCanceladas">0</span></button>
         </div>
         <div id="ventasBody"><p class="st-vacio">Cargando…</p></div>
+      </section>
+
+      <section id="secPromos">
+        <div class="admin-head" style="margin-bottom:14px">
+          <h1>Códigos de descuento</h1>
+          <button class="btn" id="promoNueva" style="width:auto">＋ Nuevo código</button>
+        </div>
+        <p style="color:var(--ink-soft);font-size:14px;max-width:66ch;margin-bottom:20px">
+          Son los cupones que repartes en expos o por WhatsApp. La persona lo escribe al pagar
+          y el descuento se le aplica solo. Aquí ves cuántas veces se ha usado cada uno.
+        </p>
+        <div id="promosBody"><p class="st-vacio">Cargando…</p></div>
       </section>
 
       <section id="secCuentas">
@@ -203,7 +216,71 @@
     </div>
   </div>
 
+  <div class="modal-ov" id="promoOv">
+    <div class="modal">
+      <div class="modal__head">
+        <h3 id="promoTitulo">Nuevo código</h3>
+        <button class="icon-btn" id="promoX">✕</button>
+      </div>
+      <div class="modal__body">
+        <div class="field">
+          <label for="prCodigo">El código que va a escribir la gente</label>
+          <input class="input" id="prCodigo" placeholder="URBANCENTER16" autocapitalize="characters" autocomplete="off">
+          <p class="hint-foto">Sin espacios. Se guarda en mayúsculas, pero da igual cómo lo escriban al usarlo.</p>
+        </div>
+        <div class="field">
+          <label>Cuánto descuenta</label>
+          <div class="pr-tipo">
+            <button type="button" class="pr-op on" data-tipo="porcentaje">% de descuento</button>
+            <button type="button" class="pr-op" data-tipo="fijo">$ pesos menos</button>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:10px">
+            <input class="input" id="prValor" type="number" min="1" placeholder="10" style="flex:1">
+            <span id="prUnidad" style="font-size:20px;font-weight:800;color:var(--accent)">%</span>
+          </div>
+          <p class="hint-foto" id="prEjemplo"></p>
+        </div>
+        <div class="field">
+          <label>Hasta cuándo sirve</label>
+          <div class="pr-tipo">
+            <button type="button" class="pr-op on" data-dur="siempre">Sin límite</button>
+            <button type="button" class="pr-op" data-dur="dias">Por X días</button>
+            <button type="button" class="pr-op" data-dur="fecha">Hasta una fecha</button>
+          </div>
+          <div id="prDiasBox" style="display:none;margin-top:10px">
+            <input class="input" id="prDias" type="number" min="1" placeholder="15">
+            <p class="hint-foto">Días contados desde hoy.</p>
+          </div>
+          <div id="prFechaBox" style="display:none;margin-top:10px">
+            <input class="input" id="prFecha" type="date">
+            <p class="hint-foto">Ese día todavía sirve; al siguiente ya no.</p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="prMinimo">Compra mínima (opcional)</label>
+          <input class="input" id="prMinimo" type="number" min="0" placeholder="0">
+          <p class="hint-foto">Si pones 1000, el código solo sirve en compras de $1,000 o más. Déjalo vacío si no aplica.</p>
+        </div>
+        <div class="field">
+          <label for="prUsosMax">Cuántas veces se puede usar (opcional)</label>
+          <input class="input" id="prUsosMax" type="number" min="1" placeholder="sin límite">
+          <p class="hint-foto">En total, entre todos los clientes. Déjalo vacío si no quieres tope.</p>
+        </div>
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0">
+            <input type="checkbox" id="prActivo" style="width:auto" checked> Está encendido
+          </label>
+          <p class="hint-foto">Si lo apagas, deja de funcionar pero no se borra.</p>
+        </div>
+      </div>
+      <div class="modal__foot">
+        <button class="btn btn--ghost" id="prCancelar">Cancelar</button>
+        <button class="btn" id="prGuardar">Guardar código</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=62"></script>
+  <script type="module" src="js/panel.js?v=63"></script>
 </body>
 </html>
