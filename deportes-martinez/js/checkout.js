@@ -1,7 +1,7 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=66";
-import { db } from "./db.js?v=66";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=66";
-import { track } from "./track.js?v=66";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=67";
+import { db } from "./db.js?v=67";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=67";
+import { track } from "./track.js?v=67";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -14,10 +14,12 @@ function nuevoFolio() {
   return "DM-" + f;
 }
 
-/* Los datos bancarios reales los da el cliente. Mientras no existan, el flujo de
-   transferencia manda el pedido por WhatsApp y ahí se pasan los datos de pago. */
-const CLABE_TRANSFERENCIA = "";
-const BANCO_TRANSFERENCIA = "";
+/* DATOS DE MUESTRA para la presentación: el modal se ve completo pero nadie puede
+   transferir a una cuenta ajena por error. Los 3 primeros dígitos son el código real
+   de BBVA (012) y el resto es un patrón que no corresponde a ninguna cuenta.
+   ⚠️ Cambiar por la CLABE real de Daniel antes de recibir clientes de verdad. */
+const CLABE_TRANSFERENCIA = "012 320 00112233445 8";
+const BANCO_TRANSFERENCIA = "BBVA México";
 const BENEFICIARIO_TRANSFERENCIA = "Deportes Martínez";
 
 let user = null, perfil = null;
@@ -27,11 +29,7 @@ db.onAuth(async u => {
 });
 
 export function iniciarPago({ items, productos, entrega, promo, onError }) {
-  if (entrega === "domicilio") {
-    abrirModal(datos => enviarPago({ items, productos, entrega, promo, ...datos }, onError), onError);
-  } else {
-    enviarPago({ items, productos, entrega, promo }, onError);
-  }
+  abrirModal(entrega, datos => enviarPago({ items, productos, entrega, promo, ...datos }, onError), onError);
 }
 
 function enviarPago(payload, onError) {
@@ -50,11 +48,7 @@ function enviarPago(payload, onError) {
 }
 
 export function iniciarTransferencia({ productos, entrega, total, promo, onError }) {
-  if (entrega === "domicilio") {
-    abrirModal(datos => mostrarClabe({ productos, entrega, total, ...datos }), onError);
-  } else {
-    mostrarClabe({ productos, entrega, total });
-  }
+  abrirModal(entrega, datos => mostrarClabe({ productos, entrega, total, ...datos }), onError);
 }
 
 /* Deja el pedido registrado como "por cobrar": aparta el stock y le avisa al dueño.
@@ -102,7 +96,9 @@ function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion 
         <h3 style="margin:0;font-size:19px;font-weight:800">Paga por transferencia</h3>
         <button id="trClose" style="background:none;border:none;color:#9a9aa2;font-size:22px;cursor:pointer;line-height:1">✕</button>
       </div>
-      <p style="margin:0 0 16px;font-size:13px;color:#9a9aa2">Manda tu pedido por WhatsApp y te pasamos los datos para transferir. Apartamos tu jersey en cuanto confirmes el pago.</p>
+      <p style="margin:0 0 16px;font-size:13px;color:#9a9aa2">${CLABE_TRANSFERENCIA
+        ? "Transfiere a esta cuenta y mándanos tu comprobante por WhatsApp. Apartamos tu jersey en cuanto confirmes el pago."
+        : "Manda tu pedido por WhatsApp y te pasamos los datos para transferir. Apartamos tu jersey en cuanto confirmes el pago."}</p>
       <div style="background:#0e0e11;border:1px solid #2a2a32;border-radius:12px;padding:14px;margin-bottom:14px">
         ${CLABE_TRANSFERENCIA ? `
         <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:13px">Banco</span><b>${BANCO_TRANSFERENCIA}</b></div>
@@ -132,12 +128,13 @@ function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion 
   });
   const btnCopy = q("#trCopy");
   if (btnCopy) btnCopy.onclick = () => {
-    navigator.clipboard?.writeText(CLABE_TRANSFERENCIA);
+    navigator.clipboard?.writeText(CLABE_TRANSFERENCIA.replace(/\s/g, ""));
     btnCopy.textContent = "Copiado ✓";
   };
 }
 
-function abrirModal(onConfirm, onCancel) {
+function abrirModal(entrega, onConfirm, onCancel) {
+  const aDomicilio = entrega === "domicilio";
   if (document.getElementById("dirOverlay")) return;
   const ov = document.createElement("div");
   ov.id = "dirOverlay";
@@ -145,13 +142,16 @@ function abrirModal(onConfirm, onCancel) {
   ov.innerHTML = `
     <div style="background:#0f0f12;border:1px solid #26262e;border-radius:18px;max-width:440px;width:100%;padding:24px;font-family:inherit;color:#f4f4f5;max-height:92vh;overflow:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <h3 style="margin:0;font-size:19px;font-weight:800">¿A dónde te lo enviamos?</h3>
+        <h3 style="margin:0;font-size:19px;font-weight:800">${aDomicilio ? "¿A dónde te lo enviamos?" : "¿Quién recoge el pedido?"}</h3>
         <button id="dirClose" style="background:none;border:none;color:#9a9aa2;font-size:22px;cursor:pointer;line-height:1">✕</button>
       </div>
-      <p style="margin:0 0 16px;font-size:13px;color:#9a9aa2">${perfil ? "Envío a domicilio (+" + money(ENVIO_DOMICILIO) + "). Revisa que tus datos estén bien y confirma." : "Envío a domicilio (+" + money(ENVIO_DOMICILIO) + "). Llena tus datos para la entrega."}</p>
+      <p style="margin:0 0 16px;font-size:13px;color:#9a9aa2">${aDomicilio
+        ? (perfil ? "Envío a domicilio (+" + money(ENVIO_DOMICILIO) + "). Revisa que tus datos estén bien y confirma." : "Envío a domicilio (+" + money(ENVIO_DOMICILIO) + "). Llena tus datos para la entrega.")
+        : "Recoges en la tienda. Necesitamos tu nombre y teléfono para avisarte cuando esté listo."}</p>
       <div style="display:flex;flex-direction:column;gap:10px">
         <input id="dNombre" placeholder="Nombre completo" ${inp()}>
         <input id="dTel" placeholder="Teléfono" inputmode="tel" ${inp()}>
+        ${aDomicilio ? `
         <input id="dCalle" placeholder="Calle y número" ${inp()}>
         <div style="display:flex;gap:10px">
           <input id="dCol" placeholder="Colonia" ${inp()} style="flex:2;${inpS()}">
@@ -161,7 +161,7 @@ function abrirModal(onConfirm, onCancel) {
           <input id="dCiudad" placeholder="Ciudad" ${inp()} style="flex:1;${inpS()}">
           <input id="dEstado" placeholder="Estado" ${inp()} style="flex:1;${inpS()}">
         </div>
-        <input id="dRef" placeholder="Referencias (opcional)" ${inp()}>
+        <input id="dRef" placeholder="Referencias (opcional)" ${inp()}>` : ""}
         <div id="dErr" style="color:#ff6b6b;font-size:12.5px;min-height:16px"></div>
         <button id="dGo" style="background:#e8b923;color:#1a1405;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.3px">Continuar al pago</button>
       </div>
@@ -170,22 +170,23 @@ function abrirModal(onConfirm, onCancel) {
   const $ = s => ov.querySelector(s);
   if (perfil) {
     const pre = { dNombre: perfil.nombre, dTel: perfil.telefono, dCalle: perfil.calle, dCol: perfil.colonia, dCP: perfil.cp, dCiudad: perfil.ciudad, dEstado: perfil.estado, dRef: perfil.referencias };
-    for (const [id, v] of Object.entries(pre)) { if (v) $("#" + id).value = v; }
+    for (const [id, v] of Object.entries(pre)) { const el = $("#" + id); if (v && el) el.value = v; }
   }
   const cerrar = () => { ov.remove(); if (onCancel) onCancel(); };
   $("#dirClose").onclick = cerrar;
   ov.addEventListener("click", e => { if (e.target === ov) cerrar(); });
   $("#dGo").onclick = () => {
-    const nombre = $("#dNombre").value.trim(), tel = $("#dTel").value.trim();
-    const calle = $("#dCalle").value.trim(), col = $("#dCol").value.trim(), cp = $("#dCP").value.trim();
-    const ciudad = $("#dCiudad").value.trim(), estado = $("#dEstado").value.trim(), ref = $("#dRef").value.trim();
-    if (!nombre || !tel || !calle || !col || !cp || !ciudad || !estado) { $("#dErr").textContent = "Completa nombre, teléfono, calle, colonia, C.P., ciudad y estado."; return; }
-    const direccion = `${calle}, Col. ${col}, ${ciudad}, ${estado}, C.P. ${cp}${ref ? " (" + ref + ")" : ""}`;
+    const v = id => { const el = $("#" + id); return el ? el.value.trim() : ""; };
+    const nombre = v("dNombre"), tel = v("dTel");
+    const soloDigitos = tel.replace(/\D/g, "");
+    if (!nombre || soloDigitos.length < 10) { $("#dErr").textContent = "Pon tu nombre y un teléfono de 10 dígitos."; return; }
+    const calle = v("dCalle"), col = v("dCol"), cp = v("dCP"), ciudad = v("dCiudad"), estado = v("dEstado"), ref = v("dRef");
+    if (aDomicilio && (!calle || !col || !cp || !ciudad || !estado)) { $("#dErr").textContent = "Completa calle, colonia, C.P., ciudad y estado."; return; }
+    const direccion = aDomicilio ? `${calle}, Col. ${col}, ${ciudad}, ${estado}, C.P. ${cp}${ref ? " (" + ref + ")" : ""}` : "";
     if (user) {
-      db.guardarPerfil(user.uid, {
-        nombre, telefono: tel, calle, colonia: col, cp, ciudad, estado, referencias: ref,
-        email: user.email, actualizado: new Date().toISOString()
-      }).catch(() => {});
+      const guardar = { nombre, telefono: tel, email: user.email, actualizado: new Date().toISOString() };
+      if (aDomicilio) Object.assign(guardar, { calle, colonia: col, cp, ciudad, estado, referencias: ref });
+      db.guardarPerfil(user.uid, guardar).catch(() => {});
     }
     $("#dGo").disabled = true; $("#dGo").textContent = "Generando pago…";
     ov.remove();
