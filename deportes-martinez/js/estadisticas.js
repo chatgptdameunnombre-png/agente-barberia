@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=67";
+import { firebaseConfig } from "./config.js?v=68";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -8,15 +8,33 @@ const RAIZ = `https://firestore.googleapis.com/v1/projects/${PROJ}/databases/(de
 /* Campos ligeros: se pide TODO menos `eventos`, que es lo pesado.
    El detalle de una visita se baja solo cuando el dueño la abre. */
 const CAMPOS = ["inicio", "fin", "duracion", "dispositivo", "origen", "entrada", "paginas",
-  "compro", "compraPorConfirmar", "clienteEmail", "vistos", "alCarrito", "favorito", "busquedas", "sinResultado", "tallas", "productos"];
+  "compro", "compraPorConfirmar", "clienteEmail", "vistos", "alCarrito", "favorito", "busquedas", "sinResultado", "tallas", "productos",
+  "nombreCliente", "refPedido"];
 
 let sesiones = [];
 let cargando = false;
 let bd = null;
+/* referencia de pedido -> venta. Se llena al cargar y sirve para saber quien pago de verdad. */
+let ventasPorRef = new Map();
+
+/* El cliente casi nunca regresa de Mercado Pago, asi que no podemos marcar la compra "al volver".
+   Cruzamos la referencia que la visita guardo al salir a pagar contra las ventas registradas:
+   si hay venta, esta persona compro — haya regresado o no. */
+function cruzarConVentas(lista) {
+  for (const s of lista) {
+    const v = s.refPedido ? ventasPorRef.get(s.refPedido) : null;
+    if (!v) continue;
+    s.venta = v;
+    s.compro = true;
+    s.compraPorConfirmar = v.estado === "por_cobrar";
+    if (!s.nombreCliente && v.cliente) s.nombreCliente = v.cliente;
+  }
+}
 
 /* ---------------- helpers ---------------- */
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
 const esc = t => String(t ?? "").replace(/[<>&]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
+const money = n => "$" + Number(n || 0).toLocaleString("es-MX");
 
 function tiempo(seg) {
   seg = Math.round(Number(seg) || 0);
@@ -304,11 +322,14 @@ function visitas(list) {
   if (!list.length) return vacio("Todavía no hay visitas en este periodo.");
   return `<div class="st-visitas">${list.slice(0, 30).map(s => {
     const clase = s.compro ? (s.compraPorConfirmar ? "porconfirmar" : "compro") : (s.alCarrito ? "carrito" : (s.vistos ? "miro" : "paso"));
-    const etiqueta = { compro: "Compró", porconfirmar: "Compró · por confirmar", carrito: "Dejó el carrito", miro: "Miró jerseys", paso: "Solo pasó" }[clase];
+    let etiqueta = { compro: "Compró", porconfirmar: "Compró · por confirmar", carrito: "Dejó el carrito", miro: "Miró jerseys", paso: "Solo pasó" }[clase];
+    if (s.venta) etiqueta = s.venta.estado === "por_cobrar"
+      ? `Compró · falta que pague ${money(s.venta.total)}`
+      : `Compró y pagó ${money(s.venta.total)}`;
     return `<details class="st-visita">
       <summary class="st-visita__cab">
         <span class="st-visita__cuando">${hace(s.inicio)}</span>
-        <span class="st-visita__quien">${esc(s.clienteEmail || "Visitante")}${s.favorito ? `<span class="st-visita__vio"> · vio ${esc(s.favorito)}</span>` : ""}</span>
+        <span class="st-visita__quien">${esc(s.nombreCliente || s.clienteEmail || "Visitante")}${s.venta?.folio ? `<span class="st-visita__vio"> · pedido ${esc(s.venta.folio)}</span>` : ""}${s.favorito ? `<span class="st-visita__vio"> · vio ${esc(s.favorito)}</span>` : ""}</span>
         <span class="st-visita__tiempo">${tiempo(s.duracion)} · ${esc(s.dispositivo || "")}</span>
         <span class="st-tag st-tag--${clase}">${etiqueta}</span>
       </summary>
@@ -391,6 +412,12 @@ export async function pintarEstadisticas(db) {
   const dias = $("#estadRango")?.value || "30";
   try {
     sesiones = await bajarSesiones(dias);
+    try {
+      const ventas = await bd.listarVentas();
+      ventasPorRef = new Map();
+      for (const v of ventas) { if (v.ref) ventasPorRef.set(v.ref, v); }
+    } catch { ventasPorRef = new Map(); }
+    cruzarConVentas(sesiones);
     pintarLista(sesiones);
     const sello = $("#estadSello");
     if (sello) sello.textContent = `${sesiones.length} visitas · actualizado ${new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}`;
