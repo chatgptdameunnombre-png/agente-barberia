@@ -513,7 +513,9 @@ main.sec--top { max-width: none; padding-left: 34px; padding-right: 34px; }
 
 .admin-top { background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 30; }
 .admin-top .wrap { max-width: none; padding: 0 34px; }
-.admin-top__in { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+.admin-top__in { display: flex; align-items: center; gap: 14px; height: 64px; padding: 0 18px; }
+.admin-top__titulo { font-family: var(--display); font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.admin-top__actions { margin-left: auto; }
 .admin-top__actions { display: flex; align-items: center; gap: 12px; }
 .admin-brand { display: flex; align-items: center; gap: 12px; }
 .admin-brand img { width: 34px; height: 34px; object-fit: contain; }
@@ -523,16 +525,15 @@ main.sec--top { max-width: none; padding-left: 34px; padding-right: 34px; }
 /* El panel se usa con prisa y a veces desde el teléfono: la letra base es más
    grande que la de la tienda. Se hace por escala, para no perseguir cada regla. */
 .admin-body { font-size: 16.5px; }
-.admin-main { padding: 36px 0 80px; }
+.admin-main { padding: 30px 18px 90px; }
+.admin-main > .psec { max-width: 940px; margin: 0 auto; }
+.admin-body h1 { font-size: 28px; letter-spacing: -.02em; }
+.admin-body .btn { min-height: 48px; font-size: 15.5px; }
 
 /* ===== Aire entre las secciones del panel =====
    Cada sección grande (jerseys, ventas, cuentas, estadísticas) queda separada
    con espacio y una línea, para que no se lean como un solo bloque. */
-.admin-main > #secProductos,
-.admin-main > #secVentas,
-.admin-main > #secCuentas,
-.admin-main > #estad { padding-top: 46px; margin-top: 46px; border-top: 1px solid #1e1e24; }
-.admin-main > #secProductos:first-child { padding-top: 0; margin-top: 0; border-top: 0; }
+
 .admin-main > section > .admin-head,
 .admin-main > div > .admin-head { margin-bottom: 24px; }
 .admin-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; gap: 16px; flex-wrap: wrap; }
@@ -996,26 +997,45 @@ label, .field label { color: var(--ink-soft); }
 .pnav-btn.on span:nth-child(2) { opacity: 0; }
 .pnav-btn.on span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
+/* Barra lateral: fija en computadora, deslizable en telefono.
+   Una seccion a la vez — el panel se usa con prisa y casi siempre desde el telefono. */
 .pnav {
-  position: fixed; top: 68px; left: 0; bottom: 0; width: min(300px, 84vw); z-index: 45;
-  background: var(--bg-card); border-right: 1px solid var(--line);
-  padding: 18px 14px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto;
-  box-shadow: 24px 0 60px rgba(0,0,0,.5);
+  position: fixed; top: 0; left: 0; bottom: 0; width: 268px; z-index: 45;
+  background: #0c0c0f; border-right: 1px solid var(--line);
+  padding: 16px 12px 20px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto;
+  transform: translateX(-100%); transition: transform .24s ease;
 }
-.pnav-fondo { position: fixed; inset: 68px 0 0 0; z-index: 44; background: rgba(0,0,0,.5); }
+.pnav.abierta { transform: none; box-shadow: 24px 0 60px rgba(0,0,0,.6); }
+.pnav-fondo { position: fixed; inset: 0; z-index: 44; background: rgba(0,0,0,.55); }
+
+.pnav__marca { display: flex; align-items: center; gap: 11px; padding: 8px 12px 20px; }
+.pnav__marca img { width: 34px; height: 34px; object-fit: contain; }
+.pnav__marca span { display: flex; flex-direction: column; line-height: 1.25; }
+.pnav__marca b { font-size: 15.5px; }
+.pnav__marca small { font-size: 12.5px; color: var(--muted); }
+
 .pnav__item {
-  text-align: left; padding: 13px 14px; border-radius: 10px; border: 1px solid transparent;
-  color: var(--ink); font-family: var(--font); font-size: 14.5px; font-weight: 600; cursor: pointer; background: none;
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  text-align: left; padding: 0 14px; min-height: 48px; border-radius: 11px; border: 1px solid transparent;
+  color: var(--ink); font-family: var(--font); font-size: 16px; font-weight: 600; cursor: pointer; background: none;
 }
-.pnav__item:hover { background: #16130c; border-color: var(--line); }
-.pnav__item.on { background: rgba(232,185,35,.12); border-color: rgba(232,185,35,.45); color: var(--accent); }
-.pnav__subs { display: flex; flex-direction: column; gap: 2px; margin: 2px 0 6px 12px; padding-left: 10px; border-left: 1px solid var(--line); }
-.pnav__sub {
-  text-align: left; padding: 9px 12px; border-radius: 8px; background: none; border: none; cursor: pointer;
-  color: var(--ink-soft); font-family: var(--font); font-size: 13.5px;
+.pnav__ico { font-size: 18px; width: 22px; text-align: center; flex: 0 0 auto; }
+.pnav__item:hover { background: #16130c; }
+.pnav__item.on { background: rgba(232,185,35,.14); color: var(--accent); font-weight: 700; }
+.pnav__sep { height: 1px; background: var(--line); margin: 12px 8px; }
+.pnav__item--accion { color: var(--accent); }
+.pnav__pie { margin-top: auto; padding-top: 12px; }
+.pnav__item--salir { color: var(--muted); font-weight: 500; }
+
+/* En computadora la barra se queda fija y el contenido se recorre */
+@media (min-width: 1000px) {
+  .pnav { transform: none; }
+  .pnav-btn, .pnav-fondo { display: none !important; }
+  .admin-top { left: 268px; }
+  .admin-top__in, .admin-main { margin-left: 268px; }
+  /* en computadora la barra lateral ya dice donde estas: el titulo de arriba sobra */
+  .admin-top__titulo { display: none; }
 }
-.pnav__sub:hover { color: var(--accent); }
-.pnav__sub.on { color: var(--accent); background: rgba(232,185,35,.08); }
 
 /* encabezado de grupo en la lista de jerseys */
 .p-grupo {
@@ -1222,8 +1242,15 @@ label, .field label { color: var(--ink-soft); }
 .st-pasos li { line-height: 1.7; }
 
 @media (max-width: 620px) {
-  .pnav { top: 60px; }
-  .pnav-fondo { inset: 60px 0 0 0; }
+  .admin-top__in { height: 58px; padding: 0 12px; }
+  .admin-top__titulo { font-size: 18px; }
+  .admin-main { padding: 18px 14px 90px; }
+  .admin-body h1 { font-size: 24px; }
+  /* en telefono el titulo ya esta arriba: repetirlo abajo solo quita espacio */
+  .admin-main > .psec > .admin-head > h1,
+  .admin-main > .psec > div > h1 { display: none; }
+  .admin-head { align-items: flex-start; }
+  .admin-head .btn { align-self: flex-start; }
 }
 
 /* venta por transferencia: contada, pero marcada como "falta confirmar" */
@@ -1232,14 +1259,12 @@ label, .field label { color: var(--ink-soft); }
 /* ===== Panel en teléfono: que se lea igual de fácil ===== */
 @media (max-width: 760px) {
   .admin-main { padding: 20px 16px 60px; }   /* el atajo borraba el padding lateral del .wrap */
-  .admin-main > #secVentas,
-  .admin-main > #secCuentas,
-  .admin-main > #estad { padding-top: 34px; margin-top: 34px; }
+  /* Ya no hace falta separar las secciones entre si: solo se ve una a la vez. */
   .st-sub { margin-top: 26px; }
   .admin-head { flex-direction: column; align-items: flex-start; gap: 12px; }
   .admin-head h1 { font-size: 26px; }
-  .admin-head > div { width: 100%; display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .admin-head .btn { width: 100% !important; font-size: 13px; padding: 12px 10px; }
+  .admin-head > div { display: flex; flex-wrap: wrap; gap: 8px; }
+  .admin-head .btn { width: auto; font-size: 14.5px; padding: 12px 18px; }
   .admin-top__in { height: 60px; }
   .admin-brand img { width: 28px; height: 28px; }
   .admin-brand__word b { font-size: 13px; letter-spacing: .1em; }
