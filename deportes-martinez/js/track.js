@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=67";
-import { permiteMedicion } from "./cookies.js?v=67";
+import { firebaseConfig, usaFirebase } from "./config.js?v=68";
+import { permiteMedicion } from "./cookies.js?v=68";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
@@ -126,7 +126,9 @@ function cargarSesion() {
     segundos: 0,          // tiempo ACTIVO (con la pestaña visible y la persona haciendo algo)
     compro: false,
     clienteUid: "",
-    clienteEmail: ""
+    clienteEmail: "",
+    nombreCliente: "",    // el nombre que escribió al comprar
+    refPedido: ""         // referencia del pedido: con esto el panel lo cruza con las ventas
   };
 }
 
@@ -190,6 +192,8 @@ function resumenSesion(uid) {
     compraPorConfirmar: !!ses.compraPorConfirmar,
     clienteUid: ses.clienteUid || "",
     clienteEmail: ses.clienteEmail || "",
+    nombreCliente: ses.nombreCliente || "",
+    refPedido: ses.refPedido || "",
     vistos: prods.length,
     alCarrito: prods.filter(([, p]) => p.carrito).length,
     favorito: masVisto ? masVisto[1].nombre : "",
@@ -272,6 +276,11 @@ export function track(evento, datos = {}) {
   if (evento === "asesor" && datos.pregunta) ses.busquedas.push(String(datos.pregunta).slice(0, 80));
   if (evento === "compra") { ses.compro = true; ses.compraPorConfirmar = !!datos.porConfirmar; }
   if (evento === "sale_a_pagar") ses.pagando = Date.now();
+  /* El cliente casi nunca regresa de Mercado Pago (hay que darle "Volver al sitio" y nadie lo hace),
+     así que la compra no se puede marcar al volver. Guardamos su nombre y la referencia del pedido:
+     el panel cruza esa referencia con las ventas registradas y sabe si pagó, haya regresado o no. */
+  if (datos.cliente) ses.nombreCliente = String(datos.cliente).slice(0, 60);
+  if (datos.ref) ses.refPedido = String(datos.ref).slice(0, 40);
   sucio = true;
   guardarLocal();
   guardarPendientes();
@@ -325,7 +334,7 @@ export function setCliente(uid, email) {
       entrada: pagina(),
       paginas: [pagina()],
       productos: {}, busquedas: [], sinResultado: [], tallas: [],
-      segundos: 0, compro: false, clienteUid: "", clienteEmail: ""
+      segundos: 0, compro: false, clienteUid: "", clienteEmail: "", nombreCliente: "", refPedido: ""
     };
     pendientes = [];
     guardarPendientes();
