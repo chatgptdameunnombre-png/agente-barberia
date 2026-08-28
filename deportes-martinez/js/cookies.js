@@ -21,10 +21,8 @@ function mostrar() {
   b.id = "ckBanner";
   b.style.cssText = "position:fixed;left:16px;right:16px;bottom:16px;z-index:9998;background:#0f0f12;border:1px solid #26262e;border-radius:16px;padding:16px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;box-shadow:0 20px 50px rgba(0,0,0,.5);max-width:720px;margin:0 auto";
   b.innerHTML = `
-    <p style="flex:1;min-width:240px;margin:0;font-size:13.5px;color:#c0c0c4;line-height:1.5">
-      Usamos almacenamiento del navegador para tu carrito y para medir de forma anónima qué jerseys se ven más.
-      Si sigues navegando, entendemos que estás de acuerdo.
-      <a href="legales.html#datos" style="color:#e8b923;text-decoration:underline">Cómo lo usamos</a>.
+    <p style="flex:1;min-width:240px;margin:0;font-size:13.5px;color:#c0c0c4;line-height:1.55">
+      Guardamos tu carrito y medimos de forma anónima qué jerseys se ven más. Si sigues navegando, estás de acuerdo. <a href="legales.html#datos" style="color:#e8b923;text-decoration:underline;white-space:nowrap">Cómo lo usamos</a>
     </p>
     <div style="display:flex;gap:8px">
       <button id="ckSi" style="background:#e8b923;border:none;color:#1a1405;border-radius:10px;padding:10px 22px;font-weight:700;font-size:13.5px;cursor:pointer">Entendido</button>
