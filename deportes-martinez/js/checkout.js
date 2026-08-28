@@ -1,7 +1,7 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=67";
-import { db } from "./db.js?v=67";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=67";
-import { track } from "./track.js?v=67";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=68";
+import { db } from "./db.js?v=68";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=68";
+import { track } from "./track.js?v=68";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -33,13 +33,17 @@ export function iniciarPago({ items, productos, entrega, promo, onError }) {
 }
 
 function enviarPago(payload, onError) {
-  track("pago_mercadopago", { entrega: payload.entrega, items: (payload.items || []).length });
+  /* Una sola referencia para todo el pedido: la genera el navegador, el servidor la usa como
+     external_reference en Mercado Pago y la venta la guarda. Asi el registro de visitas puede
+     cruzarla con la venta y saber si esta persona pago, aunque nunca regrese de Mercado Pago. */
+  const ref = nuevoFolio();
+  track("pago_mercadopago", { entrega: payload.entrega, items: (payload.items || []).length, ref, cliente: payload.cliente || "" });
   fetch(COBRO_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...payload, uid: user?.uid || "", folio: nuevoFolio() })
+    body: JSON.stringify({ ...payload, uid: user?.uid || "", folio: ref, ref })
   }).then(r => r.json()).then(d => {
     if (d.link) {
-      track("sale_a_pagar", { proveedor: "Mercado Pago" });
+      track("sale_a_pagar", { proveedor: "Mercado Pago", ref, cliente: payload.cliente || "" });
       setTimeout(() => { window.location.href = d.link; }, 220);
       return;
     }
@@ -84,7 +88,7 @@ function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion 
   const resumen = (productos || []).map(p => `${p.qty}x ${p.title}${p.talla ? " (T " + p.talla + ")" : ""}`).join(", ");
   const entregaTxt = entrega === "domicilio" ? `Entrega a domicilio: ${direccion || ""}` : "Recoge en tienda";
   const descTxt = desc ? `\nDescuento mayoreo -10%: -${money(desc)}` : "";
-  track("transferencia", { ref, total: totalFinal });
+  track("transferencia", { ref, total: totalFinal, cliente: cliente || "" });
   const waMsg = encodeURIComponent(`Hola, hice mi pedido en la web (ref ${ref}).\nProductos: ${resumen}${descTxt}\nTotal: ${money(totalFinal)}\n${entregaTxt}\n¿Me pasan los datos para pagar?`);
   const waLink = `https://wa.me/${WHATSAPP_NUMERO}?text=${waMsg}`;
   const ov = document.createElement("div");
