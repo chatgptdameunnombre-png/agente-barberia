@@ -1544,16 +1544,24 @@ label, .field label { color: var(--ink-soft); }
 @media (max-width: 760px) {
   .p-row--head { display: none; }
   .p-row {
-    grid-template-columns: 62px 1fr auto; grid-template-areas:
-      "foto nombre stock" "foto detalle acciones";
-    gap: 6px 14px; padding: 14px;
+    /* Dos columnas: la foto a la izquierda y todo lo demás apilado a la derecha.
+       Las grid-areas de tres filas fallaban porque el nombre ocupa 3 renglones
+       y el stock terminaba encimado sobre las etiquetas. */
+    grid-template-columns: 72px 1fr;
+    gap: 6px 14px; padding: 15px 14px; align-items: start;
   }
-  .p-row > :nth-child(1) { grid-area: foto; }
-  .p-row > :nth-child(2) { grid-area: nombre; font-size: 16px; font-weight: 600; }
-  .p-row > :nth-child(3), .p-row > :nth-child(4) { grid-area: detalle; font-size: 13.5px; color: var(--ink-soft); }
-  .p-row > :nth-child(5) { grid-area: stock; text-align: right; font-size: 16px; font-weight: 700; }
-  .p-row > :nth-child(6) { grid-area: acciones; justify-self: end; }
-  .p-row .hide-sm { display: inline; }
+  .p-row > :nth-child(1) { grid-column: 1; grid-row: 1 / span 3; }
+  .p-row > :nth-child(2) { grid-column: 2; grid-row: 1; }
+  /* el deporte se calla en teléfono: la lista ya viene agrupada por deporte */
+  .p-row > :nth-child(3) { display: none; }
+  /* precio y existencia en renglones propios: compartiendo celda con justify-self
+     opuesto se encimaban cuando el nombre encogía la columna */
+  .p-row > :nth-child(4) { display: block; grid-column: 2; grid-row: 2; justify-self: start; margin-top: 6px; }
+  .p-row > :nth-child(5) { grid-column: 2; grid-row: 3; justify-self: start; margin-top: 4px; }
+  /* min-width:0 SOLO aquí: sin él los botones no encogen y la fila de acciones
+     se sale 77px del contenedor */
+  .p-row > :nth-child(6) { grid-column: 1 / -1; grid-row: 4; margin-top: 12px; min-width: 0; }
+  .p-actions button { min-width: 0; }
   .p-grupo { font-size: 18px; padding: 13px 15px; }
 }
 
@@ -1577,4 +1585,49 @@ label, .field label { color: var(--ink-soft); }
 @media (max-width: 620px) {
   .st-pasos { font-size: 13.5px; margin-left: 0; }
   .st-hora { min-width: 56px; font-size: 12px; }
+}
+
+/* ============================================================
+   Mis jerseys y Cuentas — legibilidad (28-ago-2026, noche)
+   La etiqueta de cada jersey tenía la foto a 44px y el subtítulo a 12px:
+   no se distinguía un jersey de otro sin acercarse a la pantalla.
+   ============================================================ */
+.p-thumb { width: 64px; height: 64px; border-radius: 11px; padding: 5px; }
+.p-name b { font-size: 17px; line-height: 1.25; display: block; }
+.p-name span { font-size: 14px; margin-top: 3px; }
+.p-cat { font-size: 14.5px; text-transform: capitalize; color: var(--ink-soft); }
+.p-precio { font-size: 17px; font-weight: 700; color: var(--accent); font-family: var(--display); }
+
+/* las marcas (retro / sin nombre) bajan a su propio renglón: iban pegadas al
+   nombre y lo partían en dos líneas raras.
+   ⚠️ van con `.p-name` delante: `.p-name span { display:block }` le gana por
+   especificidad a una clase suelta y las estiraba a todo el ancho. */
+.p-name .p-tags { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; }
+.p-name .p-tag {
+  display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .06em;
+  padding: 3px 9px; border-radius: 6px; border: 1px solid #3a3a42; color: #8a8a92;
+  margin-top: 0; flex: 0 0 auto;
+}
+.p-name .p-tag--retro { color: #d9a441; border-color: #6b5220; }
+
+.p-actions button { font-size: 14px; padding: 11px 16px; border-radius: 10px; min-height: 44px; }
+/* ⚠️ acotada a escritorio: esta regla vive DESPUÉS del bloque de 760px y sin el
+   media query le ganaba, dejando la fila del teléfono con 6 columnas colapsadas
+   y los botones desbordados 77px fuera de la tarjeta. */
+@media (min-width: 761px) {
+  .p-row { grid-template-columns: 76px 1.6fr 1fr .9fr 1fr 168px; }
+}
+
+/* fichas de cliente: la letra estaba al tamaño de una nota al pie */
+#cuentasBody .st-visita__quien { font-size: 17px; font-weight: 600; }
+#cuentasBody .st-visita__tiempo { font-size: 14.5px; }
+#cuentasBody .vt-datos { font-size: 15px; line-height: 1.8; }
+#cuentasBody .vt-datos b { font-size: 15.5px; }
+
+@media (max-width: 760px) {
+  .p-thumb { width: 64px; height: 64px; }
+  .p-name b { font-size: 16.5px; }
+  .p-name span { font-size: 13.5px; }
+  .p-actions { gap: 10px; }
+  .p-actions button { flex: 1; }
 }
