@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=69";
+import { firebaseConfig } from "./config.js?v=70";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -315,14 +315,23 @@ function podio(prods) {
 }
 
 /* Dos cubos grandes con su icono: de un golpe se ve si le entran del telefono o de la compu. */
-const ICONO_APARATO = { "Teléfono": "📱", "Computadora": "💻", "Tablet": "📋", "Otro": "🖥️" };
+/* Dibujados a mano: no existe emoji de tablet (el 📋 es un portapapeles de anotar)
+   y mezclar emojis de distintos estilos se ve desparejo — cada uno con su color y su trazo.
+   Con SVG los tres comparten grosor y toman el dorado de la marca. */
+const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICONO_APARATO = {
+  "Teléfono":    svg(`<rect x="6.5" y="2" width="11" height="20" rx="2.5"/><line x1="10.5" y1="18.7" x2="13.5" y2="18.7"/>`),
+  "Computadora": svg(`<rect x="2.5" y="4" width="19" height="12.5" rx="2"/><line x1="1" y1="20" x2="23" y2="20"/>`),
+  "Tablet":      svg(`<rect x="4" y="2" width="16" height="20" rx="2.5"/><line x1="10" y1="18.6" x2="14" y2="18.6"/>`),
+  "Otro":        svg(`<rect x="2.5" y="4" width="19" height="12.5" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="16.5" x2="12" y2="20"/>`)
+};
 
 function cubosAparatos(obj, total) {
   const e = Object.entries(obj).sort((a, b) => b[1] - a[1]);
   if (!e.length) return vacio("Sin visitas todavía.");
   return `<div class="st-aparatos">${e.map(([nombre, n]) => `
     <div class="st-aparato">
-      <span class="st-aparato__ico">${ICONO_APARATO[nombre] || "🖥️"}</span>
+      <span class="st-aparato__ico">${ICONO_APARATO[nombre] || ICONO_APARATO["Otro"]}</span>
       <span class="st-aparato__pct">${pct(n, total)}%</span>
       <span class="st-aparato__nombre">${esc(nombre)}</span>
       <span class="st-aparato__n">${n} ${n === 1 ? "visita" : "visitas"}</span>
@@ -554,6 +563,6 @@ document.addEventListener("click", async e => {
   const cont = b.closest(".st-visita__cuerpo") || b.parentElement;
   b.remove();
   cont.innerHTML += eventos.length
-    ? `<ol class="st-pasos">${sinRepetidos(eventos).map(t => `<li>${t}</li>`).join("")}</ol>`
+    ? `<ul class="st-pasos">${sinRepetidos(eventos).map(t => `<li>${t}</li>`).join("")}</ul>`
     : `<p class="st-vacio">Sin detalle guardado.</p>`;
 });
