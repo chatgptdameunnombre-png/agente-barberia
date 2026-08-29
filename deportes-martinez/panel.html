@@ -6,7 +6,7 @@
   <title>Panel del dueño — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=70">
+  <link rel="stylesheet" href="css/styles.css?v=71">
 </head>
 <body class="admin-body">
 
@@ -106,17 +106,8 @@
         <div class="admin-head" style="margin-bottom:14px">
           <h1>Cuentas de clientes</h1>
         </div>
-        <div id="cuentasCandado">
-          <p style="color:var(--ink-soft);font-size:14px;max-width:60ch;margin-bottom:14px">
-            Aquí están los datos personales de tus clientes. Para verlos, vuelve a escribir tu contraseña.
-          </p>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;max-width:420px">
-            <input class="input" type="password" id="cuentasPass" placeholder="Tu contraseña" style="flex:1;min-width:200px">
-            <button class="btn" id="cuentasVer" style="width:auto">Ver los datos</button>
-          </div>
-          <div id="cuentasMsg" style="color:var(--danger);font-size:13px;min-height:18px;margin-top:8px"></div>
-        </div>
-        <div id="cuentasBody" hidden></div>
+        <div id="cuentasCandado" hidden></div>
+        <div id="cuentasBody"></div>
       </section>
 
       <section class="psec" id="estad" hidden>
@@ -284,6 +275,6 @@
   </div>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=70"></script>
+  <script type="module" src="js/panel.js?v=71"></script>
 </body>
 </html>
