@@ -1631,3 +1631,79 @@ label, .field label { color: var(--ink-soft); }
   .p-actions { gap: 10px; }
   .p-actions button { flex: 1; }
 }
+
+/* ============================================================
+   "Próximamente" + lo que la gente pide (29-ago-2026)
+   Basket y americano salieron del catálogo: en su lugar se pide
+   sugerencia, para no perder a quien llegó buscando eso.
+   ============================================================ */
+.proxi { max-width: 620px; margin: 40px auto 90px; text-align: center; }
+.proxi__eti {
+  display: inline-block; font-family: var(--mono); font-size: 12px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--accent); border: 1px solid rgba(232,185,35,.4);
+  border-radius: 999px; padding: 7px 16px; margin-bottom: 22px;
+}
+.proxi__t { font-size: clamp(30px, 5vw, 42px); margin: 0 0 14px; letter-spacing: -.02em; }
+.proxi__p { color: var(--ink-soft); font-size: 17px; line-height: 1.7; margin: 0 auto 34px; max-width: 46ch; }
+.proxi__link { display: inline-block; margin-top: 26px; color: var(--accent); font-size: 15.5px; font-weight: 600; }
+
+.sug {
+  background: var(--bg-card); border: 1px solid #2a2410; border-radius: 18px;
+  padding: 26px 24px; text-align: left; display: flex; flex-direction: column; gap: 6px;
+}
+.sug__lb { font-size: 14.5px; color: var(--ink-soft); font-weight: 600; margin-top: 12px; }
+.sug__lb:first-of-type { margin-top: 0; }
+.sug__lb span { font-weight: 400; color: var(--muted); }
+.sug__in {
+  width: 100%; padding: 14px 15px; border-radius: 12px; border: 1px solid #2a2a32;
+  background: #0b0b0e; color: var(--ink); font-size: 16px; font-family: inherit;
+  outline: none; box-sizing: border-box;
+}
+.sug__in:focus { border-color: var(--accent); }
+.sug__btn { margin-top: 18px; min-height: 50px; font-size: 16px; }
+.sug__msg { font-size: 14.5px; min-height: 20px; margin: 12px 0 0; line-height: 1.6; }
+.sug__msg--mal { color: #ff6b6b; }
+.sug__msg--bien { color: var(--accent); font-weight: 600; }
+.sug__msg--bien span { color: var(--ink-soft); font-weight: 400; font-size: 13.5px; }
+
+/* la misma tarjeta, pero dentro del chat del asistente */
+.sug--chat { padding: 18px 16px; border-radius: 14px; margin-top: 10px; gap: 9px; }
+.sug--chat .sug__t { font-size: 15.5px; display: block; }
+.sug--chat .sug__ayuda { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 6px; line-height: 1.55; }
+.sug--chat .sug__in { padding: 11px 13px; font-size: 15px; }
+.sug--chat .sug__btn { margin-top: 8px; min-height: 44px; font-size: 15px; }
+
+@media (max-width: 620px) {
+  .proxi { margin: 24px auto 70px; }
+  .proxi__p { font-size: 16px; margin-bottom: 26px; }
+  .sug { padding: 20px 17px; border-radius: 15px; }
+}
+
+/* los deportes que aún no hay se ven presentes pero sin prometer catálogo */
+.cuadro--proxi { opacity: .72; }
+.cuadro--proxi:hover { opacity: 1; }
+.cuadro--proxi .cuadro__k { color: var(--accent); }
+
+/* tarjetas de "Lo que piden" en el panel */
+.pd-card {
+  background: var(--bg-card); border: 1px solid #2a2410; border-radius: 15px;
+  padding: 18px 20px; margin-bottom: 12px;
+}
+.pd-card--ok { opacity: .66; }
+.pd-card--ok:hover { opacity: 1; }
+.pd-card__top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.pd-cuando { font-size: 13.5px; color: var(--muted); }
+.pd-texto {
+  font-family: var(--display); font-size: 20px; font-weight: 700; line-height: 1.3;
+  margin: 0 0 8px; color: var(--ink); letter-spacing: -.01em;
+}
+.pd-quien { font-size: 14.5px; color: var(--ink-soft); }
+.pd-quien b { color: var(--ink); }
+.pd-acciones { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.pd-acciones .btn { width: auto; min-height: 46px; font-size: 14.5px; padding: 0 18px; }
+@media (max-width: 620px) {
+  .pd-card { padding: 16px; }
+  .pd-texto { font-size: 18px; }
+  .pd-acciones { flex-direction: column; }
+  .pd-acciones .btn { width: 100%; }
+}
