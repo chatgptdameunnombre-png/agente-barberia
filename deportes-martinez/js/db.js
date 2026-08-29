@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=71";
-import { PRODUCTOS_SEED } from "./seed.js?v=71";
+import { firebaseConfig, usaFirebase } from "./config.js?v=72";
+import { PRODUCTOS_SEED } from "./seed.js?v=72";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -128,6 +128,18 @@ async function crearImplFirebase() {
       return true;
     },
     async borrarSesion(id) { await deleteDoc(doc(fdb, "sesiones", id)); },
+
+    /* Lo que la gente pidió y no había. Se ordena aquí y no con orderBy
+       para no tener que crear un índice en Firestore. */
+    async listarSugerencias() {
+      const snap = await getDocs(collection(fdb, "sugerencias"));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => String(b.fecha || "").localeCompare(String(a.fecha || "")));
+    },
+    async marcarSugerencia(id, atendida) {
+      await updateDoc(doc(fdb, "sugerencias", id), { atendida: !!atendida });
+    },
+    async borrarSugerencia(id) { await deleteDoc(doc(fdb, "sugerencias", id)); },
 
     /* ---------- códigos de promoción ---------- */
     async listarPromos() {
@@ -345,6 +357,9 @@ function crearImplDemo() {
     async guardarPromo() {},
     async borrarPromo() {},
     async listarVentas() { return []; },
+    async listarSugerencias() { return []; },
+    async marcarSugerencia() { },
+    async borrarSugerencia() { },
     async misCompras() { return []; },
     async productosParaFoto() { return []; },
     async marcarVentaPagada() {},
