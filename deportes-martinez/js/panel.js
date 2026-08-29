@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=69";
-import { pintarEstadisticas } from "./estadisticas.js?v=69";
-import "./panel-nav.js?v=69";
+import { db } from "./db.js?v=70";
+import { pintarEstadisticas } from "./estadisticas.js?v=70";
+import "./panel-nav.js?v=70";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -835,8 +835,10 @@ function pintarVentas() {
   const grupo = (titulo, ayuda, arr) => {
     if (!arr.length) return "";
     const suma = arr.reduce((a, v) => a + Number(v.total || 0), 0);
-    return `<h4 class="st-sub">${titulo} <span class="vt-num">${arr.length}</span></h4>
-      <p class="st-sub__ayuda">${ayuda} · ${vtMoney(suma)}</p>
+    return `<div class="vt-grupo">
+        <div class="vt-grupo__h"><h4>${titulo}</h4><span class="vt-num">${arr.length}</span></div>
+        <span class="vt-grupo__suma">${ayuda} · <b>${vtMoney(suma)}</b></span>
+      </div>
       ${arr.map(vtFila).join("")}`;
   };
   const AVISOS = {
