@@ -1714,3 +1714,13 @@ label, .field label { color: var(--ink-soft); }
 @media (max-width: 620px) {
   .pd-tel, .pd-sintel { display: block; margin-left: 0; margin-top: 5px; }
 }
+
+/* Los botones que son enlaces (<a class="btn">) no centraban su texto: el <button>
+   lo centra solo, el <a> no. Se veía el texto pegado arriba y a la izquierda,
+   desalineado junto a los demás. Afecta al de WhatsApp de Ventas y al de "Lo que piden". */
+.admin-body a.btn,
+.vt-acciones a.btn,
+.pd-acciones a.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  text-align: center; line-height: 1.2;
+}
