@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=73";
-import { pintarEstadisticas } from "./estadisticas.js?v=73";
-import "./panel-nav.js?v=73";
+import { db } from "./db.js?v=74";
+import { pintarEstadisticas } from "./estadisticas.js?v=74";
+import "./panel-nav.js?v=74";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -805,7 +805,10 @@ function vtFila(v) {
       <button class="btn" data-vt-entregada="${v.id}">${v.entrega === "domicilio" ? "✓ Ya lo envié" : "✓ Ya lo recogió"}</button>
       ${vtWhats(v.telefono, v)}
     </div>` : ""}
-    ${v.estado === "entregada" || cancelada ? (v.telefono ? `<div class="vt-acciones">${vtWhats(v.telefono, v)}</div>` : "") : ""}
+    ${v.estado === "entregada" || cancelada ? `<div class="vt-acciones">
+      ${vtWhats(v.telefono, v)}
+      <button class="btn btn--danger" data-vt-borrar="${v.id}">Borrar de la base</button>
+    </div>` : ""}
   </article>`;
 }
 
@@ -1303,7 +1306,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
 $("#pidenRefrescar")?.addEventListener("click", () => cargarSugerencias(true));
 
+/* Borrado definitivo de un pedido ya terminado o cancelado. Solo se ofrece ahí:
+   una venta por cobrar o por entregar todavía tiene stock apartado y trabajo detrás. */
 document.addEventListener("click", async e => {
+  const bo = e.target.closest("[data-vt-borrar]");
+  if (bo) {
+    const id = bo.dataset.vtBorrar;
+    const v = (ventasCargadas || []).find(x => x.id === id);
+    const quien = v?.cliente ? ` de ${v.cliente}` : "";
+    if (!confirm(`¿Borrar para siempre el pedido ${v?.folio || id}${quien}?\n\nDesaparece de tus registros y de las estadísticas. No se puede deshacer.`)) return;
+    bo.disabled = true; bo.textContent = "Borrando…";
+    try {
+      await db.borrarVenta(id);
+      ventasCargadas = ventasCargadas.filter(x => x.id !== id);
+      pintarVentas();
+      toast("Pedido borrado de la base");
+      document.dispatchEvent(new CustomEvent("panel:recargar-estadisticas"));
+    } catch {
+      bo.disabled = false; bo.textContent = "Borrar de la base";
+      toast("No se pudo borrar");
+    }
+    return;
+  }
   const ok = e.target.closest("[data-sug-ok]");
   if (ok) {
     const id = ok.dataset.sugOk, val = ok.dataset.val === "1";
