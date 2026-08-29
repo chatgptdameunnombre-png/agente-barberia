@@ -1,10 +1,10 @@
-import { db, MODO } from "./db.js?v=69";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=69";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=69";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=69";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=69";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=69";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=69";
+import { db, MODO } from "./db.js?v=70";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=70";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=70";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=70";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=70";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=70";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=70";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -223,7 +223,26 @@ function precioSel(p) {
   return sized ? (tallaSel ? precioTalla(p, tallaSel) : precioDesde(p)) : Number(p.precio || 0);
 }
 
+/* El precio grande de la ficha se pinta al cargar y no se enteraba del descuento:
+   solo se tachaba el renglón de "Total", y ese ni sale hasta elegir entrega.
+   Ahora el precio de arriba se tacha igual que en el carrito. */
+function precioConDescuento() {
+  const p = productos.find(x => x.id === id);
+  const el = document.querySelector(".prod__price");
+  if (!p || !el) return;
+  const base = precioMay(precioSel(p));
+  const desc = promoProd ? Math.min(promoProd.descuento, base - 1) : 0;
+  if (desc > 0) {
+    el.innerHTML = `<s class="prod__price-antes">${money(base)}</s> ${money(base - desc)} <span>MXN</span>`;
+  } else if (el.querySelector(".prod__price-antes")) {
+    const sized = tieneTallas(p);
+    const linea = (sized && !tallaSel && preciosVarian(p)) ? "desde " + precioHTML(precioDesde(p)) : precioHTML(precioSel(p));
+    el.innerHTML = `${linea} <span>MXN</span>`;
+  }
+}
+
 function actualizarTotal() {
+  precioConDescuento();
   const p = productos.find(x => x.id === id);
   const el = $("#prodTotal");
   if (!p || !el) return;
