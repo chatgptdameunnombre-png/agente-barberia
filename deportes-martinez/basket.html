@@ -21,7 +21,7 @@
   <meta name="twitter:description" content="Todavía no tenemos jerseys de basketball. Dinos cuál te gustaría que consiguiéramos.">
   <meta name="twitter:image" content="https://tuagentedeia.com/deportes-martinez/fotos/logo/logo-og.png">
   <link rel="icon" href="fotos/logo/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=72">
+  <link rel="stylesheet" href="css/styles.css?v=73">
 </head>
 <body>
   <header class="hdr">
@@ -57,9 +57,11 @@
       <form class="sug" id="sugForm" data-deporte="basket" autocomplete="off">
         <label class="sug__lb" for="sugTexto">¿Cuál te gustaría que trajéramos?</label>
         <input class="sug__in" id="sugTexto" name="texto" maxlength="200"
-               placeholder="Ej. playera Chiefs 2010" required>
+               placeholder="Ej. jersey Lakers de Kobe" required>
         <label class="sug__lb" for="sugNombre">Tu nombre <span>(opcional)</span></label>
         <input class="sug__in" id="sugNombre" name="nombre" maxlength="60" placeholder="Para saber quién lo pidió">
+        <label class="sug__lb" for="sugTel">Tu WhatsApp <span>(opcional, para avisarte cuando llegue)</span></label>
+        <input class="sug__in" id="sugTel" name="tel" inputmode="tel" maxlength="20" placeholder="33 1234 5678">
         <button class="btn sug__btn" type="submit">Enviar</button>
         <p class="sug__msg" id="sugMsg" role="status"></p>
       </form>
@@ -129,9 +131,9 @@
   </aside>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/sugerencias.js?v=72"></script>
-  <script type="module" src="js/asesor.js?v=72"></script>
-  <script type="module" src="js/auth.js?v=72"></script>
-  <script type="module" src="js/cookies.js?v=72"></script>
+  <script type="module" src="js/sugerencias.js?v=73"></script>
+  <script type="module" src="js/asesor.js?v=73"></script>
+  <script type="module" src="js/auth.js?v=73"></script>
+  <script type="module" src="js/cookies.js?v=73"></script>
 </body>
 </html>
