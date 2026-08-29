@@ -1,7 +1,7 @@
-import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=74";
-import { track } from "./track.js?v=74";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=74";
-import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=74";
+import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=75";
+import { track } from "./track.js?v=75";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=75";
+import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=75";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 const SID_KEY = "deportes-martinez_asesor_sid";
@@ -15,7 +15,7 @@ function setProductos(list) {
   if (alCargarProductos) alCargarProductos();
 }
 
-import("./db.js?v=74").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
+import("./db.js?v=75").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
 
 function fsVal(v) {
   const t = Object.keys(v)[0];
@@ -201,10 +201,28 @@ function montar() {
       if (p.nombre && p.nombre.length >= 4 && low.includes(p.nombre.toLowerCase()) && !idsMostrar.includes(p.id)) idsMostrar.push(p.id);
     }
     if (idsMostrar.length) { tarjetas(idsMostrar); return; }
-    /* Si preguntaron por un deporte que todavía no hay, en vez de dejarlos con un
-       "no tenemos" se les pinta la tarjeta para que pidan el suyo. */
+    /* No hubo nada que enseñarle. Si es porque el jersey no está —de cualquier
+       deporte— se le pinta la tarjeta para que lo pida en vez de dejarlo con un "no". */
     const dep = deporteQueNoHay(low);
-    if (dep) tarjetaPedir(dep);
+    if (dep) { tarjetaPedir(dep); return; }
+    if (faltaEseJersey(low)) tarjetaPedir("futbol");
+  }
+
+  /* Ojo con los falsos positivos: "no hacemos envíos a Chiapas" también es una
+     negación, pero no es que falte un jersey. Se pide que la respuesta hable de
+     inventario y que NO vaya de logística. */
+  const NO_HAY = ["no tengo", "no lo tengo", "no la tengo", "no manejo", "no manejamos",
+    "no me queda", "no nos queda", "ya no hay", "ya no tengo", "no tenemos",
+    "se agoto", "se me acabo", "no cuento con", "no me llego", "ahorita no hay", "no hay de"];
+  const ES_LOGISTICA = ["envio", "enviamos", "paqueteria", "mensajeria", "pago", "pagar",
+    "tarjeta", "transferencia", "meses", "horario", "abrimos", "cerramos", "factura",
+    "direccion", "sucursal", "domicilio"];
+  function faltaEseJersey(txt) {
+    const t = " " + txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "") + " ";
+    if (!NO_HAY.some(w => t.includes(w))) return false;
+    if (ES_LOGISTICA.some(w => t.includes(w))) return false;
+    /* que de verdad esté hablando de un jersey y no de otra cosa */
+    return /(jersey|playera|camiseta|uniforme|del |de la |talla)/.test(t);
   }
 
   /* Se detecta por lo que CONTESTÓ el asistente, no por lo que escribió la persona:
