@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=68";
+import { firebaseConfig } from "./config.js?v=69";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -16,6 +16,8 @@ let cargando = false;
 let bd = null;
 /* referencia de pedido -> venta. Se llena al cargar y sirve para saber quien pago de verdad. */
 let ventasPorRef = new Map();
+/* id de producto -> foto, para el jersey mas visto. Se pide una sola vez por sesion. */
+let fotos = new Map();
 
 /* El cliente casi nunca regresa de Mercado Pago, asi que no podemos marcar la compra "al volver".
    Cruzamos la referencia que la visita guardo al salir a pagar contra las ventas registradas:
@@ -134,7 +136,7 @@ function resumen(list) {
     const ap = APARATO[s.dispositivo] || "Otro";
     r.dispositivos[ap] = (r.dispositivos[ap] || 0) + 1;
     for (const [id, d] of Object.entries(prods)) {
-      const p = r.productos[id] || { nombre: d.nombre || id, personas: 0, vistas: 0, segundos: 0, carrito: 0, equipo: d.equipo || "" };
+      const p = r.productos[id] || { id, nombre: d.nombre || id, personas: 0, vistas: 0, segundos: 0, carrito: 0, equipo: d.equipo || "" };
       p.personas += 1;
       p.vistas += Number(d.vistas || 0);
       p.segundos += Number(d.segundos || 0);
@@ -244,9 +246,11 @@ function barra(valor, max, texto, tono = "oro") {
   </div>`;
 }
 
-function bloque(titulo, ayuda, cuerpo, id) {
+/* Encabezado tipo cubo: titulo grande, sin parrafo de explicacion.
+   `ayuda` queda opcional y solo se usa donde de verdad hace falta. */
+function bloque(titulo, cuerpo, id, ayuda) {
   return `<section class="st-bloque"${id ? ` id="${id}" data-sub="${id}"` : ""}>
-    <h3 class="st-bloque__h">${titulo}</h3>
+    <div class="st-cubo"><h3 class="st-cubo__h">${titulo}</h3></div>
     ${ayuda ? `<p class="st-bloque__ayuda">${ayuda}</p>` : ""}
     ${cuerpo}
   </section>`;
@@ -270,21 +274,78 @@ function embudo(r) {
     </div>`).join("")}</div>`;
 }
 
-function tablaProductos(prods, r) {
+/* El mas visto se ve en grande con su foto; del 2do en adelante, una tabla compacta.
+   Asi el dueno ve de un vistazo cual es su jersey estrella. */
+function foto(id) {
+  const src = fotos.get(id);
+  return src
+    ? `<img src="${src}" alt="" loading="lazy">`
+    : `<span class="st-sinfoto">👕</span>`;
+}
+
+function podio(prods) {
   if (!prods.length) return vacio("Todavía nadie ha abierto un jersey.");
-  const max = Math.max(...prods.map(p => p.personas));
-  return `<div class="st-prods">${prods.map(p => `
-    <div class="st-prod">
-      <div class="st-prod__id">
-        <div class="st-prod__nombre">${esc(p.nombre)}</div>
-        <div class="st-prod__equipo">${esc(p.equipo || "")}</div>
+  const [uno, ...resto] = prods;
+  const cabeza = `
+    <div class="st-top1">
+      <div class="st-top1__foto">${foto(uno.id)}<span class="st-top1__medalla">1</span></div>
+      <div class="st-top1__info">
+        <div class="st-top1__nombre">${esc(uno.nombre)}</div>
+        ${uno.equipo ? `<div class="st-top1__equipo">${esc(uno.equipo)}</div>` : ""}
+        <div class="st-top1__nums">
+          <div><b>${uno.personas}</b><span>${uno.personas === 1 ? "persona lo vio" : "personas lo vieron"}</span></div>
+          <div><b>${tiempo(uno.segundos / Math.max(1, uno.personas))}</b><span>viéndolo</span></div>
+          <div><b class="${uno.carrito ? "st-ok" : "st-mal"}">${uno.carrito}</b><span>al carrito</span></div>
+        </div>
       </div>
-      ${barra(p.personas, max, `${p.personas} ${p.personas === 1 ? "persona" : "personas"}`)}
-      <div class="st-prod__dato">
-        ${tiempo(p.segundos / Math.max(1, p.personas))} de vista<br>
-        <b class="${p.carrito ? "st-ok" : "st-mal"}">${p.carrito} al carrito</b>
-      </div>
+    </div>`;
+  if (!resto.length) return cabeza;
+  const filas = resto.map((p, i) => `
+    <div class="st-fila">
+      <span class="st-fila__n">${i + 2}</span>
+      <span class="st-fila__foto">${foto(p.id)}</span>
+      <span class="st-fila__nombre">${esc(p.nombre)}${p.equipo ? `<small>${esc(p.equipo)}</small>` : ""}</span>
+      <span class="st-fila__datos">
+        <span class="st-fila__dato"><b>${p.personas}</b> vieron</span>
+        <span class="st-fila__dato">${tiempo(p.segundos / Math.max(1, p.personas))}</span>
+        <span class="st-fila__dato ${p.carrito ? "st-ok" : "st-mal"}"><b>${p.carrito}</b> carrito</span>
+      </span>
+    </div>`).join("");
+  return cabeza + `<div class="st-tabla">${filas}</div>`;
+}
+
+/* Dos cubos grandes con su icono: de un golpe se ve si le entran del telefono o de la compu. */
+const ICONO_APARATO = { "Teléfono": "📱", "Computadora": "💻", "Tablet": "📋", "Otro": "🖥️" };
+
+function cubosAparatos(obj, total) {
+  const e = Object.entries(obj).sort((a, b) => b[1] - a[1]);
+  if (!e.length) return vacio("Sin visitas todavía.");
+  return `<div class="st-aparatos">${e.map(([nombre, n]) => `
+    <div class="st-aparato">
+      <span class="st-aparato__ico">${ICONO_APARATO[nombre] || "🖥️"}</span>
+      <span class="st-aparato__pct">${pct(n, total)}%</span>
+      <span class="st-aparato__nombre">${esc(nombre)}</span>
+      <span class="st-aparato__n">${n} ${n === 1 ? "visita" : "visitas"}</span>
     </div>`).join("")}</div>`;
+}
+
+/* Tallas mencionadas en lo que le escriben al asistente ("tienen la del madrid en M?").
+   Es distinto de las tallas que la gente elige con el dedo en el catalogo. */
+const TALLAS_TXT = ["3XL", "2XL", "XXXL", "XXL", "XL", "S", "M", "L"];
+
+function tallasDelAgente(busquedas) {
+  const out = {};
+  for (const [texto, veces] of Object.entries(busquedas)) {
+    const t = " " + String(texto).toUpperCase().replace(/[^A-Z0-9]+/g, " ") + " ";
+    for (const talla of TALLAS_TXT) {
+      if (t.includes(" " + talla + " ") || t.includes(" TALLA " + talla + " ")) {
+        const norm = talla === "XXL" ? "2XL" : talla === "XXXL" ? "3XL" : talla;
+        out[norm] = (out[norm] || 0) + veces;
+        break;   // solo la primera talla que aparezca, de mayor a menor
+      }
+    }
+  }
+  return out;
 }
 
 /* separa lo que es pedir un jersey de lo que es una duda del negocio */
@@ -349,6 +410,7 @@ export function pintarLista(list) {
   const cont = $("#estadBody");
   if (!cont) return;
   const r = resumen(list);
+  pintarAsistente(r);
   const prods = Object.values(r.productos);
   const top = prods.slice().sort((a, b) => b.personas - a.personas || b.segundos - a.segundos).slice(0, 8);
   const orden = o => Object.entries(o).sort((a, b) => b[1] - a[1]);
@@ -372,36 +434,54 @@ export function pintarLista(list) {
       ${tarjeta(r.compraron, "Compras", r.visitas ? `${pct(r.compraron, r.visitas)}% de las visitas` : "")}
     </div>
 
-    ${bloque("¿Dónde se te va la gente?",
-      "El camino que sigue una persona hasta comprarte. Cada barra es cuántos llegaron a ese paso. Donde la barra se hace chica de golpe, ahí es donde los estás perdiendo.",
-      embudo(r), "embudo")}
+    ${bloque("Por dónde se sale la gente", embudo(r), "embudo")}
 
-    ${bloque("Los jerseys que más miran",
-      "Cuántas personas distintas lo abrieron, cuánto tiempo lo estuvieron viendo y cuántas lo pusieron en el carrito.",
-      tablaProductos(top, r), "vistos")}
+    ${bloque("Los jerseys que más miran", podio(top), "vistos")}
 
-    ${bloque("Lo que te preguntan",
-      "Todo lo que la gente busca o le escribe al asistente, separado en dos: lo que querían comprar y no tenías, y las dudas que tienen de tu tienda.",
-      `<h4 class="st-sub">Te lo pidieron y no lo tienes</h4>
-       <p class="st-sub__ayuda">Jerseys que buscaron y no salió nada. Esto es lo que deberías conseguir.</p>
-       ${chips(pedidos) || vacio("Nadie ha buscado un jersey que no tengas.")}
-       <h4 class="st-sub">Dudas sobre tu tienda</h4>
-       <p class="st-sub__ayuda">Preguntas de apartados, envíos, pagos, horarios y demás. Si una se repite mucho, ponla en la página.</p>
-       ${chips(dudas) || vacio("Todavía nadie ha preguntado nada de la tienda.")}
-       <h4 class="st-sub">Otras búsquedas en el asistente</h4>
-       <p class="st-sub__ayuda">Lo que buscaron y sí les mostró jerseys.</p>
-       ${chips(otras) || vacio("Sin búsquedas todavía.")}`, "piden")}
+    ${bloque("Tallas que más eligen",
+      Object.keys(r.tallas).length ? listaBarras(r.tallas, r.visitas) : vacio("Todavía nadie ha elegido talla."), "tallas")}
 
-    ${bloque("Tallas que más buscan",
-      "Las tallas que la gente filtra en el catálogo y las que elige dentro de cada jersey.", Object.keys(r.tallas).length ? listaBarras(r.tallas, r.visitas) : vacio("Todavía nadie ha elegido talla."), "tallas")}
+    ${bloque("Desde qué aparato entran", cubosAparatos(r.dispositivos, r.visitas), "aparatos")}
 
-    ${bloque("Desde qué aparato entran", "", listaBarras(r.dispositivos, r.visitas), "aparatos")}
-
-    ${bloque("Visita por visita", "Abre cualquiera para ver, paso a paso, qué hizo esa persona.", visitas(list), "detalle")}
+    ${bloque("Visita por visita", visitas(list), "detalle", "Abre cualquiera para ver, paso a paso, qué hizo esa persona.")}
   `;
 }
 
-/* ---------------- carga ---------------- */
+/* Seccion propia en la barra lateral: todo lo que la gente le escribe al asistente.
+   Sin subtitulos: cada bloque se explica con su titulo. */
+function pintarAsistente(r) {
+  const cont = $("#asistenteBody");
+  if (!cont) return;
+  const orden = o => Object.entries(o).sort((a, b) => b[1] - a[1]);
+  const sinNada = orden(r.faltantes);
+  const pedidos = sinNada.filter(([t]) => !esDuda(t)).slice(0, 12);
+  const dudasSet = new Map(sinNada.filter(([t]) => esDuda(t)));
+  const otrasSet = new Map();
+  for (const [t, n] of orden(r.busquedas)) {
+    if (dudasSet.has(t)) continue;
+    if (esDuda(t)) dudasSet.set(t, n);
+    else if (!r.faltantes[t]) otrasSet.set(t, n);
+  }
+  const dudas = [...dudasSet.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
+  const otras = [...otrasSet.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
+  const tallasIA = tallasDelAgente(r.busquedas);
+
+  cont.innerHTML = `
+    ${bloque("Te lo pidieron y no lo tienes",
+      chips(pedidos) || vacio("Nadie ha buscado un jersey que no tengas."), "piden")}
+
+    ${bloque("Dudas sobre tu tienda",
+      chips(dudas) || vacio("Todavía nadie ha preguntado nada de la tienda."), "dudas")}
+
+    ${bloque("Otras búsquedas",
+      chips(otras) || vacio("Sin búsquedas todavía."), "otras")}
+
+    ${bloque("Tallas que le preguntan al agente",
+      Object.keys(tallasIA).length ? listaBarras(tallasIA, Object.values(tallasIA).reduce((a, b) => a + b, 0))
+        : vacio("Todavía nadie le ha preguntado por una talla."), "tallasia")}
+  `;
+}
+
 export async function pintarEstadisticas(db) {
   bd = db;
   const cont = $("#estadBody");
@@ -417,6 +497,11 @@ export async function pintarEstadisticas(db) {
       ventasPorRef = new Map();
       for (const v of ventas) { if (v.ref) ventasPorRef.set(v.ref, v); }
     } catch { ventasPorRef = new Map(); }
+    if (!fotos.size) {
+      try {
+        for (const p of await bd.productosParaFoto()) { if (p.imagen) fotos.set(p.id, p.imagen); }
+      } catch { /* sin fotos se pinta el icono */ }
+    }
     cruzarConVentas(sesiones);
     pintarLista(sesiones);
     const sello = $("#estadSello");
