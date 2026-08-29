@@ -6,7 +6,7 @@
   <title>Panel del dueño — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=71">
+  <link rel="stylesheet" href="css/styles.css?v=72">
 </head>
 <body class="admin-body">
 
@@ -34,6 +34,7 @@
       <button class="pnav__item" data-sec="productos"><span class="pnav__ico">👕</span>Mis jerseys</button>
       <button class="pnav__item" data-sec="visitas"><span class="pnav__ico">📊</span>Estadísticas</button>
       <button class="pnav__item" data-sec="asistente"><span class="pnav__ico">💬</span>Asistente</button>
+      <button class="pnav__item" data-sec="piden"><span class="pnav__ico">🙋</span>Lo que piden <span class="pnav__badge" id="pnavPiden" hidden>0</span></button>
       <button class="pnav__item" data-sec="promos"><span class="pnav__ico">🏷️</span>Códigos de descuento</button>
       <button class="pnav__item" data-sec="cuentas"><span class="pnav__ico">👥</span>Cuentas de clientes</button>
       <div class="pnav__sep"></div>
@@ -125,6 +126,14 @@
           <span id="estadSello" class="st-sello"></span>
         </div>
         <div id="estadBody"></div>
+      </section>
+
+      <section class="psec" id="secPiden" hidden>
+        <div class="admin-head" style="margin-bottom:14px">
+          <h1>Lo que piden</h1>
+          <button class="btn btn--ghost" id="pidenRefrescar" style="width:auto;padding:9px 15px">Actualizar</button>
+        </div>
+        <div id="pidenBody"><p class="st-vacio">Cargando…</p></div>
       </section>
 
       <section class="psec" id="secAsistente" hidden>
@@ -275,6 +284,6 @@
   </div>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=71"></script>
+  <script type="module" src="js/panel.js?v=72"></script>
 </body>
 </html>
