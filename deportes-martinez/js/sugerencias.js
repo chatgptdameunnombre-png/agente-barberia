@@ -3,7 +3,7 @@
    Escribe directo a Firestore: la regla deja crear a cualquiera pero solo el
    dueño puede leer, y ahí mismo se valida el tope de 200 caracteres. */
 
-import { firebaseConfig } from "./config.js?v=72";
+import { firebaseConfig } from "./config.js?v=73";
 
 const PROJ = firebaseConfig.projectId;
 const KEY = firebaseConfig.apiKey;
@@ -32,10 +32,12 @@ function anotarEnvio() {
   } catch { }
 }
 
-export async function mandarSugerencia({ texto, nombre = "", deporte = "" }) {
+export async function mandarSugerencia({ texto, nombre = "", tel = "", deporte = "" }) {
   const limpio = String(texto || "").trim().slice(0, 200);
   if (limpio.length < 3) throw new Error("corto");
   if (!puedeMandar()) throw new Error("muchos");
+  /* solo los dígitos: la gente lo escribe con espacios, guiones y paréntesis */
+  const soloNum = String(tel || "").replace(/\D/g, "").slice(0, 15);
 
   const r = await fetch(URL, {
     method: "POST",
@@ -44,6 +46,7 @@ export async function mandarSugerencia({ texto, nombre = "", deporte = "" }) {
       fields: {
         texto: { stringValue: limpio },
         nombre: { stringValue: String(nombre || "").trim().slice(0, 60) },
+        tel: { stringValue: soloNum },
         deporte: { stringValue: String(deporte || "") },
         fecha: { stringValue: new Date().toISOString() },
         atendida: { booleanValue: false }
@@ -66,13 +69,20 @@ export function conectarFormulario(form) {
     const msg = form.querySelector(".sug__msg");
     const texto = form.querySelector("[name=texto]")?.value || "";
     const nombre = form.querySelector("[name=nombre]")?.value || "";
+    const tel = form.querySelector("[name=tel]")?.value || "";
     msg.className = "sug__msg";
     if (texto.trim().length < 3) { msg.textContent = "Escribe qué jersey te gustaría."; msg.classList.add("sug__msg--mal"); return; }
+    /* el teléfono es opcional, pero si lo ponen tiene que estar completo:
+       un número a medias no sirve para avisarle y le hace perder el tiempo al dueño */
+    const soloNum = tel.replace(/\D/g, "");
+    if (soloNum && soloNum.length < 10) { msg.textContent = "Ese WhatsApp está incompleto. Son 10 dígitos, o déjalo vacío."; msg.classList.add("sug__msg--mal"); return; }
     btn.disabled = true; btn.textContent = "Enviando…";
     try {
-      await mandarSugerencia({ texto, nombre, deporte: form.dataset.deporte || "" });
+      await mandarSugerencia({ texto, nombre, tel, deporte: form.dataset.deporte || "" });
       form.querySelector(".sug__campos")?.remove();
-      msg.innerHTML = "¡Gracias! Ya quedó anotado.<br><span>Si lo conseguimos, lo verás aquí pronto.</span>";
+      msg.innerHTML = soloNum
+        ? "¡Gracias! Ya quedó anotado.<br><span>Si lo conseguimos, te escribimos por WhatsApp.</span>"
+        : "¡Gracias! Ya quedó anotado.<br><span>Si lo conseguimos, lo verás aquí pronto.</span>";
       msg.classList.add("sug__msg--bien");
       btn.remove();
       form.querySelectorAll(".sug__in, .sug__lb").forEach(el => el.remove());
@@ -90,11 +100,15 @@ export function conectarFormulario(form) {
 /* HTML de la tarjeta que el asistente pinta dentro del chat */
 export function tarjetaSugerenciaHTML(deporte) {
   const QUE = { basket: "de basketball", americano: "de futbol americano" }[deporte] || "";
+  /* el ejemplo tiene que ser del deporte que preguntaron: poner uno de la NFL
+     a quien busca basketball se lee como que no entendimos */
+  const EJ = { basket: "Ej. jersey Lakers de Kobe", americano: "Ej. playera Chiefs 2010" }[deporte] || "Ej. jersey del Barcelona 2015";
   return `<form class="sug sug--chat" data-deporte="${deporte}" autocomplete="off">
     <b class="sug__t">¿Cuál te gustaría que trajéramos?</b>
     <p class="sug__ayuda">Todavía no tenemos jerseys ${QUE}. Dinos cuál buscas y lo tomamos en cuenta.</p>
-    <input class="sug__in" name="texto" maxlength="200" placeholder="Ej. playera Chiefs 2010" required>
+    <input class="sug__in" name="texto" maxlength="200" placeholder="${EJ}" required>
     <input class="sug__in" name="nombre" maxlength="60" placeholder="Tu nombre (opcional)">
+    <input class="sug__in" name="tel" inputmode="tel" maxlength="20" placeholder="Tu WhatsApp (opcional, para avisarte)">
     <button class="btn sug__btn" type="submit">Enviar</button>
     <p class="sug__msg" role="status"></p>
   </form>`;
