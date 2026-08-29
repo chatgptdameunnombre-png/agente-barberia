@@ -6,7 +6,7 @@
   <title>Panel del dueño — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=68">
+  <link rel="stylesheet" href="css/styles.css?v=69">
 </head>
 <body class="admin-body">
 
@@ -33,6 +33,7 @@
       <button class="pnav__item" data-sec="ventas"><span class="pnav__ico">🧾</span>Ventas <span class="pnav__badge" id="pnavPorCobrar" hidden>0</span></button>
       <button class="pnav__item" data-sec="productos"><span class="pnav__ico">👕</span>Mis jerseys</button>
       <button class="pnav__item" data-sec="visitas"><span class="pnav__ico">📊</span>Estadísticas</button>
+      <button class="pnav__item" data-sec="asistente"><span class="pnav__ico">💬</span>Asistente</button>
       <button class="pnav__item" data-sec="promos"><span class="pnav__ico">🏷️</span>Códigos de descuento</button>
       <button class="pnav__item" data-sec="cuentas"><span class="pnav__ico">👥</span>Cuentas de clientes</button>
       <div class="pnav__sep"></div>
@@ -119,10 +120,9 @@
       </section>
 
       <section class="psec" id="estad" hidden>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+        <div class="st-cabecera">
           <h1 style="margin:0">Estadísticas de la tienda</h1>
-          <div style="display:flex;gap:10px;align-items:center">
-          <span id="estadSello" style="font-size:12.5px;color:#8a8a90"></span>
+          <div class="st-cabecera__ctrl">
           <button class="btn btn--ghost" id="estadRefrescar" style="width:auto;padding:8px 14px">Actualizar</button>
           <select class="input" id="estadRango" style="width:auto">
             <option value="7">Últimos 7 días</option>
@@ -131,9 +131,16 @@
             <option value="todo">Todo</option>
           </select>
           </div>
+          <span id="estadSello" class="st-sello"></span>
         </div>
-        <p style="color:#666;font-size:13.5px;margin-bottom:14px">Qué está pasando en tu tienda: quién entra, qué mira, qué te piden y dónde se te caen las ventas.</p>
         <div id="estadBody"></div>
+      </section>
+
+      <section class="psec" id="secAsistente" hidden>
+        <div class="admin-head" style="margin-bottom:14px">
+          <h1>Asistente</h1>
+        </div>
+        <div id="asistenteBody"><p class="st-vacio">Cargando…</p></div>
       </section>
     </main>
   </div>
@@ -277,6 +284,6 @@
   </div>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=68"></script>
+  <script type="module" src="js/panel.js?v=69"></script>
 </body>
 </html>
