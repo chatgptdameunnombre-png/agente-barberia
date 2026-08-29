@@ -7,6 +7,7 @@ const SECCIONES = {
   ventas: { sel: "#secVentas", titulo: "Ventas" },
   productos: { sel: "#secProductos", titulo: "Mis jerseys" },
   visitas: { sel: "#estad", titulo: "Estadísticas" },
+  asistente: { sel: "#secAsistente", titulo: "Asistente" },
   promos: { sel: "#secPromos", titulo: "Códigos de descuento" },
   cuentas: { sel: "#secCuentas", titulo: "Cuentas de clientes" }
 };
