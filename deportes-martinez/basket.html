@@ -5,23 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jerseys de basketball — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="Jerseys de basketball: NBA, universitarios y ediciones especiales. Filtra por equipo, temporada y talla.">
+  <meta name="description" content="Todavía no tenemos jerseys de basketball. Dinos cuál te gustaría que consiguiéramos.">
   <link rel="canonical" href="https://tuagentedeia.com/deportes-martinez/basket.html">
   <meta name="theme-color" content="#08070a">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Deportes Martínez">
   <meta property="og:locale" content="es_MX">
   <meta property="og:title" content="Jerseys de basketball — Deportes Martínez">
-  <meta property="og:description" content="Jerseys de basketball: NBA, universitarios y ediciones especiales. Filtra por equipo, temporada y talla.">
+  <meta property="og:description" content="Todavía no tenemos jerseys de basketball. Dinos cuál te gustaría que consiguiéramos.">
   <meta property="og:url" content="https://tuagentedeia.com/deportes-martinez/basket.html">
   <meta property="og:image" content="https://tuagentedeia.com/deportes-martinez/fotos/logo/logo-og.png">
   <meta property="og:image:alt" content="Logo de Deportes Martínez">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Jerseys de basketball — Deportes Martínez">
-  <meta name="twitter:description" content="Jerseys de basketball: NBA, universitarios y ediciones especiales. Filtra por equipo, temporada y talla.">
+  <meta name="twitter:description" content="Todavía no tenemos jerseys de basketball. Dinos cuál te gustaría que consiguiéramos.">
   <meta name="twitter:image" content="https://tuagentedeia.com/deportes-martinez/fotos/logo/logo-og.png">
   <link rel="icon" href="fotos/logo/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=71">
+  <link rel="stylesheet" href="css/styles.css?v=72">
 </head>
 <body>
   <header class="hdr">
@@ -48,13 +48,23 @@
   </header>
 
   <main class="wrap sec sec--top">
-    <div class="sec__head reveal">
-      <div><h2>Jerseys de basketball</h2><p>NBA, universitarios y ediciones especiales.</p></div>
-      <a href="index.html" class="volver">← Inicio</a>
-    </div>
-    <div id="catalogo" data-categoria="basket">
-      <div class="filtros" id="filtros"></div>
-      <div class="grid" id="grid"></div>
+    <div class="proxi">
+      <span class="proxi__eti">Próximamente</span>
+      <h2 class="proxi__t">Jerseys de basketball</h2>
+      <p class="proxi__p">Todavía no los tenemos, pero ya vienen en camino.
+        Dinos cuál te gustaría que consiguiéramos y lo tomamos en cuenta al surtir.</p>
+
+      <form class="sug" id="sugForm" data-deporte="basket" autocomplete="off">
+        <label class="sug__lb" for="sugTexto">¿Cuál te gustaría que trajéramos?</label>
+        <input class="sug__in" id="sugTexto" name="texto" maxlength="200"
+               placeholder="Ej. playera Chiefs 2010" required>
+        <label class="sug__lb" for="sugNombre">Tu nombre <span>(opcional)</span></label>
+        <input class="sug__in" id="sugNombre" name="nombre" maxlength="60" placeholder="Para saber quién lo pidió">
+        <button class="btn sug__btn" type="submit">Enviar</button>
+        <p class="sug__msg" id="sugMsg" role="status"></p>
+      </form>
+
+      <a href="futbol.html" class="proxi__link">Mientras tanto, ve los jerseys de futbol →</a>
     </div>
   </main>
 
@@ -119,9 +129,9 @@
   </aside>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/store.js?v=71"></script>
-  <script type="module" src="js/asesor.js?v=71"></script>
-  <script type="module" src="js/auth.js?v=71"></script>
-  <script type="module" src="js/cookies.js?v=71"></script>
+  <script type="module" src="js/sugerencias.js?v=72"></script>
+  <script type="module" src="js/asesor.js?v=72"></script>
+  <script type="module" src="js/auth.js?v=72"></script>
+  <script type="module" src="js/cookies.js?v=72"></script>
 </body>
 </html>
