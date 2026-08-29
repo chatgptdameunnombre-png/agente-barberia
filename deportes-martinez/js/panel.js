@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=71";
-import { pintarEstadisticas } from "./estadisticas.js?v=71";
-import "./panel-nav.js?v=71";
+import { db } from "./db.js?v=72";
+import { pintarEstadisticas } from "./estadisticas.js?v=72";
+import "./panel-nav.js?v=72";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -1187,5 +1187,127 @@ document.addEventListener("click", async e => {
     bo.disabled = true;
     try { await db.borrarPromo(cod); toast("Código borrado"); await cargarPromos(); }
     catch { toast("No se pudo borrar"); bo.disabled = false; }
+  }
+});
+
+/* ============================================================
+   Lo que piden — jerseys que la gente buscó y no había.
+   Llegan de las páginas de "Próximamente" y del asistente.
+   ============================================================ */
+let sugerenciasCargadas = null;
+
+/* Las sugerencias las escribe cualquiera desde la web: hay que escaparlas antes
+   de pintarlas o alguien podría meter HTML y que corra en el panel del dueño. */
+const escHTML = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
+
+function cuandoFue(iso) {
+  const t = new Date(iso);
+  if (isNaN(t)) return "";
+  const min = Math.round((Date.now() - t.getTime()) / 60000);
+  if (min < 60) return min <= 1 ? "hace un momento" : `hace ${min} min`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `hace ${h} h`;
+  const d = Math.round(h / 24);
+  return d === 1 ? "ayer" : `hace ${d} días`;
+}
+
+const DEPORTE_PIDEN = { basket: "Basketball", americano: "Americano", futbol: "Futbol" };
+
+function pintarSugerencias() {
+  const cuerpo = $("#pidenBody");
+  if (!cuerpo || !sugerenciasCargadas) return;
+  const lista = sugerenciasCargadas;
+  const pendientes = lista.filter(s => !s.atendida);
+
+  const chip = $("#pnavPiden");
+  if (chip) { chip.textContent = pendientes.length; chip.hidden = !pendientes.length; }
+
+  if (!lista.length) {
+    cuerpo.innerHTML = `<p class="st-vacio">Todavía nadie ha pedido nada. Aquí van a caer los jerseys que la gente busca y no tienes.</p>`;
+    return;
+  }
+  const tarjeta = s => `
+    <article class="pd-card${s.atendida ? " pd-card--ok" : ""}">
+      <div class="pd-card__top">
+        ${s.deporte ? `<span class="vt-pill">${DEPORTE_PIDEN[s.deporte] || s.deporte}</span>` : ""}
+        <span class="pd-cuando">${cuandoFue(s.fecha)}</span>
+        ${s.atendida ? `<span class="st-tag st-tag--compro">Ya la conseguiste</span>` : ""}
+      </div>
+      <p class="pd-texto">${escHTML(s.texto || "")}</p>
+      <div class="pd-quien">${s.nombre ? `Lo pidió <b>${escHTML(s.nombre)}</b>` : "Sin nombre"}</div>
+      <div class="pd-acciones">
+        <button class="btn ${s.atendida ? "btn--ghost" : ""}" data-sug-ok="${s.id}" data-val="${s.atendida ? "0" : "1"}">
+          ${s.atendida ? "Volver a pendiente" : "✓ Ya la conseguí"}
+        </button>
+        <button class="btn btn--danger" data-sug-del="${s.id}">Borrar</button>
+      </div>
+    </article>`;
+
+  const atendidas = lista.filter(s => s.atendida);
+  const grupo = (t, ayuda, arr) => arr.length ? `
+    <div class="vt-grupo">
+      <div class="vt-grupo__h"><h4>${t}</h4><span class="vt-num">${arr.length}</span></div>
+      <span class="vt-grupo__suma">${ayuda}</span>
+    </div>${arr.map(tarjeta).join("")}` : "";
+
+  cuerpo.innerHTML =
+    grupo("Por conseguir", "Esto es lo que te están pidiendo y no tienes.", pendientes) +
+    grupo("Ya conseguidas", "Las que ya marcaste como resueltas.", atendidas);
+}
+
+async function cargarSugerencias(forzar) {
+  const cuerpo = $("#pidenBody");
+  if (!cuerpo) return;
+  if (sugerenciasCargadas && !forzar) { pintarSugerencias(); return; }
+  cuerpo.innerHTML = `<p class="st-vacio">Cargando…</p>`;
+  try {
+    sugerenciasCargadas = await db.listarSugerencias();
+    pintarSugerencias();
+  } catch (err) {
+    const m = String(err?.code || err?.message || "");
+    cuerpo.innerHTML = `<p class="st-error">${m.includes("permission") || m.includes("PERMISSION")
+      ? "Falta la regla de la colección <b>sugerencias</b> en la base de datos."
+      : "No se pudieron cargar."}</p>`;
+  }
+}
+
+document.addEventListener("panel:seccion", e => {
+  if (e.detail?.sec === "piden") cargarSugerencias();
+});
+/* el contador del menú se llena al entrar, sin esperar a que abran la sección */
+document.addEventListener("DOMContentLoaded", () => {
+  db.listarSugerencias().then(l => {
+    sugerenciasCargadas = l;
+    const p = l.filter(s => !s.atendida).length;
+    const chip = $("#pnavPiden");
+    if (chip) { chip.textContent = p; chip.hidden = !p; }
+  }).catch(() => { });
+});
+
+$("#pidenRefrescar")?.addEventListener("click", () => cargarSugerencias(true));
+
+document.addEventListener("click", async e => {
+  const ok = e.target.closest("[data-sug-ok]");
+  if (ok) {
+    const id = ok.dataset.sugOk, val = ok.dataset.val === "1";
+    ok.disabled = true;
+    try {
+      await db.marcarSugerencia(id, val);
+      const s = sugerenciasCargadas.find(x => x.id === id);
+      if (s) s.atendida = val;
+      pintarSugerencias();
+    } catch { ok.disabled = false; toast("No se pudo guardar"); }
+    return;
+  }
+  const del = e.target.closest("[data-sug-del]");
+  if (del) {
+    if (!confirm("¿Borrar esta petición? No se puede deshacer.")) return;
+    const id = del.dataset.sugDel;
+    del.disabled = true;
+    try {
+      await db.borrarSugerencia(id);
+      sugerenciasCargadas = sugerenciasCargadas.filter(x => x.id !== id);
+      pintarSugerencias();
+    } catch { del.disabled = false; toast("No se pudo borrar"); }
   }
 });
