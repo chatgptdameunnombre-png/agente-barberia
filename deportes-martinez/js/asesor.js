@@ -1,6 +1,7 @@
-import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=71";
-import { track } from "./track.js?v=71";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=71";
+import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=72";
+import { track } from "./track.js?v=72";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=72";
+import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=72";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 const SID_KEY = "deportes-martinez_asesor_sid";
@@ -14,7 +15,7 @@ function setProductos(list) {
   if (alCargarProductos) alCargarProductos();
 }
 
-import("./db.js?v=71").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
+import("./db.js?v=72").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
 
 function fsVal(v) {
   const t = Object.keys(v)[0];
@@ -199,7 +200,36 @@ function montar() {
     for (const p of productos) {
       if (p.nombre && p.nombre.length >= 4 && low.includes(p.nombre.toLowerCase()) && !idsMostrar.includes(p.id)) idsMostrar.push(p.id);
     }
-    if (idsMostrar.length) tarjetas(idsMostrar);
+    if (idsMostrar.length) { tarjetas(idsMostrar); return; }
+    /* Si preguntaron por un deporte que todavía no hay, en vez de dejarlos con un
+       "no tenemos" se les pinta la tarjeta para que pidan el suyo. */
+    const dep = deporteQueNoHay(low);
+    if (dep) tarjetaPedir(dep);
+  }
+
+  /* Se detecta por lo que CONTESTÓ el asistente, no por lo que escribió la persona:
+     así solo sale cuando de verdad no había nada que ofrecerle. */
+  const PISTAS = {
+    basket: ["basket", "basquet", "básquet", "nba", "lakers", "celtics", "warriors", "bulls", "knicks", "heat", "curry", "lebron", "jordan", "doncic", "tatum"],
+    americano: ["americano", "nfl", "chiefs", "cowboys", "patriots", "steelers", "bills", "eagles", "49ers", "raiders", "packers", "brady", "mahomes"]
+  };
+  function deporteQueNoHay(txt) {
+    const t = " " + txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "") + " ";
+    const niega = /(no ten|todavia no|aun no|proximamente|por ahora no|no manejamos|no contamos)/.test(t);
+    if (!niega) return "";
+    for (const [dep, palabras] of Object.entries(PISTAS)) {
+      if (palabras.some(w => t.includes(w))) return dep;
+    }
+    return "";
+  }
+  function tarjetaPedir(deporte) {
+    if (body.querySelector(".sug--chat")) return;   // una sola por conversación
+    const wrap = document.createElement("div");
+    wrap.className = "asesor-msg asesor-msg--bot asesor-msg--sug";
+    wrap.innerHTML = tarjetaSugerenciaHTML(deporte);
+    body.appendChild(wrap);
+    conectarFormulario(wrap.querySelector("form.sug"));
+    scroll();
   }
   function mostrarTarjetas(reply, ids) {
     if (!productos.length) { tarjetasPendientes.push({ reply, ids }); return; }
