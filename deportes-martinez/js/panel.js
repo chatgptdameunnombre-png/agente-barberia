@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=72";
-import { pintarEstadisticas } from "./estadisticas.js?v=72";
-import "./panel-nav.js?v=72";
+import { db } from "./db.js?v=73";
+import { pintarEstadisticas } from "./estadisticas.js?v=73";
+import "./panel-nav.js?v=73";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -1213,11 +1213,24 @@ function cuandoFue(iso) {
 
 const DEPORTE_PIDEN = { basket: "Basketball", americano: "Americano", futbol: "Futbol" };
 
+/* El botón que hace que "Lo que piden" valga: avisarle a quien lo pidió.
+   Si no dejó WhatsApp no sale — no tiene sentido un botón que no lleva a nada. */
+function pidenWhats(s) {
+  const num = String(s.tel || "").replace(/\D/g, "");
+  if (num.length < 10) return "";
+  const conLada = num.length === 10 ? "52" + num : num;
+  const hola = s.nombre ? `Hola ${s.nombre}` : "Hola";
+  const que = `${hola}, te escribo de Deportes Martínez. Nos pediste «${s.texto}» y ya lo conseguimos. ¿Te lo aparto?`;
+  return `<a class="btn btn--ghost" href="https://wa.me/${conLada}?text=${encodeURIComponent(que)}" target="_blank" rel="noopener">Avisarle por WhatsApp</a>`;
+}
+
 function pintarSugerencias() {
   const cuerpo = $("#pidenBody");
   if (!cuerpo || !sugerenciasCargadas) return;
   const lista = sugerenciasCargadas;
-  const pendientes = lista.filter(s => !s.atendida);
+  /* primero los que dejaron WhatsApp: son los que se pueden convertir en venta */
+  const pendientes = lista.filter(s => !s.atendida)
+    .sort((a, b) => (b.tel ? 1 : 0) - (a.tel ? 1 : 0));
 
   const chip = $("#pnavPiden");
   if (chip) { chip.textContent = pendientes.length; chip.hidden = !pendientes.length; }
@@ -1234,11 +1247,15 @@ function pintarSugerencias() {
         ${s.atendida ? `<span class="st-tag st-tag--compro">Ya la conseguiste</span>` : ""}
       </div>
       <p class="pd-texto">${escHTML(s.texto || "")}</p>
-      <div class="pd-quien">${s.nombre ? `Lo pidió <b>${escHTML(s.nombre)}</b>` : "Sin nombre"}</div>
+      <div class="pd-quien">
+        ${s.nombre ? `Lo pidió <b>${escHTML(s.nombre)}</b>` : "Sin nombre"}
+        ${s.tel ? `<span class="pd-tel">${escHTML(s.tel)}</span>` : `<span class="pd-sintel">no dejó WhatsApp</span>`}
+      </div>
       <div class="pd-acciones">
         <button class="btn ${s.atendida ? "btn--ghost" : ""}" data-sug-ok="${s.id}" data-val="${s.atendida ? "0" : "1"}">
           ${s.atendida ? "Volver a pendiente" : "✓ Ya la conseguí"}
         </button>
+        ${pidenWhats(s)}
         <button class="btn btn--danger" data-sug-del="${s.id}">Borrar</button>
       </div>
     </article>`;
@@ -1296,6 +1313,11 @@ document.addEventListener("click", async e => {
       const s = sugerenciasCargadas.find(x => x.id === id);
       if (s) s.atendida = val;
       pintarSugerencias();
+      /* recién marcada y con WhatsApp: se le recuerda avisarle, que es el punto */
+      if (val && s?.tel) {
+        const boton = $(`[data-sug-ok="${id}"]`)?.closest(".pd-card")?.querySelector('a[href*="wa.me"]');
+        if (boton) toast(`Listo. <b>Avísale a ${s.nombre || "quien lo pidió"}</b> con el botón de WhatsApp.`);
+      }
     } catch { ok.disabled = false; toast("No se pudo guardar"); }
     return;
   }
