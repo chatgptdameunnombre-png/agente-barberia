@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=70";
-import { pintarEstadisticas } from "./estadisticas.js?v=70";
-import "./panel-nav.js?v=70";
+import { db } from "./db.js?v=71";
+import { pintarEstadisticas } from "./estadisticas.js?v=71";
+import "./panel-nav.js?v=71";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -81,9 +81,16 @@ function render() {
   const fila = p => `
     <div class="p-row">
       <img class="p-thumb" src="${p.imagen || ''}" alt="" onerror="this.style.visibility='hidden'">
-      <div class="p-name"><b>${p.nombre}${p.retro ? ` <span style="font-size:10px;font-weight:700;color:#b8860b;border:1px solid #b8860b;border-radius:5px;padding:1px 5px;vertical-align:middle;letter-spacing:.05em">RETRO</span>` : ""}${p.personalizable === false ? ` <span style="font-size:10px;font-weight:700;color:#8a8a92;border:1px solid #3a3a42;border-radius:5px;padding:1px 5px;vertical-align:middle;letter-spacing:.05em">SIN NOMBRE</span>` : ""}</b><span>${[p.equipo, p.liga, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span></div>
-      <span class="hide-sm">${p.categoria}</span>
-      <span class="hide-sm">${money(p.precio)}</span>
+      <div class="p-name">
+        <b>${p.nombre}</b>
+        <span>${[p.equipo, p.liga, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span>
+        ${p.retro || p.personalizable === false ? `<span class="p-tags">
+          ${p.retro ? `<span class="p-tag p-tag--retro">RETRO</span>` : ""}
+          ${p.personalizable === false ? `<span class="p-tag">SIN NOMBRE</span>` : ""}
+        </span>` : ""}
+      </div>
+      <span class="hide-sm p-cat">${p.categoria}</span>
+      <span class="hide-sm p-precio">${money(p.precio)}</span>
       <span>${stockPill(p.stock)}</span>
       <div class="p-actions">
         <button class="edit-a" data-edit="${p.id}">Editar</button>
@@ -536,8 +543,22 @@ function toast(html) {
    ============================================================ */
 let clientesCargados = null;
 
-document.addEventListener("panel:cuentas", () => {
-  if (clientesCargados) { $("#cuentasBody").hidden = false; $("#cuentasCandado").hidden = true; }
+/* Ya no se vuelve a pedir la contraseña: para llegar aquí hubo que entrar al panel con ella.
+   Los clientes se cargan solos al abrir la sección. */
+document.addEventListener("panel:cuentas", async () => {
+  const cuerpo = $("#cuentasBody");
+  if (!cuerpo) return;
+  if (clientesCargados) { pintarClientes(clientesCargados); return; }
+  cuerpo.innerHTML = `<p class="st-vacio">Cargando…</p>`;
+  try {
+    clientesCargados = await db.listarClientes();
+    pintarClientes(clientesCargados);
+  } catch (err) {
+    const m = String(err?.code || err?.message || "");
+    cuerpo.innerHTML = `<p class="st-error">${m.includes("permission") || m.includes("PERMISSION")
+      ? "Falta activar el permiso de lectura en la base de datos (regla de Firestore)."
+      : "No se pudieron cargar las cuentas."}</p>`;
+  }
 });
 
 function filaCliente(c) {
@@ -596,10 +617,12 @@ function pintarClientes(lista) {
       <div class="stat"><div class="n">${conDatos}</div><div class="l">Ya llenaron sus datos</div></div>
       <div class="stat"><div class="n">${lista.length - conDatos}</div><div class="l">Solo se registraron</div></div>
     </div>
-    <p class="st-bloque__ayuda">Estos son los datos que cada cliente guardó en su cuenta. Trátalos con cuidado: son datos personales.</p>
+    <div class="vt-grupo">
+      <div class="vt-grupo__h"><h4>Tus clientes</h4><span class="vt-num">${lista.length}</span></div>
+      <span class="vt-grupo__suma">Son datos personales: trátalos con cuidado.</span>
+    </div>
     <div class="st-visitas">${lista.length ? lista.map(filaCliente).join("") : `<p class="st-vacio">Todavía nadie ha creado su cuenta.</p>`}</div>`;
   cuerpo.hidden = false;
-  $("#cuentasCandado").hidden = true;
 }
 
 $("#cuentasVer")?.addEventListener("click", async () => {
