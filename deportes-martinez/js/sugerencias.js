@@ -3,7 +3,7 @@
    Escribe directo a Firestore: la regla deja crear a cualquiera pero solo el
    dueño puede leer, y ahí mismo se valida el tope de 200 caracteres. */
 
-import { firebaseConfig } from "./config.js?v=74";
+import { firebaseConfig } from "./config.js?v=75";
 
 const PROJ = firebaseConfig.projectId;
 const KEY = firebaseConfig.apiKey;
@@ -99,13 +99,19 @@ export function conectarFormulario(form) {
 
 /* HTML de la tarjeta que el asistente pinta dentro del chat */
 export function tarjetaSugerenciaHTML(deporte) {
-  const QUE = { basket: "de basketball", americano: "de futbol americano" }[deporte] || "";
-  /* el ejemplo tiene que ser del deporte que preguntaron: poner uno de la NFL
-     a quien busca basketball se lee como que no entendimos */
-  const EJ = { basket: "Ej. jersey Lakers de Kobe", americano: "Ej. playera Chiefs 2010" }[deporte] || "Ej. jersey del Barcelona 2015";
+  /* En basket y americano no hay catálogo todavía; en futbol sí lo hay pero puede
+     faltar ese jersey en concreto. El texto tiene que decir cada cosa. */
+  const AYUDA = {
+    basket: "Todavía no tenemos jerseys de basketball. Dinos cuál buscas y lo tomamos en cuenta.",
+    americano: "Todavía no tenemos jerseys de futbol americano. Dinos cuál buscas y lo tomamos en cuenta."
+  }[deporte] || "Ese no lo tenemos ahorita. Dinos cuál te gustaría y lo tomamos en cuenta para el próximo surtido.";
+  const EJ = {
+    basket: "Ej. jersey Lakers de Kobe",
+    americano: "Ej. playera Chiefs 2010"
+  }[deporte] || "Ej. jersey del Cruz Azul 2024";
   return `<form class="sug sug--chat" data-deporte="${deporte}" autocomplete="off">
-    <b class="sug__t">¿Cuál te gustaría que trajéramos?</b>
-    <p class="sug__ayuda">Todavía no tenemos jerseys ${QUE}. Dinos cuál buscas y lo tomamos en cuenta.</p>
+    <b class="sug__t">¿Cuál jersey te gustaría que trajéramos?</b>
+    <p class="sug__ayuda">${AYUDA}</p>
     <input class="sug__in" name="texto" maxlength="200" placeholder="${EJ}" required>
     <input class="sug__in" name="nombre" maxlength="60" placeholder="Tu nombre (opcional)">
     <input class="sug__in" name="tel" inputmode="tel" maxlength="20" placeholder="Tu WhatsApp (opcional, para avisarte)">
