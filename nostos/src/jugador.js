@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260905171227';
+import { CELDA, esSolido } from './mapa.js?v=20260905171823';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -41,6 +41,11 @@ export class Jugador {
     this.gancho = false;
     this.hachaFuera = false;
     this.alLanzarHacha = null;
+    this.hacha = false;
+    this.mano = 'cuchillo';
+    this.cuchillos = 8;
+    this.cuchillosMax = 20;
+    this.alCambiar = null;
     this.pico = false;
     this.manoP = false;
     this.enfriamientoPico = 0;
@@ -130,6 +135,11 @@ export class Jugador {
       if (e.code === 'KeyQ' && this.pistola && this.alPortal) this.alPortal('naranja');
       if (e.code === 'KeyE' && this.alComerciar) this.alComerciar();
       if (e.code === 'KeyF') this.tajo();
+      if ((e.code === 'KeyZ' || e.code === 'Tab') && this.hacha) {
+        e.preventDefault();
+        this.mano = this.mano === 'hacha' ? 'cuchillo' : 'hacha';
+        if (this.alCambiar) this.alCambiar(this.mano);
+      }
       if (e.code === 'KeyT' && this.alLanzarHacha) this.alLanzarHacha();
       if (e.code === 'KeyB' && this.pico && this.enfriamientoPico <= 0 && this.alPicar) {
         this.enfriamientoPico = 0.75;
@@ -196,6 +206,10 @@ export class Jugador {
 
   tajo() {
     if (!this.activo || this.enfriamientoTajo > 0 || !this.alTajo || this.hachaFuera) return;
+    if (this.mano === 'cuchillo' && this.cuchillos <= 0) {
+      if (this.alVacio) this.alVacio();
+      return;
+    }
     this.enfriamientoTajo = 0.55;
     this.tensando = false;
     this.tension = 0;

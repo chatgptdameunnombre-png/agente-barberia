@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260905171227';
+import { RELIQUIAS } from './reliquias.js?v=20260905171823';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -40,10 +40,19 @@ export const MEJORAS = [
   { id: 'manoP', nombre: 'MANO DE POSEIDON', precio: 210, celda: 16, respaldo: 5,
     desc: 'Con C agarras un escombro y con C otra vez se lo lanzas encima',
     aplicar: j => { j.manoP = true; j.guardar('manoP', 1, true); } },
+  { id: 'hachaArma', nombre: 'HACHA DE LEVIATAN', precio: 160, celda: 18, respaldo: 2,
+    desc: 'Tajo a todos los de enfrente y con T la lanzas: atraviesa y vuelve sola. Nunca se acaba',
+    aplicar: j => { j.hacha = true; j.mano = 'hacha'; } },
   { id: 'cazador', nombre: 'OJO DEL CAZADOR', precio: 230, celda: 17, respaldo: 10,
     desc: 'Manten X para marcar hasta 5 enemigos y sueltalo para dispararles a todos',
     aplicar: j => { j.cazador = true; } }
 ];
+
+export const CUCHILLOS = {
+  id: 'cuchillos', nombre: 'HAZ DE CUCHILLOS', precio: 55, celda: 19, respaldo: 0,
+  instantaneo: true, desc: 'Ocho cuchillos mas para lanzar',
+  aplicar: j => { j.cuchillos = Math.min(j.cuchillosMax, j.cuchillos + 8); }
+};
 
 const BASICOS = [
   { id: 'frasco', nombre: 'FRASCO DE AMBROSIA', precio: 60, celda: 8, respaldo: 7,
@@ -125,6 +134,12 @@ export class Tienda {
     if (art.id === 'manoP' && this.iconos.mano && this.iconos.mano[2]) {
       return `url(${this.iconos.mano[2].image.toDataURL()})`;
     }
+    if (art.id === 'cuchillos' && this.iconos.cuchillo && this.iconos.cuchillo[0]) {
+      return `url(${this.iconos.cuchillo[0].image.toDataURL()})`;
+    }
+    if (art.id === 'hachaArma' && this.iconos.hacha && this.iconos.hacha[0]) {
+      return `url(${this.iconos.hacha[0].image.toDataURL()})`;
+    }
     if (art.id === 'cazador' && this.iconos.insignias && this.iconos.insignias[7]) {
       return `url(${this.iconos.insignias[7].image.toDataURL()})`;
     }
@@ -144,6 +159,9 @@ export class Tienda {
     mejoras.unshift(...fijas.slice(0, 2));
     const consumibles = revuelve(CONSUMIBLES).slice(0, Math.max(1, this.cuantos - mejoras.length));
     this.oferta = [...mejoras, ...consumibles];
+    if (this.jugador.cuchillos < this.jugador.cuchillosMax) {
+      this.oferta[this.oferta.length - 1] = CUCHILLOS;
+    }
   }
 
   abrir() {
@@ -184,6 +202,7 @@ export class Tienda {
   }
 
   ocupaRanura(art) {
+    if (art.instantaneo) return null;
     if (!art.aplicar) return art.id;
     if (art.id === 'portales') return 'portales';
     if (art.id === 'guante') return 'guante';
@@ -205,7 +224,9 @@ export class Tienda {
     }
 
     this.jugador.oro -= precio;
-    if (art.aplicar) {
+    if (art.instantaneo) {
+      art.aplicar(this.jugador);
+    } else if (art.aplicar) {
       art.aplicar(this.jugador);
       this.compradas.add(art.id);
       this.oferta = this.oferta.filter(o => o.id !== art.id);
