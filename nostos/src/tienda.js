@@ -1,0 +1,157 @@
+export const MEJORAS = [
+  { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
+    desc: 'Tensas el arco mucho mas rapido',
+    aplicar: j => { j.mult.tension *= 1.35; } },
+  { id: 'puntas', nombre: 'PUNTAS DE HIERRO', precio: 120, celda: 1, respaldo: 0,
+    desc: '+35% de dano con cada flecha',
+    aplicar: j => { j.mult.dano *= 1.35; } },
+  { id: 'aljaba', nombre: 'ALJABA HONDA', precio: 70, celda: 2, respaldo: 1,
+    desc: 'Cargas 30 flechas mas',
+    aplicar: j => { j.flechasMax += 30; j.flechas += 20; } },
+  { id: 'sandalias', nombre: 'SANDALIAS DE HERMES', precio: 110, celda: 3, respaldo: 3,
+    desc: 'Corres 20% mas rapido',
+    aplicar: j => { j.mult.velocidad *= 1.2; } },
+  { id: 'coraza', nombre: 'CORAZA DE BRONCE', precio: 100, celda: 4, respaldo: 5,
+    desc: 'Aguantas 50 de escudo mas',
+    aplicar: j => { j.armaduraMax += 50; j.armadura += 50; } },
+  { id: 'atenea', nombre: 'FAVOR DE ATENEA', precio: 160, celda: 5, respaldo: 7,
+    desc: '+30 de vida maxima, y te cura',
+    aplicar: j => { j.vidaMax += 30; j.vida = j.vidaMax; } },
+  { id: 'doble', nombre: 'TIRO DOBLE', precio: 260, celda: 6, respaldo: 2,
+    desc: 'Cada disparo suelta dos flechas',
+    aplicar: j => { j.doble = true; } },
+  { id: 'vista', nombre: 'OJO DE AGUILA', precio: 130, celda: 7, respaldo: 10,
+    desc: 'Las flechas vuelan mas rapido y lejos',
+    aplicar: j => { j.mult.velFlecha *= 1.4; } },
+  { id: 'portales', nombre: 'CUERNO DE HERMES', precio: 350, celda: 12, respaldo: 10,
+    desc: 'Abre puertas en la piedra. Clic derecho azul, Q naranja',
+    aplicar: j => { j.pistola = true; j.guardar('portales', 1, true); } }
+];
+
+export const CONSUMIBLES = [
+  { id: 'frasco', nombre: 'FRASCO DE AMBROSIA', precio: 60, celda: 8, respaldo: 7,
+    desc: 'Te cura 60 cuando lo uses' },
+  { id: 'fuego', nombre: 'FUEGO GRIEGO', precio: 85, celda: 9, respaldo: 4,
+    desc: 'Quema a todo el que tengas cerca' },
+  { id: 'jabalina', nombre: 'JABALINA', precio: 75, celda: 10, respaldo: 3,
+    desc: 'Un tiro que atraviesa y mata casi todo' },
+  { id: 'vino', nombre: 'VINO DE DIONISO', precio: 95, celda: 11, respaldo: 6,
+    desc: 'Diez segundos de furia: doble dano' }
+];
+
+const TODOS = [...MEJORAS, ...CONSUMIBLES];
+export const porId = id => TODOS.find(o => o.id === id);
+
+export class Tienda {
+  constructor(cfg) {
+    this.jugador = cfg.jugador;
+    this.iconos = cfg.iconos;
+    this.mercader = cfg.mercader || null;
+    this.alCerrar = cfg.alCerrar;
+    this.alComprar = cfg.alComprar;
+    this.compradas = new Set();
+    this.abierta = false;
+    this.oferta = [];
+    this._dom();
+  }
+
+  _dom() {
+    this.caja = document.createElement('div');
+    this.caja.id = 'tienda';
+    this.caja.innerHTML = `
+      <div class="marco">
+        <div class="cabeza">
+          <div class="retrato"></div>
+          <div class="titulo">
+            <h3>EL MERCADER</h3>
+            <p class="lema">Todo tiene precio, hasta volver a casa</p>
+          </div>
+        </div>
+        <div class="rejilla"></div>
+        <div class="pie"><span class="bolsa"></span><button class="seguir">SEGUIR (ESPACIO)</button></div>
+      </div>`;
+    document.body.appendChild(this.caja);
+    this.rejilla = this.caja.querySelector('.rejilla');
+    if (this.mercader) {
+      this.caja.querySelector('.retrato').style.backgroundImage = `url(${this.mercader})`;
+    }
+    this.bolsa = this.caja.querySelector('.bolsa');
+    this.caja.querySelector('.seguir').addEventListener('click', () => this.cerrar());
+    addEventListener('keydown', e => {
+      if (!this.abierta) return;
+      if (e.code === 'Space' || e.code === 'Escape') { e.preventDefault(); this.cerrar(); }
+    });
+  }
+
+  _icono(art) {
+    if (art.id === 'portales' && this.iconos.cuerno && this.iconos.cuerno[1]) {
+      return `url(${this.iconos.cuerno[1].image.toDataURL()})`;
+    }
+    const t = (this.iconos.tienda && this.iconos.tienda[art.celda]) ||
+              (this.iconos.items && this.iconos.items[art.respaldo]);
+    if (!t || !t.image) return '';
+    return `url(${t.image.toDataURL()})`;
+  }
+
+  _armarOferta() {
+    const libres = MEJORAS.filter(m => !this.compradas.has(m.id));
+    const revuelve = a => a.slice().sort(() => Math.random() - 0.5);
+    const portales = libres.find(m => m.id === 'portales');
+    const resto = libres.filter(m => m.id !== 'portales');
+    const mejoras = revuelve(resto).slice(0, 3);
+    if (portales && Math.random() < 0.45) mejoras[mejoras.length - 1] = portales;
+    const consumibles = revuelve(CONSUMIBLES).slice(0, 4 - mejoras.length);
+    this.oferta = [...mejoras, ...consumibles];
+  }
+
+  abrir() {
+    this._armarOferta();
+    this.pintar();
+    this.abierta = true;
+    this.caja.classList.add('ver');
+    if (document.pointerLockElement) document.exitPointerLock();
+  }
+
+  cerrar() {
+    if (!this.abierta) return;
+    this.abierta = false;
+    this.caja.classList.remove('ver');
+    if (this.alCerrar) this.alCerrar();
+  }
+
+  pintar() {
+    this.bolsa.textContent = 'LLEVAS ' + this.jugador.oro + ' DE ORO';
+    this.rejilla.innerHTML = '';
+    this.oferta.forEach(art => {
+      const puede = this.jugador.oro >= art.precio;
+      const t = document.createElement('div');
+      t.className = 'carta' + (puede ? '' : ' pobre');
+      t.innerHTML = `
+        <div class="ico" style="background-image:${this._icono(art)}"></div>
+        <b>${art.nombre}</b>
+        <span>${art.desc}</span>
+        <em>${art.precio} ORO</em>`;
+      t.addEventListener('click', () => this.comprar(art));
+      this.rejilla.appendChild(t);
+    });
+  }
+
+  comprar(art) {
+    if (this.jugador.oro < art.precio) return;
+    this.jugador.oro -= art.precio;
+    if (art.aplicar) {
+      art.aplicar(this.jugador);
+      this.compradas.add(art.id);
+      this.oferta = this.oferta.filter(o => o.id !== art.id);
+    } else if (!this.jugador.guardar(art.id)) {
+      this.jugador.oro += art.precio;
+      return;
+    }
+    if (this.alComprar) this.alComprar(art);
+    this.pintar();
+  }
+
+  reiniciar() {
+    this.compradas.clear();
+  }
+}
