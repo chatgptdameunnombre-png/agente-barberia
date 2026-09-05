@@ -1,16 +1,16 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905143916';
-import { Jugador } from './jugador.js?v=20260905143916';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260905143916';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905143916';
-import { Objeto, CATALOGO } from './objetos.js?v=20260905143916';
-import { Rondas } from './rondas.js?v=20260905143916';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905143916';
-import { Minimapa, Marcas } from './minimapa.js?v=20260905143916';
-import { Flujo } from './flujo.js?v=20260905143916';
-import { Portales } from './portales.js?v=20260905143916';
-import { Audio } from './audio.js?v=20260905143916';
-import { siluetaCiclope } from './texturas.js?v=20260905143916';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905144038';
+import { Jugador } from './jugador.js?v=20260905144038';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260905144038';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905144038';
+import { Objeto, CATALOGO } from './objetos.js?v=20260905144038';
+import { Rondas } from './rondas.js?v=20260905144038';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905144038';
+import { Minimapa, Marcas } from './minimapa.js?v=20260905144038';
+import { Flujo } from './flujo.js?v=20260905144038';
+import { Portales } from './portales.js?v=20260905144038';
+import { Audio } from './audio.js?v=20260905144038';
+import { siluetaCiclope } from './texturas.js?v=20260905144038';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -75,20 +75,20 @@ let texturasNivel = null;
 
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, hoja] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/arco.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/items.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/caras.png?v=20260905143916'),
-    cargarImagen('./arte/crudo/espada.png?v=20260905143916')
+    cargarImagen('./arte/crudo/ciclope.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/arco.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/items.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/caras.png?v=20260905144038'),
+    cargarImagen('./arte/crudo/espada.png?v=20260905144038')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
