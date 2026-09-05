@@ -1,24 +1,24 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905173610';
-import { Jugador } from './jugador.js?v=20260905173610';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260905173610';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior } from './sprites.js?v=20260905173610';
-import { Objeto, CATALOGO } from './objetos.js?v=20260905173610';
-import { Rondas } from './rondas.js?v=20260905173610';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905173610';
-import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905173610';
-import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905173610';
-import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260905173610';
-import { Minimapa, Marcas } from './minimapa.js?v=20260905173610';
-import { Flujo } from './flujo.js?v=20260905173610';
-import { Portales, trazar } from './portales.js?v=20260905173610';
-import { romper } from './mapa.js?v=20260905173610';
-import { Audio } from './audio.js?v=20260905173610';
-import { OtroLado } from './otrolado.js?v=20260905173610';
-import { Director } from './director.js?v=20260905173610';
-import { Cerco } from './cerco.js?v=20260905173610';
-import { TIPOS as T } from './enemigos.js?v=20260905173610';
-import { siluetaCiclope } from './texturas.js?v=20260905173610';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905174112';
+import { Jugador } from './jugador.js?v=20260905174112';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260905174112';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior } from './sprites.js?v=20260905174112';
+import { Objeto, CATALOGO } from './objetos.js?v=20260905174112';
+import { Rondas } from './rondas.js?v=20260905174112';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905174112';
+import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905174112';
+import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905174112';
+import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260905174112';
+import { Minimapa, Marcas } from './minimapa.js?v=20260905174112';
+import { Flujo } from './flujo.js?v=20260905174112';
+import { Portales, trazar } from './portales.js?v=20260905174112';
+import { romper } from './mapa.js?v=20260905174112';
+import { Audio } from './audio.js?v=20260905174112';
+import { OtroLado } from './otrolado.js?v=20260905174112';
+import { Director } from './director.js?v=20260905174112';
+import { Cerco } from './cerco.js?v=20260905174112';
+import { TIPOS as T } from './enemigos.js?v=20260905174112';
+import { siluetaCiclope } from './texturas.js?v=20260905174112';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -106,6 +106,7 @@ let imagenesVuelo = [];
 let vueloReloj = 0;
 let vueloCuadro = 0;
 let cuchilloReloj = 0;
+let empuje = 0;
 let cuchilloCuadro = 0;
 let imagenesPico = [];
 let imagenesMano = [];
@@ -120,31 +121,31 @@ let texturasNivel = null;
 
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas, cuchilloImg, tajoImg, vueloImg] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/arco.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/items.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/caras.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/guante.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/objetos2.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/hilo.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/jabalina.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/hacha.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/pico.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/mano.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/fuego.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/insignias.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/cuchillo.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/hacha-tajo.png?v=20260905173610'),
-    cargarImagen('./arte/crudo/hacha-vuelo.png?v=20260905173610')
+    cargarImagen('./arte/crudo/ciclope.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/arco.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/items.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/caras.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/guante.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/objetos2.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/hilo.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/jabalina.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/hacha.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/pico.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/mano.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/fuego.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/insignias.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/cuchillo.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/hacha-tajo.png?v=20260905174112'),
+    cargarImagen('./arte/crudo/hacha-vuelo.png?v=20260905174112')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -515,7 +516,7 @@ function soltarObjetos(ronda) {
 
 function marcarBaja() {
   jugador.bajas++;
-  jugador.oro += Math.round((9 + rondas.numero * 2) * otroLado.multiplicadores.oro);
+  jugador.oro += Math.round((13 + rondas.numero * 2) * otroLado.multiplicadores.oro);
 }
 
 const elBanner = document.getElementById('banner');
@@ -1022,8 +1023,9 @@ const DANO_TAJO = 85;
 
 function tajo() {
   if (jugador.mano === 'cuchillo') {
-    cuchilloReloj = 0.34;
+    cuchilloReloj = 0.3;
     cuchilloCuadro = 1;
+    empuje = 1;
   } else {
     espadaReloj = 0.42;
   }
@@ -1363,59 +1365,67 @@ function panelComo() {
     if (typeof t === 'string') return `background-image:url(${t})`;
     return t.image ? `background-image:url(${t.image.toDataURL()})` : '';
   };
-  const tarjeta = (estilo, nombre, texto, tecla) => `
-    <div class="tarjeta"><div class="dibujo" style="${estilo}"></div>
-    <div class="texto"><b>${nombre}</b><span>${texto}</span>
-    ${tecla ? `<em>${tecla}</em>` : ''}</div></div>`;
+  const carta = (estilo, nombre, texto, tecla, precio) => `
+    <div class="tarjeta">
+      <div class="dibujo" style="${estilo}"></div>
+      <div class="texto"><b>${nombre}</b><span>${texto}</span>
+        ${tecla ? `<em>${tecla}</em>` : ''}</div>
+      ${precio ? `<div class="precio2">${precio}</div>` : ''}
+    </div>`;
+  const seccion = t => `<div class="seccion"><span>${t}</span><i></i></div>`;
 
   abrirPanel(`<h3>COMO JUGAR</h3><div class="guia">
-    <p>Eres Odiseo y volviste a tu palacio. Aguantas rondas de enemigos que no
-    paran. En la <b>ronda 15</b> aparece Polifemo: si lo matas, ganaste.</p>
+    <p class="intro">Eres Odiseo y volviste a tu palacio.<br>
+    Aguantas rondas de enemigos que no paran de venir.<br>
+    En la <b>ronda 15</b> aparece Polifemo: si lo matas, ganaste.</p>
 
-    <h4>CON LO QUE EMPIEZAS</h4>
+    ${seccion('CON LO QUE EMPIEZAS')}
     <div class="tarjetas">
-      ${tarjeta(dib('arco', 2), 'ARCO', 'Manten el clic izquierdo para tensarlo. Mientras mas cargues, mas dano y mas lejos llega.', 'CLIC IZQUIERDO')}
-      ${tarjeta(dib('cuchillo', 0), 'CUCHILLO', 'Apunala por 140 y no gasta nada. Con T lo lanzas por 150, pero ese se pierde. Empiezas con 8.', 'F apunalar · T lanzar')}
+      ${carta(dib('arco', 2), 'ARCO', 'Tu arma principal. Manten el clic para tensarlo: mientras mas cargues, mas dano y mas lejos llega.', 'CLIC IZQUIERDO')}
+      ${carta(dib('cuchillo', 0), 'CUCHILLO', 'Apunala por 140 sin gastar nada. Lanzado hace 150, pero ese cuchillo se pierde. Empiezas con 8 y caen algunos en el piso.', 'F apunalar · T lanzar')}
     </div>
 
-    <h4>ARMAS QUE COMPRAS AL MERCADER</h4>
+    ${seccion('ARMAS DEL MERCADER')}
     <div class="tarjetas">
-      ${tarjeta(dib('hacha', 0), 'HACHA · 160', 'Le pega a todos los de enfrente y, lanzada, atraviesa a todos y vuelve sola. Nunca se acaba.', 'F · T · Z para cambiar')}
-      ${tarjeta(dib('cuerno', 1), 'CUERNO DE HERMES · 150', 'Abre dos portales en los muros y se ve a traves de ellos. Cruzan las flechas, las lanzas y los enemigos.', 'CLIC DERECHO y Q')}
-      ${tarjeta(dib('guante', 2), 'GUANTE DE ZEUS · 200', 'Manten R para cargar el rayo. Atraviesa a todos los que esten en linea.', 'R')}
-      ${tarjeta(dib('hilo', 1), 'HILO DE ARIADNA · 170', 'Te jala hacia el muro al que apuntes, o jala al enemigo hacia ti aturdido.', 'G')}
-      ${tarjeta(dib('pico', 0), 'PICO DE HEFESTO · 190', 'Rompe los muros del palacio y deja escombros. Tres picotazos por ronda.', 'B')}
-      ${tarjeta(dib('mano', 1), 'MANO DE POSEIDON · 210', 'Agarra un escombro y lo lanza por 120. Necesitas el Pico para tener escombros.', 'C')}
-      ${tarjeta(dib('insignias', 7), 'OJO DEL CAZADOR · 230', 'Manten X y apunta a hasta 5 enemigos; al soltar les disparas a todos.', 'X')}
+      ${carta(dib('tajo', 0), 'HACHA DE LEVIATAN', 'Le pega a todos los que tengas enfrente. Lanzada, atraviesa a todos y vuelve sola a tu mano. Nunca se acaba.', 'F · T · Z para cambiar', '170')}
+      ${carta(dib('cuerno', 1), 'CUERNO DE HERMES', 'Abre dos portales en los muros y se ve a traves de ellos. Los cruzan tus flechas, las lanzas enemigas y los propios enemigos.', 'CLIC DERECHO · Q', '200')}
+      ${carta(dib('hilo', 1), 'HILO DE ARIADNA', 'Te jala hacia el muro al que apuntes, o jala al enemigo hacia ti y lo deja aturdido.', 'G', '210')}
+      ${carta(dib('pico', 0), 'PICO DE HEFESTO', 'Rompe los muros del palacio y deja escombros. Seis picotazos por ronda.', 'B', '250')}
+      ${carta(dib('mano', 1), 'MANO DE POSEIDON', 'Agarra un escombro y lo lanza por 120. Necesitas el Pico para que haya escombros.', 'C', '280')}
+      ${carta(dib('guante', 2), 'GUANTE DE ZEUS', 'Manten R para cargar el rayo y sueltalo. Atraviesa a todos los que esten en linea.', 'R', '300')}
+      ${carta(dib('insignias', 7), 'OJO DEL CAZADOR', 'Manten X y apunta a hasta 5 enemigos; al soltar les disparas a todos de golpe.', 'X', '320')}
     </div>
 
-    <h4>LAS RELIQUIAS DEL INVENTARIO</h4>
+    ${seccion('RELIQUIAS DEL INVENTARIO')}
     <div class="tarjetas">
-      ${tarjeta(dib('reliquias', 0), 'MANZANA DE LA DISCORDIA', 'Los enemigos se atacan entre ellos 12 segundos y se pegan el doble.')}
-      ${tarjeta(dib('reliquias', 6), 'ESPEJO DE PERSEO', 'Las lanzas rebotan y matan al que las tiro.')}
-      ${tarjeta(dib('reliquias', 7), 'VELLOCINO DE ORO', 'Recuperas vida durante 15 segundos.')}
-      ${tarjeta(dib('reliquias', 8), 'SANDALIAS ALADAS', 'Un impulso para salir de un cerco.')}
-      ${tarjeta(dib('reliquias', 9), 'OJO DE LAS GREAS', 'Ves a todos a traves de los muros 20 segundos.')}
-      ${tarjeta(dib('reliquias', 11), 'DRACMA DE CARONTE', 'Si mueres, revives una vez con media vida.')}
+      ${carta(dib('reliquias', 0), 'MANZANA DE LA DISCORDIA', 'Los enemigos se atacan entre ellos 12 segundos y se pegan el doble.', '1 2 3 4')}
+      ${carta(dib('reliquias', 6), 'ESPEJO DE PERSEO', 'Las lanzas rebotan y matan al que las tiro.', '1 2 3 4')}
+      ${carta(dib('reliquias', 7), 'VELLOCINO DE ORO', 'Recuperas vida durante 15 segundos.', '1 2 3 4')}
+      ${carta(dib('reliquias', 8), 'SANDALIAS ALADAS', 'Un impulso para salir de un cerco.', '1 2 3 4')}
+      ${carta(dib('reliquias', 9), 'OJO DE LAS GREAS', 'Ves a todos a traves de los muros 20 segundos.', '1 2 3 4')}
+      ${carta(dib('reliquias', 11), 'DRACMA DE CARONTE', 'Si mueres, revives una vez con media vida.', '1 2 3 4')}
     </div>
 
-    <p><b>Entre rondas.</b> Al limpiar una ronda caen objetos al piso y empieza la
-    tregua. Pulsa <b>E</b> y sale el mercader: solo puedes comprar
-    <b>una cosa por ronda</b>, asi que elige. Las armas son para siempre; las
-    reliquias se guardan en el inventario y se usan con <b>1 2 3 4</b>. Si lo
-    tienes lleno, <b>SHIFT + numero</b> suelta esa ranura.</p>
+    ${seccion('LO QUE HAY QUE SABER')}
+    <div class="nota"><b>ENTRE RONDAS</b>
+    Al limpiar una ronda caen objetos y empieza la tregua. Pulsa <b>E</b> y sale
+    el mercader: solo compras <b>una cosa por ronda</b>. Las armas son para
+    siempre; las reliquias van al inventario. Si lo tienes lleno,
+    <b>SHIFT + numero</b> suelta esa ranura.</div>
 
-    <p><b>El oro y la gloria.</b> El oro se gana matando y se pierde al morir. La
-    <b>gloria</b> nunca se pierde: se acumula partida tras partida, aunque pierdas,
-    y se gasta en el menu principal en modos, armas de inicio y apariencia.</p>
+    <div class="nota"><b>ORO Y GLORIA</b>
+    El oro se gana matando y se pierde al morir. La <b>gloria</b> nunca se pierde:
+    se acumula partida tras partida, aunque pierdas, y se gasta en el menu
+    principal en modos, armas de inicio y apariencia.</div>
 
-    <p><b>La grieta.</b> Cada 3 rondas se abre. Con <b>V</b> cruzas al Otro Lado:
-    el mismo palacio en rojo, enemigos con casi el doble de vida pero
-    <b>triple oro</b>. Dura una ronda.</p>
+    <div class="nota"><b>LA GRIETA</b>
+    Cada 3 rondas se abre. Con <b>V</b> cruzas al Otro Lado: el mismo palacio en
+    rojo, enemigos con casi el doble de vida pero <b>triple oro</b>. Dura una ronda.</div>
 
-    <p><b>Consejos.</b> No te quedes quieto: los pretendientes tiran lanzas desde
-    lejos. Cubrete tras las columnas. Guarda un frasco para la ronda 10. Y si
-    compras el Pico, rompe muros para hacerte atajos donde pelear con ventaja.</p>
+    <div class="nota"><b>CONSEJOS</b>
+    No te quedes quieto: los pretendientes tiran lanzas desde lejos. Cubrete tras
+    las columnas. Guarda un frasco para la ronda 10. Y si compras el Pico, rompe
+    muros para hacerte atajos donde pelear con ventaja.</div>
   </div>`);
 }
 
@@ -1693,13 +1703,6 @@ function pintarHud() {
   } else if (cuernoReloj > 0 && imagenesCuerno.length) {
     clave = 'c' + cuernoCuadro;
     url = imagenesCuerno[cuernoCuadro];
-  } else if (jugador.mano === 'cuchillo' && imagenesCuchillo.length) {
-    const c = jugador.cuchillos > 0 ? 0 : 3;
-    clave = 'k' + c;
-    url = imagenesCuchillo[c];
-  } else if (jugador.mano === 'hacha' && imagenesTajo.length) {
-    clave = 'w0';
-    url = imagenesTajo[0];
   } else {
     const cuadro = jugador.tension > 0.66 ? 2 : jugador.tension > 0.05 ? 1 : 0;
     clave = 'a' + cuadro;
@@ -1810,9 +1813,10 @@ function paso(dt) {
     if (vueloReloj > 0) vueloReloj -= dt;
     if (cuchilloReloj > 0) {
       cuchilloReloj -= dt;
-      if (cuchilloCuadro === 1 && cuchilloReloj < 0.16) cuchilloCuadro = 0;
+      if (cuchilloCuadro === 1 && cuchilloReloj < 0.13) cuchilloCuadro = 0;
       if (cuchilloCuadro === 2 && cuchilloReloj < 0.2) cuchilloCuadro = 3;
     }
+    if (empuje > 0) empuje = Math.max(0, empuje - dt * 5.5);
     if (picoReloj > 0) { picoReloj -= dt; if (picoReloj < 0.25) picoCuadro = 3; }
     if (manoReloj > 0) manoReloj -= dt;
     for (const e of enemigos) {
@@ -1906,7 +1910,11 @@ function paso(dt) {
   antorcha.position.copy(camara.position);
   antorcha.intensity = 62 + Math.sin(performance.now() * 0.011) * 7;
   const balanceo = Math.sin(jugador.balanceo * 0.5) * 8;
-  arma.style.transform = `translateX(calc(-50% + ${balanceo * 1.5}px)) translateY(calc(${Math.abs(balanceo) * 1.1}px - ${jugador.tension * 8}vh))`;
+  const golpe = Math.sin(empuje * Math.PI) ;
+  arma.style.transform =
+    `translateX(calc(-50% + ${balanceo * 1.5}px)) ` +
+    `translateY(calc(${Math.abs(balanceo) * 1.1}px - ${jugador.tension * 8}vh - ${golpe * 9}vh)) ` +
+    `scale(${1 + golpe * 0.22})`;
 
   if (portales) portales.pintarVistas(camara);
   pintarHud();

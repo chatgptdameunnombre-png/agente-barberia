@@ -109,20 +109,30 @@
   #panel td.precio { color:#e8c14a; text-align:right; width:110px; white-space:nowrap; }
   #panel h4 { color:#a08a63; font-size:12px; letter-spacing:5px; margin:26px 0 6px; }
   #panel h4:first-of-type { margin-top:0; }
-  #panel .guia { color:#c9b48a; font-size:13px; line-height:1.9; letter-spacing:1px; }
+  #panel .guia { color:#c9b48a; font-size:14px; line-height:1.85; letter-spacing:.5px; }
   #panel .guia b { color:#e8c14a; }
-  #panel .guia p { margin-bottom:14px; }
-  #panel .tarjetas { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
-                     gap:12px; margin-bottom:8px; }
-  #panel .tarjeta { display:flex; gap:12px; align-items:flex-start; padding:12px;
-                    border:2px solid #4a3418; background:rgba(0,0,0,.35); }
-  #panel .tarjeta .dibujo { width:62px; height:62px; flex:none; background:center/contain no-repeat;
+  #panel .guia .intro { font-size:15px; color:#f2e2b0; text-align:center;
+                        margin-bottom:26px; line-height:1.7; }
+  #panel .guia .nota { border-left:3px solid #6b4a22; padding:10px 0 10px 16px;
+                       margin:6px 0 20px; }
+  #panel .guia .nota b { display:block; margin-bottom:3px; letter-spacing:2px; }
+  #panel .seccion { display:flex; align-items:center; gap:14px; margin:30px 0 14px; }
+  #panel .seccion span { color:#e8c14a; font-size:13px; letter-spacing:6px; white-space:nowrap; }
+  #panel .seccion i { flex:1; height:2px; background:#3a2a18; }
+  #panel .tarjetas { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+                     gap:14px; }
+  #panel .tarjeta { display:flex; gap:14px; align-items:center; padding:14px;
+                    border:2px solid #4a3418; background:rgba(0,0,0,.4); }
+  #panel .tarjeta .dibujo { width:76px; height:76px; flex:none; background:center/contain no-repeat;
                             image-rendering:pixelated; }
-  #panel .tarjeta .texto b { display:block; color:#f2e2b0; font-size:11px; letter-spacing:2px;
-                             margin-bottom:5px; }
-  #panel .tarjeta .texto span { color:#9c8a6d; font-size:11px; line-height:1.5; }
-  #panel .tarjeta .texto em { display:block; color:#e8c14a; font-style:normal; font-size:10px;
-                              letter-spacing:2px; margin-top:6px; }
+  #panel .tarjeta .texto { flex:1; }
+  #panel .tarjeta .texto b { display:block; color:#f2e2b0; font-size:12px; letter-spacing:2px;
+                             margin-bottom:6px; }
+  #panel .tarjeta .texto span { display:block; color:#9c8a6d; font-size:12px; line-height:1.55; }
+  #panel .tarjeta .texto em { display:inline-block; margin-top:8px; padding:3px 9px;
+                              border:1px solid #6b4a22; color:#e8c14a; font-style:normal;
+                              font-size:10px; letter-spacing:2px; }
+  #panel .tarjeta .precio2 { color:#e8c14a; font-size:13px; white-space:nowrap; align-self:flex-start; }
   body.enJuego #verGloria { display:none; }
   #panel .cerrar { display:block; margin:26px auto 0; }
   #panel .opciones { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:8px; }
@@ -244,6 +254,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260905173610"></script>
+  <script type="module" src="./src/main.js?v=20260905174112"></script>
 </body>
 </html>
