@@ -1,16 +1,16 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js';
-import { Jugador } from './jugador.js';
-import { Enemigo, TIPOS } from './enemigos.js';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js';
-import { Objeto, CATALOGO } from './objetos.js';
-import { Rondas } from './rondas.js';
-import { Tienda, porId } from './tienda.js';
-import { Minimapa, Marcas } from './minimapa.js';
-import { Flujo } from './flujo.js';
-import { Portales } from './portales.js';
-import { Audio } from './audio.js';
-import { siluetaCiclope } from './texturas.js';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905143020';
+import { Jugador } from './jugador.js?v=20260905143020';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260905143020';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905143020';
+import { Objeto, CATALOGO } from './objetos.js?v=20260905143020';
+import { Rondas } from './rondas.js?v=20260905143020';
+import { Tienda, porId } from './tienda.js?v=20260905143020';
+import { Minimapa, Marcas } from './minimapa.js?v=20260905143020';
+import { Flujo } from './flujo.js?v=20260905143020';
+import { Portales } from './portales.js?v=20260905143020';
+import { Audio } from './audio.js?v=20260905143020';
+import { siluetaCiclope } from './texturas.js?v=20260905143020';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -75,20 +75,20 @@ let texturasNivel = null;
 
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, hoja] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png'),
-    cargarImagen('./arte/crudo/ciclope-muere.png'),
-    cargarImagen('./arte/crudo/arco.png'),
-    cargarImagen('./arte/crudo/texturas.png'),
-    cargarImagen('./arte/crudo/items.png'),
-    cargarImagen('./arte/crudo/tienda.png'),
-    cargarImagen('./arte/crudo/pretendiente.png'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png'),
-    cargarImagen('./arte/crudo/cuerno.png'),
-    cargarImagen('./arte/crudo/mercader.png'),
-    cargarImagen('./arte/crudo/caras.png'),
-    cargarImagen('./arte/crudo/espada.png')
+    cargarImagen('./arte/crudo/ciclope.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/arco.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/items.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/caras.png?v=20260905143020'),
+    cargarImagen('./arte/crudo/espada.png?v=20260905143020')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
