@@ -1,21 +1,22 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905155903';
-import { Jugador } from './jugador.js?v=20260905155903';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260905155903';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905155903';
-import { Objeto, CATALOGO } from './objetos.js?v=20260905155903';
-import { Rondas } from './rondas.js?v=20260905155903';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905155903';
-import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905155903';
-import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905155903';
-import { Minimapa, Marcas } from './minimapa.js?v=20260905155903';
-import { Flujo } from './flujo.js?v=20260905155903';
-import { Portales, trazar } from './portales.js?v=20260905155903';
-import { Audio } from './audio.js?v=20260905155903';
-import { OtroLado } from './otrolado.js?v=20260905155903';
-import { Director } from './director.js?v=20260905155903';
-import { TIPOS as T } from './enemigos.js?v=20260905155903';
-import { siluetaCiclope } from './texturas.js?v=20260905155903';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905163745';
+import { Jugador } from './jugador.js?v=20260905163745';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260905163745';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905163745';
+import { Objeto, CATALOGO } from './objetos.js?v=20260905163745';
+import { Rondas } from './rondas.js?v=20260905163745';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905163745';
+import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905163745';
+import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905163745';
+import { Minimapa, Marcas } from './minimapa.js?v=20260905163745';
+import { Flujo } from './flujo.js?v=20260905163745';
+import { Portales, trazar } from './portales.js?v=20260905163745';
+import { romper } from './mapa.js?v=20260905163745';
+import { Audio } from './audio.js?v=20260905163745';
+import { OtroLado } from './otrolado.js?v=20260905163745';
+import { Director } from './director.js?v=20260905163745';
+import { TIPOS as T } from './enemigos.js?v=20260905163745';
+import { siluetaCiclope } from './texturas.js?v=20260905163745';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -51,7 +52,7 @@ Object.assign(arma.style, {
 document.getElementById('capa').appendChild(arma);
 aplicar(leer(), arma);
 
-const recursos = { arco: [], items: [], tienda: [], cuerno: [], espada: [], guante: [], reliquias: [], hilo: [], jabalina: [], mercader: null, ciclope: null, pretendiente: null };
+const recursos = { arco: [], items: [], tienda: [], cuerno: [], espada: [], guante: [], reliquias: [], hilo: [], jabalina: [], hacha: [], pico: [], mano: [], fuego: [], insignias: [], mercader: null, ciclope: null, pretendiente: null };
 
 function marcadorArco(tension) {
   const c = document.createElement('canvas');
@@ -83,6 +84,11 @@ let hiloCuadro = 1;
 let imagenesJabalina = [];
 let jabalinaReloj = 0;
 let jabalinaCuadro = 1;
+let imagenesHacha = [];
+let imagenesPico = [];
+let imagenesMano = [];
+let hachaReloj = 0;
+let hachaCuadro = 0;
 let cuernoReloj = 0;
 let cuernoCuadro = 1;
 let guanteReloj = 0;
@@ -91,25 +97,30 @@ let destelloGuante = 0;
 let texturasNivel = null;
 
 async function cargarArte() {
-  const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, hoja, mano, reliquias, cordel, asta] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/arco.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/items.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/caras.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/espada.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/guante.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/objetos2.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/hilo.png?v=20260905155903'),
-    cargarImagen('./arte/crudo/jabalina.png?v=20260905155903')
+  const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, hoja, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas] = await Promise.all([
+    cargarImagen('./arte/crudo/ciclope.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/arco.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/items.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/caras.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/espada.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/guante.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/objetos2.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/hilo.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/jabalina.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/hacha.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/pico.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/mano.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/fuego.png?v=20260905163745'),
+    cargarImagen('./arte/crudo/insignias.png?v=20260905163745')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -149,6 +160,20 @@ async function cargarArte() {
     imagenesCuerno = recursos.cuerno.map(t => t.image.toDataURL());
   }
   if (viejo) recursos.mercader = recorteEntero(viejo).toDataURL();
+  if (hachaImg) {
+    recursos.hacha = cortarTira(hachaImg, 4, { ajustar: true, altoComun: true });
+    imagenesHacha = recursos.hacha.map(t => t.image.toDataURL());
+  }
+  if (picoImg) {
+    recursos.pico = cortarTira(picoImg, 4, { ajustar: true, altoComun: true });
+    imagenesPico = recursos.pico.map(t => t.image.toDataURL());
+  }
+  if (manoImg) {
+    recursos.mano = cortarTira(manoImg, 4, { ajustar: true, altoComun: true });
+    imagenesMano = recursos.mano.map(t => t.image.toDataURL());
+  }
+  if (fuegoImg) recursos.fuego = cortarTira(fuegoImg, 6, { ajustar: false });
+  if (medallas) recursos.insignias = cortarRejilla(medallas, 4, 3, { margen: 0.02, transparente: true });
   if (asta) {
     recursos.jabalina = cortarTira(asta, 4, { ajustar: true, altoComun: true });
     imagenesJabalina = recursos.jabalina.map(t => t.image.toDataURL());
@@ -184,6 +209,11 @@ async function cargarArte() {
   if (!reliquias) partes.push('objetos2.png');
   if (!cordel) partes.push('hilo.png');
   if (!asta) partes.push('jabalina.png');
+  if (!hachaImg) partes.push('hacha.png');
+  if (!picoImg) partes.push('pico.png');
+  if (!manoImg) partes.push('mano.png');
+  if (!fuegoImg) partes.push('fuego.png');
+  if (!medallas) partes.push('insignias.png');
   if (!cosas) partes.push('items.png');
   document.getElementById('diag').textContent =
     partes.length ? 'sin arte: ' + partes.join(' ') : '';
@@ -428,6 +458,8 @@ function limpiarMundo() {
   flechas.length = 0;
   for (const j of jabalinas) escena.remove(j.malla);
   jabalinas.length = 0;
+  if (hachaVuelo) { escena.remove(hachaVuelo.malla); hachaVuelo = null; }
+  jugador.hachaFuera = false;
   contadorNacidos = 0;
 }
 
@@ -582,6 +614,180 @@ function engancharse() {
   else avisar('DEMASIADO CERCA');
 }
 
+let armaEnMano = 'arco';
+let picoReloj = 0;
+let picoCuadro = 0;
+let manoReloj = 0;
+let manoCuadro = 0;
+const escombros = [];
+const geoEscombro = new THREE.DodecahedronGeometry(0.9, 0);
+const matEscombro = new THREE.MeshLambertMaterial({ color: 0xb8b3a4 });
+let cargado = null;
+
+function picar() {
+  const origen = camara.position.clone();
+  const dir = jugador.direccion();
+  const golpe = trazar(nivel, origen, dir, 11);
+  picoReloj = 0.5;
+  picoCuadro = 1;
+  if (!golpe) { avisar('MUY LEJOS DEL MURO'); return; }
+  if (!romper(nivel, golpe.celda.x, golpe.celda.z)) { avisar('AHI NO SE PUEDE'); return; }
+
+  audio.sonar('piedra', golpe.punto);
+  sacudida = Math.max(sacudida, 0.5);
+  minimapa.refrescar();
+  flujo.reloj = 0;
+
+  const centro = new THREE.Vector3(
+    golpe.celda.x * CELDA + CELDA / 2, 1, golpe.celda.z * CELDA + CELDA / 2
+  );
+  for (let i = 0; i < 3; i++) {
+    const m = new THREE.Mesh(geoEscombro, matEscombro);
+    m.position.set(
+      centro.x + (Math.random() - 0.5) * 2.6,
+      0.9,
+      centro.z + (Math.random() - 0.5) * 2.6
+    );
+    m.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
+    escena.add(m);
+    escombros.push({ malla: m });
+  }
+  avisar('MURO ROTO');
+}
+
+function agarrar() {
+  manoReloj = 0.5;
+  if (cargado) {
+    const dir = jugador.direccion();
+    cargado.vuela = { x: dir.x, z: dir.z, y: dir.y };
+    cargado.edad = 0;
+    cargado.tocados = new Set();
+    cargado = null;
+    manoCuadro = 3;
+    audio.sonar('tajo');
+    return;
+  }
+  let mejor = null;
+  let dmin = 16;
+  for (const e of escombros) {
+    if (e.vuela) continue;
+    const d = Math.hypot(e.malla.position.x - jugador.pos.x, e.malla.position.z - jugador.pos.z);
+    if (d < dmin) { dmin = d; mejor = e; }
+  }
+  if (!mejor) { avisar('NO HAY ESCOMBROS CERCA'); manoCuadro = 1; return; }
+  cargado = mejor;
+  manoCuadro = 2;
+  audio.sonar('recoger');
+}
+
+function moverEscombros(dt) {
+  if (cargado) {
+    const dir = jugador.direccion();
+    cargado.malla.position.set(
+      camara.position.x + dir.x * 3.2,
+      camara.position.y + dir.y * 3.2,
+      camara.position.z + dir.z * 3.2
+    );
+    cargado.malla.rotation.y += dt * 2;
+  }
+  for (let i = escombros.length - 1; i >= 0; i--) {
+    const e = escombros[i];
+    if (!e.vuela) continue;
+    e.edad += dt;
+    e.malla.position.x += e.vuela.x * 54 * dt;
+    e.malla.position.y += e.vuela.y * 54 * dt;
+    e.malla.position.z += e.vuela.z * 54 * dt;
+    e.malla.rotation.x += dt * 12;
+    const cx = Math.floor(e.malla.position.x / CELDA);
+    const cz = Math.floor(e.malla.position.z / CELDA);
+    const fila = nivel.rejilla[cz];
+    let fuera = e.edad > 2.5 || !fila || '#CTRF'.includes(fila[cx] || '#');
+    if (!fuera) {
+      for (const en of enemigos) {
+        if (!en.vivo || e.tocados.has(en)) continue;
+        if (Math.hypot(en.pos.x - e.malla.position.x, en.pos.z - e.malla.position.z) < 3.2) {
+          e.tocados.add(en);
+          audio.sonar('carne', en.pos);
+          if (en.recibir(120 * jugador.mult.dano * furia())) marcarBaja();
+          fuera = true;
+          break;
+        }
+      }
+    }
+    if (fuera) { escena.remove(e.malla); escombros.splice(i, 1); }
+  }
+}
+const geoHacha = new THREE.BoxGeometry(1.5, 0.35, 1.5);
+const matHacha = new THREE.MeshBasicMaterial({ color: 0xd9cfb4 });
+let hachaVuelo = null;
+
+function lanzarHacha() {
+  if (jugador.hachaFuera || jugador.enfriamientoTajo > 0) return;
+  jugador.hachaFuera = true;
+  jugador.enfriamientoTajo = 0.4;
+  audio.sonar('tajo');
+  const m = new THREE.Mesh(geoHacha, matHacha);
+  m.position.copy(camara.position);
+  escena.add(m);
+  hachaVuelo = {
+    malla: m,
+    dir: jugador.direccion(),
+    vuelta: false,
+    edad: 0,
+    tocados: new Set()
+  };
+}
+
+function moverHacha(dt) {
+  if (!hachaVuelo) return;
+  const h = hachaVuelo;
+  h.edad += dt;
+  h.malla.rotation.y += dt * 22;
+  h.malla.rotation.x += dt * 9;
+
+  if (!h.vuelta) {
+    const paso = 42 * dt;
+    const nx = h.malla.position.x + h.dir.x * paso;
+    const nz = h.malla.position.z + h.dir.z * paso;
+    const cx = Math.floor(nx / CELDA);
+    const cz = Math.floor(nz / CELDA);
+    const fila = nivel.rejilla[cz];
+    const choca = !fila || '#CTRF'.includes(fila[cx] || '#');
+    if (choca || h.edad > 0.75) {
+      h.vuelta = true;
+      audio.sonar('piedra', h.malla.position);
+    } else {
+      h.malla.position.set(nx, camara.position.y, nz);
+    }
+  } else {
+    const hacia = new THREE.Vector3(
+      camara.position.x - h.malla.position.x,
+      camara.position.y - h.malla.position.y,
+      camara.position.z - h.malla.position.z
+    );
+    const d = hacia.length();
+    if (d < 2.2) {
+      escena.remove(h.malla);
+      hachaVuelo = null;
+      jugador.hachaFuera = false;
+      hachaReloj = 0.25;
+      hachaCuadro = 3;
+      audio.sonar('recoger');
+      return;
+    }
+    h.malla.position.addScaledVector(hacia.normalize(), 46 * dt);
+  }
+
+  for (const e of enemigos) {
+    if (!e.vivo || h.tocados.has(e)) continue;
+    if (Math.hypot(e.pos.x - h.malla.position.x, e.pos.z - h.malla.position.z) < 3) {
+      h.tocados.add(e);
+      audio.sonar('carne', e.pos);
+      if (e.recibir(95 * jugador.mult.dano * furia())) marcarBaja();
+    }
+  }
+}
+
 const ALCANCE_TAJO = 7.5;
 const DANO_TAJO = 85;
 
@@ -725,13 +931,16 @@ const CONTROLES = [
   ['W A S D', 'Moverte por el palacio'],
   ['RATON', 'Mirar alrededor'],
   ['CLIC IZQUIERDO', 'Manten para tensar el arco, suelta para disparar. Mas tension, mas dano y alcance'],
-  ['F', 'Espada: tajo cuerpo a cuerpo, sin munición. Le pega a todos los que tengas enfrente'],
+  ['F', 'Hacha: tajo cuerpo a cuerpo. Le pega a todos los que tengas enfrente'],
+  ['T', 'Lanzas el hacha: atraviesa a todos y vuelve sola a tu mano'],
   ['R', 'Guante de Zeus: manten para cargar el rayo y suelta'],
   ['G', 'Hilo de Ariadna: te jalas a un muro, o jalas al enemigo hacia ti'],
   ['CLIC DERECHO', 'Portal azul (necesitas el Cuerno de Hermes)'],
   ['Q', 'Portal naranja'],
   ['1 2 3 4', 'Usar lo que llevas en el inventario'],
   ['E', 'Abrir la tienda, solo entre rondas'],
+  ['B', 'Pico de Hefesto: rompes el muro al que apuntes y deja escombros'],
+  ['C', 'Mano de Poseidon: agarra un escombro, y con C otra vez lo lanzas'],
   ['V', 'Cruzar al Otro Lado cuando la grieta se abre, entre rondas'],
   ['M', 'Silenciar y devolver el sonido'],
   ['ESC', 'Pausa']
@@ -898,8 +1107,13 @@ function reiniciar() {
   jugador.pistola = false;
   jugador.guante = false;
   jugador.gancho = false;
+  jugador.pico = false;
+  jugador.manoP = false;
   jugador.rayo = jugador.rayoMax;
   sacudida = 0;
+  cargado = null;
+  for (const e of escombros) escena.remove(e.malla);
+  escombros.length = 0;
   jugador.mult = { tension: 1, dano: 1, velocidad: 1, velFlecha: 1 };
   jugador.inventario.length = 0;
   relojFuria = 0;
@@ -1031,7 +1245,18 @@ function pintarHud() {
     elCara.style.background = salud > 0.66 ? '#3a2a18' : salud > 0.33 ? '#4a2410' : '#5a1410';
   }
   let clave, url;
-  if (jabalinaReloj > 0 && imagenesJabalina.length) {
+  if (picoReloj > 0 && imagenesPico.length) {
+    clave = 'p' + picoCuadro;
+    url = imagenesPico[picoCuadro];
+  } else if ((manoReloj > 0 || cargado) && imagenesMano.length) {
+    const c = cargado ? 2 : manoCuadro;
+    clave = 'm' + c;
+    url = imagenesMano[c];
+  } else if (imagenesHacha.length && (hachaReloj > 0 || jugador.hachaFuera)) {
+    const c = jugador.hachaFuera ? 2 : hachaCuadro;
+    clave = 'x' + c;
+    url = imagenesHacha[c];
+  } else if (jabalinaReloj > 0 && imagenesJabalina.length) {
     clave = 'j' + jabalinaCuadro;
     url = imagenesJabalina[jabalinaCuadro];
   } else if (hiloReloj > 0 && imagenesHilo.length) {
@@ -1046,6 +1271,9 @@ function pintarHud() {
   } else if (jugador.guante && imagenesGuante.length && jugador.rayo < jugador.rayoMax * 0.55) {
     clave = 'g3';
     url = imagenesGuante[3];
+  } else if (espadaReloj > 0 && imagenesHacha.length) {
+    clave = 'x1';
+    url = imagenesHacha[1];
   } else if (espadaReloj > 0 && imagenesEspada.length) {
     const cuadro = Math.min(3, Math.floor((0.42 - espadaReloj) / 0.105));
     clave = 'e' + cuadro;
@@ -1053,6 +1281,9 @@ function pintarHud() {
   } else if (cuernoReloj > 0 && imagenesCuerno.length) {
     clave = 'c' + cuernoCuadro;
     url = imagenesCuerno[cuernoCuadro];
+  } else if (armaEnMano === 'hacha' && imagenesHacha.length) {
+    clave = 'x0';
+    url = imagenesHacha[0];
   } else {
     const cuadro = jugador.tension > 0.66 ? 2 : jugador.tension > 0.05 ? 1 : 0;
     clave = 'a' + cuadro;
@@ -1131,6 +1362,11 @@ function paso(dt) {
     }
     moverFlechas(dt);
     moverJabalinas(dt);
+    moverHacha(dt);
+    moverEscombros(dt);
+    if (hachaReloj > 0) hachaReloj -= dt;
+    if (picoReloj > 0) { picoReloj -= dt; if (picoReloj < 0.25) picoCuadro = 3; }
+    if (manoReloj > 0) manoReloj -= dt;
     for (const e of enemigos) {
       e.actualizar(dt, jugador, camara);
       const verTodo = efectos.ojo > 0;
@@ -1239,6 +1475,9 @@ cargarArte().then(() => {
   jugador.alTajo = tajo;
   jugador.alRayo = lanzarRayo;
   jugador.alGancho = engancharse;
+  jugador.alLanzarHacha = lanzarHacha;
+  jugador.alPicar = picar;
+  jugador.alAgarrar = agarrar;
   jugador.alPausar = () => { if (jugador.empezado && !muerto) pausar(); };
   jugador.alRecibir = golpeRecibido;
   jugador.alUsar = usarConsumible;

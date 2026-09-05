@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260905155903';
+import { CELDA, esSolido } from './mapa.js?v=20260905163745';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -37,6 +37,13 @@ export class Jugador {
     this.enfriamientoTajo = 0;
     this.guante = false;
     this.gancho = false;
+    this.hachaFuera = false;
+    this.alLanzarHacha = null;
+    this.pico = false;
+    this.manoP = false;
+    this.enfriamientoPico = 0;
+    this.alPicar = null;
+    this.alAgarrar = null;
     this.enfriamientoGancho = 0;
     this.alGancho = null;
     this.rayo = 100;
@@ -110,6 +117,12 @@ export class Jugador {
       if (e.code === 'KeyQ' && this.pistola && this.alPortal) this.alPortal('naranja');
       if (e.code === 'KeyE' && this.alComerciar) this.alComerciar();
       if (e.code === 'KeyF') this.tajo();
+      if (e.code === 'KeyT' && this.alLanzarHacha) this.alLanzarHacha();
+      if (e.code === 'KeyB' && this.pico && this.enfriamientoPico <= 0 && this.alPicar) {
+        this.enfriamientoPico = 0.75;
+        this.alPicar();
+      }
+      if (e.code === 'KeyC' && this.manoP && this.alAgarrar) this.alAgarrar();
       if (e.code === 'KeyG' && this.gancho && this.enfriamientoGancho <= 0 && this.alGancho) {
         this.enfriamientoGancho = 1.3;
         this.alGancho();
@@ -165,7 +178,7 @@ export class Jugador {
   }
 
   tajo() {
-    if (!this.activo || this.enfriamientoTajo > 0 || !this.alTajo) return;
+    if (!this.activo || this.enfriamientoTajo > 0 || !this.alTajo || this.hachaFuera) return;
     this.enfriamientoTajo = 0.55;
     this.tensando = false;
     this.tension = 0;
@@ -251,6 +264,7 @@ export class Jugador {
     if (this.enfriamiento > 0) this.enfriamiento -= dt;
     if (this.enfriamientoTajo > 0) this.enfriamientoTajo -= dt;
     if (this.enfriamientoGancho > 0) this.enfriamientoGancho -= dt;
+    if (this.enfriamientoPico > 0) this.enfriamientoPico -= dt;
     if (this.cargandoRayo) this.cargaRayo = Math.min(1, this.cargaRayo + dt * 1.25);
     else if (this.rayo < this.rayoMax) this.rayo = Math.min(this.rayoMax, this.rayo + dt * 13);
     if (this.tensando && this.tension < 1) this.tension = Math.min(1, this.tension + dt * 1.6 * this.mult.tension);

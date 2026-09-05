@@ -1,4 +1,4 @@
-import { CELDA } from './mapa.js?v=20260905155903';
+import { CELDA } from './mapa.js?v=20260905163745';
 
 const COLORES = {
   '#': '#8a7f66',
@@ -43,6 +43,10 @@ export class Minimapa {
       }
     }
     this.fondo = c;
+  }
+
+  refrescar() {
+    this._fondo();
   }
 
   _punto(x, z) {

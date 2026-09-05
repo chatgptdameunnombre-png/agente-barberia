@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260905155903';
+import { RELIQUIAS } from './reliquias.js?v=20260905163745';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -33,7 +33,13 @@ export const MEJORAS = [
     aplicar: j => { j.guante = true; j.guardar('guante', 1, true); } },
   { id: 'gancho', nombre: 'HILO DE ARIADNA', precio: 170, celda: 14, respaldo: 3,
     desc: 'Con G te jalas a un muro, o jalas al enemigo hacia ti aturdido',
-    aplicar: j => { j.gancho = true; j.guardar('gancho', 1, true); } }
+    aplicar: j => { j.gancho = true; j.guardar('gancho', 1, true); } },
+  { id: 'pico', nombre: 'PICO DE HEFESTO', precio: 190, celda: 15, respaldo: 11,
+    desc: 'Con B rompes los muros del palacio y sueltas escombros',
+    aplicar: j => { j.pico = true; j.guardar('pico', 1, true); } },
+  { id: 'manoP', nombre: 'MANO DE POSEIDON', precio: 210, celda: 16, respaldo: 5,
+    desc: 'Con C agarras un escombro y con C otra vez se lo lanzas encima',
+    aplicar: j => { j.manoP = true; j.guardar('manoP', 1, true); } }
 ];
 
 const BASICOS = [
@@ -106,6 +112,12 @@ export class Tienda {
     if (art.id === 'gancho' && this.iconos.hilo && this.iconos.hilo[1]) {
       return `url(${this.iconos.hilo[1].image.toDataURL()})`;
     }
+    if (art.id === 'pico' && this.iconos.pico && this.iconos.pico[0]) {
+      return `url(${this.iconos.pico[0].image.toDataURL()})`;
+    }
+    if (art.id === 'manoP' && this.iconos.mano && this.iconos.mano[2]) {
+      return `url(${this.iconos.mano[2].image.toDataURL()})`;
+    }
     const t = (this.iconos.tienda && this.iconos.tienda[art.celda]) ||
               (this.iconos.items && this.iconos.items[art.respaldo]);
     if (!t || !t.image) return '';
@@ -115,7 +127,7 @@ export class Tienda {
   _armarOferta() {
     const libres = MEJORAS.filter(m => !this.compradas.has(m.id));
     const revuelve = a => a.slice().sort(() => Math.random() - 0.5);
-    const CLAVES = ['portales', 'guante', 'gancho'];
+    const CLAVES = ['portales', 'guante', 'gancho', 'pico', 'manoP'];
     const fijas = libres.filter(m => CLAVES.includes(m.id));
     const resto = libres.filter(m => !CLAVES.includes(m.id));
     const mejoras = revuelve(resto).slice(0, Math.max(1, 3 - fijas.length));

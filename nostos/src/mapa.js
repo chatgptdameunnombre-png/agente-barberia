@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { banco } from './texturas.js?v=20260905155903';
+import { banco } from './texturas.js?v=20260905163745';
 
 export const CELDA = 4;
 export const ALTO = 10;
@@ -103,6 +103,7 @@ export function construir(rejilla, texturas) {
   );
   mallaPiso.rotation.x = -Math.PI / 2;
   mallaPiso.position.set(anchoMundo / 2, 0, altoMundo / 2);
+  mallaPiso.userData.piso = true;
   grupo.add(mallaPiso);
 
   const techo = tex.roca.clone();
@@ -114,7 +115,53 @@ export function construir(rejilla, texturas) {
   );
   mallaTecho.rotation.x = Math.PI / 2;
   mallaTecho.position.set(anchoMundo / 2, ALTO, altoMundo / 2);
+  mallaTecho.userData.techo = true;
   grupo.add(mallaTecho);
 
-  return { grupo, spawns, rejilla, ancho, alto };
+  const nivel = { grupo, spawns, rejilla, ancho, alto, tex };
+  nivel.rehacer = () => rehacer(nivel);
+  return nivel;
+}
+
+function rehacer(nivel) {
+  const { grupo, rejilla, ancho, alto, tex } = nivel;
+  for (let i = grupo.children.length - 1; i >= 0; i--) {
+    const hijo = grupo.children[i];
+    if (!hijo.userData.piso && !hijo.userData.techo) {
+      grupo.remove(hijo);
+      hijo.geometry.dispose();
+    }
+  }
+  const porMaterial = {};
+  for (let z = 0; z < alto; z++) {
+    for (let x = 0; x < ancho; x++) {
+      const s = rejilla[z][x];
+      if (!SOLIDOS.has(s)) continue;
+      const clave = MATERIAL_POR_SIGNO[s];
+      const esColumna = s === 'C';
+      const g = new THREE.BoxGeometry(
+        esColumna ? CELDA * 0.55 : CELDA,
+        ALTO,
+        esColumna ? CELDA * 0.55 : CELDA
+      );
+      g.translate(x * CELDA + CELDA / 2, ALTO / 2, z * CELDA + CELDA / 2);
+      (porMaterial[clave] ||= []).push(g);
+    }
+  }
+  for (const clave in porMaterial) {
+    const geo = mergeGeometries(porMaterial[clave]);
+    const t = tex[clave].clone();
+    t.needsUpdate = true;
+    t.repeat.set(1, ALTO / CELDA);
+    grupo.add(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: t })));
+  }
+}
+
+export function romper(nivel, cx, cz) {
+  if (cz < 1 || cx < 1 || cz >= nivel.alto - 1 || cx >= nivel.ancho - 1) return false;
+  const fila = nivel.rejilla[cz];
+  if (!SOLIDOS.has(fila[cx])) return false;
+  nivel.rejilla[cz] = fila.substring(0, cx) + '.' + fila.substring(cx + 1);
+  nivel.rehacer();
+  return true;
 }
