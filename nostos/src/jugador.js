@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260905144038';
+import { CELDA, esSolido } from './mapa.js?v=20260905151910';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -35,6 +35,12 @@ export class Jugador {
     this.alComerciar = null;
     this.alTajo = null;
     this.enfriamientoTajo = 0;
+    this.guante = false;
+    this.rayo = 100;
+    this.rayoMax = 100;
+    this.cargandoRayo = false;
+    this.cargaRayo = 0;
+    this.alRayo = null;
     this.empezado = false;
     this.balanceo = 0;
     this.tension = 0;
@@ -55,7 +61,13 @@ export class Jugador {
       this.teclas[e.code] = true;
       if (e.code === 'Space') e.preventDefault();
     });
-    addEventListener('keyup', e => { this.teclas[e.code] = false; });
+    addEventListener('keyup', e => {
+      this.teclas[e.code] = false;
+      if (e.code === 'KeyR' && this.cargandoRayo) {
+        this.cargandoRayo = false;
+        this._soltarRayo();
+      }
+    });
 
     document.addEventListener('pointerlockchange', () => {
       const preso = document.pointerLockElement === this.lienzo;
@@ -95,6 +107,10 @@ export class Jugador {
       if (e.code === 'KeyQ' && this.pistola && this.alPortal) this.alPortal('naranja');
       if (e.code === 'KeyE' && this.alComerciar) this.alComerciar();
       if (e.code === 'KeyF') this.tajo();
+      if (e.code === 'KeyR' && this.guante && !this.cargandoRayo) {
+        this.cargandoRayo = true;
+        this.cargaRayo = 0;
+      }
     });
 
     addEventListener('mouseup', e => {
@@ -130,6 +146,15 @@ export class Jugador {
     document.body.classList.toggle('jugando', v);
     document.getElementById('menu').classList.toggle('oculto', v);
     if (!v && this.alPausar) this.alPausar();
+  }
+
+  _soltarRayo() {
+    const carga = Math.min(1, this.cargaRayo);
+    this.cargaRayo = 0;
+    const coste = 26 + carga * 34;
+    if (this.rayo < coste) { if (this.alVacio) this.alVacio(); return; }
+    this.rayo -= coste;
+    if (this.alRayo) this.alRayo(carga);
   }
 
   tajo() {
@@ -218,6 +243,8 @@ export class Jugador {
   actualizar(dt) {
     if (this.enfriamiento > 0) this.enfriamiento -= dt;
     if (this.enfriamientoTajo > 0) this.enfriamientoTajo -= dt;
+    if (this.cargandoRayo) this.cargaRayo = Math.min(1, this.cargaRayo + dt * 1.25);
+    else if (this.rayo < this.rayoMax) this.rayo = Math.min(this.rayoMax, this.rayo + dt * 13);
     if (this.tensando && this.tension < 1) this.tension = Math.min(1, this.tension + dt * 1.6 * this.mult.tension);
 
     if (this.libre) {

@@ -268,6 +268,11 @@ const VOCES = {
     a._ruidoVoz(s, { dur: 0.9, tipoFiltro: 'lowpass', de: 2200, a: 200, pico: 0.9, ataque: 0.01 });
     a._tono(s, { tipo: 'sawtooth', de: 120, a: 32, dur: 0.8, pico: 0.5 });
   } },
+  rayo: { vol: 1, tocar: (a, s, f) => {
+    a._ruidoVoz(s, { dur: 0.5, tipoFiltro: 'highpass', de: 2600 - f * 900, pico: 1, ataque: 0.002 });
+    a._tono(s, { tipo: 'sawtooth', de: 900 + f * 700, a: 60, dur: 0.42, pico: 0.8 });
+    a._tono(s, { tipo: 'square', de: 140, a: 40, dur: 0.5, pico: 0.4, ataque: 0.01 });
+  } },
   tajo: { vol: 1, tocar: (a, s) => {
     a._ruidoVoz(s, { dur: 0.22, tipoFiltro: 'bandpass', de: 3400, a: 700, Q: 1.4, pico: 0.9 });
     a._tono(s, { tipo: 'triangle', de: 640, a: 180, dur: 0.18, pico: 0.4 });

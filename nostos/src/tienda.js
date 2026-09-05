@@ -25,7 +25,10 @@ export const MEJORAS = [
     aplicar: j => { j.mult.velFlecha *= 1.4; } },
   { id: 'portales', nombre: 'CUERNO DE HERMES', precio: 150, celda: 12, respaldo: 10,
     desc: 'Abre puertas en la piedra. Clic derecho azul, Q naranja',
-    aplicar: j => { j.pistola = true; j.guardar('portales', 1, true); } }
+    aplicar: j => { j.pistola = true; j.guardar('portales', 1, true); } },
+  { id: 'guante', nombre: 'GUANTE DE ZEUS', precio: 200, celda: 13, respaldo: 4,
+    desc: 'Manten R para cargar el rayo y suelta. Atraviesa a todos en linea',
+    aplicar: j => { j.guante = true; j.guardar('guante', 1, true); } }
 ];
 
 export const CONSUMIBLES = [
@@ -87,6 +90,9 @@ export class Tienda {
     if (art.id === 'portales' && this.iconos.cuerno && this.iconos.cuerno[1]) {
       return `url(${this.iconos.cuerno[1].image.toDataURL()})`;
     }
+    if (art.id === 'guante' && this.iconos.guante && this.iconos.guante[2]) {
+      return `url(${this.iconos.guante[2].image.toDataURL()})`;
+    }
     const t = (this.iconos.tienda && this.iconos.tienda[art.celda]) ||
               (this.iconos.items && this.iconos.items[art.respaldo]);
     if (!t || !t.image) return '';
@@ -96,10 +102,10 @@ export class Tienda {
   _armarOferta() {
     const libres = MEJORAS.filter(m => !this.compradas.has(m.id));
     const revuelve = a => a.slice().sort(() => Math.random() - 0.5);
-    const portales = libres.find(m => m.id === 'portales');
-    const resto = libres.filter(m => m.id !== 'portales');
-    const mejoras = revuelve(resto).slice(0, portales ? 2 : 3);
-    if (portales) mejoras.unshift(portales);
+    const fijas = libres.filter(m => m.id === 'portales' || m.id === 'guante');
+    const resto = libres.filter(m => m.id !== 'portales' && m.id !== 'guante');
+    const mejoras = revuelve(resto).slice(0, Math.max(1, 3 - fijas.length));
+    mejoras.unshift(...fijas.slice(0, 2));
     const consumibles = revuelve(CONSUMIBLES).slice(0, 4 - mejoras.length);
     this.oferta = [...mejoras, ...consumibles];
   }

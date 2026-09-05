@@ -75,16 +75,70 @@ function quitarFondo(ctx, w, h, fondo) {
   const p = d.data;
   const magenta = !fondo || (fondo[0] > 150 && fondo[2] > 150 && fondo[1] < 110);
   const [fr, fg, fb] = fondo || [255, 0, 255];
-  const margen = magenta ? 0 : 34;
+  const margen = magenta ? 0 : 40;
+
   for (let i = 0; i < p.length; i += 4) {
     const r = p[i], g = p[i + 1], b = p[i + 2];
     if (magenta) {
-      if (r > 150 && b > 150 && g < 110 && Math.abs(r - b) < 90) p[i + 3] = 0;
+      if (r > 140 && b > 140 && g < 125 && Math.abs(r - b) < 100) p[i + 3] = 0;
     } else if (Math.abs(r - fr) + Math.abs(g - fg) + Math.abs(b - fb) < margen) {
       p[i + 3] = 0;
     }
   }
+
+  if (magenta) despintarBorde(p, w, h);
   ctx.putImageData(d, 0, 0);
+}
+
+function despintarBorde(p, w, h) {
+  const capas = [
+    { fuerza: 1, umbral: 4 },
+    { fuerza: 0.65, umbral: 10 },
+    { fuerza: 0.3, umbral: 16 }
+  ];
+  let frontera = new Set();
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      if (p[i + 3] === 0) continue;
+      let tocaFondo = false;
+      for (let dy = -1; dy <= 1 && !tocaFondo; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = x + dx, ny = y + dy;
+          if (nx < 0 || ny < 0 || nx >= w || ny >= h) { tocaFondo = true; break; }
+          if (p[(ny * w + nx) * 4 + 3] === 0) { tocaFondo = true; break; }
+        }
+      }
+      if (tocaFondo) frontera.add(y * w + x);
+    }
+  }
+
+  const yaHecho = new Set();
+  for (const capa of capas) {
+    const siguiente = new Set();
+    for (const idx of frontera) {
+      if (yaHecho.has(idx)) continue;
+      yaHecho.add(idx);
+      const i = idx * 4;
+      const r = p[i], g = p[i + 1], b = p[i + 2];
+      const exceso = Math.min(r, b) - g;
+      if (exceso > capa.umbral) {
+        const tope = g + capa.umbral;
+        p[i] = Math.round(r - (r - Math.min(r, tope)) * capa.fuerza);
+        p[i + 2] = Math.round(b - (b - Math.min(b, tope)) * capa.fuerza);
+      }
+      const x = idx % w, y = (idx - x) / w;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = x + dx, ny = y + dy;
+          if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+          const j = ny * w + nx;
+          if (p[j * 4 + 3] !== 0 && !yaHecho.has(j)) siguiente.add(j);
+        }
+      }
+    }
+    frontera = siguiente;
+  }
 }
 
 function recuadro(ctx, w, h) {
