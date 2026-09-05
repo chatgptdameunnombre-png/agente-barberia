@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260905173303';
+import { Billboard } from './sprites.js?v=20260905173610';
 
 export const CATALOGO = [
   { id: 'flechas',  celda: 0,  alto: 2.0, efecto: 'flechas',  valor: 10, aviso: '+10 FLECHAS' },
@@ -11,9 +11,9 @@ export const CATALOGO = [
   { id: 'vino',     celda: 6,  alto: 2.4, efecto: 'guarda',   guarda: 'vino',     aviso: 'VINO GUARDADO' },
   { id: 'ambrosia', celda: 7,  alto: 2.1, efecto: 'guarda',   guarda: 'frasco',   aviso: 'FRASCO GUARDADO' },
   { id: 'casco',    celda: 8,  alto: 2.6, efecto: 'armadura', valor: 50, aviso: '+50 CASCO' },
-  { id: 'oro',      celda: 9,  alto: 2.0, efecto: 'oro',      valor: 200, aviso: 'ORO' },
-  { id: 'llave',    celda: 10, alto: 2.1, efecto: 'oro',      valor: 80, aviso: 'LLAVE' },
-  { id: 'estaca',   celda: 11, alto: 2.3, efecto: 'oro',      valor: 40, aviso: 'ESTACA ARDIENTE' }
+  { id: 'oro',      celda: 9,  alto: 2.0, efecto: 'oro',      valor: 90, aviso: 'ORO' },
+  { id: 'llave',    celda: 10, alto: 2.1, efecto: 'oro',      valor: 40, aviso: 'LLAVE' },
+  { id: 'estaca',   celda: 11, alto: 2.3, efecto: 'oro',      valor: 22, aviso: 'ESTACA ARDIENTE' }
 ];
 
 const RADIO_RECOGER = 3.2;
