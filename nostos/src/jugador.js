@@ -33,6 +33,9 @@ export class Jugador {
     this.pistola = false;
     this.alPortal = null;
     this.alComerciar = null;
+    this.alTajo = null;
+    this.enfriamientoTajo = 0;
+    this.empezado = false;
     this.balanceo = 0;
     this.tension = 0;
     this.tensando = false;
@@ -90,6 +93,7 @@ export class Jugador {
       if (ranura >= 0) this.usar(ranura);
       if (e.code === 'KeyQ' && this.pistola && this.alPortal) this.alPortal('naranja');
       if (e.code === 'KeyE' && this.alComerciar) this.alComerciar();
+      if (e.code === 'KeyF') this.tajo();
     });
 
     addEventListener('mouseup', e => {
@@ -120,7 +124,18 @@ export class Jugador {
 
   _activar(v) {
     this.activo = v;
+    if (v) this.empezado = true;
+    document.body.classList.toggle('jugando', v);
     document.getElementById('menu').classList.toggle('oculto', v);
+    if (!v && this.alPausar) this.alPausar();
+  }
+
+  tajo() {
+    if (!this.activo || this.enfriamientoTajo > 0 || !this.alTajo) return;
+    this.enfriamientoTajo = 0.55;
+    this.tensando = false;
+    this.tension = 0;
+    this.alTajo();
   }
 
   _soltar() {
@@ -200,6 +215,7 @@ export class Jugador {
 
   actualizar(dt) {
     if (this.enfriamiento > 0) this.enfriamiento -= dt;
+    if (this.enfriamientoTajo > 0) this.enfriamientoTajo -= dt;
     if (this.tensando && this.tension < 1) this.tension = Math.min(1, this.tension + dt * 1.6 * this.mult.tension);
 
     if (this.libre) {

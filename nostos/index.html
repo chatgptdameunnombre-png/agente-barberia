@@ -4,11 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>NOSTOS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:"Courier New", monospace; }
   #lienzo { display:block; width:100%; height:100%; image-rendering:pixelated; image-rendering:crisp-edges; cursor:none; }
-  #capa { position:fixed; inset:0; pointer-events:none; }
+  #capa { position:fixed; inset:0; pointer-events:none; opacity:0; transition:opacity .35s; }
+  body.jugando #capa { opacity:1; }
 
   #mira { position:absolute; z-index:6; left:50%; top:50%; width:18px; height:18px; transform:translate(-50%,-50%); opacity:.55; }
   #mira::before, #mira::after { content:""; position:absolute; background:#f2e2b0; }
@@ -56,9 +60,13 @@
 
   #menu { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
           background:rgba(10,6,4,.55); color:#f2e2b0; text-align:center; }
-  #menu h1 { font-size:15vw; letter-spacing:1.2vw; color:#e8c14a; text-shadow:0 0 30px #a3450d, 5px 5px 0 #000; }
-  #menu h2 { font-size:2.4vw; font-weight:400; letter-spacing:.7vw; opacity:.75; margin-top:-1vw; }
-  #menu p  { margin-top:5vh; font-size:15px; letter-spacing:3px; animation:latir 1.6s infinite; }
+  #menu h1 { font-family:"Cinzel Decorative","Times New Roman",serif; font-weight:900;
+              font-size:13vw; letter-spacing:.6vw; color:#e8c14a; line-height:1;
+              text-shadow:0 0 46px #a3450d, 0 0 14px #ffb15e, 5px 5px 0 #000; }
+  #menu h2 { font-family:"Cinzel Decorative","Times New Roman",serif; font-weight:700;
+              font-size:2.6vw; letter-spacing:.9vw; opacity:.7; margin-top:.4vw; color:#f2e2b0; }
+  #menu p  { margin-top:6vh; font-size:14px; letter-spacing:4px; animation:latir 1.6s infinite; }
+  #menu .ayuda { margin-top:4vh; font-size:13px; letter-spacing:3px; color:#9c8a6d; line-height:2; animation:none; }
   @keyframes latir { 50% { opacity:.25; } }
   #menu.oculto { display:none; }
 
@@ -124,6 +132,8 @@
     <h1>NOSTOS</h1>
     <h2>EL REGRESO</h2>
     <p>CLIC PARA EMPEZAR</p>
+    <p class="ayuda">W A S D MOVERSE &nbsp;·&nbsp; CLIC TENSAR EL ARCO &nbsp;·&nbsp; F ESPADA<br>
+    CLIC DERECHO Y Q PORTALES &nbsp;·&nbsp; 1-4 INVENTARIO &nbsp;·&nbsp; E TIENDA &nbsp;·&nbsp; M SILENCIO &nbsp;·&nbsp; ESC PAUSA</p>
   </div>
 
   <script type="importmap">

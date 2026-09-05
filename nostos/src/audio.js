@@ -268,6 +268,13 @@ const VOCES = {
     a._ruidoVoz(s, { dur: 0.9, tipoFiltro: 'lowpass', de: 2200, a: 200, pico: 0.9, ataque: 0.01 });
     a._tono(s, { tipo: 'sawtooth', de: 120, a: 32, dur: 0.8, pico: 0.5 });
   } },
+  tajo: { vol: 1, tocar: (a, s) => {
+    a._ruidoVoz(s, { dur: 0.22, tipoFiltro: 'bandpass', de: 3400, a: 700, Q: 1.4, pico: 0.9 });
+    a._tono(s, { tipo: 'triangle', de: 640, a: 180, dur: 0.18, pico: 0.4 });
+  } },
+  fallo: { vol: 0.6, tocar: (a, s) => {
+    a._ruidoVoz(s, { dur: 0.16, tipoFiltro: 'highpass', de: 1800, pico: 0.4 });
+  } },
   curar: { vol: 0.8, tocar: (a, s) => {
     a._tono(s, { tipo: 'sine', de: 520, a: 780, dur: 0.5, ataque: 0.08, pico: 0.45 });
     a._tono(s, { tipo: 'triangle', de: 780, a: 1040, dur: 0.6, ataque: 0.15, pico: 0.25 });
