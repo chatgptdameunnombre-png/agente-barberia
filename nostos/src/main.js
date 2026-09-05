@@ -1,16 +1,16 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905143020';
-import { Jugador } from './jugador.js?v=20260905143020';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260905143020';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905143020';
-import { Objeto, CATALOGO } from './objetos.js?v=20260905143020';
-import { Rondas } from './rondas.js?v=20260905143020';
-import { Tienda, porId } from './tienda.js?v=20260905143020';
-import { Minimapa, Marcas } from './minimapa.js?v=20260905143020';
-import { Flujo } from './flujo.js?v=20260905143020';
-import { Portales } from './portales.js?v=20260905143020';
-import { Audio } from './audio.js?v=20260905143020';
-import { siluetaCiclope } from './texturas.js?v=20260905143020';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905143916';
+import { Jugador } from './jugador.js?v=20260905143916';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260905143916';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905143916';
+import { Objeto, CATALOGO } from './objetos.js?v=20260905143916';
+import { Rondas } from './rondas.js?v=20260905143916';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905143916';
+import { Minimapa, Marcas } from './minimapa.js?v=20260905143916';
+import { Flujo } from './flujo.js?v=20260905143916';
+import { Portales } from './portales.js?v=20260905143916';
+import { Audio } from './audio.js?v=20260905143916';
+import { siluetaCiclope } from './texturas.js?v=20260905143916';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -75,20 +75,20 @@ let texturasNivel = null;
 
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, hoja] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/arco.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/items.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/caras.png?v=20260905143020'),
-    cargarImagen('./arte/crudo/espada.png?v=20260905143020')
+    cargarImagen('./arte/crudo/ciclope.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/arco.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/items.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/caras.png?v=20260905143916'),
+    cargarImagen('./arte/crudo/espada.png?v=20260905143916')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -401,17 +401,90 @@ function golpeRecibido() {
 let muerto = false;
 
 const menu = document.getElementById('menu');
+const panel = document.getElementById('panel');
+const hoja = panel.querySelector('.hoja');
+const btnMenu = document.getElementById('alMenu');
+
+const CONTROLES = [
+  ['W A S D', 'Moverte por el palacio'],
+  ['RATON', 'Mirar alrededor'],
+  ['CLIC IZQUIERDO', 'Manten para tensar el arco, suelta para disparar. Mas tension, mas dano y alcance'],
+  ['F', 'Espada: tajo cuerpo a cuerpo, sin munición. Le pega a todos los que tengas enfrente'],
+  ['CLIC DERECHO', 'Portal azul (necesitas el Cuerno de Hermes)'],
+  ['Q', 'Portal naranja'],
+  ['1 2 3 4', 'Usar lo que llevas en el inventario'],
+  ['E', 'Abrir la tienda, solo entre rondas'],
+  ['M', 'Silenciar y devolver el sonido'],
+  ['ESC', 'Pausa']
+];
+
+function iconoDe(art, tipo) {
+  let t = null;
+  if (art.id === 'portales') t = recursos.cuerno && recursos.cuerno[1];
+  else if (tipo === 'suelo') t = recursos.items && recursos.items[art.celda];
+  else t = (recursos.tienda && recursos.tienda[art.celda]) ||
+           (recursos.items && recursos.items[art.respaldo]);
+  return t && t.image ? `background-image:url(${t.image.toDataURL()})` : '';
+}
+
+function abrirPanel(html) {
+  hoja.innerHTML = html + '<button class="boton cerrar">CERRAR</button>';
+  hoja.querySelector('.cerrar').addEventListener('click', () => panel.classList.remove('ver'));
+  panel.classList.add('ver');
+}
+
+function panelControles() {
+  const filas = CONTROLES
+    .map(([k, d]) => `<tr><td class="tecla">${k}</td><td>${d}</td></tr>`)
+    .join('');
+  abrirPanel(`<h3>BOTONES</h3><table>${filas}</table>`);
+}
+
+function panelObjetos() {
+  const fila = (art, tipo, extra) => `<tr>
+      <td class="ico"><div style="${iconoDe(art, tipo)}"></div></td>
+      <td class="nom">${art.nombre || art.aviso || art.id}</td>
+      <td>${art.desc || descripcionSuelo(art)}</td>
+      <td class="precio">${extra}</td></tr>`;
+
+  const mejoras = MEJORAS.map(m => fila(m, 'tienda', m.precio + ' ORO')).join('');
+  const consumibles = CONSUMIBLES.map(c => fila(c, 'tienda', c.precio + ' ORO')).join('');
+  const suelo = CATALOGO.map(o => fila(o, 'suelo', 'DEL SUELO')).join('');
+
+  abrirPanel(`<h3>OBJETOS</h3>
+    <h4>MEJORAS — se compran una vez y son para siempre</h4><table>${mejoras}</table>
+    <h4>CONSUMIBLES — se guardan en el inventario y se gastan</h4><table>${consumibles}</table>
+    <h4>LO QUE CAE AL PISO — al limpiar cada ronda</h4><table>${suelo}</table>`);
+}
+
+function descripcionSuelo(o) {
+  const t = o.efecto;
+  if (t === 'vida') return 'Te cura ' + o.valor;
+  if (t === 'armadura') return 'Suma ' + o.valor + ' de escudo';
+  if (t === 'flechas') return 'Suma ' + o.valor + ' flechas';
+  if (t === 'guarda') return 'Se guarda en el inventario';
+  return 'Suma ' + o.valor + ' de oro';
+}
+
+document.getElementById('verControles').addEventListener('click', panelControles);
+document.getElementById('verObjetos').addEventListener('click', panelObjetos);
+btnMenu.addEventListener('click', () => location.reload());
+addEventListener('keydown', e => {
+  if (e.code === 'Escape' && panel.classList.contains('ver')) panel.classList.remove('ver');
+});
 
 function pausar() {
   if (muerto) return;
   menu.querySelector('h1').textContent = 'PAUSA';
   menu.querySelector('h2').textContent = 'ITACA ESPERA';
   menu.querySelector('p').textContent = 'CLIC PARA CONTINUAR';
+  btnMenu.hidden = false;
   if (audio.ctx) audio.callarMusica();
 }
 
 function morir() {
   muerto = true;
+  btnMenu.hidden = false;
   audio.sonar('muerte');
   audio.callarMusica();
   if (tienda.abierta) tienda.cerrar();
@@ -452,7 +525,8 @@ function reiniciar() {
   menu.querySelector('p').textContent = 'CLIC PARA EMPEZAR';
 }
 
-lienzo.addEventListener('click', () => {
+lienzo.addEventListener('click', e => {
+  if (e.target && e.target.closest && e.target.closest('#botonera, #panel, #tienda')) return;
   if (!muerto && jugador && jugador.empezado && !jugador.activo) {
     menu.querySelector('h1').textContent = 'NOSTOS';
     menu.querySelector('h2').textContent = 'EL REGRESO';
