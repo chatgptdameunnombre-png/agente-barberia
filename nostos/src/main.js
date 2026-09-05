@@ -1,24 +1,24 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905171823';
-import { Jugador } from './jugador.js?v=20260905171823';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260905171823';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior } from './sprites.js?v=20260905171823';
-import { Objeto, CATALOGO } from './objetos.js?v=20260905171823';
-import { Rondas } from './rondas.js?v=20260905171823';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905171823';
-import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905171823';
-import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905171823';
-import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260905171823';
-import { Minimapa, Marcas } from './minimapa.js?v=20260905171823';
-import { Flujo } from './flujo.js?v=20260905171823';
-import { Portales, trazar } from './portales.js?v=20260905171823';
-import { romper } from './mapa.js?v=20260905171823';
-import { Audio } from './audio.js?v=20260905171823';
-import { OtroLado } from './otrolado.js?v=20260905171823';
-import { Director } from './director.js?v=20260905171823';
-import { Cerco } from './cerco.js?v=20260905171823';
-import { TIPOS as T } from './enemigos.js?v=20260905171823';
-import { siluetaCiclope } from './texturas.js?v=20260905171823';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905172547';
+import { Jugador } from './jugador.js?v=20260905172547';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260905172547';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior } from './sprites.js?v=20260905172547';
+import { Objeto, CATALOGO } from './objetos.js?v=20260905172547';
+import { Rondas } from './rondas.js?v=20260905172547';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905172547';
+import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905172547';
+import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905172547';
+import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260905172547';
+import { Minimapa, Marcas } from './minimapa.js?v=20260905172547';
+import { Flujo } from './flujo.js?v=20260905172547';
+import { Portales, trazar } from './portales.js?v=20260905172547';
+import { romper } from './mapa.js?v=20260905172547';
+import { Audio } from './audio.js?v=20260905172547';
+import { OtroLado } from './otrolado.js?v=20260905172547';
+import { Director } from './director.js?v=20260905172547';
+import { Cerco } from './cerco.js?v=20260905172547';
+import { TIPOS as T } from './enemigos.js?v=20260905172547';
+import { siluetaCiclope } from './texturas.js?v=20260905172547';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -116,29 +116,29 @@ let texturasNivel = null;
 
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas, cuchilloImg] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/arco.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/items.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/caras.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/guante.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/objetos2.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/hilo.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/jabalina.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/hacha.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/pico.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/mano.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/fuego.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/insignias.png?v=20260905171823'),
-    cargarImagen('./arte/crudo/cuchillo.png?v=20260905171823')
+    cargarImagen('./arte/crudo/ciclope.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/arco.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/items.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/caras.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/guante.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/objetos2.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/hilo.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/jabalina.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/hacha.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/pico.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/mano.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/fuego.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/insignias.png?v=20260905172547'),
+    cargarImagen('./arte/crudo/cuchillo.png?v=20260905172547')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -672,17 +672,34 @@ function engancharse() {
 
   if (!golpe) { avisar('NADA A LA VISTA'); return; }
   pintarCuerda(origen, golpe.punto);
-  let pasos = 0;
+
+  let recorrido = 0;
+  let px = jugador.pos.x, pz = jugador.pos.z;
   for (let i = 0; i < 40; i++) {
-    const nx = jugador.pos.x + dir.x * 1.3;
-    const nz = jugador.pos.z + dir.z * 1.3;
-    if (jugador._colisionar(nx, jugador.pos.z) || jugador._colisionar(jugador.pos.x, nz)) break;
-    jugador.pos.x = nx;
-    jugador.pos.z = nz;
-    pasos++;
+    const nx = px + dir.x * 1.3;
+    const nz = pz + dir.z * 1.3;
+    if (jugador._colisionar(nx, pz) || jugador._colisionar(px, nz)) break;
+    px = nx; pz = nz;
+    recorrido += 1.3;
   }
-  if (pasos) audio.sonar('cruzar');
-  else avisar('DEMASIADO CERCA');
+  if (recorrido < 2) { avisar('DEMASIADO CERCA'); return; }
+
+  tiron = { x: dir.x, z: dir.z, resta: recorrido };
+  audio.sonar('cruzar');
+}
+
+let tiron = null;
+
+function moverTiron(dt) {
+  if (!tiron) return;
+  const paso = Math.min(tiron.resta, 62 * dt);
+  const nx = jugador.pos.x + tiron.x * paso;
+  const nz = jugador.pos.z + tiron.z * paso;
+  let avanzo = false;
+  if (!jugador._colisionar(nx, jugador.pos.z)) { jugador.pos.x = nx; avanzo = true; }
+  if (!jugador._colisionar(jugador.pos.x, nz)) { jugador.pos.z = nz; avanzo = true; }
+  tiron.resta -= paso;
+  if (!avanzo || tiron.resta <= 0.1) tiron = null;
 }
 
 let armaEnMano = 'arco';
@@ -779,6 +796,11 @@ const matEscombro = new THREE.MeshLambertMaterial({ color: 0xb8b3a4 });
 let cargado = null;
 
 function picar() {
+  if (jugador.picos <= 0) {
+    audio.sonar('vacio');
+    avisar('EL PICO SE ENFRIA HASTA LA PROXIMA RONDA');
+    return;
+  }
   const origen = camara.position.clone();
   const dir = jugador.direccion();
   const golpe = trazar(nivel, origen, dir, 11);
@@ -787,6 +809,7 @@ function picar() {
   if (!golpe) { avisar('MUY LEJOS DEL MURO'); return; }
   if (!romper(nivel, golpe.celda.x, golpe.celda.z)) { avisar('AHI NO SE PUEDE'); return; }
 
+  jugador.picos--;
   audio.sonar('piedra', golpe.punto);
   sacudida = Math.max(sacudida, 0.5);
   minimapa.refrescar();
@@ -806,7 +829,7 @@ function picar() {
     escena.add(m);
     escombros.push({ malla: m });
   }
-  avisar('MURO ROTO');
+  avisar('MURO ROTO · TE QUEDAN ' + jugador.picos);
 }
 
 function agarrar() {
@@ -830,7 +853,7 @@ function agarrar() {
   }
   if (!mejor) { avisar('NO HAY ESCOMBROS CERCA'); manoCuadro = 1; return; }
   cargado = mejor;
-  manoCuadro = 2;
+  manoCuadro = 1;
   audio.sonar('recoger');
 }
 
@@ -1313,36 +1336,65 @@ function panelGloria() {
 }
 
 function panelComo() {
+  const dib = (hoja, i) => {
+    const t = recursos[hoja] && recursos[hoja][i];
+    if (!t) return '';
+    if (typeof t === 'string') return `background-image:url(${t})`;
+    return t.image ? `background-image:url(${t.image.toDataURL()})` : '';
+  };
+  const tarjeta = (estilo, nombre, texto, tecla) => `
+    <div class="tarjeta"><div class="dibujo" style="${estilo}"></div>
+    <div class="texto"><b>${nombre}</b><span>${texto}</span>
+    ${tecla ? `<em>${tecla}</em>` : ''}</div></div>`;
+
   abrirPanel(`<h3>COMO JUGAR</h3><div class="guia">
-    <p><b>De que va.</b> Eres Odiseo y regresaste a tu palacio. Aguantas rondas
-    de enemigos que no paran de venir, cada una peor que la anterior. En la
-    <b>ronda 15</b> aparece Polifemo: si lo matas, ganaste.</p>
+    <p>Eres Odiseo y volviste a tu palacio. Aguantas rondas de enemigos que no
+    paran. En la <b>ronda 15</b> aparece Polifemo: si lo matas, ganaste.</p>
 
-    <p><b>Como se pelea.</b> Manten el clic izquierdo para tensar el arco: mientras
-    mas lo cargues, mas dano y mas lejos llega. Con <b>F</b> das un tajo con el
-    hacha a todo lo que tengas enfrente, y con <b>T</b> la lanzas: atraviesa a
-    todos y vuelve sola a tu mano.</p>
+    <h4>CON LO QUE EMPIEZAS</h4>
+    <div class="tarjetas">
+      ${tarjeta(dib('arco', 2), 'ARCO', 'Manten el clic izquierdo para tensarlo. Mientras mas cargues, mas dano y mas lejos llega.', 'CLIC IZQUIERDO')}
+      ${tarjeta(dib('cuchillo', 0), 'CUCHILLO', 'Apunala por 140 y no gasta nada. Con T lo lanzas por 150, pero ese se pierde. Empiezas con 8.', 'F apunalar · T lanzar')}
+    </div>
 
-    <p><b>Entre rondas.</b> Al limpiar una ronda caen objetos al piso y se abre la
-    tregua. Pulsa <b>E</b> y aparece el mercader. Puedes comprar <b>una sola cosa
-    por ronda</b>, asi que elige bien. Las mejoras son para siempre; los
-    consumibles se guardan en el inventario y se usan con <b>1 2 3 4</b>.</p>
+    <h4>ARMAS QUE COMPRAS AL MERCADER</h4>
+    <div class="tarjetas">
+      ${tarjeta(dib('hacha', 0), 'HACHA · 160', 'Le pega a todos los de enfrente y, lanzada, atraviesa a todos y vuelve sola. Nunca se acaba.', 'F · T · Z para cambiar')}
+      ${tarjeta(dib('cuerno', 1), 'CUERNO DE HERMES · 150', 'Abre dos portales en los muros y se ve a traves de ellos. Cruzan las flechas, las lanzas y los enemigos.', 'CLIC DERECHO y Q')}
+      ${tarjeta(dib('guante', 2), 'GUANTE DE ZEUS · 200', 'Manten R para cargar el rayo. Atraviesa a todos los que esten en linea.', 'R')}
+      ${tarjeta(dib('hilo', 1), 'HILO DE ARIADNA · 170', 'Te jala hacia el muro al que apuntes, o jala al enemigo hacia ti aturdido.', 'G')}
+      ${tarjeta(dib('pico', 0), 'PICO DE HEFESTO · 190', 'Rompe los muros del palacio y deja escombros. Tres picotazos por ronda.', 'B')}
+      ${tarjeta(dib('mano', 1), 'MANO DE POSEIDON · 210', 'Agarra un escombro y lo lanza por 120. Necesitas el Pico para tener escombros.', 'C')}
+      ${tarjeta(dib('insignias', 7), 'OJO DEL CAZADOR · 230', 'Manten X y apunta a hasta 5 enemigos; al soltar les disparas a todos.', 'X')}
+    </div>
 
-    <p><b>El oro y la gloria.</b> El oro se gana matando y se gasta en el mercader,
-    pero se pierde al morir. La <b>gloria</b> nunca se pierde: se acumula partida
-    tras partida, incluso cuando pierdes, y se gasta en el menu principal en
-    modos, armas de inicio y apariencia.</p>
+    <h4>LAS RELIQUIAS DEL INVENTARIO</h4>
+    <div class="tarjetas">
+      ${tarjeta(dib('reliquias', 0), 'MANZANA DE LA DISCORDIA', 'Los enemigos se atacan entre ellos 12 segundos y se pegan el doble.')}
+      ${tarjeta(dib('reliquias', 6), 'ESPEJO DE PERSEO', 'Las lanzas rebotan y matan al que las tiro.')}
+      ${tarjeta(dib('reliquias', 7), 'VELLOCINO DE ORO', 'Recuperas vida durante 15 segundos.')}
+      ${tarjeta(dib('reliquias', 8), 'SANDALIAS ALADAS', 'Un impulso para salir de un cerco.')}
+      ${tarjeta(dib('reliquias', 9), 'OJO DE LAS GREAS', 'Ves a todos a traves de los muros 20 segundos.')}
+      ${tarjeta(dib('reliquias', 11), 'DRACMA DE CARONTE', 'Si mueres, revives una vez con media vida.')}
+    </div>
 
-    <p><b>La grieta.</b> Cada 3 rondas se abre. Si pulsas <b>V</b> cruzas al Otro
-    Lado: el mismo palacio en rojo, con enemigos casi al doble de vida pero
+    <p><b>Entre rondas.</b> Al limpiar una ronda caen objetos al piso y empieza la
+    tregua. Pulsa <b>E</b> y sale el mercader: solo puedes comprar
+    <b>una cosa por ronda</b>, asi que elige. Las armas son para siempre; las
+    reliquias se guardan en el inventario y se usan con <b>1 2 3 4</b>. Si lo
+    tienes lleno, <b>SHIFT + numero</b> suelta esa ranura.</p>
+
+    <p><b>El oro y la gloria.</b> El oro se gana matando y se pierde al morir. La
+    <b>gloria</b> nunca se pierde: se acumula partida tras partida, aunque pierdas,
+    y se gasta en el menu principal en modos, armas de inicio y apariencia.</p>
+
+    <p><b>La grieta.</b> Cada 3 rondas se abre. Con <b>V</b> cruzas al Otro Lado:
+    el mismo palacio en rojo, enemigos con casi el doble de vida pero
     <b>triple oro</b>. Dura una ronda.</p>
 
-    <p><b>El fuego.</b> Cada 5 rondas el Cerco de Troya se cierra sobre el palacio.
-    Quedarte fuera del circulo te quema.</p>
-
     <p><b>Consejos.</b> No te quedes quieto: los pretendientes tiran lanzas desde
-    lejos. Usa las columnas para cubrirte. Guarda un frasco para la ronda 10. Y si
-    compras el Pico, rompe muros para hacerte atajos y callejones donde pelear.</p>
+    lejos. Cubrete tras las columnas. Guarda un frasco para la ronda 10. Y si
+    compras el Pico, rompe muros para hacerte atajos donde pelear con ventaja.</p>
   </div>`);
 }
 
@@ -1588,7 +1640,7 @@ function pintarHud() {
     clave = 'p' + picoCuadro;
     url = imagenesPico[picoCuadro];
   } else if ((manoReloj > 0 || cargado) && imagenesMano.length) {
-    const c = cargado ? 2 : manoCuadro;
+    const c = cargado ? 1 : manoCuadro;
     clave = 'm' + c;
     url = imagenesMano[c];
   } else if (imagenesHacha.length && (hachaReloj > 0 || jugador.hachaFuera)) {
@@ -1724,6 +1776,7 @@ function paso(dt) {
     moverJabalinas(dt);
     moverHacha(dt);
     moverEscombros(dt);
+    moverTiron(dt);
     actualizarMarcas();
     moverAnillos();
     if (hachaReloj > 0) hachaReloj -= dt;
@@ -1916,6 +1969,7 @@ cargarArte().then(() => {
     ajustar: p => director.ajustar(p),
     alEmpezar: n => {
       director.empiezaRonda();
+      jugador.picos = 3;
       if (modoActivo('cerco') && n % 5 === 0 && !rondas.ultimoPerfil.jefe && cerco.encender()) {
         anunciar('EL CERCO DE TROYA', 'EL FUEGO TE EMPUJA AL CENTRO');
       }
