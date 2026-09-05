@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260905152721';
+import { CELDA, esSolido } from './mapa.js?v=20260905153439';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -36,6 +36,9 @@ export class Jugador {
     this.alTajo = null;
     this.enfriamientoTajo = 0;
     this.guante = false;
+    this.gancho = false;
+    this.enfriamientoGancho = 0;
+    this.alGancho = null;
     this.rayo = 100;
     this.rayoMax = 100;
     this.cargandoRayo = false;
@@ -107,6 +110,10 @@ export class Jugador {
       if (e.code === 'KeyQ' && this.pistola && this.alPortal) this.alPortal('naranja');
       if (e.code === 'KeyE' && this.alComerciar) this.alComerciar();
       if (e.code === 'KeyF') this.tajo();
+      if (e.code === 'KeyG' && this.gancho && this.enfriamientoGancho <= 0 && this.alGancho) {
+        this.enfriamientoGancho = 1.3;
+        this.alGancho();
+      }
       if (e.code === 'KeyR' && this.guante && !this.cargandoRayo) {
         this.cargandoRayo = true;
         this.cargaRayo = 0;
@@ -243,6 +250,7 @@ export class Jugador {
   actualizar(dt) {
     if (this.enfriamiento > 0) this.enfriamiento -= dt;
     if (this.enfriamientoTajo > 0) this.enfriamientoTajo -= dt;
+    if (this.enfriamientoGancho > 0) this.enfriamientoGancho -= dt;
     if (this.cargandoRayo) this.cargaRayo = Math.min(1, this.cargaRayo + dt * 1.25);
     else if (this.rayo < this.rayoMax) this.rayo = Math.min(this.rayoMax, this.rayo + dt * 13);
     if (this.tensando && this.tension < 1) this.tension = Math.min(1, this.tension + dt * 1.6 * this.mult.tension);

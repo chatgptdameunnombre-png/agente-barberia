@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260905152721';
-import { CELDA, esSolido } from './mapa.js?v=20260905152721';
+import { Billboard } from './sprites.js?v=20260905153439';
+import { CELDA, esSolido } from './mapa.js?v=20260905153439';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -123,7 +123,7 @@ export class Enemigo {
       return;
     }
 
-    if (this.estado === 'quieto' && dist < RANGO_VISTA && (enfurecido || !jugador.invisible)) {
+    if (this.estado === 'quieto' && dist < RANGO_VISTA) {
       this.estado = 'persigue';
       this.sprite.fijarVistas(this.recursos.quieto);
       if (this.alRugir) this.alRugir(this);
@@ -151,11 +151,6 @@ export class Enemigo {
         this.sprite.fijarVistas(this.recursos.quieto);
         this.cuadro = 0;
       }
-      this.sprite.encarar(camara, this.rumbo);
-      return;
-    }
-
-    if (this.estado === 'persigue' && !enfurecido && jugador.invisible && dist > 12) {
       this.sprite.encarar(camara, this.rumbo);
       return;
     }
