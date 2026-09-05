@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { banco } from './texturas.js?v=20260905154903';
+import { banco } from './texturas.js?v=20260905155903';
 
 export const CELDA = 4;
-export const ALTO = 7.5;
+export const ALTO = 10;
 
 export const NIVEL_PRUEBA = [
   '###################################',

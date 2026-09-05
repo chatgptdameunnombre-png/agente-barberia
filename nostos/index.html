@@ -115,6 +115,15 @@
   @keyframes latir { 50% { opacity:.25; } }
   #menu.oculto { display:none; }
 
+  #jefe { position:absolute; z-index:6; left:50%; top:22px; width:min(620px,62vw);
+          transform:translateX(-50%); display:none; text-align:center; }
+  #jefe.ver { display:block; }
+  #jefe span { display:block; color:#e2482d; font-size:13px; letter-spacing:7px;
+               margin-bottom:6px; text-shadow:2px 2px 0 #000; }
+  #jefe .barra { height:16px; border:2px solid #6b4a22; background:rgba(20,8,6,.8); }
+  #jefe .relleno { height:100%; width:100%; background:linear-gradient(#e2482d,#7a1a12);
+                   transition:width .25s; }
+
   #ranuras { position:absolute; z-index:6; right:26px; bottom:118px; display:flex; gap:8px; }
   .ranura { width:52px; height:52px; border:2px solid #6b4a22; background:rgba(20,13,8,.72) center/72% no-repeat;
             image-rendering:pixelated; position:relative; }
@@ -171,6 +180,7 @@
     <div id="banner"><b></b><span></span></div>
     <div id="aviso"></div>
     <div id="ranuras"></div>
+    <div id="jefe"><span>POLIFEMO</span><div class="barra"><div class="relleno"></div></div></div>
   </div>
   <div id="dano"></div>
   <div id="diag"></div>
@@ -178,6 +188,7 @@
     <h1>NOSTOS</h1>
     <h2>EL REGRESO</h2>
     <p>CLIC PARA EMPEZAR</p>
+    <p class="marca" id="marca"></p>
     <div id="botonera">
       <button class="boton" id="verControles">VER BOTONES</button>
       <button class="boton" id="verObjetos">OBJETOS</button>
@@ -193,6 +204,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260905154903"></script>
+  <script type="module" src="./src/main.js?v=20260905155903"></script>
 </body>
 </html>

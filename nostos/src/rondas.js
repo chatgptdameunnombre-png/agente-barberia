@@ -15,7 +15,20 @@ export class Rondas {
     this.reloj = DESCANSO - PRIMERA_ESPERA;
   }
 
+  esRondaJefe(n) {
+    return n === 15;
+  }
+
   perfil(n) {
+    if (this.esRondaJefe(n)) {
+      return {
+        cuantos: 5,
+        vida: 55 + (n - 1) * 13,
+        velocidad: Math.min(7.2, 4 + n * 0.2),
+        dano: Math.min(26, 12 + n),
+        jefe: true
+      };
+    }
     return {
       cuantos: Math.min(20, 2 + Math.floor(n * 1.5)),
       vida: 55 + (n - 1) * 13,
@@ -37,16 +50,17 @@ export class Rondas {
   lanzar(jugador) {
     this.numero++;
     const cfg = this.ajustar(this.perfil(this.numero));
+    this.ultimoPerfil = cfg;
     const puntos = this.puntosLejanos(jugador, cfg.cuantos);
     puntos.forEach((p, i) => {
       const angulo = (i / puntos.length) * Math.PI * 2;
       const pos = p.clone();
       pos.x += Math.cos(angulo) * 2.2;
       pos.z += Math.sin(angulo) * 2.2;
-      this.crear(pos, cfg);
+      this.crear(pos, cfg, i);
     });
     this.estado = 'combate';
-    this.ultimoPerfil = cfg;
+    if (cfg.jefe) this.anunciar('POLIFEMO DESPIERTA', 'EL QUE TE COMIO A TUS HOMBRES');
     this.alEmpezar(this.numero, cfg);
     this.anunciar('RONDA ' + this.numero, cfg.cuantos + ' ENEMIGOS');
   }

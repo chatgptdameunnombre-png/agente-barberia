@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260905154903';
-import { CELDA, esSolido } from './mapa.js?v=20260905154903';
+import { Billboard } from './sprites.js?v=20260905155903';
+import { CELDA, esSolido } from './mapa.js?v=20260905155903';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -10,6 +10,11 @@ export const TIPOS = {
     id: 'ciclope', nombre: 'CICLOPE', arte: 'ciclope',
     alto: 5.8, vida: 1, velocidad: 1, dano: 1,
     rango: 4.2, distancia: false, recarga: 0
+  },
+  jefe: {
+    id: 'jefe', nombre: 'POLIFEMO', arte: 'ciclope',
+    alto: 9.2, vida: 14, velocidad: 0.72, dano: 2.4,
+    rango: 7.5, distancia: false, recarga: 0
   },
   pretendiente: {
     id: 'pretendiente', nombre: 'PRETENDIENTE', arte: 'pretendiente',
