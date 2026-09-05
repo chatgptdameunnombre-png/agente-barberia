@@ -112,6 +112,15 @@
   #panel .opcion:hover { border-color:#e8c14a; color:#f2e2b0; }
   #panel .opcion.puesta { border-color:#e8c14a; color:#f2e2b0; background:rgba(232,193,74,.14); }
   #panel .muestra { width:16px; height:16px; border:1px solid #000; }
+  #panel tr.bloqueado td { opacity:.42; }
+  #panel tr.puesto td.nom { color:#8fe08f; }
+  #panel .accion { padding:7px 14px; background:rgba(74,52,24,.8); color:#f2e2b0;
+                   border:2px solid #6b4a22; font-family:inherit; font-size:10px;
+                   letter-spacing:2px; cursor:pointer; white-space:nowrap; }
+  #panel .accion:hover { background:#6b4a22; border-color:#e8c14a; }
+  #panel .accion:disabled { opacity:.35; cursor:not-allowed; }
+  #panel .bolsa { display:block; text-align:center; color:#e8c14a; font-size:13px;
+                  letter-spacing:5px; margin-bottom:20px; }
   @keyframes latir { 50% { opacity:.25; } }
   #menu.oculto { display:none; }
 
@@ -193,6 +202,7 @@
       <button class="boton" id="verControles">VER BOTONES</button>
       <button class="boton" id="verObjetos">OBJETOS</button>
       <button class="boton" id="verEstilo">APARIENCIA</button>
+      <button class="boton" id="verGloria">GLORIA</button>
       <button class="boton salir" id="alMenu" hidden>SALIR AL MENU</button>
     </div>
   </div>
@@ -204,6 +214,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260905163745"></script>
+  <script type="module" src="./src/main.js?v=20260905165109"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260905163745';
+import { RELIQUIAS } from './reliquias.js?v=20260905165109';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -39,7 +39,10 @@ export const MEJORAS = [
     aplicar: j => { j.pico = true; j.guardar('pico', 1, true); } },
   { id: 'manoP', nombre: 'MANO DE POSEIDON', precio: 210, celda: 16, respaldo: 5,
     desc: 'Con C agarras un escombro y con C otra vez se lo lanzas encima',
-    aplicar: j => { j.manoP = true; j.guardar('manoP', 1, true); } }
+    aplicar: j => { j.manoP = true; j.guardar('manoP', 1, true); } },
+  { id: 'cazador', nombre: 'OJO DEL CAZADOR', precio: 230, celda: 17, respaldo: 10,
+    desc: 'Manten X para marcar hasta 5 enemigos y sueltalo para dispararles a todos',
+    aplicar: j => { j.cazador = true; } }
 ];
 
 const BASICOS = [
@@ -63,6 +66,8 @@ export class Tienda {
     this.jugador = cfg.jugador;
     this.iconos = cfg.iconos;
     this.mercader = cfg.mercader || null;
+    this.cuantos = cfg.cuantos || 4;
+    this.descuento = cfg.descuento || 1;
     this.alCerrar = cfg.alCerrar;
     this.alComprar = cfg.alComprar;
     this.compradas = new Set();
@@ -118,6 +123,9 @@ export class Tienda {
     if (art.id === 'manoP' && this.iconos.mano && this.iconos.mano[2]) {
       return `url(${this.iconos.mano[2].image.toDataURL()})`;
     }
+    if (art.id === 'cazador' && this.iconos.insignias && this.iconos.insignias[7]) {
+      return `url(${this.iconos.insignias[7].image.toDataURL()})`;
+    }
     const t = (this.iconos.tienda && this.iconos.tienda[art.celda]) ||
               (this.iconos.items && this.iconos.items[art.respaldo]);
     if (!t || !t.image) return '';
@@ -132,7 +140,7 @@ export class Tienda {
     const resto = libres.filter(m => !CLAVES.includes(m.id));
     const mejoras = revuelve(resto).slice(0, Math.max(1, 3 - fijas.length));
     mejoras.unshift(...fijas.slice(0, 2));
-    const consumibles = revuelve(CONSUMIBLES).slice(0, 4 - mejoras.length);
+    const consumibles = revuelve(CONSUMIBLES).slice(0, Math.max(1, this.cuantos - mejoras.length));
     this.oferta = [...mejoras, ...consumibles];
   }
 
@@ -155,28 +163,30 @@ export class Tienda {
     this.bolsa.textContent = 'LLEVAS ' + this.jugador.oro + ' DE ORO';
     this.rejilla.innerHTML = '';
     this.oferta.forEach(art => {
-      const puede = this.jugador.oro >= art.precio;
+      const precio = Math.round(art.precio * this.descuento);
+      const puede = this.jugador.oro >= precio;
       const t = document.createElement('div');
       t.className = 'carta' + (puede ? '' : ' pobre');
       t.innerHTML = `
         <div class="ico" style="background-image:${this._icono(art)}"></div>
         <b>${art.nombre}</b>
         <span>${art.desc}</span>
-        <em>${puede ? art.precio + ' ORO' : 'TE FALTAN ' + (art.precio - this.jugador.oro)}</em>`;
+        <em>${puede ? precio + ' ORO' : 'TE FALTAN ' + (precio - this.jugador.oro)}</em>`;
       t.addEventListener('click', () => this.comprar(art));
       this.rejilla.appendChild(t);
     });
   }
 
   comprar(art) {
-    if (this.jugador.oro < art.precio) return;
-    this.jugador.oro -= art.precio;
+    const precio = Math.round(art.precio * this.descuento);
+    if (this.jugador.oro < precio) return;
+    this.jugador.oro -= precio;
     if (art.aplicar) {
       art.aplicar(this.jugador);
       this.compradas.add(art.id);
       this.oferta = this.oferta.filter(o => o.id !== art.id);
     } else if (!this.jugador.guardar(art.id)) {
-      this.jugador.oro += art.precio;
+      this.jugador.oro += Math.round(art.precio * this.descuento);
       return;
     }
     if (this.alComprar) this.alComprar(art);

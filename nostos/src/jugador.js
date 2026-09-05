@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260905163745';
+import { CELDA, esSolido } from './mapa.js?v=20260905165109';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -29,6 +29,7 @@ export class Jugador {
     this.mult = { tension: 1, dano: 1, velocidad: 1, velFlecha: 1 };
     this.doble = false;
     this.inventario = [];
+    this.ranuras = 4;
     this.alUsar = null;
     this.pistola = false;
     this.alPortal = null;
@@ -44,6 +45,10 @@ export class Jugador {
     this.enfriamientoPico = 0;
     this.alPicar = null;
     this.alAgarrar = null;
+    this.cazador = false;
+    this.marcando = false;
+    this.alMarcar = null;
+    this.alSoltarMarcas = null;
     this.enfriamientoGancho = 0;
     this.alGancho = null;
     this.rayo = 100;
@@ -76,6 +81,10 @@ export class Jugador {
       if (e.code === 'KeyR' && this.cargandoRayo) {
         this.cargandoRayo = false;
         this._soltarRayo();
+      }
+      if (e.code === 'KeyX' && this.marcando) {
+        this.marcando = false;
+        if (this.alSoltarMarcas) this.alSoltarMarcas();
       }
     });
 
@@ -123,6 +132,10 @@ export class Jugador {
         this.alPicar();
       }
       if (e.code === 'KeyC' && this.manoP && this.alAgarrar) this.alAgarrar();
+      if (e.code === 'KeyX' && this.cazador && !this.marcando) {
+        this.marcando = true;
+        if (this.alMarcar) this.alMarcar(true);
+      }
       if (e.code === 'KeyG' && this.gancho && this.enfriamientoGancho <= 0 && this.alGancho) {
         this.enfriamientoGancho = 1.3;
         this.alGancho();
@@ -198,7 +211,7 @@ export class Jugador {
   hayHueco(id) {
     const hay = this.inventario.find(o => o.id === id);
     if (hay) return hay.cantidad < 9;
-    return this.inventario.length < 4;
+    return this.inventario.length < this.ranuras;
   }
 
   guardar(id, cuantos = 1, infinito = false) {
@@ -207,7 +220,7 @@ export class Jugador {
       if (hay.infinito) return true;
       if (hay.cantidad >= 9) return false;
       hay.cantidad += cuantos;
-    } else if (this.inventario.length < 4) {
+    } else if (this.inventario.length < this.ranuras) {
       this.inventario.push({ id, cantidad: cuantos, infinito });
     } else return false;
     return true;

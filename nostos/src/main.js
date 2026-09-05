@@ -1,22 +1,24 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905163745';
-import { Jugador } from './jugador.js?v=20260905163745';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260905163745';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905163745';
-import { Objeto, CATALOGO } from './objetos.js?v=20260905163745';
-import { Rondas } from './rondas.js?v=20260905163745';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905163745';
-import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905163745';
-import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905163745';
-import { Minimapa, Marcas } from './minimapa.js?v=20260905163745';
-import { Flujo } from './flujo.js?v=20260905163745';
-import { Portales, trazar } from './portales.js?v=20260905163745';
-import { romper } from './mapa.js?v=20260905163745';
-import { Audio } from './audio.js?v=20260905163745';
-import { OtroLado } from './otrolado.js?v=20260905163745';
-import { Director } from './director.js?v=20260905163745';
-import { TIPOS as T } from './enemigos.js?v=20260905163745';
-import { siluetaCiclope } from './texturas.js?v=20260905163745';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905165109';
+import { Jugador } from './jugador.js?v=20260905165109';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260905165109';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905165109';
+import { Objeto, CATALOGO } from './objetos.js?v=20260905165109';
+import { Rondas } from './rondas.js?v=20260905165109';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905165109';
+import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905165109';
+import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905165109';
+import { MODOS, MEJORAS_MERCADER, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260905165109';
+import { Minimapa, Marcas } from './minimapa.js?v=20260905165109';
+import { Flujo } from './flujo.js?v=20260905165109';
+import { Portales, trazar } from './portales.js?v=20260905165109';
+import { romper } from './mapa.js?v=20260905165109';
+import { Audio } from './audio.js?v=20260905165109';
+import { OtroLado } from './otrolado.js?v=20260905165109';
+import { Director } from './director.js?v=20260905165109';
+import { Cerco } from './cerco.js?v=20260905165109';
+import { TIPOS as T } from './enemigos.js?v=20260905165109';
+import { siluetaCiclope } from './texturas.js?v=20260905165109';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -98,29 +100,29 @@ let texturasNivel = null;
 
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, hoja, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/arco.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/items.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/caras.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/espada.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/guante.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/objetos2.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/hilo.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/jabalina.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/hacha.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/pico.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/mano.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/fuego.png?v=20260905163745'),
-    cargarImagen('./arte/crudo/insignias.png?v=20260905163745')
+    cargarImagen('./arte/crudo/ciclope.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/arco.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/items.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/caras.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/espada.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/guante.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/objetos2.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/hilo.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/jabalina.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/hacha.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/pico.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/mano.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/fuego.png?v=20260905165109'),
+    cargarImagen('./arte/crudo/insignias.png?v=20260905165109')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -226,6 +228,8 @@ let tienda = null;
 let flujo = null;
 let portales = null;
 let otroLado = null;
+let cerco = null;
+let quemando = 0;
 const director = new Director();
 let grietaLista = false;
 let jefeActual = null;
@@ -292,6 +296,7 @@ function acomodar(pos) {
 }
 
 function cerrarRonda(n) {
+  if (cerco.activo) { cerco.apagar(); avisar('EL FUEGO SE APAGA'); }
   const m = otroLado.multiplicadores;
   soltarObjetos(otroLado.dentro ? n + 3 : n);
   director.terminaRonda(jugador, rondas.ultimoPerfil ? rondas.ultimoPerfil.cuantos : 3);
@@ -615,6 +620,89 @@ function engancharse() {
 }
 
 let armaEnMano = 'arco';
+const marcados = [];
+const anillos = [];
+const geoAnillo = new THREE.RingGeometry(1.5, 1.9, 16);
+const matAnillo = new THREE.MeshBasicMaterial({
+  color: 0xe2482d, side: THREE.DoubleSide, transparent: true, opacity: 0.9, depthTest: false
+});
+
+function marcar(encendido) {
+  if (!encendido) return;
+  limpiarMarcas();
+  avisar('APUNTA Y SUELTA X');
+}
+
+function limpiarMarcas() {
+  for (const a of anillos) escena.remove(a);
+  anillos.length = 0;
+  marcados.length = 0;
+}
+
+function actualizarMarcas() {
+  if (!jugador.marcando) return;
+  if (marcados.length >= 5) return;
+  const dir = jugador.direccion();
+  let elegido = null;
+  let mejor = 0.965;
+  for (const e of enemigos) {
+    if (!e.vivo || marcados.includes(e)) continue;
+    const dx = e.pos.x - jugador.pos.x;
+    const dz = e.pos.z - jugador.pos.z;
+    const d = Math.hypot(dx, dz);
+    if (d > 70) continue;
+    const punteria = (dx * dir.x + dz * dir.z) / (d || 1);
+    if (punteria > mejor) { mejor = punteria; elegido = e; }
+  }
+  if (!elegido) return;
+  marcados.push(elegido);
+  const a = new THREE.Mesh(geoAnillo, matAnillo);
+  a.renderOrder = 999;
+  escena.add(a);
+  anillos.push(a);
+  audio.sonar('tenso');
+}
+
+function moverAnillos() {
+  for (let i = 0; i < anillos.length; i++) {
+    const e = marcados[i];
+    if (!e) continue;
+    anillos[i].position.set(e.pos.x, e.tipo.alto * 0.55, e.pos.z);
+    anillos[i].lookAt(camara.position);
+  }
+}
+
+function soltarMarcas() {
+  const objetivos = marcados.filter(e => e.vivo);
+  if (!objetivos.length) { limpiarMarcas(); avisar('NADIE MARCADO'); return; }
+  if (jugador.flechas < objetivos.length) {
+    limpiarMarcas();
+    avisar('TE FALTAN FLECHAS');
+    audio.sonar('vacio');
+    return;
+  }
+  jugador.flechas -= objetivos.length;
+  objetivos.forEach((e, i) => {
+    setTimeout(() => {
+      if (!e.vivo) return;
+      const desde = camara.position.clone();
+      const hacia = new THREE.Vector3(e.pos.x, 2.6, e.pos.z);
+      const dir = hacia.sub(desde).normalize();
+      const m = new THREE.Mesh(geoFlecha, matFlecha);
+      m.position.copy(desde);
+      escena.add(m);
+      flechas.push({
+        malla: m,
+        vel: dir.multiplyScalar(120),
+        dano: 62 * jugador.mult.dano * furia(),
+        edad: 0
+      });
+      audio.sonar('flecha', null, 1);
+    }, i * 90);
+  });
+  avisar('OJO DEL CAZADOR: ' + objetivos.length);
+  limpiarMarcas();
+}
 let picoReloj = 0;
 let picoCuadro = 0;
 let manoReloj = 0;
@@ -939,6 +1027,7 @@ const CONTROLES = [
   ['Q', 'Portal naranja'],
   ['1 2 3 4', 'Usar lo que llevas en el inventario'],
   ['E', 'Abrir la tienda, solo entre rondas'],
+  ['X', 'Ojo del cazador: manten X y apunta a hasta 5 enemigos, suelta y les disparas a todos'],
   ['B', 'Pico de Hefesto: rompes el muro al que apuntes y deja escombros'],
   ['C', 'Mano de Poseidon: agarra un escombro, y con C otra vez lo lanzas'],
   ['V', 'Cruzar al Otro Lado cuando la grieta se abre, entre rondas'],
@@ -1023,6 +1112,63 @@ function panelEstilo() {
   });
 }
 
+function panelGloria() {
+  const g = estadoGloria();
+  const r = leerRecord();
+  const disponible = (r.gloria || 0) - g.comprados.reduce((a, id) => {
+    const art = TODO_GLORIA.find(x => x.id === id);
+    return a + (art ? art.precio : 0);
+  }, 0);
+
+  const fila = art => {
+    const comprado = g.comprados.includes(art.id);
+    const puesto = g.activos.includes(art.id);
+    const t = recursos.insignias && recursos.insignias[art.insignia];
+    const ico = t && t.image ? `background-image:url(${t.image.toDataURL()})` : '';
+    let boton;
+    if (!comprado) {
+      boton = `<button class="accion" data-comprar="${art.id}" ${disponible < art.precio ? 'disabled' : ''}>${art.precio} GLORIA</button>`;
+    } else {
+      boton = `<button class="accion" data-poner="${art.id}">${puesto ? 'QUITAR' : 'PONER'}</button>`;
+    }
+    return `<tr class="${comprado ? (puesto ? 'puesto' : '') : 'bloqueado'}">
+      <td class="ico"><div style="${ico}"></div></td>
+      <td class="nom">${art.nombre}</td>
+      <td>${art.desc}</td>
+      <td class="precio">${boton}</td></tr>`;
+  };
+
+  abrirPanel(`<h3>GLORIA</h3>
+    <span class="bolsa">TE QUEDAN ${Math.max(0, disponible)} DE GLORIA</span>
+    <h4>MODOS — cambian toda la partida</h4><table>${MODOS.map(fila).join('')}</table>
+    <h4>EL MERCADER — para siempre</h4><table>${MEJORAS_MERCADER.map(fila).join('')}</table>`);
+
+  hoja.querySelectorAll('[data-comprar]').forEach(b => {
+    b.addEventListener('click', () => {
+      const art = TODO_GLORIA.find(x => x.id === b.dataset.comprar);
+      const d = estadoGloria();
+      if (d.comprados.includes(art.id)) return;
+      d.comprados.push(art.id);
+      guardarGloria(d);
+      audio.sonar('comprar');
+      panelGloria();
+    });
+  });
+  hoja.querySelectorAll('[data-poner]').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.poner;
+      const d = estadoGloria();
+      const i = d.activos.indexOf(id);
+      if (i >= 0) d.activos.splice(i, 1);
+      else d.activos.push(id);
+      guardarGloria(d);
+      audio.sonar('recoger');
+      panelGloria();
+    });
+  });
+}
+
+document.getElementById('verGloria').addEventListener('click', panelGloria);
 document.getElementById('verEstilo').addEventListener('click', panelEstilo);
 document.getElementById('verControles').addEventListener('click', panelControles);
 document.getElementById('verObjetos').addEventListener('click', panelObjetos);
@@ -1041,7 +1187,8 @@ function pausar() {
 }
 
 function gloriaDe(datos) {
-  return datos.ronda * 12 + datos.bajas * 2 + (datos.gano ? 300 : 0);
+  const base = datos.ronda * 12 + datos.bajas * 2 + (datos.gano ? 300 : 0);
+  return modoActivo('pesadilla') ? base * 3 : base;
 }
 
 function ganar() {
@@ -1112,6 +1259,8 @@ function reiniciar() {
   jugador.rayo = jugador.rayoMax;
   sacudida = 0;
   cargado = null;
+  jugador.cazador = false;
+  limpiarMarcas();
   for (const e of escombros) escena.remove(e.malla);
   escombros.length = 0;
   jugador.mult = { tension: 1, dano: 1, velocidad: 1, velFlecha: 1 };
@@ -1125,6 +1274,8 @@ function reiniciar() {
   tienda.reiniciar();
   director.reiniciar();
   grietaLista = false;
+  quemando = 0;
+  if (cerco) cerco.apagar();
   ganado = false;
   jefeActual = null;
   elJefe.classList.remove('ver');
@@ -1364,6 +1515,8 @@ function paso(dt) {
     moverJabalinas(dt);
     moverHacha(dt);
     moverEscombros(dt);
+    actualizarMarcas();
+    moverAnillos();
     if (hachaReloj > 0) hachaReloj -= dt;
     if (picoReloj > 0) { picoReloj -= dt; if (picoReloj < 0.25) picoCuadro = 3; }
     if (manoReloj > 0) manoReloj -= dt;
@@ -1385,6 +1538,15 @@ function paso(dt) {
     }
     if (relojFuria > 0) relojFuria -= dt;
     otroLado.actualizar(dt);
+    cerco.actualizar(dt, camara);
+    if (cerco.fuera(jugador.pos)) {
+      quemando += dt;
+      if (quemando > 0.5) {
+        quemando = 0;
+        jugador.recibir(9);
+        destello('#c25a10', 0.35, 120);
+      }
+    }
     director.actualizar(dt, jugador);
     if (director.pideSocorro(jugador)) {
       const libres = celdasLibres();
@@ -1470,7 +1632,7 @@ cargarArte().then(() => {
   nivel = construir(NIVEL_PRUEBA, texturasNivel);
   escena.add(nivel.grupo);
   jugador = new Jugador(camara, nivel, lienzo);
-  jugador.alDisparar = disparar;
+  jugador.alDisparar = modoActivo('sinArco') ? () => {} : disparar;
   jugador.alVacio = () => audio.sonar('vacio');
   jugador.alTajo = tajo;
   jugador.alRayo = lanzarRayo;
@@ -1478,6 +1640,8 @@ cargarArte().then(() => {
   jugador.alLanzarHacha = lanzarHacha;
   jugador.alPicar = picar;
   jugador.alAgarrar = agarrar;
+  jugador.alMarcar = marcar;
+  jugador.alSoltarMarcas = soltarMarcas;
   jugador.alPausar = () => { if (jugador.empezado && !muerto) pausar(); };
   jugador.alRecibir = golpeRecibido;
   jugador.alUsar = usarConsumible;
@@ -1505,9 +1669,16 @@ cargarArte().then(() => {
     jugador,
     iconos: recursos,
     mercader: recursos.mercader,
+    cuantos: modoActivo('oferta5') ? 5 : 4,
+    descuento: modoActivo('descuento') ? 0.85 : 1,
     alCerrar: () => { if (!muerto) jugador._entrar(); },
     alComprar: art => { audio.sonar('comprar'); avisar(art.nombre); }
   });
+  if (modoActivo('otroladoFijo')) otroLado.entrar();
+  if (modoActivo('salto')) jugador.oro = 300;
+  if (modoActivo('sinArco')) jugador.flechas = 0;
+  if (modoActivo('ranura')) jugador.ranuras = 5;
+
   rondas = new Rondas({
     puntos: nivel.spawns.enemigos,
     crear: nacer,
@@ -1515,14 +1686,23 @@ cargarArte().then(() => {
     anunciar,
     bloqueado: () => tienda.abierta,
     ajustar: p => director.ajustar(p),
-    alEmpezar: () => director.empiezaRonda()
+    alEmpezar: n => {
+      director.empiezaRonda();
+      if (n % 5 === 0 && !rondas.ultimoPerfil.jefe && cerco.encender()) {
+        anunciar('EL CERCO DE TROYA', 'EL FUEGO TE EMPUJA AL CENTRO');
+      }
+    }
   });
   flujo = new Flujo(nivel);
   otroLado = new OtroLado({ escena, nivel, antorcha, ambiente, cenit });
+  cerco = new Cerco(escena, nivel, recursos.fuego);
   portales = new Portales(escena, nivel, renderer);
   portales.antorcha = antorcha;
   minimapa = new Minimapa(document.getElementById('mapa'), nivel);
   orbitar(0);
-  window.__juego = { jugador, enemigos, objetos, escena, camara, nivel, flechas, rondas, tienda, portales, audio, otroLado, director, paso, abrirGrieta: () => { grietaLista = true; } };
+  if (modoActivo('salto')) rondas.numero = 4;
+  if (modoActivo('pesadilla')) director.presion = 1.45;
+
+  window.__juego = { jugador, enemigos, objetos, escena, camara, nivel, flechas, rondas, tienda, portales, audio, otroLado, director, cerco, paso, abrirGrieta: () => { grietaLista = true; } };
   bucle();
 });
