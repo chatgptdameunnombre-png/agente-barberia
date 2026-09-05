@@ -42,6 +42,8 @@ export function guardar(estilo) {
 export function aplicar(estilo, arma) {
   const t = TINTES.find(x => x.id === estilo.tinte) || TINTES[0];
   if (arma) arma.style.filter = t.filtro;
+  const cara = document.getElementById('cara');
+  if (cara) cara.style.filter = t.filtro;
   const c = COLORES.find(x => x.id === estilo.color) || COLORES[0];
   document.documentElement.style.setProperty('--tono', c.valor);
   document.body.dataset.mira = estilo.mira;

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA } from './mapa.js?v=20260905170813';
+import { CELDA } from './mapa.js?v=20260905171227';
 
 const LLAMAS = 46;
 
