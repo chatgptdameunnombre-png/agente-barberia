@@ -23,7 +23,7 @@ export const MEJORAS = [
   { id: 'vista', nombre: 'OJO DE AGUILA', precio: 130, celda: 7, respaldo: 10,
     desc: 'Las flechas vuelan mas rapido y lejos',
     aplicar: j => { j.mult.velFlecha *= 1.4; } },
-  { id: 'portales', nombre: 'CUERNO DE HERMES', precio: 350, celda: 12, respaldo: 10,
+  { id: 'portales', nombre: 'CUERNO DE HERMES', precio: 150, celda: 12, respaldo: 10,
     desc: 'Abre puertas en la piedra. Clic derecho azul, Q naranja',
     aplicar: j => { j.pistola = true; j.guardar('portales', 1, true); } }
 ];
@@ -98,8 +98,8 @@ export class Tienda {
     const revuelve = a => a.slice().sort(() => Math.random() - 0.5);
     const portales = libres.find(m => m.id === 'portales');
     const resto = libres.filter(m => m.id !== 'portales');
-    const mejoras = revuelve(resto).slice(0, 3);
-    if (portales && Math.random() < 0.45) mejoras[mejoras.length - 1] = portales;
+    const mejoras = revuelve(resto).slice(0, portales ? 2 : 3);
+    if (portales) mejoras.unshift(portales);
     const consumibles = revuelve(CONSUMIBLES).slice(0, 4 - mejoras.length);
     this.oferta = [...mejoras, ...consumibles];
   }
@@ -130,7 +130,7 @@ export class Tienda {
         <div class="ico" style="background-image:${this._icono(art)}"></div>
         <b>${art.nombre}</b>
         <span>${art.desc}</span>
-        <em>${art.precio} ORO</em>`;
+        <em>${puede ? art.precio + ' ORO' : 'TE FALTAN ' + (art.precio - this.jugador.oro)}</em>`;
       t.addEventListener('click', () => this.comprar(art));
       this.rejilla.appendChild(t);
     });

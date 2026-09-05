@@ -260,7 +260,7 @@ function soltarObjetos(ronda) {
 
 function marcarBaja() {
   jugador.bajas++;
-  jugador.oro += 14 + rondas.numero * 2;
+  jugador.oro += 20 + rondas.numero * 3;
 }
 
 const elBanner = document.getElementById('banner');
