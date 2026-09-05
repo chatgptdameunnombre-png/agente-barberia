@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260905165109';
+import { RELIQUIAS } from './reliquias.js?v=20260905165639';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -70,6 +70,8 @@ export class Tienda {
     this.descuento = cfg.descuento || 1;
     this.alCerrar = cfg.alCerrar;
     this.alComprar = cfg.alComprar;
+    this.alFallar = cfg.alFallar;
+    this.yaCompro = false;
     this.compradas = new Set();
     this.abierta = false;
     this.oferta = [];
@@ -145,6 +147,7 @@ export class Tienda {
   }
 
   abrir() {
+    this.yaCompro = false;
     this._armarOferta();
     this.pintar();
     this.abierta = true;
@@ -160,37 +163,61 @@ export class Tienda {
   }
 
   pintar() {
-    this.bolsa.textContent = 'LLEVAS ' + this.jugador.oro + ' DE ORO';
+    this.bolsa.textContent = 'LLEVAS ' + this.jugador.oro + ' DE ORO' +
+      (this.yaCompro ? '  ·  SOLO UNA COMPRA POR RONDA' : '');
     this.rejilla.innerHTML = '';
     this.oferta.forEach(art => {
       const precio = Math.round(art.precio * this.descuento);
-      const puede = this.jugador.oro >= precio;
+      const ranura = this.ocupaRanura(art);
+      const sinHueco = ranura ? !this.jugador.hayHueco(ranura) : false;
+      const puede = this.jugador.oro >= precio && !sinHueco && !this.yaCompro;
       const t = document.createElement('div');
       t.className = 'carta' + (puede ? '' : ' pobre');
       t.innerHTML = `
         <div class="ico" style="background-image:${this._icono(art)}"></div>
         <b>${art.nombre}</b>
         <span>${art.desc}</span>
-        <em>${puede ? precio + ' ORO' : 'TE FALTAN ' + (precio - this.jugador.oro)}</em>`;
+        <em>${sinHueco ? 'SIN ESPACIO' : this.yaCompro ? 'YA COMPRASTE' : puede ? precio + ' ORO' : 'TE FALTAN ' + (precio - this.jugador.oro)}</em>`;
       t.addEventListener('click', () => this.comprar(art));
       this.rejilla.appendChild(t);
     });
   }
 
+  ocupaRanura(art) {
+    if (!art.aplicar) return art.id;
+    if (art.id === 'portales') return 'portales';
+    if (art.id === 'guante') return 'guante';
+    if (art.id === 'gancho') return 'gancho';
+    if (art.id === 'pico') return 'pico';
+    if (art.id === 'manoP') return 'manoP';
+    return null;
+  }
+
   comprar(art) {
+    if (this.yaCompro) return;
     const precio = Math.round(art.precio * this.descuento);
     if (this.jugador.oro < precio) return;
+
+    const ranura = this.ocupaRanura(art);
+    if (ranura && !this.jugador.hayHueco(ranura)) {
+      if (this.alFallar) this.alFallar('INVENTARIO LLENO');
+      return;
+    }
+
     this.jugador.oro -= precio;
     if (art.aplicar) {
       art.aplicar(this.jugador);
       this.compradas.add(art.id);
       this.oferta = this.oferta.filter(o => o.id !== art.id);
     } else if (!this.jugador.guardar(art.id)) {
-      this.jugador.oro += Math.round(art.precio * this.descuento);
+      this.jugador.oro += precio;
+      if (this.alFallar) this.alFallar('INVENTARIO LLENO');
       return;
     }
+    this.yaCompro = true;
     if (this.alComprar) this.alComprar(art);
     this.pintar();
+    setTimeout(() => this.cerrar(), 620);
   }
 
   reiniciar() {

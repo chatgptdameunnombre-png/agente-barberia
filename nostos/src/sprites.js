@@ -305,3 +305,30 @@ export function recorteEntero(imagen) {
   d.drawImage(c, caja.x, caja.y, caja.w, caja.h, 0, 0, caja.w, caja.h);
   return dst;
 }
+
+export function recorteSuperior(textura, fraccion = 0.45) {
+  const im = textura.image;
+  const alto = Math.round(im.height * fraccion);
+  const c = document.createElement('canvas');
+  c.width = im.width;
+  c.height = alto;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.imageSmoothingEnabled = false;
+  x.drawImage(im, 0, 0, im.width, alto, 0, 0, im.width, alto);
+  const caja = recuadro(x, c.width, c.height);
+  let salida = c;
+  if (caja) {
+    const dst = document.createElement('canvas');
+    dst.width = caja.w;
+    dst.height = caja.h;
+    const d = dst.getContext('2d');
+    d.imageSmoothingEnabled = false;
+    d.drawImage(c, caja.x, caja.y, caja.w, caja.h, 0, 0, caja.w, caja.h);
+    salida = dst;
+  }
+  const t = new THREE.CanvasTexture(salida);
+  t.magFilter = THREE.NearestFilter;
+  t.minFilter = THREE.NearestFilter;
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
