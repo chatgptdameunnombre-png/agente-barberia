@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260905165639';
+import { CELDA, esSolido } from './mapa.js?v=20260905170346';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -31,6 +31,7 @@ export class Jugador {
     this.inventario = [];
     this.ranuras = 4;
     this.alUsar = null;
+    this.alSoltar = null;
     this.pistola = false;
     this.alPortal = null;
     this.alComerciar = null;
@@ -121,8 +122,11 @@ export class Jugador {
     addEventListener('keydown', e => {
       if (e.code === 'Escape' && this.libre) this._activar(false);
       if (!this.activo) return;
-      const ranura = ['Digit1', 'Digit2', 'Digit3', 'Digit4'].indexOf(e.code);
-      if (ranura >= 0) this.usar(ranura);
+      const ranura = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5'].indexOf(e.code);
+      if (ranura >= 0) {
+        if (e.shiftKey) this.soltar(ranura);
+        else this.usar(ranura);
+      }
       if (e.code === 'KeyQ' && this.pistola && this.alPortal) this.alPortal('naranja');
       if (e.code === 'KeyE' && this.alComerciar) this.alComerciar();
       if (e.code === 'KeyF') this.tajo();
@@ -224,6 +228,13 @@ export class Jugador {
       this.inventario.push({ id, cantidad: cuantos, infinito });
     } else return false;
     return true;
+  }
+
+  soltar(ranura) {
+    const casilla = this.inventario[ranura];
+    if (!casilla) return;
+    this.inventario.splice(ranura, 1);
+    if (this.alSoltar) this.alSoltar(casilla.id);
   }
 
   usar(ranura) {

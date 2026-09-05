@@ -1,24 +1,24 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905165639';
-import { Jugador } from './jugador.js?v=20260905165639';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260905165639';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior } from './sprites.js?v=20260905165639';
-import { Objeto, CATALOGO } from './objetos.js?v=20260905165639';
-import { Rondas } from './rondas.js?v=20260905165639';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905165639';
-import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905165639';
-import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905165639';
-import { MODOS, MEJORAS_MERCADER, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260905165639';
-import { Minimapa, Marcas } from './minimapa.js?v=20260905165639';
-import { Flujo } from './flujo.js?v=20260905165639';
-import { Portales, trazar } from './portales.js?v=20260905165639';
-import { romper } from './mapa.js?v=20260905165639';
-import { Audio } from './audio.js?v=20260905165639';
-import { OtroLado } from './otrolado.js?v=20260905165639';
-import { Director } from './director.js?v=20260905165639';
-import { Cerco } from './cerco.js?v=20260905165639';
-import { TIPOS as T } from './enemigos.js?v=20260905165639';
-import { siluetaCiclope } from './texturas.js?v=20260905165639';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905170346';
+import { Jugador } from './jugador.js?v=20260905170346';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260905170346';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior } from './sprites.js?v=20260905170346';
+import { Objeto, CATALOGO } from './objetos.js?v=20260905170346';
+import { Rondas } from './rondas.js?v=20260905170346';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905170346';
+import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905170346';
+import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905170346';
+import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260905170346';
+import { Minimapa, Marcas } from './minimapa.js?v=20260905170346';
+import { Flujo } from './flujo.js?v=20260905170346';
+import { Portales, trazar } from './portales.js?v=20260905170346';
+import { romper } from './mapa.js?v=20260905170346';
+import { Audio } from './audio.js?v=20260905170346';
+import { OtroLado } from './otrolado.js?v=20260905170346';
+import { Director } from './director.js?v=20260905170346';
+import { Cerco } from './cerco.js?v=20260905170346';
+import { TIPOS as T } from './enemigos.js?v=20260905170346';
+import { siluetaCiclope } from './texturas.js?v=20260905170346';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -100,29 +100,29 @@ let texturasNivel = null;
 
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, hoja, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/arco.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/items.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/caras.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/espada.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/guante.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/objetos2.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/hilo.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/jabalina.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/hacha.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/pico.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/mano.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/fuego.png?v=20260905165639'),
-    cargarImagen('./arte/crudo/insignias.png?v=20260905165639')
+    cargarImagen('./arte/crudo/ciclope.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/arco.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/items.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/caras.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/espada.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/guante.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/objetos2.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/hilo.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/jabalina.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/hacha.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/pico.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/mano.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/fuego.png?v=20260905170346'),
+    cargarImagen('./arte/crudo/insignias.png?v=20260905170346')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -280,20 +280,50 @@ function elegirTipo(indice) {
 
 let contadorNacidos = 0;
 
+const RADIO_ENEMIGO = 1.7;
+
+function espacioLibre(x, z) {
+  const cx = Math.floor(x / CELDA);
+  const cz = Math.floor(z / CELDA);
+  for (let dz = -1; dz <= 1; dz++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const gx = cx + dx, gz = cz + dz;
+      const fila = nivel.rejilla[gz];
+      if (!fila || '#CTRF'.includes(fila[gx] || '#')) {
+        const minX = gx * CELDA, minZ = gz * CELDA;
+        const px = Math.max(minX, Math.min(x, minX + CELDA));
+        const pz = Math.max(minZ, Math.min(z, minZ + CELDA));
+        const ddx = x - px, ddz = z - pz;
+        if (ddx * ddx + ddz * ddz < RADIO_ENEMIGO * RADIO_ENEMIGO) return false;
+      }
+    }
+  }
+  return true;
+}
+
 function acomodar(pos) {
   const cx = Math.floor(pos.x / CELDA);
   const cz = Math.floor(pos.z / CELDA);
-  const fila = nivel.rejilla[cz];
-  if (!fila || '#CTRF'.includes(fila[cx] || '#')) {
-    return new THREE.Vector3(pos.x, 0, pos.z);
+  const centro = (c) => c * CELDA + CELDA / 2;
+
+  if (espacioLibre(pos.x, pos.z)) return new THREE.Vector3(pos.x, 0, pos.z);
+  if (espacioLibre(centro(cx), centro(cz))) {
+    return new THREE.Vector3(centro(cx), 0, centro(cz));
   }
-  const centroX = cx * CELDA + CELDA / 2;
-  const centroZ = cz * CELDA + CELDA / 2;
-  const mezcla = 0.55;
-  return new THREE.Vector3(
-    pos.x + (centroX - pos.x) * mezcla, 0,
-    pos.z + (centroZ - pos.z) * mezcla
-  );
+  for (let r = 1; r <= 4; r++) {
+    for (let dz = -r; dz <= r; dz++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (Math.abs(dx) !== r && Math.abs(dz) !== r) continue;
+        const gx = cx + dx, gz = cz + dz;
+        const fila = nivel.rejilla[gz];
+        if (!fila || '#CTRF'.includes(fila[gx] || '#')) continue;
+        if (espacioLibre(centro(gx), centro(gz))) {
+          return new THREE.Vector3(centro(gx), 0, centro(gz));
+        }
+      }
+    }
+  }
+  return new THREE.Vector3(centro(cx), 0, centro(cz));
 }
 
 function cerrarRonda(n) {
@@ -992,7 +1022,10 @@ function usarConsumible(id) {
   } else if (id === 'jabalina') {
     jabalinaReloj = 0.6;
     jabalinaCuadro = 1;
-    lanzarFlecha(1, jugador.direccion(), 0, 4);
+    const rumbo = jugador.direccion();
+    setTimeout(() => {
+      if (!muerto) lanzarFlecha(1, rumbo, 0, 4);
+    }, 230);
     avisar('JABALINA');
   } else if (id === 'vino') {
     relojFuria = 10;
@@ -1039,6 +1072,7 @@ const CONTROLES = [
   ['CLIC DERECHO', 'Portal azul (necesitas el Cuerno de Hermes)'],
   ['Q', 'Portal naranja'],
   ['1 2 3 4', 'Usar lo que llevas en el inventario'],
+  ['SHIFT + 1 2 3 4', 'Soltar esa ranura para hacer sitio (tambien sirve para quitarte un arma)'],
   ['E', 'Abrir la tienda, solo entre rondas'],
   ['X', 'Ojo del cazador: manten X y apunta a hasta 5 enemigos, suelta y les disparas a todos'],
   ['B', 'Pico de Hefesto: rompes el muro al que apuntes y deja escombros'],
@@ -1131,33 +1165,48 @@ function panelEstilo() {
 function panelGloria() {
   const g = estadoGloria();
   const r = leerRecord();
-  const disponible = (r.gloria || 0) - g.comprados.reduce((a, id) => {
+  const gastado = g.comprados.reduce((a, id) => {
     const art = TODO_GLORIA.find(x => x.id === id);
     return a + (art ? art.precio : 0);
   }, 0);
+  const disponible = (r.gloria || 0) - gastado;
+  const objetosPuestos = g.activos.filter(id => OBJETOS_GLORIA.some(o => o.id === id)).length;
+
+  const iconoGloria = art => {
+    if (art.muestra) return `background:${art.muestra}`;
+    if (art.icono) {
+      const t = recursos[art.icono[0]] && recursos[art.icono[0]][art.icono[1]];
+      if (t && t.image) return `background-image:url(${t.image.toDataURL()})`;
+      return '';
+    }
+    const t = recursos.insignias && recursos.insignias[art.insignia];
+    return t && t.image ? `background-image:url(${t.image.toDataURL()})` : '';
+  };
 
   const fila = art => {
     const comprado = g.comprados.includes(art.id);
     const puesto = g.activos.includes(art.id);
-    const t = recursos.insignias && recursos.insignias[art.insignia];
-    const ico = t && t.image ? `background-image:url(${t.image.toDataURL()})` : '';
+    const esObjeto = OBJETOS_GLORIA.some(o => o.id === art.id);
+    const tope = esObjeto && !puesto && objetosPuestos >= LIMITE_OBJETOS;
     let boton;
     if (!comprado) {
       boton = `<button class="accion" data-comprar="${art.id}" ${disponible < art.precio ? 'disabled' : ''}>${art.precio} GLORIA</button>`;
     } else {
-      boton = `<button class="accion" data-poner="${art.id}">${puesto ? 'QUITAR' : 'PONER'}</button>`;
+      boton = `<button class="accion" data-poner="${art.id}" ${tope ? 'disabled' : ''}>${puesto ? 'QUITAR' : tope ? 'LLENO' : 'PONER'}</button>`;
     }
     return `<tr class="${comprado ? (puesto ? 'puesto' : '') : 'bloqueado'}">
-      <td class="ico"><div style="${ico}"></div></td>
+      <td class="ico"><div style="${iconoGloria(art)}"></div></td>
       <td class="nom">${art.nombre}</td>
-      <td>${art.desc}</td>
+      <td>${art.desc || ''}</td>
       <td class="precio">${boton}</td></tr>`;
   };
 
   abrirPanel(`<h3>GLORIA</h3>
     <span class="bolsa">TE QUEDAN ${Math.max(0, disponible)} DE GLORIA</span>
     <h4>MODOS — cambian toda la partida</h4><table>${MODOS.map(fila).join('')}</table>
-    <h4>EL MERCADER — para siempre</h4><table>${MEJORAS_MERCADER.map(fila).join('')}</table>`);
+    <h4>ARMAS DESDE EL INICIO — puedes llevar ${LIMITE_OBJETOS} a la vez (${objetosPuestos}/${LIMITE_OBJETOS})</h4><table>${OBJETOS_GLORIA.map(fila).join('')}</table>
+    <h4>EL MERCADER — para siempre</h4><table>${MEJORAS_MERCADER.map(fila).join('')}</table>
+    <h4>APARIENCIA — se pone desde aqui</h4><table>${ESTILOS.map(fila).join('')}</table>`);
 
   hoja.querySelectorAll('[data-comprar]').forEach(b => {
     b.addEventListener('click', () => {
@@ -1173,17 +1222,69 @@ function panelGloria() {
   hoja.querySelectorAll('[data-poner]').forEach(b => {
     b.addEventListener('click', () => {
       const id = b.dataset.poner;
+      const art = TODO_GLORIA.find(x => x.id === id);
       const d = estadoGloria();
       const i = d.activos.indexOf(id);
       if (i >= 0) d.activos.splice(i, 1);
-      else d.activos.push(id);
+      else {
+        if (art.grupo) {
+          for (const otro of ESTILOS) {
+            if (otro.grupo !== art.grupo) continue;
+            const k = d.activos.indexOf(otro.id);
+            if (k >= 0) d.activos.splice(k, 1);
+          }
+        }
+        d.activos.push(id);
+      }
       guardarGloria(d);
+      if (art.grupo) {
+        const e = leer();
+        e[art.grupo] = d.activos.includes(id) ? art.valor
+          : (art.grupo === 'tinte' ? 'bronce' : art.grupo === 'color' ? 'dorado' : 'cruz');
+        guardar(e);
+        aplicar(e, arma);
+      }
       audio.sonar('recoger');
       panelGloria();
     });
   });
 }
 
+function panelComo() {
+  abrirPanel(`<h3>COMO JUGAR</h3><div class="guia">
+    <p><b>De que va.</b> Eres Odiseo y regresaste a tu palacio. Aguantas rondas
+    de enemigos que no paran de venir, cada una peor que la anterior. En la
+    <b>ronda 15</b> aparece Polifemo: si lo matas, ganaste.</p>
+
+    <p><b>Como se pelea.</b> Manten el clic izquierdo para tensar el arco: mientras
+    mas lo cargues, mas dano y mas lejos llega. Con <b>F</b> das un tajo con el
+    hacha a todo lo que tengas enfrente, y con <b>T</b> la lanzas: atraviesa a
+    todos y vuelve sola a tu mano.</p>
+
+    <p><b>Entre rondas.</b> Al limpiar una ronda caen objetos al piso y se abre la
+    tregua. Pulsa <b>E</b> y aparece el mercader. Puedes comprar <b>una sola cosa
+    por ronda</b>, asi que elige bien. Las mejoras son para siempre; los
+    consumibles se guardan en el inventario y se usan con <b>1 2 3 4</b>.</p>
+
+    <p><b>El oro y la gloria.</b> El oro se gana matando y se gasta en el mercader,
+    pero se pierde al morir. La <b>gloria</b> nunca se pierde: se acumula partida
+    tras partida, incluso cuando pierdes, y se gasta en el menu principal en
+    modos, armas de inicio y apariencia.</p>
+
+    <p><b>La grieta.</b> Cada 3 rondas se abre. Si pulsas <b>V</b> cruzas al Otro
+    Lado: el mismo palacio en rojo, con enemigos casi al doble de vida pero
+    <b>triple oro</b>. Dura una ronda.</p>
+
+    <p><b>El fuego.</b> Cada 5 rondas el Cerco de Troya se cierra sobre el palacio.
+    Quedarte fuera del circulo te quema.</p>
+
+    <p><b>Consejos.</b> No te quedes quieto: los pretendientes tiran lanzas desde
+    lejos. Usa las columnas para cubrirte. Guarda un frasco para la ronda 10. Y si
+    compras el Pico, rompe muros para hacerte atajos y callejones donde pelear.</p>
+  </div>`);
+}
+
+document.getElementById('verComo').addEventListener('click', panelComo);
 document.getElementById('verGloria').addEventListener('click', panelGloria);
 document.getElementById('verControles').addEventListener('click', panelControles);
 document.getElementById('verObjetos').addEventListener('click', panelObjetos);
@@ -1194,6 +1295,7 @@ addEventListener('keydown', e => {
 
 function pausar() {
   if (muerto) return;
+  document.body.classList.add('enJuego');
   menu.querySelector('h1').textContent = 'PAUSA';
   menu.querySelector('h2').textContent = 'ITACA ESPERA';
   menu.querySelector('p').textContent = 'CLIC PARA CONTINUAR';
@@ -1208,6 +1310,7 @@ function gloriaDe(datos) {
 
 function ganar() {
   if (ganado) return;
+  document.body.classList.add('enJuego');
   ganado = true;
   jefeActual = null;
   elJefe.classList.remove('ver');
@@ -1232,6 +1335,7 @@ function ganar() {
 
 function morir() {
   muerto = true;
+  document.body.classList.add('enJuego');
   btnMenu.hidden = false;
   const datos = { ronda: rondas.numero, bajas: jugador.bajas, oro: jugador.oro, gano: false };
   datos.gloria = gloriaDe(datos);
@@ -1298,6 +1402,7 @@ function reiniciar() {
   menu.querySelector('h1').textContent = 'NOSTOS';
   menu.querySelector('h2').textContent = 'EL REGRESO';
   menu.querySelector('p').textContent = 'CLIC PARA EMPEZAR';
+  document.body.classList.remove('enJuego');
 }
 
 lienzo.addEventListener('click', e => {
@@ -1599,7 +1704,7 @@ function paso(dt) {
     }
     if (jabalinaReloj > 0) {
       jabalinaReloj -= dt;
-      jabalinaCuadro = jabalinaReloj > 0.42 ? 1 : jabalinaReloj > 0.22 ? 2 : 3;
+      jabalinaCuadro = jabalinaReloj > 0.44 ? 1 : jabalinaReloj > 0.30 ? 2 : 3;
     }
     if (hiloReloj > 0) {
       hiloReloj -= dt;
@@ -1664,6 +1769,12 @@ cargarArte().then(() => {
   jugador.alPausar = () => { if (jugador.empezado && !muerto) pausar(); };
   jugador.alRecibir = golpeRecibido;
   jugador.alUsar = usarConsumible;
+  jugador.alSoltar = id => {
+    const armas = { portales: 'pistola', guante: 'guante', gancho: 'gancho', pico: 'pico', manoP: 'manoP' };
+    if (armas[id]) jugador[armas[id]] = false;
+    audio.sonar('vacio');
+    avisar('SOLTASTE ' + (porId(id) ? porId(id).nombre : id.toUpperCase()));
+  };
   jugador.alPortal = color => {
     const origen = camara.position.clone();
     const salida = portales.disparar(color, origen, jugador.direccion());
@@ -1694,6 +1805,12 @@ cargarArte().then(() => {
     alComprar: art => { audio.sonar('comprar'); avisar(art.nombre); },
     alFallar: texto => { audio.sonar('vacio'); avisar(texto); }
   });
+  for (const o of OBJETOS_GLORIA) {
+    if (modoActivo(o.id)) {
+      jugador[o.arma] = true;
+      if (o.arma !== 'cazador') jugador.guardar(o.arma === 'manoP' ? 'manoP' : o.arma, 1, true);
+    }
+  }
   if (modoActivo('otroladoFijo')) otroLado.entrar();
   if (modoActivo('salto')) jugador.oro = 300;
   if (modoActivo('sinArco')) jugador.flechas = 0;
