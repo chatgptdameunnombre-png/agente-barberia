@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260905172547';
+import { Billboard } from './sprites.js?v=20260905173303';
 
 export const CATALOGO = [
   { id: 'flechas',  celda: 0,  alto: 2.0, efecto: 'flechas',  valor: 10, aviso: '+10 FLECHAS' },
   { id: 'aljaba',   celda: 1,  alto: 2.6, efecto: 'flechas',  valor: 25, aviso: '+25 FLECHAS' },
-  { id: 'espada',   celda: 2,  alto: 2.6, efecto: 'oro',      valor: 50, aviso: 'ESPADA DE BRONCE' },
+  { id: 'espada',   celda: 2,  alto: 2.4, efecto: 'cuchillos', valor: 3, aviso: '+3 CUCHILLOS' },
   { id: 'lanza',    celda: 3,  alto: 3.0, efecto: 'guarda',   guarda: 'jabalina', aviso: 'JABALINA GUARDADA' },
   { id: 'antorcha', celda: 4,  alto: 2.6, efecto: 'guarda',   guarda: 'fuego',    aviso: 'FUEGO GRIEGO GUARDADO' },
   { id: 'escudo',   celda: 5,  alto: 2.6, efecto: 'armadura', valor: 30, aviso: '+30 ESCUDO' },
@@ -37,6 +37,7 @@ export class Objeto {
     if (t.efecto === 'vida') return jugador.vida < jugador.vidaMax;
     if (t.efecto === 'armadura') return jugador.armadura < jugador.armaduraMax;
     if (t.efecto === 'flechas') return jugador.flechas < jugador.flechasMax;
+    if (t.efecto === 'cuchillos') return jugador.cuchillos < jugador.cuchillosMax;
     if (t.efecto === 'guarda') return jugador.hayHueco(t.guarda);
     return true;
   }
@@ -46,6 +47,7 @@ export class Objeto {
     if (t.efecto === 'vida') jugador.vida = Math.min(jugador.vidaMax, jugador.vida + t.valor);
     else if (t.efecto === 'armadura') jugador.armadura = Math.min(jugador.armaduraMax, jugador.armadura + t.valor);
     else if (t.efecto === 'flechas') jugador.flechas = Math.min(jugador.flechasMax, jugador.flechas + t.valor);
+    else if (t.efecto === 'cuchillos') jugador.cuchillos = Math.min(jugador.cuchillosMax, jugador.cuchillos + t.valor);
     else if (t.efecto === 'guarda') jugador.guardar(t.guarda);
     else jugador.oro += t.valor;
   }

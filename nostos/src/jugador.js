@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260905172547';
+import { CELDA, esSolido } from './mapa.js?v=20260905173303';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -47,7 +47,7 @@ export class Jugador {
     this.cuchillosMax = 20;
     this.alCambiar = null;
     this.pico = false;
-    this.picos = 3;
+    this.picos = 6;
     this.manoP = false;
     this.enfriamientoPico = 0;
     this.alPicar = null;
@@ -218,6 +218,11 @@ export class Jugador {
   }
 
   _soltar() {
+    if (this.hachaFuera) {
+      this.tension = 0;
+      if (this.alVacio) this.alVacio();
+      return;
+    }
     if (this.flechas <= 0 && this.alVacio) this.alVacio();
     if (this.enfriamiento > 0 || this.flechas <= 0) { this.tension = 0; return; }
     const fuerza = Math.min(1, this.tension);
