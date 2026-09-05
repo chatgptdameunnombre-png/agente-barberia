@@ -1,16 +1,17 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905151910';
-import { Jugador } from './jugador.js?v=20260905151910';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260905151910';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905151910';
-import { Objeto, CATALOGO } from './objetos.js?v=20260905151910';
-import { Rondas } from './rondas.js?v=20260905151910';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905151910';
-import { Minimapa, Marcas } from './minimapa.js?v=20260905151910';
-import { Flujo } from './flujo.js?v=20260905151910';
-import { Portales, trazar } from './portales.js?v=20260905151910';
-import { Audio } from './audio.js?v=20260905151910';
-import { siluetaCiclope } from './texturas.js?v=20260905151910';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905152721';
+import { Jugador } from './jugador.js?v=20260905152721';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260905152721';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero } from './sprites.js?v=20260905152721';
+import { Objeto, CATALOGO } from './objetos.js?v=20260905152721';
+import { Rondas } from './rondas.js?v=20260905152721';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905152721';
+import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905152721';
+import { Minimapa, Marcas } from './minimapa.js?v=20260905152721';
+import { Flujo } from './flujo.js?v=20260905152721';
+import { Portales, trazar } from './portales.js?v=20260905152721';
+import { Audio } from './audio.js?v=20260905152721';
+import { siluetaCiclope } from './texturas.js?v=20260905152721';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -44,7 +45,7 @@ Object.assign(arma.style, {
 });
 document.getElementById('capa').appendChild(arma);
 
-const recursos = { arco: [], items: [], tienda: [], cuerno: [], espada: [], guante: [], mercader: null, ciclope: null, pretendiente: null };
+const recursos = { arco: [], items: [], tienda: [], cuerno: [], espada: [], guante: [], reliquias: [], mercader: null, ciclope: null, pretendiente: null };
 
 function marcadorArco(tension) {
   const c = document.createElement('canvas');
@@ -78,22 +79,23 @@ let destelloGuante = 0;
 let texturasNivel = null;
 
 async function cargarArte() {
-  const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, hoja, mano] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/arco.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/items.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/caras.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/espada.png?v=20260905151910'),
-    cargarImagen('./arte/crudo/guante.png?v=20260905151910')
+  const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, hoja, mano, reliquias] = await Promise.all([
+    cargarImagen('./arte/crudo/ciclope.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/arco.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/items.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/caras.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/espada.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/guante.png?v=20260905152721'),
+    cargarImagen('./arte/crudo/objetos2.png?v=20260905152721')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -133,6 +135,7 @@ async function cargarArte() {
     imagenesCuerno = recursos.cuerno.map(t => t.image.toDataURL());
   }
   if (viejo) recursos.mercader = recorteEntero(viejo).toDataURL();
+  if (reliquias) recursos.reliquias = cortarRejilla(reliquias, 4, 3, { margen: 0.02, transparente: true });
   if (mano) {
     recursos.guante = cortarTira(mano, 4, { ajustar: true, altoComun: true });
     imagenesGuante = recursos.guante.map(t => t.image.toDataURL());
@@ -156,6 +159,7 @@ async function cargarArte() {
   if (!pDie) partes.push('pretendiente-muere.png');
   if (!hoja) partes.push('espada.png');
   if (!mano) partes.push('guante.png');
+  if (!reliquias) partes.push('objetos2.png');
   if (!cosas) partes.push('items.png');
   document.getElementById('diag').textContent =
     partes.length ? 'sin arte: ' + partes.join(' ') : '';
@@ -243,7 +247,28 @@ function moverJabalinas(dt) {
     if (!fuera) {
       const dx = j.malla.position.x - jugador.pos.x;
       const dz = j.malla.position.z - jugador.pos.z;
-      if (dx * dx + dz * dz < 2.6) { jugador.recibir(j.dano); fuera = true; }
+      if (dx * dx + dz * dz < 2.6) {
+        if (efectos.espejo > 0 && !j.rebotada) {
+          j.rebotada = true;
+          j.vel.multiplyScalar(-1.15);
+          j.dano *= 2;
+          audio.sonar('piedra');
+        } else {
+          jugador.recibir(j.dano);
+          fuera = true;
+        }
+      }
+      if (j.rebotada) {
+        for (const e of enemigos) {
+          if (!e.vivo) continue;
+          if (Math.hypot(e.pos.x - j.malla.position.x, e.pos.z - j.malla.position.z) < 2.6) {
+            audio.sonar('carne', e.pos);
+            if (e.recibir(j.dano)) marcarBaja();
+            fuera = true;
+            break;
+          }
+        }
+      }
     }
     if (fuera) { escena.remove(j.malla); jabalinas.splice(i, 1); }
   }
@@ -407,7 +432,144 @@ function tajo() {
 let relojFuria = 0;
 function furia() { return relojFuria > 0 ? 2 : 1; }
 
+const efectos = { espejo: 0, vellocino: 0, ojo: 0, invisible: 0 };
+let dracma = false;
+const piedras = [];
+const geoPiedra = new THREE.SphereGeometry(1.7, 10, 8);
+const matPiedra = new THREE.MeshLambertMaterial({ color: 0x8a8578 });
+
+function cercanos(radio) {
+  return enemigos.filter(e => e.vivo &&
+    Math.hypot(e.pos.x - jugador.pos.x, e.pos.z - jugador.pos.z) < radio);
+}
+
+function usarReliquia(id) {
+  if (id === 'manzana') {
+    const vivos = enemigos.filter(e => e.vivo);
+    if (vivos.length < 2) return false;
+    for (const e of vivos) {
+      e.confundido = 12;
+      const otros = vivos.filter(o => o !== e);
+      e.presa = otros[Math.floor(Math.random() * otros.length)];
+      e.estado = 'persigue';
+    }
+    avisar('SE PELEAN ENTRE ELLOS');
+  } else if (id === 'casco') {
+    efectos.invisible = 8;
+    jugador.invisible = true;
+    avisar('INVISIBLE');
+  } else if (id === 'medusa') {
+    const dir = jugador.direccion();
+    let n = 0;
+    for (const e of cercanos(40)) {
+      const dx = jugador.pos.x - e.pos.x;
+      const dz = jugador.pos.z - e.pos.z;
+      const d = Math.hypot(dx, dz) || 1;
+      const mirando = (dx / d) * Math.sin(e.rumbo) + (dz / d) * Math.cos(e.rumbo);
+      if (mirando > -0.2) { e.paralizado = 7; n++; }
+    }
+    if (!n) return false;
+    avisar('PETRIFICADOS: ' + n);
+  } else if (id === 'cadenas') {
+    const cerca = cercanos(22);
+    if (!cerca.length) return false;
+    for (const e of cerca) e.paralizado = 9;
+    avisar('CLAVADOS: ' + cerca.length);
+  } else if (id === 'anfora') {
+    const cerca = cercanos(26);
+    if (!cerca.length) return false;
+    for (const e of cerca) {
+      const dx = e.pos.x - jugador.pos.x;
+      const dz = e.pos.z - jugador.pos.z;
+      const d = Math.hypot(dx, dz) || 1;
+      const ux = dx / d, uz = dz / d;
+      for (let i = 0; i < 18; i++) {
+        const nx = e.pos.x + ux * 1.3;
+        const nz = e.pos.z + uz * 1.3;
+        let movio = false;
+        if (e._libre(nx, e.pos.z)) { e.pos.x = nx; movio = true; }
+        if (e._libre(e.pos.x, nz)) { e.pos.z = nz; movio = true; }
+        if (!movio) break;
+      }
+      e.paralizado = 1.6;
+    }
+    avisar('VIENTO DE EOLO');
+  } else if (id === 'lira') {
+    const cerca = cercanos(30);
+    if (!cerca.length) return false;
+    for (const e of cerca) e.paralizado = 8;
+    avisar('DORMIDOS: ' + cerca.length);
+  } else if (id === 'espejo') {
+    efectos.espejo = 12;
+    avisar('ESPEJO DE PERSEO');
+  } else if (id === 'vellocino') {
+    if (jugador.vida >= jugador.vidaMax) return false;
+    efectos.vellocino = 15;
+    avisar('VELLOCINO DE ORO');
+  } else if (id === 'sandalias') {
+    const dir = jugador.direccion();
+    let paso = 0;
+    for (let i = 0; i < 14; i++) {
+      const nx = jugador.pos.x + dir.x * 1.2;
+      const nz = jugador.pos.z + dir.z * 1.2;
+      if (jugador._colisionar(nx, jugador.pos.z) || jugador._colisionar(jugador.pos.x, nz)) break;
+      jugador.pos.x = nx;
+      jugador.pos.z = nz;
+      paso++;
+    }
+    if (!paso) return false;
+    audio.sonar('cruzar');
+    avisar('SANDALIAS ALADAS');
+  } else if (id === 'ojo') {
+    efectos.ojo = 20;
+    avisar('VES A TRAVES DE LOS MUROS');
+  } else if (id === 'piedra') {
+    const dir = jugador.direccion();
+    const m = new THREE.Mesh(geoPiedra, matPiedra);
+    m.position.set(jugador.pos.x + dir.x * 3, 1.7, jugador.pos.z + dir.z * 3);
+    escena.add(m);
+    piedras.push({ malla: m, dir: { x: dir.x, z: dir.z }, edad: 0, tocados: new Set() });
+    avisar('PIEDRA DE SISIFO');
+  } else if (id === 'dracma') {
+    if (dracma) return false;
+    dracma = true;
+    avisar('CARONTE TE ESPERA');
+  } else return null;
+  audio.sonar('recoger');
+  return true;
+}
+
+function moverPiedras(dt) {
+  for (let i = piedras.length - 1; i >= 0; i--) {
+    const p = piedras[i];
+    p.edad += dt;
+    const nx = p.malla.position.x + p.dir.x * 26 * dt;
+    const nz = p.malla.position.z + p.dir.z * 26 * dt;
+    const cx = Math.floor(nx / CELDA);
+    const cz = Math.floor(nz / CELDA);
+    const fila = nivel.rejilla[cz];
+    const choca = !fila || '#CTRF'.includes(fila[cx] || '#');
+    if (choca || p.edad > 4) {
+      escena.remove(p.malla);
+      piedras.splice(i, 1);
+      continue;
+    }
+    p.malla.position.set(nx, 1.7, nz);
+    p.malla.rotation.x -= dt * 9;
+    for (const e of enemigos) {
+      if (!e.vivo || p.tocados.has(e)) continue;
+      if (Math.hypot(e.pos.x - nx, e.pos.z - nz) < 3.4) {
+        p.tocados.add(e);
+        audio.sonar('carne', e.pos);
+        if (e.recibir(150)) marcarBaja();
+      }
+    }
+  }
+}
+
 function usarConsumible(id) {
+  const rel = usarReliquia(id);
+  if (rel !== null) return rel;
   if (id === 'portales') {
     if (!jugador.pistola) return false;
     jugador.alPortal('azul');
@@ -474,6 +636,8 @@ const CONTROLES = [
 function iconoDe(art, tipo) {
   let t = null;
   if (art.id === 'portales') t = recursos.cuerno && recursos.cuerno[1];
+  else if (art.id === 'guante') t = recursos.guante && recursos.guante[2];
+  else if (art.hoja) t = recursos[art.hoja] && recursos[art.hoja][art.celda];
   else if (tipo === 'suelo') t = recursos.items && recursos.items[art.celda];
   else t = (recursos.tienda && recursos.tienda[art.celda]) ||
            (recursos.items && recursos.items[art.respaldo]);
@@ -571,6 +735,11 @@ function reiniciar() {
   jugador.mult = { tension: 1, dano: 1, velocidad: 1, velFlecha: 1 };
   jugador.inventario.length = 0;
   relojFuria = 0;
+  dracma = false;
+  for (const k in efectos) efectos[k] = 0;
+  jugador.invisible = false;
+  for (const p of piedras) escena.remove(p.malla);
+  piedras.length = 0;
   limpiarMundo();
   portales.limpiar();
   rondas.reiniciar();
@@ -713,10 +882,12 @@ function pintarRanuras() {
   elRanuras.innerHTML = '';
   jugador.inventario.forEach((casilla, i) => {
     const art = porId(casilla.id);
-    const t = casilla.id === 'portales'
-      ? (recursos.cuerno && recursos.cuerno[1])
-      : ((recursos.tienda && recursos.tienda[art.celda]) ||
-         (recursos.items && recursos.items[art.respaldo]));
+    let t;
+    if (casilla.id === 'portales') t = recursos.cuerno && recursos.cuerno[1];
+    else if (casilla.id === 'guante') t = recursos.guante && recursos.guante[2];
+    else if (art.hoja) t = recursos[art.hoja] && recursos[art.hoja][art.celda];
+    else t = (recursos.tienda && recursos.tienda[art.celda]) ||
+             (recursos.items && recursos.items[art.respaldo]);
     const d = document.createElement('div');
     d.className = 'ranura' + (casilla.infinito ? ' eterna' : '');
     if (t && t.image) d.style.backgroundImage = `url(${t.image.toDataURL()})`;
@@ -760,7 +931,14 @@ function paso(dt) {
     if (portales.cruzar(jugador)) { audio.sonar('cruzar'); jugador.actualizar(0); }
     moverFlechas(dt);
     moverJabalinas(dt);
-    for (const e of enemigos) e.actualizar(dt, jugador, camara);
+    for (const e of enemigos) {
+      e.actualizar(dt, jugador, camara);
+      const verTodo = efectos.ojo > 0;
+      if (e.sprite.material.depthTest === verTodo) {
+        e.sprite.material.depthTest = !verTodo;
+        e.sprite.material.needsUpdate = true;
+      }
+    }
     for (let i = objetos.length - 1; i >= 0; i--) {
       if (objetos[i].actualizar(dt, jugador, camara)) {
         audio.sonar('recoger');
@@ -770,6 +948,12 @@ function paso(dt) {
       }
     }
     if (relojFuria > 0) relojFuria -= dt;
+    moverPiedras(dt);
+    for (const k in efectos) if (efectos[k] > 0) efectos[k] -= dt;
+    jugador.invisible = efectos.invisible > 0;
+    if (efectos.vellocino > 0) {
+      jugador.vida = Math.min(jugador.vidaMax, jugador.vida + dt * 7);
+    }
     audio.oir(jugador.pos, jugador.yaw);
     if (jugador.tensando && !tensabaAntes) { audio.sonar('tensar'); avisoTenso = false; }
     if (jugador.tension >= 1 && !avisoTenso) { audio.sonar('tenso'); avisoTenso = true; }

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260905151910';
-import { CELDA, esSolido } from './mapa.js?v=20260905151910';
+import { Billboard } from './sprites.js?v=20260905152721';
+import { CELDA, esSolido } from './mapa.js?v=20260905152721';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -32,6 +32,9 @@ export class Enemigo {
     this.flujo = ajustes.flujo || null;
     this.portales = ajustes.portales || null;
     this.esperaPortal = 0;
+    this.paralizado = 0;
+    this.confundido = 0;
+    this.presa = null;
     this.atasco = 0;
     this.ultimoX = pos.x;
     this.ultimoZ = pos.z;
@@ -84,8 +87,23 @@ export class Enemigo {
 
   actualizar(dt, jugador, camara) {
     this.reloj += dt;
-    const dx = jugador.pos.x - this.pos.x;
-    const dz = jugador.pos.z - this.pos.z;
+    if (this.paralizado > 0) {
+      this.paralizado -= dt;
+      this.sprite.material.color.setHex(0x7f8f9f);
+      this.sprite.encarar(camara, this.rumbo);
+      return;
+    }
+    if (this.confundido > 0) {
+      this.confundido -= dt;
+      this.sprite.material.color.setHex(0xff9a6a);
+      if (this.confundido <= 0) this.sprite.material.color.setHex(0xffffff);
+    } else if (this.sprite.material.color.getHex() !== 0xffffff) {
+      this.sprite.material.color.setHex(0xffffff);
+    }
+    const enfurecido = this.confundido > 0 && this.presa && this.presa.vivo;
+    const objetivo = enfurecido ? this.presa : jugador;
+    const dx = objetivo.pos.x - this.pos.x;
+    const dz = objetivo.pos.z - this.pos.z;
     const dist = Math.hypot(dx, dz);
 
     if (this.estado === 'muriendo') {
@@ -105,7 +123,7 @@ export class Enemigo {
       return;
     }
 
-    if (this.estado === 'quieto' && dist < RANGO_VISTA) {
+    if (this.estado === 'quieto' && dist < RANGO_VISTA && (enfurecido || !jugador.invisible)) {
       this.estado = 'persigue';
       this.sprite.fijarVistas(this.recursos.quieto);
       if (this.alRugir) this.alRugir(this);
@@ -119,7 +137,9 @@ export class Enemigo {
         this.sprite.fijarVistas([cuadros[paso]]);
         if (paso === 0 && this.alRugir) this.alRugir(this, true);
         if (paso === 1) {
-          if (this.tipo.distancia) {
+          if (enfurecido) {
+            if (dist < this.rango + 2) this.presa.recibir(this.dano * 2.2);
+          } else if (this.tipo.distancia) {
             if (this.alTirar) this.alTirar(this, this.dano);
           } else if (dist < this.rango + 1 && this.alGolpear) {
             this.alGolpear(this.dano);
@@ -135,6 +155,11 @@ export class Enemigo {
       return;
     }
 
+    if (this.estado === 'persigue' && !enfurecido && jugador.invisible && dist > 12) {
+      this.sprite.encarar(camara, this.rumbo);
+      return;
+    }
+
     if (this.estado === 'persigue') {
       this.rumbo = Math.atan2(dx, dz);
       if (dist < this.rango) {
@@ -143,7 +168,7 @@ export class Enemigo {
         this.cuadro = -1;
       } else {
         let ux = dx / dist, uz = dz / dist;
-        if (dist > 7 && this.flujo) {
+        if (dist > 7 && this.flujo && !enfurecido) {
           const guia = this.flujo.rumbo(this.pos.x, this.pos.z);
           if (guia) { ux = guia.x; uz = guia.z; }
           if (this.portales) {

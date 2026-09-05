@@ -1,3 +1,5 @@
+import { RELIQUIAS } from './reliquias.js?v=20260905152721';
+
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
     desc: 'Tensas el arco mucho mas rapido',
@@ -31,7 +33,7 @@ export const MEJORAS = [
     aplicar: j => { j.guante = true; j.guardar('guante', 1, true); } }
 ];
 
-export const CONSUMIBLES = [
+const BASICOS = [
   { id: 'frasco', nombre: 'FRASCO DE AMBROSIA', precio: 60, celda: 8, respaldo: 7,
     desc: 'Te cura 60 cuando lo uses' },
   { id: 'fuego', nombre: 'FUEGO GRIEGO', precio: 85, celda: 9, respaldo: 4,
@@ -41,6 +43,8 @@ export const CONSUMIBLES = [
   { id: 'vino', nombre: 'VINO DE DIONISO', precio: 95, celda: 11, respaldo: 6,
     desc: 'Diez segundos de furia: doble dano' }
 ];
+
+export const CONSUMIBLES = [...BASICOS, ...RELIQUIAS];
 
 const TODOS = [...MEJORAS, ...CONSUMIBLES];
 export const porId = id => TODOS.find(o => o.id === id);
@@ -87,6 +91,9 @@ export class Tienda {
   }
 
   _icono(art) {
+    if (art.hoja && this.iconos[art.hoja] && this.iconos[art.hoja][art.celda]) {
+      return `url(${this.iconos[art.hoja][art.celda].image.toDataURL()})`;
+    }
     if (art.id === 'portales' && this.iconos.cuerno && this.iconos.cuerno[1]) {
       return `url(${this.iconos.cuerno[1].image.toDataURL()})`;
     }
