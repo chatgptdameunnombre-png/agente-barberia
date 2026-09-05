@@ -8,6 +8,8 @@ export class Rondas {
     this.soltar = cfg.soltar;
     this.anunciar = cfg.anunciar;
     this.bloqueado = cfg.bloqueado || (() => false);
+    this.ajustar = cfg.ajustar || (p => p);
+    this.alEmpezar = cfg.alEmpezar || (() => {});
     this.numero = 0;
     this.estado = 'descanso';
     this.reloj = DESCANSO - PRIMERA_ESPERA;
@@ -34,7 +36,7 @@ export class Rondas {
 
   lanzar(jugador) {
     this.numero++;
-    const cfg = this.perfil(this.numero);
+    const cfg = this.ajustar(this.perfil(this.numero));
     const puntos = this.puntosLejanos(jugador, cfg.cuantos);
     puntos.forEach((p, i) => {
       const angulo = (i / puntos.length) * Math.PI * 2;
@@ -44,6 +46,8 @@ export class Rondas {
       this.crear(pos, cfg);
     });
     this.estado = 'combate';
+    this.ultimoPerfil = cfg;
+    this.alEmpezar(this.numero, cfg);
     this.anunciar('RONDA ' + this.numero, cfg.cuantos + ' ENEMIGOS');
   }
 

@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { CELDA, ALTO, esSolido } from './mapa.js?v=20260905153439';
+import { CELDA, ALTO, esSolido } from './mapa.js?v=20260905154903';
 
-const ANCHO_PORTAL = 2.6;
-const ALTO_PORTAL = 4.0;
-const RADIO_CRUCE = 1.7;
+const ANCHO_PORTAL = 3.7;
+const ALTO_PORTAL = 5.5;
+const RADIO_CRUCE = 2.1;
 
 export function trazar(nivel, origen, dir, alcance = 90) {
   let mapX = Math.floor(origen.x / CELDA);
@@ -62,16 +62,39 @@ uniform float tiempo;
 uniform float activo;
 varying vec4 vPantalla;
 varying vec2 vUv;
+
+float ruido(vec2 p) {
+  return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 void main() {
   vec2 centro = vUv - 0.5;
-  float r = length(vec2(centro.x * 1.35, centro.y));
-  if (r > 0.5) discard;
+  vec2 estirado = vec2(centro.x * 1.3, centro.y);
+  float r = length(estirado);
+  float ang = atan(estirado.y, estirado.x);
+
+  float onda = 0.012 * sin(ang * 9.0 + tiempo * 3.2) + 0.008 * sin(ang * 5.0 - tiempo * 2.1);
+  if (r > 0.5 + onda) discard;
+
   vec2 uv = (vPantalla.xy / vPantalla.w) * 0.5 + 0.5;
+  float remolino = (0.5 - r) * 0.05;
+  uv += vec2(cos(tiempo * 0.8), sin(tiempo * 0.8)) * remolino * 0.06;
   vec3 col = texture2D(vista, uv).rgb;
-  float anillo = smoothstep(0.34, 0.5, r);
-  float latido = 0.72 + 0.28 * sin(tiempo * 3.4);
-  col = mix(col * (activo > 0.5 ? 1.0 : 0.0), borde * latido, anillo);
-  col += borde * pow(anillo, 3.0) * 0.85;
+
+  float dentro = smoothstep(0.5, 0.30, r);
+  col *= activo > 0.5 ? 1.0 : 0.0;
+
+  float anillo = smoothstep(0.30, 0.47, r);
+  float latido = 0.78 + 0.22 * sin(tiempo * 3.4);
+  col = mix(col, borde * latido * 1.25, anillo);
+
+  float chispa = step(0.9965, ruido(floor(vUv * 42.0) + floor(tiempo * 14.0)));
+  col += borde * chispa * (1.0 - anillo) * 1.6;
+
+  float filo = smoothstep(0.44, 0.5, r);
+  col += borde * pow(filo, 2.0) * 1.5;
+  col += borde * pow(1.0 - dentro, 4.0) * 0.35;
+
   gl_FragColor = vec4(col, 1.0);
 }`;
 
@@ -99,7 +122,7 @@ export class Portal {
       this.material
     );
     this.malla.visible = false;
-    this.luz = new THREE.PointLight(color, 0, 46, 1.6);
+    this.luz = new THREE.PointLight(color, 0, 54, 1.5);
   }
 
   colocar(golpe) {
@@ -112,7 +135,7 @@ export class Portal {
     this.malla.visible = true;
     this.puesto = true;
     this.luz.position.copy(p).addScaledVector(golpe.normal, 2.4);
-    this.luz.intensity = 55;
+    this.luz.intensity = 72;
     this.celdaAcceso = [
       golpe.celda.x + Math.round(golpe.normal.x),
       golpe.celda.z + Math.round(golpe.normal.z)
@@ -187,7 +210,7 @@ export class Portales {
       const otro = p.destino;
       const giro = otro.malla.rotation.y - p.malla.rotation.y + Math.PI;
       jugador.yaw += giro;
-      const salida = otro.malla.position.clone().addScaledVector(otro.normal, 2.6);
+      const salida = otro.malla.position.clone().addScaledVector(otro.normal, 3.2);
       jugador.pos.x = salida.x;
       jugador.pos.z = salida.z;
       const v = jugador.vel;
@@ -195,7 +218,8 @@ export class Portales {
       const nx = v.x * cs - v.z * sn;
       const nz = v.x * sn + v.z * cs;
       v.x = nx; v.z = nz;
-      this.enfriamiento = 0.45;
+      this.enfriamiento = 0.5;
+      this.ultimoColor = otro.color;
       return true;
     }
     return false;

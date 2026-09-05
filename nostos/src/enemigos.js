@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260905153439';
-import { CELDA, esSolido } from './mapa.js?v=20260905153439';
+import { Billboard } from './sprites.js?v=20260905154903';
+import { CELDA, esSolido } from './mapa.js?v=20260905154903';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -34,6 +34,7 @@ export class Enemigo {
     this.esperaPortal = 0;
     this.paralizado = 0;
     this.confundido = 0;
+    this.tinteBase = 0xffffff;
     this.presa = null;
     this.atasco = 0;
     this.ultimoX = pos.x;
@@ -97,8 +98,8 @@ export class Enemigo {
       this.confundido -= dt;
       this.sprite.material.color.setHex(0xff9a6a);
       if (this.confundido <= 0) this.sprite.material.color.setHex(0xffffff);
-    } else if (this.sprite.material.color.getHex() !== 0xffffff) {
-      this.sprite.material.color.setHex(0xffffff);
+    } else if (this.sprite.material.color.getHex() !== this.tinteBase) {
+      this.sprite.material.color.setHex(this.tinteBase);
     }
     const enfurecido = this.confundido > 0 && this.presa && this.presa.vivo;
     const objetivo = enfurecido ? this.presa : jugador;
