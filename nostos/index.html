@@ -137,6 +137,14 @@
   #jefe .relleno { height:100%; width:100%; background:linear-gradient(#e2482d,#7a1a12);
                    transition:width .25s; }
 
+  #efectos { position:absolute; z-index:6; right:26px; bottom:186px; display:flex;
+             flex-direction:column; gap:5px; align-items:flex-end; }
+  .efecto { display:flex; gap:9px; align-items:baseline; padding:4px 10px;
+            background:rgba(20,13,8,.72); border:2px solid #6b4a22;
+            text-shadow:2px 2px 0 #000; }
+  .efecto b { color:#c9b48a; font-size:10px; letter-spacing:3px; font-weight:400; }
+  .efecto u { color:#e8c14a; font-size:15px; text-decoration:none; }
+
   #ranuras { position:absolute; z-index:6; right:26px; bottom:118px; display:flex; gap:8px; }
   .ranura { width:52px; height:52px; border:2px solid #6b4a22; background:rgba(20,13,8,.72) center/72% no-repeat;
             image-rendering:pixelated; position:relative; }
@@ -192,6 +200,7 @@
     <div class="caja chica" id="cBajas"><b id="bajas">0</b><span>BAJAS</span></div>
     <div id="banner"><b></b><span></span></div>
     <div id="aviso"></div>
+    <div id="efectos"></div>
     <div id="ranuras"></div>
     <div id="jefe"><span>POLIFEMO</span><div class="barra"><div class="relleno"></div></div></div>
   </div>
@@ -218,6 +227,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260905170346"></script>
+  <script type="module" src="./src/main.js?v=20260905170813"></script>
 </body>
 </html>

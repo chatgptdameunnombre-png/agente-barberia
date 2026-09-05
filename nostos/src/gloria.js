@@ -5,6 +5,8 @@ export const MODOS = [
     desc: 'Toda la partida en el mundo rojo: casi el doble de vida enemiga y triple oro' },
   { id: 'salto', insignia: 2, nombre: 'SALTO', precio: 1800,
     desc: 'Empiezas en la ronda 5 con 300 de oro' },
+  { id: 'cerco', insignia: 8, nombre: 'CERCO DE TROYA', precio: 1600,
+    desc: 'Cada 5 rondas un anillo de fuego se cierra sobre el palacio y quema al que se quede fuera' },
   { id: 'sinArco', insignia: 3, nombre: 'SIN ARCO', precio: 3500,
     desc: 'Sin arco: solo hacha, portales y reliquias. El mas dificil' }
 ];
