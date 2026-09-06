@@ -253,6 +253,21 @@
     #panel .tarjetas { grid-template-columns:1fr; }
   }
 
+  #soloEscritorio { position:fixed; inset:0; z-index:40; display:none;
+                    align-items:center; justify-content:center; padding:24px;
+                    background:linear-gradient(#1a0f08,#0a0604); }
+  body.telefono #soloEscritorio { display:flex; }
+  #soloEscritorio .hoja { max-width:520px; text-align:center; }
+  #soloEscritorio h1 { font-family:"Cinzel Decorative",serif; font-weight:900;
+                       font-size:17vw; color:#e8c14a; line-height:1;
+                       text-shadow:0 0 40px #a3450d, 4px 4px 0 #000; margin-bottom:6vh; }
+  #soloEscritorio p { color:#c9b48a; font-size:15px; line-height:1.8;
+                      letter-spacing:1px; margin-bottom:18px; }
+  #soloEscritorio p.grande { color:#f2e2b0; font-size:19px; }
+  #soloEscritorio b { color:#e8c14a; }
+  #soloEscritorio .link { margin-top:26px; font-size:14px; }
+  #soloEscritorio .boton { margin-top:22px; }
+
   #dano { position:fixed; inset:0; background:#8b0000; opacity:0; pointer-events:none; transition:opacity .28s; }
   #diag { position:fixed; top:8px; left:10px; color:#7fe07f; font-size:11px; white-space:pre; opacity:.5; }
 </style>
@@ -281,6 +296,17 @@
   </div>
   <div id="dano"></div>
   <div id="diag"></div>
+  <div id="soloEscritorio">
+    <div class="hoja">
+      <h1>NOSTOS</h1>
+      <p class="grande">Este juego es para <b>computadora</b> o <b>tablet</b>.</p>
+      <p>La pantalla de un telefono se queda corta: no caben el tablero, el
+      minimapa ni los controles sin taparse entre ellos, y apuntar con el dedo en
+      un espacio tan chico no se siente bien.</p>
+      <p class="link">Abrelo en tu compu o en tu iPad:<br><b>tuagentedeia.com/nostos</b></p>
+      <button class="boton" id="entrarIgual">ENTRAR DE TODOS MODOS</button>
+    </div>
+  </div>
   <div id="menu">
     <h1>NOSTOS</h1>
     <h2>EL REGRESO</h2>
@@ -302,6 +328,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260905182743"></script>
+  <script type="module" src="./src/main.js?v=20260905183329"></script>
 </body>
 </html>

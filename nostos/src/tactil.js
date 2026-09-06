@@ -2,6 +2,16 @@ export function esTactil() {
   return ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 }
 
+const LADO_MINIMO = 700;
+
+export function pantallaChica() {
+  return Math.min(screen.width, screen.height) < LADO_MINIMO;
+}
+
+export function esTelefono() {
+  return esTactil() && pantallaChica();
+}
+
 const BOTONES = [
   { id: 'tArco', texto: 'ARCO', clase: 'grande' },
   { id: 'tTajo', texto: 'F' },
