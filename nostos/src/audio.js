@@ -43,6 +43,7 @@ export class Audio {
   _cargarMuestras() {
     if (this.muestras) return;
     this.muestras = {};
+    this._cargarMusica();
     const base = new URL('../sfx/', import.meta.url).href;
     for (const id of MUESTRAS) {
       fetch(base + id + '.mp3')
@@ -51,6 +52,30 @@ export class Audio {
         .then(buf => { this.muestras[id] = buf; })
         .catch(() => {});
     }
+  }
+
+  _cargarMusica() {
+    const url = new URL('../musica/batalla.mp3', import.meta.url).href;
+    fetch(url)
+      .then(r => (r.ok ? r.arrayBuffer() : Promise.reject(r.status)))
+      .then(b => this.ctx.decodeAudioData(b))
+      .then(buf => {
+        this.pista = buf;
+        if (this.musicaViva && !this.fuentePista) this._arrancarPista();
+      })
+      .catch(() => {});
+  }
+
+  _arrancarPista() {
+    if (!this.pista || this.fuentePista) return;
+    const f = this.ctx.createBufferSource();
+    f.buffer = this.pista;
+    f.loop = true;
+    f.connect(this.canalMusica);
+    f.start();
+    this.fuentePista = f;
+    if (this.filtroDrone) this.filtroDrone.disconnect();
+    if (this.tempo) { clearTimeout(this.tempo); this.tempo = 0; }
   }
 
   _tocarMuestra(buf, salida, fuerza) {
@@ -167,7 +192,9 @@ export class Audio {
     this.intensidad = intensidad;
     if (!this.musicaViva) this._arrancarMusica();
     const t = this.ctx.currentTime;
-    this.canalMusica.gain.setTargetAtTime(0.06 + Math.min(0.16, intensidad * 0.02), t, 1.5);
+    const base = this.pista ? 0.17 : 0.06;
+    const rango = this.pista ? 0.22 : 0.16;
+    this.canalMusica.gain.setTargetAtTime(base + Math.min(rango, intensidad * (this.pista ? 0.03 : 0.02)), t, 1.5);
     if (this.filtroDrone) {
       this.filtroDrone.frequency.setTargetAtTime(180 + Math.min(500, intensidad * 60), t, 2);
     }
@@ -180,6 +207,7 @@ export class Audio {
 
   _arrancarMusica() {
     this.musicaViva = true;
+    if (this.pista) { this._arrancarPista(); return; }
     const t = this.ctx.currentTime;
     const filtro = this.ctx.createBiquadFilter();
     filtro.type = 'lowpass';
