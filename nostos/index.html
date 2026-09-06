@@ -205,6 +205,54 @@
                     font-family:inherit; font-size:12px; letter-spacing:4px; cursor:pointer; }
   #tienda .seguir:hover { background:#6b4a22; }
 
+  #tactil { position:fixed; inset:0; z-index:8; pointer-events:none; display:none; }
+  body.tactil #tactil { display:block; }
+  #palanca { position:absolute; left:8px; bottom:8px; width:150px; height:150px;
+             pointer-events:auto; touch-action:none; }
+  #palanca .base { position:absolute; inset:16px; border:3px solid rgba(107,74,34,.85);
+                   border-radius:50%; background:rgba(20,13,8,.45); }
+  #palanca .pomo { position:absolute; left:50%; top:50%; width:48px; height:48px;
+                   margin:-24px 0 0 -24px; border-radius:50%;
+                   background:rgba(232,193,74,.55); border:3px solid #6b4a22; }
+  #botones { position:absolute; right:8px; bottom:8px; width:154px;
+             display:grid; grid-template-columns:repeat(2,1fr); gap:8px;
+             justify-items:end; pointer-events:auto; }
+  #botones .grande { grid-column:1 / -1; justify-self:end; }
+  .tb { width:70px; height:70px; border-radius:50%; border:3px solid #6b4a22;
+        background:rgba(20,13,8,.7); color:#f2e2b0; font-family:inherit;
+        font-size:14px; letter-spacing:2px; touch-action:none; }
+  .tb.grande { width:94px; height:94px; font-size:14px; border-color:#e8c14a;
+               background:rgba(74,52,24,.75); }
+  .tb:active { background:#6b4a22; }
+
+  body.tactil #ranuras { bottom:auto; top:150px; right:8px; }
+  body.tactil #cVida { left:96px; bottom:362px; }
+  body.tactil #cVida b { font-size:44px; }
+  body.tactil #cara { bottom:366px; width:56px; height:56px; }
+  body.tactil #cArmadura { left:96px; bottom:426px; }
+  body.tactil #cFlechas { right:8px; bottom:362px; }
+  body.tactil #cFlechas b { font-size:44px; }
+  body.tactil #cCuchillos { right:8px; bottom:428px; }
+  body.tactil .caja .marca { display:none; }
+  body.tactil #mapa { width:132px; height:96px; left:8px; top:8px; }
+  body.tactil #cRonda, body.tactil #cVivos, body.tactil #cOro, body.tactil #cBajas { right:8px; }
+  body.tactil #cRonda { top:8px; }
+  body.tactil #cVivos { top:56px; }
+  body.tactil #cOro { top:104px; }
+  body.tactil #cBajas { display:none; }
+  body.tactil #cRayo { left:96px; bottom:490px; }
+  body.tactil #efectos { top:auto; bottom:264px; }
+  body.tactil .efecto u { font-size:24px; }
+
+  @media (max-width:520px) {
+    #botonera { flex-direction:column; gap:10px; width:min(280px,80vw); }
+    .boton { width:100%; }
+    #menu h1 { font-size:19vw; }
+    #menu h2 { font-size:4.5vw; }
+    #panel .hoja { padding:18px; }
+    #panel .tarjetas { grid-template-columns:1fr; }
+  }
+
   #dano { position:fixed; inset:0; background:#8b0000; opacity:0; pointer-events:none; transition:opacity .28s; }
   #diag { position:fixed; top:8px; left:10px; color:#7fe07f; font-size:11px; white-space:pre; opacity:.5; }
 </style>
@@ -254,6 +302,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260905181028"></script>
+  <script type="module" src="./src/main.js?v=20260905181627"></script>
 </body>
 </html>

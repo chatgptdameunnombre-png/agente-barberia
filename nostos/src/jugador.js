@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260905181028';
+import { CELDA, esSolido } from './mapa.js?v=20260905181627';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -176,6 +176,11 @@ export class Jugador {
 
   _entrar() {
     if (this.activo) return;
+    if (('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
+      this.libre = true;
+      this._activar(true);
+      return;
+    }
     try {
       const intento = this.lienzo.requestPointerLock();
       if (intento && intento.catch) intento.catch(() => {});
