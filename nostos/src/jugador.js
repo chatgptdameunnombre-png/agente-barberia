@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260906093925';
+import { CELDA, esSolido } from './mapa.js?v=20260906095424';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -281,13 +281,14 @@ export class Jugador {
 
   recibir(dano) {
     if (this.vida <= 0) return;
+    let absorbido = 0;
     if (this.armadura > 0) {
-      const absorbe = Math.min(this.armadura, dano * 0.5);
-      this.armadura -= absorbe;
-      dano -= absorbe;
+      absorbido = Math.min(this.armadura, dano);
+      this.armadura = Math.max(0, Math.round(this.armadura - absorbido));
+      dano -= absorbido;
     }
     this.vida = Math.max(0, Math.round(this.vida - dano));
-    if (this.alRecibir) this.alRecibir(dano);
+    if (this.alRecibir) this.alRecibir(dano, absorbido);
   }
 
   _colisionar(nx, nz) {

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260906093925';
-import { CELDA, esSolido } from './mapa.js?v=20260906093925';
+import { Billboard } from './sprites.js?v=20260906095424';
+import { CELDA, esSolido } from './mapa.js?v=20260906095424';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -89,6 +89,29 @@ export class Enemigo {
       }
     }
     return true;
+  }
+
+  verFantasma(si) {
+    if (si && !this.fantasma) {
+      const m = new THREE.MeshBasicMaterial({
+        map: this.sprite.material.map, color: 0xff6a52,
+        transparent: true, opacity: 0.5, alphaTest: 0.2,
+        side: THREE.DoubleSide, depthTest: false, depthWrite: false, fog: false
+      });
+      this.fantasma = new THREE.Mesh(this.sprite.malla.geometry, m);
+      this.fantasma.renderOrder = 14;
+      this.sprite.grupo.add(this.fantasma);
+    }
+    if (!this.fantasma) return;
+    const ver = !!si && this.vivo;
+    this.fantasma.visible = ver;
+    if (!ver) return;
+    if (this.fantasma.material.map !== this.sprite.material.map) {
+      this.fantasma.material.map = this.sprite.material.map;
+      this.fantasma.material.needsUpdate = true;
+    }
+    this.fantasma.position.copy(this.sprite.malla.position);
+    this.fantasma.scale.copy(this.sprite.malla.scale);
   }
 
   actualizar(dt, jugador, camara) {

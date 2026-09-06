@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260906093925';
+import { RELIQUIAS } from './reliquias.js?v=20260906095424';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -150,7 +150,15 @@ export class Tienda {
   }
 
   _armarOferta() {
-    const libres = MEJORAS.filter(m => !this.compradas.has(m.id));
+    const PROPIEDAD = {
+      portales: 'pistola', guante: 'guante', gancho: 'gancho',
+      pico: 'pico', manoP: 'manoP', cazador: 'cazador', hachaArma: 'hacha'
+    };
+    const yaTiene = m => {
+      const p = PROPIEDAD[m.id];
+      return !!p && !!this.jugador[p];
+    };
+    const libres = MEJORAS.filter(m => !this.compradas.has(m.id) && !yaTiene(m));
     const revuelve = a => a.slice().sort(() => Math.random() - 0.5);
     const CLAVES = ['portales', 'guante', 'gancho', 'pico', 'manoP'];
     const fijas = libres.filter(m => CLAVES.includes(m.id));

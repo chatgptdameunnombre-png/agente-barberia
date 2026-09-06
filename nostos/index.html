@@ -13,7 +13,8 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:"Courier New", monospace; }
-  #lienzo { display:block; width:100%; height:100%; image-rendering:pixelated; image-rendering:crisp-edges; cursor:none; }
+  #lienzo { display:block; width:100%; height:100%; image-rendering:pixelated; image-rendering:crisp-edges; }
+  body.jugando #lienzo { cursor:none; }
   #capa { position:fixed; inset:0; pointer-events:none; opacity:0; transition:opacity .35s; }
   body.jugando #capa { opacity:1; }
 
@@ -353,6 +354,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260906093925"></script>
+  <script type="module" src="./src/main.js?v=20260906095424"></script>
 </body>
 </html>
