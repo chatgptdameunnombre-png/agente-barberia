@@ -75,7 +75,7 @@
            transition:opacity .35s; text-shadow:2px 2px 0 #000; }
   #aviso.ver { opacity:1; }
 
-  #menu { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  #menu { position:fixed; inset:0; pointer-events:none; display:flex; flex-direction:column; align-items:center; justify-content:center;
           background:rgba(10,6,4,.55); color:#f2e2b0; text-align:center; }
   #menu h1 { font-family:"Cinzel Decorative","Times New Roman",serif; font-weight:900;
               font-size:13vw; letter-spacing:.6vw; color:#e8c14a; line-height:1;
@@ -83,7 +83,7 @@
   #menu h2 { font-family:"Cinzel Decorative","Times New Roman",serif; font-weight:700;
               font-size:2.6vw; letter-spacing:.9vw; opacity:.7; margin-top:.4vw; color:#f2e2b0; }
   #menu p  { margin-top:6vh; font-size:14px; letter-spacing:4px; animation:latir 1.6s infinite; }
-  #botonera { margin-top:5vh; display:flex; gap:14px; animation:none; }
+  #botonera { margin-top:5vh; display:flex; gap:14px; animation:none; pointer-events:auto; }
   .boton { padding:12px 26px; background:rgba(74,52,24,.75); color:#f2e2b0;
            border:2px solid #6b4a22; font-family:inherit; font-size:12px;
            letter-spacing:4px; cursor:pointer; transition:background .15s, border-color .15s; }
@@ -206,7 +206,7 @@
   #tienda .seguir:hover { background:#6b4a22; }
 
   #tactil { position:fixed; inset:0; z-index:8; pointer-events:none; display:none; }
-  body.tactil #tactil { display:block; }
+  body.tactil.jugando #tactil { display:block; }
   #palanca { position:absolute; left:8px; bottom:8px; width:150px; height:150px;
              pointer-events:auto; touch-action:none; }
   #palanca .base { position:absolute; inset:16px; border:3px solid rgba(107,74,34,.85);
@@ -302,6 +302,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260905181627"></script>
+  <script type="module" src="./src/main.js?v=20260905182743"></script>
 </body>
 </html>

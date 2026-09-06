@@ -22,6 +22,14 @@ export class Tactil {
 
   _crear() {
     document.body.classList.add('tactil');
+    const lienzo = document.getElementById('lienzo');
+    lienzo.addEventListener('touchstart', e => {
+      if (this.jugador.activo) return;
+      const t = e.changedTouches[0];
+      if (this._dentroDeUi(t)) return;
+      e.preventDefault();
+      if (this.acciones.empezar) this.acciones.empezar();
+    }, { passive: false });
 
     const capa = document.createElement('div');
     capa.id = 'tactil';
@@ -66,7 +74,7 @@ export class Tactil {
 
   _dentroDeUi(t) {
     const el = document.elementFromPoint(t.clientX, t.clientY);
-    return el && el.closest && el.closest('#tactil, #botonera, #panel, #tienda, #menu');
+    return el && el.closest && el.closest('#tactil, #botonera, #panel, #tienda');
   }
 
   _tomarPalanca(e) {
@@ -106,6 +114,7 @@ export class Tactil {
   }
 
   _mirarInicio(e) {
+    if (!this.jugador.activo) return;
     for (const t of e.changedTouches) {
       if (this.mirando || this._dentroDeUi(t)) continue;
       this.mirando = { id: t.identifier, x: t.clientX, y: t.clientY };
@@ -114,7 +123,7 @@ export class Tactil {
   }
 
   _mirarMover(e) {
-    if (!this.mirando) return;
+    if (!this.mirando || !this.jugador.activo) return;
     for (const t of e.changedTouches) {
       if (t.identifier !== this.mirando.id) continue;
       e.preventDefault();

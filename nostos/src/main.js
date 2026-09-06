@@ -1,25 +1,25 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905181627';
-import { Jugador } from './jugador.js?v=20260905181627';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260905181627';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior } from './sprites.js?v=20260905181627';
-import { Objeto, CATALOGO } from './objetos.js?v=20260905181627';
-import { Rondas } from './rondas.js?v=20260905181627';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905181627';
-import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905181627';
-import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905181627';
-import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260905181627';
-import { Minimapa, Marcas } from './minimapa.js?v=20260905181627';
-import { Flujo } from './flujo.js?v=20260905181627';
-import { Portales, trazar } from './portales.js?v=20260905181627';
-import { romper } from './mapa.js?v=20260905181627';
-import { Audio } from './audio.js?v=20260905181627';
-import { OtroLado } from './otrolado.js?v=20260905181627';
-import { Director } from './director.js?v=20260905181627';
-import { Cerco } from './cerco.js?v=20260905181627';
-import { esTactil, Tactil } from './tactil.js?v=20260905181627';
-import { TIPOS as T } from './enemigos.js?v=20260905181627';
-import { siluetaCiclope } from './texturas.js?v=20260905181627';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905182743';
+import { Jugador } from './jugador.js?v=20260905182743';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260905182743';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior } from './sprites.js?v=20260905182743';
+import { Objeto, CATALOGO } from './objetos.js?v=20260905182743';
+import { Rondas } from './rondas.js?v=20260905182743';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905182743';
+import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905182743';
+import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905182743';
+import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260905182743';
+import { Minimapa, Marcas } from './minimapa.js?v=20260905182743';
+import { Flujo } from './flujo.js?v=20260905182743';
+import { Portales, trazar } from './portales.js?v=20260905182743';
+import { romper } from './mapa.js?v=20260905182743';
+import { Audio } from './audio.js?v=20260905182743';
+import { OtroLado } from './otrolado.js?v=20260905182743';
+import { Director } from './director.js?v=20260905182743';
+import { Cerco } from './cerco.js?v=20260905182743';
+import { esTactil, Tactil } from './tactil.js?v=20260905182743';
+import { TIPOS as T } from './enemigos.js?v=20260905182743';
+import { siluetaCiclope } from './texturas.js?v=20260905182743';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -67,6 +67,11 @@ Object.assign(arma.style, {
 });
 document.getElementById('capa').appendChild(arma);
 aplicar(estiloValido(), arma);
+
+if (('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
+  const p = document.querySelector('#menu p');
+  if (p) p.textContent = 'TOCA PARA EMPEZAR';
+}
 
 const recursos = { arco: [], items: [], tienda: [], cuerno: [], guante: [], reliquias: [], hilo: [], jabalina: [], hacha: [], tajo: [], vuelo: [], kTajo: [], cuchillo: [], pico: [], mano: [], fuego: [], insignias: [], mercader: null, ciclope: null, pretendiente: null };
 
@@ -123,32 +128,32 @@ let texturasNivel = null;
 
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas, cuchilloImg, tajoImg, vueloImg, kTajoImg] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/arco.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/items.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/caras.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/guante.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/objetos2.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/hilo.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/jabalina.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/hacha.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/pico.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/mano.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/fuego.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/insignias.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/cuchillo.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/hacha-tajo.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/hacha-vuelo.png?v=20260905181627'),
-    cargarImagen('./arte/crudo/cuchillo-tajo.png?v=20260905181627')
+    cargarImagen('./arte/crudo/ciclope.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/arco.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/items.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/caras.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/guante.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/objetos2.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/hilo.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/jabalina.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/hacha.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/pico.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/mano.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/fuego.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/insignias.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/cuchillo.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/hacha-tajo.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/hacha-vuelo.png?v=20260905182743'),
+    cargarImagen('./arte/crudo/cuchillo-tajo.png?v=20260905182743')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -1451,7 +1456,7 @@ function pausar() {
   document.body.classList.add('enJuego');
   menu.querySelector('h1').textContent = 'PAUSA';
   menu.querySelector('h2').textContent = 'ITACA ESPERA';
-  menu.querySelector('p').textContent = 'CLIC PARA CONTINUAR';
+  menu.querySelector('p').textContent = esTactil() ? 'TOCA PARA CONTINUAR' : 'CLIC PARA CONTINUAR';
   btnMenu.hidden = false;
   if (audio.ctx) audio.callarMusica();
 }
@@ -1557,7 +1562,7 @@ function reiniciar() {
   if (otroLado.dentro) otroLado.salir();
   menu.querySelector('h1').textContent = 'NOSTOS';
   menu.querySelector('h2').textContent = 'EL REGRESO';
-  menu.querySelector('p').textContent = 'CLIC PARA EMPEZAR';
+  menu.querySelector('p').textContent = esTactil() ? 'TOCA PARA EMPEZAR' : 'CLIC PARA EMPEZAR';
   document.body.classList.remove('enJuego');
 }
 
@@ -1566,7 +1571,7 @@ lienzo.addEventListener('click', e => {
   if (!muerto && jugador && jugador.empezado && !jugador.activo) {
     menu.querySelector('h1').textContent = 'NOSTOS';
     menu.querySelector('h2').textContent = 'EL REGRESO';
-    menu.querySelector('p').textContent = 'CLIC PARA EMPEZAR';
+    menu.querySelector('p').textContent = esTactil() ? 'TOCA PARA EMPEZAR' : 'CLIC PARA EMPEZAR';
   }
 }, true);
 
@@ -2045,6 +2050,11 @@ cargarArte().then(() => {
 
   if (esTactil()) {
     new Tactil(jugador, {
+      empezar: () => {
+        if (muerto) { reiniciar(); return; }
+        jugador.libre = true;
+        jugador._activar(true);
+      },
       lanzar: () => jugador.alLanzarHacha && jugador.alLanzarHacha(),
       cambiar: () => {
         if (!jugador.hacha) { avisar('NO TIENES HACHA'); return; }
