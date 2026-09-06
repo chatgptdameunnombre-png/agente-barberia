@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260906095424';
+import { RELIQUIAS } from './reliquias.js?v=20260906111312';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -51,10 +51,23 @@ export const MEJORAS = [
 export const CUCHILLOS = {
   id: 'cuchillos', nombre: 'HAZ DE CUCHILLOS', precio: 55, celda: 19, respaldo: 0,
   instantaneo: true, desc: 'Ocho cuchillos mas para lanzar',
+  inutil: j => j.cuchillos >= j.cuchillosMax,
   aplicar: j => { j.cuchillos = Math.min(j.cuchillosMax, j.cuchillos + 8); }
 };
 
 const BASICOS = [
+  { id: 'carcaj', nombre: 'CARCAJ DE FLECHAS', precio: 45, celda: 2, respaldo: 1,
+    instantaneo: true, desc: 'Te llena las flechas hasta el tope, no ocupa lugar',
+    inutil: j => j.flechas >= j.flechasMax,
+    aplicar: j => { j.flechas = j.flechasMax; } },
+  { id: 'odre', nombre: 'ODRE DE VINO', precio: 55, celda: 11, respaldo: 6,
+    instantaneo: true, desc: 'Te cura 55 aqui mismo, no ocupa lugar',
+    inutil: j => j.vida >= j.vidaMax,
+    aplicar: j => { j.vida = Math.min(j.vidaMax, j.vida + 55); } },
+  { id: 'pan', nombre: 'PAN Y QUESO', precio: 95, celda: 8, respaldo: 7,
+    instantaneo: true, desc: 'Te llena la vida al tope, no ocupa lugar',
+    inutil: j => j.vida >= j.vidaMax,
+    aplicar: j => { j.vida = j.vidaMax; } },
   { id: 'frasco', nombre: 'FRASCO DE AMBROSIA', precio: 60, celda: 8, respaldo: 7,
     desc: 'Te cura 60 cuando lo uses' },
   { id: 'fuego', nombre: 'FUEGO GRIEGO', precio: 85, celda: 9, respaldo: 4,
@@ -159,17 +172,29 @@ export class Tienda {
       return !!p && !!this.jugador[p];
     };
     const libres = MEJORAS.filter(m => !this.compradas.has(m.id) && !yaTiene(m));
-    const revuelve = a => a.slice().sort(() => Math.random() - 0.5);
+    const revuelve = a => {
+      const c = a.slice();
+      for (let i = c.length - 1; i > 0; i--) {
+        const k = Math.floor(Math.random() * (i + 1));
+        [c[i], c[k]] = [c[k], c[i]];
+      }
+      return c;
+    };
+    const previa = this.previa || [];
+    const nuevo = a => revuelve(a).sort((x, y) => previa.includes(x.id) - previa.includes(y.id));
     const CLAVES = ['portales', 'guante', 'gancho', 'pico', 'manoP'];
-    const fijas = libres.filter(m => CLAVES.includes(m.id));
-    const resto = libres.filter(m => !CLAVES.includes(m.id));
-    const mejoras = revuelve(resto).slice(0, Math.max(1, 3 - fijas.length));
-    mejoras.unshift(...fijas.slice(0, 2));
-    const consumibles = revuelve(CONSUMIBLES).slice(0, Math.max(1, this.cuantos - mejoras.length));
-    this.oferta = [...mejoras, ...consumibles];
-    if (this.jugador.cuchillos < this.jugador.cuchillosMax) {
+    const fijas = nuevo(libres.filter(m => CLAVES.includes(m.id)));
+    const resto = nuevo(libres.filter(m => !CLAVES.includes(m.id)));
+    const cuantasArmas = Math.min(fijas.length, Math.random() < 0.5 ? 1 : 2);
+    const mejoras = [...fijas.slice(0, cuantasArmas),
+                     ...resto.slice(0, Math.max(1, 3 - cuantasArmas))];
+    const consumibles = nuevo(CONSUMIBLES).slice(0, Math.max(1, this.cuantos - mejoras.length));
+    this.oferta = revuelve([...mejoras, ...consumibles]);
+    const faltanCuchillos = this.jugador.cuchillosMax - this.jugador.cuchillos;
+    if (faltanCuchillos >= 4 && Math.random() < 0.45 && !this.oferta.some(o => o.id === 'cuchillos')) {
       this.oferta[this.oferta.length - 1] = CUCHILLOS;
     }
+    this.previa = this.oferta.map(o => o.id);
   }
 
   abrir() {
@@ -196,14 +221,15 @@ export class Tienda {
       const precio = Math.round(art.precio * this.descuento);
       const ranura = this.ocupaRanura(art);
       const sinHueco = ranura ? !this.jugador.hayHueco(ranura) : false;
-      const puede = this.jugador.oro >= precio && !sinHueco && !this.yaCompro;
+      const sobra = !!(art.inutil && art.inutil(this.jugador));
+      const puede = this.jugador.oro >= precio && !sinHueco && !sobra && !this.yaCompro;
       const t = document.createElement('div');
       t.className = 'carta' + (puede ? '' : ' pobre');
       t.innerHTML = `
         <div class="ico" style="background-image:${this._icono(art)}"></div>
         <b>${art.nombre}</b>
         <span>${art.desc}</span>
-        <em>${sinHueco ? 'SIN ESPACIO' : this.yaCompro ? 'YA COMPRASTE' : puede ? precio + ' ORO' : 'TE FALTAN ' + (precio - this.jugador.oro)}</em>`;
+        <em>${sobra ? 'NO TE HACE FALTA' : sinHueco ? 'SIN ESPACIO' : this.yaCompro ? 'YA COMPRASTE' : puede ? precio + ' ORO' : 'TE FALTAN ' + (precio - this.jugador.oro)}</em>`;
       t.addEventListener('click', () => this.comprar(art));
       this.rejilla.appendChild(t);
     });
@@ -224,6 +250,11 @@ export class Tienda {
     if (this.yaCompro) return;
     const precio = Math.round(art.precio * this.descuento);
     if (this.jugador.oro < precio) return;
+
+    if (art.inutil && art.inutil(this.jugador)) {
+      if (this.alFallar) this.alFallar('NO TE HACE FALTA');
+      return;
+    }
 
     const ranura = this.ocupaRanura(art);
     if (ranura && !this.jugador.hayHueco(ranura)) {

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260906095424';
+import { CELDA, esSolido } from './mapa.js?v=20260906111312';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
