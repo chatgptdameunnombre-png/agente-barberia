@@ -70,6 +70,19 @@
   #banner span { font-size:14px; letter-spacing:6px; color:#f2e2b0; opacity:.8; }
   #banner.ver { opacity:1; }
 
+  #grieta { position:absolute; left:0; right:0; top:30%; text-align:center; z-index:7;
+            display:none; pointer-events:none; }
+  #grieta.ver { display:block; }
+  #grieta .marco { display:inline-block; padding:18px 34px; border:3px solid #a86bff;
+                   background:rgba(24,6,40,.78); box-shadow:0 0 40px #7d3bd8, inset 0 0 30px rgba(125,59,216,.5);
+                   animation:latir 1.1s infinite; }
+  #grieta b { display:block; font-size:44px; letter-spacing:8px; color:#d9b6ff;
+              text-shadow:3px 3px 0 #000, 0 0 30px #a86bff; }
+  #grieta span { display:block; margin-top:8px; font-size:20px; letter-spacing:5px; color:#fff;
+                 text-shadow:2px 2px 0 #000; }
+  #grieta i { font-style:normal; color:#ffe27a; }
+  @keyframes latir { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.05); opacity:.82; } }
+
   #aviso { position:absolute; left:0; right:0; bottom:26%; text-align:center; z-index:6;
            color:#f2e2b0; font-size:15px; letter-spacing:5px; opacity:0;
            transition:opacity .35s; text-shadow:2px 2px 0 #000; }
@@ -289,6 +302,7 @@
     <div class="caja chica" id="cOro"><b id="oro">0</b><span>ORO</span></div>
     <div class="caja chica" id="cBajas"><b id="bajas">0</b><span>BAJAS</span></div>
     <div id="banner"><b></b><span></span></div>
+    <div id="grieta"><div class="marco"><b>LA GRIETA SE ABRE</b><span>PULSA <i>V</i> PARA CRUZAR AL OTRO LADO</span></div></div>
     <div id="aviso"></div>
     <div id="efectos"></div>
     <div id="ranuras"></div>
@@ -328,6 +342,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260905183329"></script>
+  <script type="module" src="./src/main.js?v=20260905191432"></script>
 </body>
 </html>
