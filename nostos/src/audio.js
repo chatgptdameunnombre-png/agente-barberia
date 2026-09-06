@@ -1,5 +1,9 @@
 const MAX_DIST = 70;
 
+const MUESTRAS = ['carne', 'piedra', 'garrote', 'muereEnemigo', 'dano', 'tajo', 'comprar',
+  'recoger', 'curar', 'vacio', 'fallo', 'ronda', 'portalAzul', 'portalNaranja', 'cruzar',
+  'rayo', 'muerte'];
+
 export class Audio {
   constructor() {
     this.ctx = null;
@@ -33,6 +37,28 @@ export class Audio {
 
     this.ruidoBuffer = this._ruido(1.6);
     this.listo = true;
+    this._cargarMuestras();
+  }
+
+  _cargarMuestras() {
+    if (this.muestras) return;
+    this.muestras = {};
+    const base = new URL('../sfx/', import.meta.url).href;
+    for (const id of MUESTRAS) {
+      fetch(base + id + '.mp3')
+        .then(r => (r.ok ? r.arrayBuffer() : Promise.reject(r.status)))
+        .then(b => this.ctx.decodeAudioData(b))
+        .then(buf => { this.muestras[id] = buf; })
+        .catch(() => {});
+    }
+  }
+
+  _tocarMuestra(buf, salida, fuerza) {
+    const f = this.ctx.createBufferSource();
+    f.buffer = buf;
+    f.playbackRate.value = 0.92 + Math.random() * 0.16;
+    f.connect(salida);
+    f.start();
   }
 
   _ruido(segundos) {
@@ -131,7 +157,9 @@ export class Audio {
     if (!voz) return;
     const salida = this._salida(pos, voz.vol === undefined ? 1 : voz.vol);
     if (!salida) return;
-    voz.tocar(this, salida, fuerza);
+    const buf = this.muestras && this.muestras[nombre];
+    if (buf) this._tocarMuestra(buf, salida, fuerza);
+    else voz.tocar(this, salida, fuerza);
   }
 
   musica(intensidad) {
