@@ -1,4 +1,4 @@
-import { CELDA } from './mapa.js?v=20260905191432';
+import { CELDA } from './mapa.js?v=20260906093925';
 
 const COLORES = {
   '#': '#8a7f66',
@@ -53,7 +53,7 @@ export class Minimapa {
     return [this.margenX + (x / CELDA) * this.escala, this.margenZ + (z / CELDA) * this.escala];
   }
 
-  dibujar(dt, jugador, enemigos, objetos) {
+  dibujar(dt, jugador, enemigos, objetos, grieta) {
     this.pulso += dt * 5;
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.lienzo.width, this.lienzo.height);
@@ -76,6 +76,20 @@ export class Minimapa {
       ctx.fillStyle = `rgba(226,58,40,${brillo})`;
       ctx.beginPath();
       ctx.arc(px, pz, 3.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (grieta) {
+      const [gx, gz] = this._punto(grieta.pos.x, grieta.pos.z);
+      const g = 0.5 + Math.sin(this.pulso * 0.9) * 0.5;
+      ctx.strokeStyle = grieta.modo === 'salir' ? '#6bd4ff' : '#c98bff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(gx, gz, 4 + g * 3.5, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = grieta.modo === 'salir' ? '#d6f4ff' : '#eccbff';
+      ctx.beginPath();
+      ctx.arc(gx, gz, 2.6, 0, Math.PI * 2);
       ctx.fill();
     }
 

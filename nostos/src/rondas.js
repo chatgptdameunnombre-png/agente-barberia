@@ -15,6 +15,11 @@ export class Rondas {
     this.reloj = DESCANSO - PRIMERA_ESPERA;
   }
 
+  get restante() {
+    if (this.estado !== 'descanso') return 0;
+    return Math.max(0, DESCANSO - this.reloj);
+  }
+
   esRondaJefe(n) {
     return n === 15;
   }

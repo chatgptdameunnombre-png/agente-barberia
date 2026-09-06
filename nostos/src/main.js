@@ -1,25 +1,26 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260905191432';
-import { Jugador } from './jugador.js?v=20260905191432';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260905191432';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior } from './sprites.js?v=20260905191432';
-import { Objeto, CATALOGO } from './objetos.js?v=20260905191432';
-import { Rondas } from './rondas.js?v=20260905191432';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260905191432';
-import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260905191432';
-import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260905191432';
-import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260905191432';
-import { Minimapa, Marcas } from './minimapa.js?v=20260905191432';
-import { Flujo } from './flujo.js?v=20260905191432';
-import { Portales, trazar } from './portales.js?v=20260905191432';
-import { romper } from './mapa.js?v=20260905191432';
-import { Audio } from './audio.js?v=20260905191432';
-import { OtroLado } from './otrolado.js?v=20260905191432';
-import { Director } from './director.js?v=20260905191432';
-import { Cerco } from './cerco.js?v=20260905191432';
-import { esTactil, esTelefono, Tactil } from './tactil.js?v=20260905191432';
-import { TIPOS as T } from './enemigos.js?v=20260905191432';
-import { siluetaCiclope } from './texturas.js?v=20260905191432';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260906093925';
+import { Jugador } from './jugador.js?v=20260906093925';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260906093925';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior } from './sprites.js?v=20260906093925';
+import { Objeto, CATALOGO } from './objetos.js?v=20260906093925';
+import { Rondas } from './rondas.js?v=20260906093925';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260906093925';
+import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260906093925';
+import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260906093925';
+import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260906093925';
+import { Minimapa, Marcas } from './minimapa.js?v=20260906093925';
+import { Flujo } from './flujo.js?v=20260906093925';
+import { Portales, trazar } from './portales.js?v=20260906093925';
+import { romper } from './mapa.js?v=20260906093925';
+import { Audio } from './audio.js?v=20260906093925';
+import { OtroLado } from './otrolado.js?v=20260906093925';
+import { Grieta } from './grieta.js?v=20260906093925';
+import { Director } from './director.js?v=20260906093925';
+import { Cerco } from './cerco.js?v=20260906093925';
+import { esTactil, esTelefono, Tactil } from './tactil.js?v=20260906093925';
+import { TIPOS as T } from './enemigos.js?v=20260906093925';
+import { siluetaCiclope } from './texturas.js?v=20260906093925';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -128,32 +129,32 @@ let texturasNivel = null;
 
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas, cuchilloImg, tajoImg, vueloImg, kTajoImg] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/arco.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/items.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/caras.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/guante.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/objetos2.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/hilo.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/jabalina.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/hacha.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/pico.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/mano.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/fuego.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/insignias.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/cuchillo.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/hacha-tajo.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/hacha-vuelo.png?v=20260905191432'),
-    cargarImagen('./arte/crudo/cuchillo-tajo.png?v=20260905191432')
+    cargarImagen('./arte/crudo/ciclope.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/arco.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/items.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/caras.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/guante.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/objetos2.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/hilo.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/jabalina.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/hacha.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/pico.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/mano.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/fuego.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/insignias.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/cuchillo.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/hacha-tajo.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/hacha-vuelo.png?v=20260906093925'),
+    cargarImagen('./arte/crudo/cuchillo-tajo.png?v=20260906093925')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -282,7 +283,8 @@ let otroLado = null;
 let cerco = null;
 let quemando = 0;
 const director = new Director();
-let grietaLista = false;
+let grieta = null;
+let dentroDesde = null;
 let jefeActual = null;
 let ganado = false;
 const elJefe = document.getElementById('jefe');
@@ -396,14 +398,15 @@ function cerrarRonda(n) {
   const m = otroLado.multiplicadores;
   soltarObjetos(otroLado.dentro ? n + 3 : n);
   director.terminaRonda(jugador, rondas.ultimoPerfil ? rondas.ultimoPerfil.cuantos : 3);
+  if (grieta && grieta.abierta) cerrarGrieta('LA GRIETA SE CERRO');
   if (otroLado.dentro) {
-    otroLado.salir();
-    avisar('SALISTE DEL OTRO LADO');
-  } else if (rondas.numero % 3 === 0) {
-    grietaLista = true;
-    otroLado.ofrecida = true;
-    verGrieta(true);
-    audio.sonar('portalAzul');
+    if (dentroDesde !== null && n - dentroDesde >= 3) abrirGrieta('salir');
+    else {
+      const faltan = Math.max(0, 3 - (n - dentroDesde));
+      avisar('ATRAPADO EN EL OTRO LADO — ' + (faltan === 1 ? 'FALTA 1 RONDA' : 'FALTAN ' + faltan + ' RONDAS'));
+    }
+  } else if (n % 3 === 0) {
+    abrirGrieta('entrar');
   }
 }
 
@@ -516,6 +519,21 @@ function moverJabalinas(dt) {
   }
 }
 
+function centroLibre() {
+  const cx = Math.floor(nivel.ancho / 2);
+  const cz = Math.floor(nivel.alto / 2);
+  let mejor = null, mejorD = Infinity;
+  for (let z = 1; z < nivel.alto - 1; z++) {
+    for (let x = 1; x < nivel.ancho - 1; x++) {
+      if (!'.@E+'.includes(nivel.rejilla[z][x])) continue;
+      const d = Math.hypot(x - cx, z - cz);
+      if (d < mejorD) { mejorD = d; mejor = { x, z }; }
+    }
+  }
+  const c = mejor || { x: cx, z: cz };
+  return new THREE.Vector3(c.x * CELDA + CELDA / 2, 0, c.z * CELDA + CELDA / 2);
+}
+
 function celdasLibres() {
   const libres = [];
   for (let z = 1; z < nivel.alto - 1; z++) {
@@ -540,8 +558,8 @@ function soltarUno(celda, pos) {
 function soltarObjetos(ronda) {
   if (!recursos.items.length) return;
   const libres = celdasLibres();
-  const menu = [6, 6, 6, 7, 0, 0, 1, 2, 3, 4, 5, 8, 9];
-  const cuantos = Math.min(9, 4 + Math.floor(ronda / 2));
+  const menu = [6, 6, 7, 0, 0, 1, 2, 3, 4, 5, 8, 9];
+  const cuantos = Math.min(7, 3 + Math.floor(ronda / 2));
   for (let i = 0; i < cuantos; i++) {
     const tipo = CATALOGO[menu[Math.floor(Math.random() * menu.length)]];
     const pos = libres[Math.floor(Math.random() * libres.length)];
@@ -562,7 +580,55 @@ const elAviso = document.getElementById('aviso');
 let tempBanner = 0, temporAviso = 0;
 
 const elGrieta = document.getElementById('grieta');
-function verGrieta(si) { elGrieta.classList.toggle('ver', !!si); }
+function verGrieta(si, modo) {
+  elGrieta.classList.toggle('ver', !!si);
+  elGrieta.classList.toggle('vuelta', modo === 'salir');
+  if (!si) return;
+  elGrieta.querySelector('b').textContent = modo === 'salir'
+    ? 'LA SALIDA SE ABRIO' : 'LA GRIETA SE ABRIO';
+  elGrieta.querySelector('span').innerHTML = modo === 'salir'
+    ? 'VE AL <i>CENTRO DEL MAPA</i> PARA VOLVER'
+    : 'VE AL <i>CENTRO DEL MAPA</i> Y METETE EN ELLA';
+}
+
+let tempLetrero = 0;
+function abrirGrieta(modo) {
+  if (!grieta) return;
+  otroLado.ofrecida = modo === 'entrar';
+  grieta.abrir(modo, jugador);
+  clearTimeout(tempLetrero);
+  tempLetrero = setTimeout(() => { if (grieta.abierta) verGrieta(true, modo); }, 2700);
+  audio.sonar('portalAzul');
+  avisar(modo === 'salir' ? 'LA SALIDA ESTA EN EL CENTRO' : 'LA GRIETA ESTA EN EL CENTRO');
+}
+
+function cerrarGrieta(aviso) {
+  clearTimeout(tempLetrero);
+  if (!grieta || !grieta.abierta) { verGrieta(false); return; }
+  grieta.cerrar();
+  verGrieta(false);
+  if (aviso) avisar(aviso);
+}
+
+function cruzarGrieta() {
+  const modo = grieta.modo;
+  clearTimeout(tempLetrero);
+  grieta.cerrar();
+  verGrieta(false);
+  audio.sonar('cruzar');
+  sacudida = 1.2;
+  if (modo === 'entrar') {
+    otroLado.entrar();
+    dentroDesde = rondas.numero;
+    destello('#c0304a', 0.7, 500);
+    anunciar('EL OTRO LADO', 'TRIPLE ORO — NO HAY SALIDA EN 3 RONDAS');
+  } else {
+    otroLado.salir();
+    dentroDesde = null;
+    destello('#7fd4ff', 0.6, 450);
+    anunciar('VOLVISTE A ITACA', 'EL MUNDO SE ACOMODA');
+  }
+}
 
 function anunciar(titulo, pie) {
   audio.sonar('ronda');
@@ -1225,7 +1291,7 @@ const CONTROLES = [
   ['X', 'Ojo del cazador: manten X y apunta a hasta 5 enemigos, suelta y les disparas a todos'],
   ['B', 'Pico de Hefesto: rompes el muro al que apuntes y deja escombros'],
   ['C', 'Mano de Poseidon: agarra un escombro, y con C otra vez lo lanzas'],
-  ['V', 'Cruzar al Otro Lado cuando la grieta se abre, entre rondas'],
+  ['V', 'Recordar donde esta la grieta cuando se abre'],
   ['M', 'Silenciar y devolver el sonido'],
   ['ESC', 'Pausa']
 ];
@@ -1460,8 +1526,11 @@ function panelComo() {
     principal en modos, armas de inicio y apariencia.</div>
 
     <div class="nota"><b>LA GRIETA</b>
-    Cada 3 rondas se abre. Con <b>V</b> cruzas al Otro Lado: el mismo palacio en
-    rojo, enemigos con casi el doble de vida pero <b>triple oro</b>. Dura una ronda.</div>
+    Cada 3 rondas se abre un <b>portal morado en el centro del mapa</b> (sale marcado en
+    el minimapa). Metete en el para cruzar al Otro Lado: el mismo palacio en rojo,
+    enemigos con casi el doble de vida pero <b>triple oro</b>.
+    <b>Una vez dentro no puedes salir hasta que pasen 3 rondas</b>: entonces se abre un
+    portal azul en el mismo centro y ese te regresa.</div>
 
     <div class="nota"><b>CONSEJOS</b>
     No te quedes quieto: los pretendientes tiran lanzas desde lejos. Cubrete tras
@@ -1581,8 +1650,8 @@ function reiniciar() {
   rondas.reiniciar();
   tienda.reiniciar();
   director.reiniciar();
-  grietaLista = false;
-  verGrieta(false);
+  dentroDesde = null;
+  cerrarGrieta();
   quemando = 0;
   if (cerco) cerco.apagar();
   ganado = false;
@@ -1611,15 +1680,10 @@ lienzo.addEventListener('click', () => {
 
 addEventListener('keydown', e => {
   if (e.code === 'KeyM') avisar(audio.mudo() ? 'SILENCIO' : 'SONIDO');
-  if (e.code === 'KeyV' && grietaLista && jugador && jugador.activo &&
-      rondas && rondas.estado === 'descanso') {
-    grietaLista = false;
-    verGrieta(false);
-    otroLado.entrar();
-    audio.sonar('cruzar');
-    destello('#c0304a', 0.7, 500);
-    sacudida = 1.2;
-    anunciar('EL OTRO LADO', 'MAS DUROS, TRIPLE ORO');
+  if (e.code === 'KeyV' && jugador && jugador.activo) {
+    avisar(grieta && grieta.abierta
+      ? 'LA GRIETA ESTA EN EL CENTRO DEL MAPA'
+      : 'LA GRIETA ESTA CERRADA');
   }
 });
 
@@ -1680,6 +1744,16 @@ const elVivos = document.getElementById('vivos');
 let minimapa = null;
 const marcas = new Marcas(document.getElementById('marcas'));
 
+const elDescanso = document.getElementById('descanso');
+function pintarDescanso() {
+  const enPausa = rondas && rondas.estado === 'descanso' && jugador && jugador.activo;
+  elDescanso.classList.toggle('ver', !!enPausa);
+  if (!enPausa) return;
+  if (tienda.abierta) { elDescanso.innerHTML = 'EL RELOJ SE DETIENE MIENTRAS COMERCIAS'; return; }
+  const seg = Math.ceil(rondas.restante);
+  elDescanso.innerHTML = 'SIGUIENTE RONDA EN<b>' + seg + '</b>' + (seg === 1 ? 'SEGUNDO' : 'SEGUNDOS');
+}
+
 function pintarHud() {
   elVida.textContent = jugador.vida;
   elFlechas.textContent = jugador.flechas;
@@ -1691,6 +1765,7 @@ function pintarHud() {
   if (jugador.guante) elRayo.textContent = Math.round(jugador.rayo);
   elCuchillos.textContent = jugador.cuchillos;
   elRonda.textContent = rondas ? rondas.numero : 0;
+  pintarDescanso();
   if (jefeActual && jefeActual.vivo) {
     elJefe.classList.add('ver');
     rellenoJefe.style.width = Math.max(0, (jefeActual.vida / jefeActual.vidaMax) * 100) + '%';
@@ -1871,7 +1946,7 @@ function paso(dt) {
       e.actualizar(dt, jugador, camara);
       if (!e.vivo && !e.saqueado) {
         e.saqueado = true;
-        if (Math.random() < (jugador.vida < jugador.vidaMax * 0.5 ? 0.28 : 0.13)) {
+        if (Math.random() < (jugador.vida < jugador.vidaMax * 0.5 ? 0.16 : 0.06)) {
           soltarUno(6, e.malla.position);
         }
       }
@@ -1891,6 +1966,10 @@ function paso(dt) {
     }
     if (relojFuria > 0) relojFuria -= dt;
     otroLado.actualizar(dt);
+    if (grieta && grieta.abierta) {
+      elGrieta.classList.toggle('cerca', grieta.distancia(jugador) < 11);
+      if (grieta.actualizar(dt, jugador)) cruzarGrieta();
+    }
     cerco.actualizar(dt, camara);
     if (cerco.fuera(jugador.pos)) {
       quemando += dt;
@@ -1973,7 +2052,7 @@ function paso(dt) {
   if (portales) portales.pintarVistas(camara);
   pintarHud();
   if (minimapa) {
-    minimapa.dibujar(dt, jugador, enemigos, objetos);
+    minimapa.dibujar(dt, jugador, enemigos, objetos, grieta && grieta.abierta ? grieta : null);
     if (jugador.activo) marcas.dibujar(jugador, enemigos);
     else marcas.ctx.clearRect(0, 0, marcas.lienzo.width, marcas.lienzo.height);
   }
@@ -2058,7 +2137,11 @@ cargarArte().then(() => {
     bloqueado: () => tienda.abierta,
     ajustar: p => director.ajustar(p),
     alEmpezar: n => {
-      if (grietaLista) { grietaLista = false; verGrieta(false); avisar('LA GRIETA SE CERRO'); }
+      if (grieta && grieta.abierta) {
+        clearTimeout(tempLetrero);
+        verGrieta(false);
+        avisar('LA GRIETA SIGUE ABIERTA EN EL CENTRO');
+      }
       director.empiezaRonda();
       jugador.picos = 6;
       if (modoActivo('cerco') && n % 5 === 0 && !rondas.ultimoPerfil.jefe && cerco.encender()) {
@@ -2068,6 +2151,7 @@ cargarArte().then(() => {
   });
   flujo = new Flujo(nivel);
   otroLado = new OtroLado({ escena, nivel, antorcha, ambiente, cenit });
+  grieta = new Grieta(escena, centroLibre());
   cerco = new Cerco(escena, nivel, recursos.fuego);
   portales = new Portales(escena, nivel, renderer);
   portales.antorcha = antorcha;
@@ -2107,18 +2191,13 @@ cargarArte().then(() => {
       },
       tienda: () => jugador.alComerciar && jugador.alComerciar(),
       grieta: () => {
-        if (!grietaLista || rondas.estado !== 'descanso') { avisar('LA GRIETA ESTA CERRADA'); return; }
-        grietaLista = false;
-        verGrieta(false);
-        otroLado.entrar();
-        audio.sonar('cruzar');
-        destello('#c0304a', 0.7, 500);
-        sacudida = 1.2;
-        anunciar('EL OTRO LADO', 'MAS DUROS, TRIPLE ORO');
+        avisar(grieta && grieta.abierta
+          ? 'LA GRIETA ESTA EN EL CENTRO DEL MAPA'
+          : 'LA GRIETA ESTA CERRADA');
       }
     });
   }
 
-  window.__juego = { jugador, enemigos, objetos, escena, camara, nivel, flechas, rondas, tienda, portales, audio, otroLado, director, cerco, paso, abrirGrieta: () => { grietaLista = true; } };
+  window.__juego = { jugador, enemigos, objetos, escena, camara, nivel, flechas, rondas, tienda, portales, audio, otroLado, director, cerco, paso, grieta, abrirGrieta };
   bucle();
 });
