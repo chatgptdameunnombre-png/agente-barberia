@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260907155502';
+import { RELIQUIAS } from './reliquias.js?v=20260907160438';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -72,6 +72,8 @@ const BASICOS = [
     desc: 'Te cura 60 cuando lo uses' },
   { id: 'fuego', nombre: 'FUEGO GRIEGO', precio: 85, celda: 9, respaldo: 4,
     desc: 'Quema a todo el que tengas cerca' },
+  { id: 'bomba', nombre: 'FUEGO DE HEFESTO', precio: 120, celda: 9, respaldo: 4,
+    desc: 'La lanzas y se pega al primero que toca. Estalla a los 2 segundos: 200 al pegado y 90 alrededor. A ti tambien si estas cerca' },
   { id: 'jabalina', nombre: 'JABALINA', precio: 75, celda: 10, respaldo: 3,
     desc: 'Un tiro que atraviesa y mata casi todo' },
   { id: 'vino', nombre: 'VINO DE DIONISO', precio: 95, celda: 11, respaldo: 6,
