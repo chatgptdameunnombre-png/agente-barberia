@@ -24,22 +24,18 @@ export class Rondas {
     return n === 15;
   }
 
+  vidaDe(n) {
+    return n <= 8 ? 55 + (n - 1) * 13 : 146 + (n - 8) * 6;
+  }
+
   perfil(n) {
-    if (this.esRondaJefe(n)) {
-      return {
-        cuantos: 5,
-        vida: 55 + (n - 1) * 13,
-        velocidad: Math.min(7.2, 4 + n * 0.2),
-        dano: Math.min(26, 12 + n),
-        jefe: true
-      };
-    }
-    return {
-      cuantos: Math.min(20, 2 + Math.floor(n * 1.5)),
-      vida: 55 + (n - 1) * 13,
-      velocidad: Math.min(7.2, 4 + n * 0.2),
-      dano: Math.min(26, 12 + n)
+    const base = {
+      vida: this.vidaDe(n),
+      velocidad: Math.min(6.6, 4 + n * 0.17),
+      dano: Math.min(21, 11 + Math.floor(n * 0.75))
     };
+    if (this.esRondaJefe(n)) return { ...base, cuantos: 5, jefe: true };
+    return { ...base, cuantos: Math.min(16, 2 + Math.floor(n * 1.2)) };
   }
 
   puntosLejanos(jugador, cuantos) {

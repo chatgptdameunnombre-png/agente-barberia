@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260907112716';
+import { RELIQUIAS } from './reliquias.js?v=20260907113303';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -197,9 +197,13 @@ export class Tienda {
     this.previa = this.oferta.map(o => o.id);
   }
 
-  abrir() {
+  nuevaRonda() {
     this.yaCompro = false;
-    this._armarOferta();
+    this.oferta = null;
+  }
+
+  abrir() {
+    if (!this.oferta) this._armarOferta();
     this.pintar();
     this.abierta = true;
     this.caja.classList.add('ver');

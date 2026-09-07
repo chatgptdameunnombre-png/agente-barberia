@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260907112716';
+import { CELDA, esSolido } from './mapa.js?v=20260907113303';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -24,7 +24,7 @@ export class Jugador {
     this.armaduraMax = 100;
     this.oro = 0;
     this.flechas = 40;
-    this.flechasMax = 60;
+    this.flechasMax = 80;
     this.bajas = 0;
     this.mult = { tension: 1, dano: 1, velocidad: 1, velFlecha: 1 };
     this.doble = false;
