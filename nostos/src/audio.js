@@ -250,9 +250,11 @@ export class Audio {
     }
   }
 
-  callarMusica() {
+  callarMusica(lento) {
     if (!this.listo) return;
-    this.canalMusica.gain.setTargetAtTime(0, this.ctx.currentTime, 0.8);
+    if (this.relojCambio) { clearTimeout(this.relojCambio); this.cambiando = false; }
+    this.opMusica = (this.opMusica || 0) + 1;
+    this.canalMusica.gain.setTargetAtTime(0, this.ctx.currentTime, lento ? 2.4 : 0.8);
   }
 
   _arrancarMusica() {
