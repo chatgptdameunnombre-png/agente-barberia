@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260907114205';
-import { CELDA, esSolido } from './mapa.js?v=20260907114205';
+import { Billboard } from './sprites.js?v=20260907114622';
+import { CELDA, esSolido } from './mapa.js?v=20260907114622';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -9,7 +9,9 @@ const MARCAS = {
   rayo:   { tinte: 0xbfe4ff, oscurece: 0.85 },
   fuego:  { tinte: 0xff9a4a, oscurece: 0.8 },
   hielo:  { tinte: 0x9fd8ff, oscurece: 0 },
-  piedra: { tinte: 0xb9a98f, oscurece: 0.35 }
+  piedra: { tinte: 0xb9a98f, oscurece: 0.35 },
+  lanza:  { tinte: 0xffffff, oscurece: 0 },
+  cuchillo: { tinte: 0xffffff, oscurece: 0 }
 };
 
 export const TIPOS = {

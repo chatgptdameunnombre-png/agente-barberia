@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260907114205';
+import { RELIQUIAS } from './reliquias.js?v=20260907114622';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -221,6 +221,7 @@ export class Tienda {
     this.bolsa.textContent = 'LLEVAS ' + this.jugador.oro + ' DE ORO' +
       (this.yaCompro ? '  ·  SOLO UNA COMPRA POR RONDA' : '');
     this.rejilla.innerHTML = '';
+    this.rejilla.style.gridTemplateColumns = 'repeat(' + Math.max(1, this.oferta.length) + ',1fr)';
     this.oferta.forEach(art => {
       const precio = Math.round(art.precio * this.descuento);
       const ranura = this.ocupaRanura(art);
@@ -228,7 +229,7 @@ export class Tienda {
       const sobra = !!(art.inutil && art.inutil(this.jugador));
       const puede = this.jugador.oro >= precio && !sinHueco && !sobra && !this.yaCompro;
       const t = document.createElement('div');
-      t.className = 'carta' + (puede ? '' : ' pobre');
+      t.className = 'carta' + (puede ? ' listo' : ' pobre');
       t.innerHTML = `
         <div class="ico" style="background-image:${this._icono(art)}"></div>
         <b>${art.nombre}</b>

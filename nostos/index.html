@@ -218,9 +218,18 @@
   #tienda h3 { color:#e8c14a; font-size:34px; letter-spacing:12px; text-shadow:3px 3px 0 #000; }
   #tienda .lema { color:#a08a63; font-size:12px; letter-spacing:4px; margin-top:8px; }
   #tienda .rejilla { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  @media (max-width:900px) { #tienda .rejilla { gap:9px; } #tienda .carta { padding:12px 8px; } }
   #tienda .carta { padding:16px 12px; border:2px solid #4a3418; background:rgba(0,0,0,.35);
                    cursor:pointer; transition:transform .12s, border-color .12s; }
   #tienda .carta:hover { transform:translateY(-5px); border-color:#e8c14a; }
+  #tienda .carta.listo { border-color:#8a6a2a; background:rgba(232,193,74,.09);
+                         box-shadow:0 0 0 rgba(232,193,74,0); animation:brillaCarta 1.9s infinite; }
+  #tienda .carta.listo:hover { animation:none; box-shadow:0 0 26px rgba(232,193,74,.5); }
+  @keyframes brillaCarta {
+    0%,100% { box-shadow:0 0 6px rgba(232,193,74,.12); border-color:#8a6a2a; }
+    50%     { box-shadow:0 0 22px rgba(232,193,74,.42); border-color:#e8c14a; }
+  }
+  #tienda .carta.listo em { color:#ffe27a; }
   #tienda .carta.pobre { opacity:.34; cursor:not-allowed; }
   #tienda .carta.pobre:hover { transform:none; border-color:#4a3418; }
   #tienda .ico { height:72px; background:center/contain no-repeat; image-rendering:pixelated; margin-bottom:10px; }
@@ -359,6 +368,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260907114205"></script>
+  <script type="module" src="./src/main.js?v=20260907114622"></script>
 </body>
 </html>
