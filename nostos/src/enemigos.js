@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260907113303';
-import { CELDA, esSolido } from './mapa.js?v=20260907113303';
+import { Billboard } from './sprites.js?v=20260907114205';
+import { CELDA, esSolido } from './mapa.js?v=20260907114205';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -48,6 +48,8 @@ export class Enemigo {
     this.confundido = 0;
     this.tinteBase = 0xffffff;
     this.presa = null;
+    this.atascoPresa = 0;
+    this.buscarPresa = ajustes.buscarPresa || null;
     this.atasco = 0;
     this.ultimoX = pos.x;
     this.ultimoZ = pos.z;
@@ -76,14 +78,21 @@ export class Enemigo {
       this.reloj = 0;
       this.cuadro = 0;
       this.marcaMuerte = marca || null;
-      this.sprite.fijarVistas([this.recursos.muere[0]]);
+      this.sprite.fijarVistas([this._cuadrosMuerte()[0]]);
       if (this.alMorir) this.alMorir(this);
       return true;
     }
     return false;
   }
 
+  _cuadrosMuerte() {
+    const propia = this.marcaMuerte && this.recursos['muere' +
+      this.marcaMuerte.charAt(0).toUpperCase() + this.marcaMuerte.slice(1)];
+    return propia && propia.length ? propia : this.recursos.muere;
+  }
+
   _tintarMuerte(avance) {
+    if (this._cuadrosMuerte() !== this.recursos.muere) return;
     const m = MARCAS[this.marcaMuerte];
     if (!m) return;
     const c = this.sprite.material.color;
@@ -144,7 +153,15 @@ export class Enemigo {
     if (this.confundido > 0) {
       this.confundido -= dt;
       this.sprite.material.color.setHex(0xff9a6a);
-      if (this.confundido <= 0) this.sprite.material.color.setHex(0xffffff);
+      if ((!this.presa || !this.presa.vivo || this.atascoPresa > 1.1) && this.buscarPresa) {
+        const otra = this.buscarPresa(this);
+        if (otra) { this.presa = otra; this.atascoPresa = 0; }
+      }
+      if (this.confundido <= 0) {
+        this.presa = null;
+        this.atascoPresa = 0;
+        this.sprite.material.color.setHex(this.tinteBase);
+      }
     } else if (this.sprite.material.color.getHex() !== this.tinteBase) {
       this.sprite.material.color.setHex(this.tinteBase);
     }
@@ -155,7 +172,7 @@ export class Enemigo {
     const dist = Math.hypot(dx, dz);
 
     if (this.estado === 'muriendo') {
-      const cuadros = this.recursos.muere;
+      const cuadros = this._cuadrosMuerte();
       const paso = Math.min(cuadros.length - 1, Math.floor(this.reloj / 0.16));
       if (paso !== this.cuadro) {
         this.cuadro = paso;
@@ -243,6 +260,9 @@ export class Enemigo {
         this.ultimoX = this.pos.x;
         this.ultimoZ = this.pos.z;
         this.atasco = avance < this.velocidad * dt * 0.25 ? this.atasco + dt : 0;
+        if (enfurecido) {
+          this.atascoPresa = avance < this.velocidad * dt * 0.3 ? this.atascoPresa + dt : 0;
+        }
         if (this.atasco > 0.8) {
           const cx = Math.floor(this.pos.x / CELDA);
           const cz = Math.floor(this.pos.z / CELDA);

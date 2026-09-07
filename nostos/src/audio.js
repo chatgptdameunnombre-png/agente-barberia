@@ -11,6 +11,8 @@ export class Audio {
     this.ctx = null;
     this.listo = false;
     this.silencio = localStorage.getItem('nostos.mudo') === '1';
+    this.silencioMusica = localStorage.getItem('nostos.mudoMusica') === '1';
+    this.silencioEfectos = localStorage.getItem('nostos.mudoEfectos') === '1';
     this.volumen = 0.75;
     this.oyente = { x: 0, z: 0, yaw: 0 };
     this.musicaViva = false;
@@ -30,7 +32,7 @@ export class Audio {
     this.maestro.connect(this.ctx.destination);
 
     this.canalEfectos = this.ctx.createGain();
-    this.canalEfectos.gain.value = 0.55;
+    this.canalEfectos.gain.value = this.silencioEfectos ? 0 : 0.55;
     this.canalEfectos.connect(this.maestro);
 
     this.canalMusica = this.ctx.createGain();
@@ -40,6 +42,34 @@ export class Audio {
     this.ruidoBuffer = this._ruido(1.6);
     this.listo = true;
     this._cargarMuestras();
+    if (!this._pegadoVisibilidad) {
+      this._pegadoVisibilidad = true;
+      document.addEventListener('visibilitychange', () => {
+        if (!this.ctx) return;
+        if (document.hidden) this.ctx.suspend();
+        else if (this.ctx.state === 'suspended') this.ctx.resume();
+      });
+    }
+  }
+
+  mudoMusica(valor) {
+    this.silencioMusica = valor === undefined ? !this.silencioMusica : valor;
+    localStorage.setItem('nostos.mudoMusica', this.silencioMusica ? '1' : '0');
+    if (this.canalMusica) {
+      this.canalMusica.gain.setTargetAtTime(
+        this.silencioMusica ? 0 : 0.34, this.ctx.currentTime, 0.3);
+    }
+    return this.silencioMusica;
+  }
+
+  mudoEfectos(valor) {
+    this.silencioEfectos = valor === undefined ? !this.silencioEfectos : valor;
+    localStorage.setItem('nostos.mudoEfectos', this.silencioEfectos ? '1' : '0');
+    if (this.canalEfectos) {
+      this.canalEfectos.gain.setTargetAtTime(
+        this.silencioEfectos ? 0 : 0.55, this.ctx.currentTime, 0.1);
+    }
+    return this.silencioEfectos;
   }
 
   _cargarMuestras() {
@@ -225,7 +255,7 @@ export class Audio {
   }
 
   sonar(nombre, pos, fuerza = 1) {
-    if (!this.listo || this.silencio) return;
+    if (!this.listo || this.silencio || this.silencioEfectos) return;
     const voz = VOCES[nombre];
     if (!voz) return;
     const salida = this._salida(pos, voz.vol === undefined ? 1 : voz.vol);
@@ -240,6 +270,10 @@ export class Audio {
     this.intensidad = intensidad;
     if (!this.musicaViva) this._arrancarMusica();
     const t = this.ctx.currentTime;
+    if (this.silencioMusica) {
+      this.canalMusica.gain.setTargetAtTime(0, t, 0.3);
+      return;
+    }
     const conPista = !!(this.pistas && this.pistaActual);
     const base = conPista ? 0.34 : 0.06;
     const rango = conPista ? 0.34 : 0.16;
