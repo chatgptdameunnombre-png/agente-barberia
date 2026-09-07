@@ -1,26 +1,27 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260907160438';
-import { Jugador } from './jugador.js?v=20260907160438';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260907160438';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior } from './sprites.js?v=20260907160438';
-import { Objeto, CATALOGO } from './objetos.js?v=20260907160438';
-import { Rondas } from './rondas.js?v=20260907160438';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260907160438';
-import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260907160438';
-import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260907160438';
-import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260907160438';
-import { Minimapa, Marcas } from './minimapa.js?v=20260907160438';
-import { Flujo } from './flujo.js?v=20260907160438';
-import { Portales, trazar } from './portales.js?v=20260907160438';
-import { romper } from './mapa.js?v=20260907160438';
-import { Audio } from './audio.js?v=20260907160438';
-import { OtroLado } from './otrolado.js?v=20260907160438';
-import { Grieta } from './grieta.js?v=20260907160438';
-import { Director } from './director.js?v=20260907160438';
-import { Cerco } from './cerco.js?v=20260907160438';
-import { esTactil, esTelefono, Tactil } from './tactil.js?v=20260907160438';
-import { TIPOS as T } from './enemigos.js?v=20260907160438';
-import { siluetaCiclope } from './texturas.js?v=20260907160438';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260907165729';
+import { Jugador } from './jugador.js?v=20260907165729';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260907165729';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior, Billboard } from './sprites.js?v=20260907165729';
+import { Objeto, CATALOGO } from './objetos.js?v=20260907165729';
+import { Rondas } from './rondas.js?v=20260907165729';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260907165729';
+import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260907165729';
+import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260907165729';
+import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260907165729';
+import { Minimapa, Marcas } from './minimapa.js?v=20260907165729';
+import { Flujo } from './flujo.js?v=20260907165729';
+import { Portales, trazar } from './portales.js?v=20260907165729';
+import { romper } from './mapa.js?v=20260907165729';
+import { Audio } from './audio.js?v=20260907165729';
+import { OtroLado } from './otrolado.js?v=20260907165729';
+import { Grieta } from './grieta.js?v=20260907165729';
+import { Director } from './director.js?v=20260907165729';
+import { Cerco } from './cerco.js?v=20260907165729';
+import { esTactil, esTelefono, Tactil } from './tactil.js?v=20260907165729';
+import { TIPOS as T } from './enemigos.js?v=20260907165729';
+import { siluetaCiclope } from './texturas.js?v=20260907165729';
+import { Misiones, ARCOS } from './misiones.js?v=20260907165729';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -103,6 +104,7 @@ let imagenesHilo = [];
 let hiloReloj = 0;
 let hiloCuadro = 1;
 let imagenesJabalina = [];
+let imagenesBomba = [];
 let jabalinaReloj = 0;
 let bombaReloj = 0;
 let jabalinaCuadro = 1;
@@ -129,40 +131,51 @@ let destelloGuante = 0;
 let texturasNivel = null;
 
 async function cargarArte() {
-  const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas, cuchilloImg, tajoImg, vueloImg, kTajoImg, cicRayo, cicLanza, cicCuchillo, cicFuego, cicHacha, cicBomba, fichasImg] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/arco.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/items.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/caras.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/guante.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/objetos2.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/hilo.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/jabalina.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/hacha.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/pico.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/mano.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/fuego.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/insignias.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/cuchillo.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/hacha-tajo.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/hacha-vuelo.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/cuchillo-tajo.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/ciclope-rayo.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/ciclope-lanza.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/ciclope-cuchillo.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/ciclope-fuego.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/ciclope-hacha.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/ciclope-bomba.png?v=20260907160438'),
-    cargarImagen('./arte/crudo/fichas.png?v=20260907160438')
+  const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas, cuchilloImg, tajoImg, vueloImg, kTajoImg, cicRayo, cicLanza, cicCuchillo, cicFuego, cicHacha, cicBomba, fichasImg,
+    polIdle, polAtk, polDie, bombaMano, bombaPeg, ...hojasArco] = await Promise.all([
+    cargarImagen('./arte/crudo/ciclope.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/arco.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/texturas.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/items.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/tienda.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/pretendiente.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/cuerno.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/mercader.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/caras.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/guante.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/objetos2.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/hilo.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/jabalina.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/hacha.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/pico.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/mano.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/fuego.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/insignias.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/cuchillo.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/hacha-tajo.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/hacha-vuelo.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/cuchillo-tajo.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/ciclope-rayo.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/ciclope-lanza.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/ciclope-cuchillo.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/ciclope-fuego.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/ciclope-hacha.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/ciclope-bomba.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/fichas.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/polifemo.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/polifemo-ataca.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/polifemo-muere.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/bomba.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/bomba-pegada.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/arco-fontanero.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/arco-sierra.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/arco-portal.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/arco-fantasma.png?v=20260907165729'),
+    cargarImagen('./arte/crudo/arco-sable.png?v=20260907165729')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -178,6 +191,26 @@ async function cargarArte() {
   if (cicHacha) recursos.ciclope.muereHacha = cortarTira(cicHacha, 4);
   if (cicBomba) recursos.ciclope.muereBomba = cortarTira(cicBomba, 4);
   if (fichasImg) recursos.fichas = cortarRejilla(fichasImg, 6, 1, { margen: 0.02, transparente: true });
+  if (polIdle) {
+    const pq = cortarTira(polIdle, 4);
+    recursos.polifemo = {
+      quieto: pq,
+      ataca: polAtk ? cortarTira(polAtk, 4) : pq.slice(0, 1),
+      muere: polDie ? cortarTira(polDie, 4) : pq.slice(0, 1)
+    };
+  } else {
+    recursos.polifemo = recursos.ciclope;
+  }
+  if (bombaMano) {
+    recursos.bomba = cortarTira(bombaMano, 3, { ajustar: true, altoComun: true });
+    imagenesBomba = recursos.bomba.map(t => t.image.toDataURL());
+  }
+  if (bombaPeg) recursos.bombaPegada = cortarTira(bombaPeg, 4);
+  ['arcoFontanero', 'arcoSierra', 'arcoPortal', 'arcoFantasma', 'arcoSable'].forEach((clave, i) => {
+    const img = hojasArco[i];
+    if (!img) return;
+    recursos[clave] = cortarTira(img, 3, { ajustar: true, altoComun: true }).map(t => t.image.toDataURL());
+  });
   if (pIdle) {
     const pq = cortarTira(pIdle, 4);
     recursos.pretendiente = {
@@ -299,6 +332,7 @@ let cerco = null;
 let quemando = 0;
 const director = new Director();
 let grieta = null;
+let misiones = null;
 let dentroDesde = null;
 const RONDAS_GRIETA = [3, 13];
 const cierraGrieta = n => RONDAS_GRIETA.includes(n - 2);
@@ -412,6 +446,7 @@ function cerrarRonda(n) {
   const m = otroLado.multiplicadores;
   soltarObjetos(otroLado.dentro ? n + 3 : n);
   director.terminaRonda(jugador, rondas.ultimoPerfil ? rondas.ultimoPerfil.cuantos : 3);
+  if (misiones) misiones.rondaDentro(otroLado.dentro);
   if (modoActivo('otroladoFijo')) {
     /* el mundo rojo es permanente: no hay grieta */
   } else if (RONDAS_GRIETA.includes(n)) {
@@ -439,6 +474,8 @@ function nacer(pos, cfg, indice) {
   if (tipo === TIPOS.jefe) {
     e.esJefe = true;
     e.vidaMax = e.vida;
+    e.furioso = false;
+    e.relojColumna = 4;
     jefeActual = e;
     audio.cambiarPista('jefe', true);
   }
@@ -595,8 +632,17 @@ function presaCercana(yo) {
   return null;
 }
 
+function arcoPuesto() {
+  if (!misiones) return null;
+  const id = misiones.arcoPuesto;
+  if (!id || !misiones.ganado(id)) return null;
+  const a = ARCOS.find(x => x.id === id);
+  return a && recursos[a.hoja] ? a.hoja : null;
+}
+
 function marcarBaja() {
   jugador.bajas++;
+  if (misiones) misiones.sumar('bajas', 1);
   jugador.oro += Math.round((13 + rondas.numero * 2) * otroLado.multiplicadores.oro);
 }
 
@@ -701,11 +747,18 @@ const matBomba = new THREE.MeshLambertMaterial({ color: 0x6b4a2a, emissive: 0x22
 
 function lanzarBomba() {
   const dir = jugador.direccion();
-  const m = new THREE.Mesh(geoBomba, matBomba.clone());
+  let m, sprite = null;
+  if (recursos.bombaPegada && recursos.bombaPegada.length) {
+    sprite = new Billboard([recursos.bombaPegada[0]], 1.6, 1.6, { basico: true });
+    m = sprite.grupo;
+  } else {
+    m = new THREE.Mesh(geoBomba, matBomba.clone());
+  }
   m.position.copy(camara.position).addScaledVector(dir, 1.2);
   escena.add(m);
   bombas.push({
     malla: m,
+    sprite,
     vel: dir.clone().multiplyScalar(22).setY(dir.y * 22 + 7),
     mecha: 2,
     pegada: null,
@@ -743,8 +796,16 @@ function moverBombas(dt) {
     const b = bombas[i];
     b.mecha -= dt;
     const carga = 1 - Math.max(0, b.mecha) / 2;
-    b.malla.material.emissive.setRGB(carga * 0.9, carga * 0.35, 0);
-    b.malla.scale.setScalar(1 + carga * 0.35);
+    if (b.sprite) {
+      const cuadros = recursos.bombaPegada;
+      const i = Math.min(cuadros.length - 1, Math.floor(carga * cuadros.length));
+      if (i !== b.cuadro) { b.cuadro = i; b.sprite.fijarVistas([cuadros[i]]); }
+      b.sprite.encarar(camara, 0);
+      b.malla.scale.setScalar(1 + carga * 0.25);
+    } else {
+      b.malla.material.emissive.setRGB(carga * 0.9, carga * 0.35, 0);
+      b.malla.scale.setScalar(1 + carga * 0.35);
+    }
 
     if (b.pegada) {
       if (!b.pegada.vivo && !b.pegada.malla.parent) b.pegada = null;
@@ -1078,10 +1139,14 @@ function picar() {
   minimapa.refrescar();
   flujo.reloj = 0;
 
-  const centro = new THREE.Vector3(
-    golpe.celda.x * CELDA + CELDA / 2, 1, golpe.celda.z * CELDA + CELDA / 2
-  );
-  for (let i = 0; i < 3; i++) {
+  soltarEscombros(golpe.celda.x, golpe.celda.z, 3);
+  misiones.sumar('muros', 1);
+  avisar('MURO ROTO · TE QUEDAN ' + jugador.picos);
+}
+
+function soltarEscombros(cx, cz, cuantos) {
+  const centro = new THREE.Vector3(cx * CELDA + CELDA / 2, 1, cz * CELDA + CELDA / 2);
+  for (let i = 0; i < cuantos; i++) {
     const m = new THREE.Mesh(geoEscombro, matEscombro);
     m.position.set(
       centro.x + (Math.random() - 0.5) * 2.6,
@@ -1092,7 +1157,70 @@ function picar() {
     escena.add(m);
     escombros.push({ malla: m });
   }
-  avisar('MURO ROTO · TE QUEDAN ' + jugador.picos);
+}
+
+function mandoJefe(dt) {
+  const j = jefeActual;
+  if (!j.furioso && j.vida <= j.vidaMax * 0.5) {
+    j.furioso = true;
+    j.velocidad *= 1.5;
+    j.dano = Math.round(j.dano * 1.25);
+    j.tinteBase = 0xff8a6a;
+    anunciar('POLIFEMO SE ENFURECE', 'LLAMA A LOS SUYOS');
+    audio.sonar('rugido', j.pos);
+    destello('#c0304a', 0.5, 600);
+    sacudida = 1.4;
+    const perfil = rondas.ultimoPerfil || {};
+    const cria = { vida: Math.round((perfil.vida || 150) * 0.6), dano: perfil.dano || 18,
+                   velocidad: (perfil.velocidad || 5) * 1.1 };
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2;
+      const p = new THREE.Vector3(j.pos.x + Math.cos(a) * 7, 0, j.pos.z + Math.sin(a) * 7);
+      nacer(p, cria, 0);
+    }
+  }
+
+  j.relojColumna -= dt;
+  if (j.relojColumna <= 0) {
+    j.relojColumna = j.furioso ? 5.5 : 8;
+    const d = Math.hypot(jugador.pos.x - j.pos.x, jugador.pos.z - j.pos.z);
+    if (d < 26) columnazo(j);
+  }
+}
+
+function columnazo(jefe) {
+  const cx = Math.floor(jefe.pos.x / CELDA);
+  const cz = Math.floor(jefe.pos.z / CELDA);
+  audio.sonar('piedra', jefe.pos);
+  sacudida = Math.max(sacudida, 1.4);
+  destello('#c9b48a', 0.35, 220);
+
+  let rotos = 0;
+  for (let dz = -2; dz <= 2 && rotos < 3; dz++) {
+    for (let dx = -2; dx <= 2 && rotos < 3; dx++) {
+      if (!dx && !dz) continue;
+      if (romper(nivel, cx + dx, cz + dz)) {
+        soltarEscombros(cx + dx, cz + dz, 2);
+        rotos++;
+      }
+    }
+  }
+  if (rotos) { minimapa.refrescar(); flujo.reloj = 0; }
+
+  const d = Math.hypot(jugador.pos.x - jefe.pos.x, jugador.pos.z - jefe.pos.z);
+  if (d < 11) {
+    jugador.recibir(Math.round(jefe.dano * 0.8));
+    const ux = (jugador.pos.x - jefe.pos.x) / (d || 1);
+    const uz = (jugador.pos.z - jefe.pos.z) / (d || 1);
+    for (let i = 0; i < 8; i++) {
+      const nx = jugador.pos.x + ux * 0.7;
+      const nz = jugador.pos.z + uz * 0.7;
+      if (jugador._colisionar(nx, jugador.pos.z)) break;
+      jugador.pos.x = nx;
+      if (!jugador._colisionar(jugador.pos.x, nz)) jugador.pos.z = nz;
+    }
+    avisar(rotos ? 'POLIFEMO REVIENTA EL MURO' : 'EL SUELO TIEMBLA');
+  }
 }
 
 function agarrar() {
@@ -1383,7 +1511,7 @@ function usarConsumible(id) {
     avisar('FUEGO GRIEGO: ' + tocados);
   } else if (id === 'bomba') {
     bombaReloj = 0.5;
-    lanzarBomba();
+    setTimeout(() => { if (!muerto) lanzarBomba(); }, 170);
     avisar('FUEGO DE HEFESTO');
   } else if (id === 'jabalina') {
     jabalinaReloj = 0.6;
@@ -1480,6 +1608,48 @@ function panelControles() {
     .map(([k, d]) => `<tr><td class="tecla">${k}</td><td>${d}</td></tr>`)
     .join('');
   abrirPanel(`<h3>BOTONES</h3><table>${filas}</table>`);
+}
+
+function panelPersonaje() {
+  const r = leerRecord();
+  const puesto = misiones ? misiones.arcoPuesto : null;
+  const filas = ARCOS.map(a => {
+    const p = misiones.progreso(a);
+    const hoja = recursos[a.hoja];
+    const ico = hoja && hoja[0] ? `background-image:url(${hoja[0]})` : '';
+    const pct = Math.round((p.hecho / p.meta) * 100);
+    let boton;
+    if (!p.listo) boton = `<button class="accion" disabled>${p.hecho} / ${p.meta}</button>`;
+    else if (puesto === a.id) boton = `<button class="accion" data-arco="">QUITAR</button>`;
+    else boton = `<button class="accion" data-arco="${a.id}">PONER</button>`;
+    return `<tr class="${p.listo ? (puesto === a.id ? 'puesto' : '') : 'bloqueado'}">
+      <td class="ico"><div style="${ico}"></div></td>
+      <td class="nom">${a.nombre}</td>
+      <td>${a.pista}
+        <div class="barra${p.listo ? ' listo' : ''}"><i style="width:${pct}%"></i></div></td>
+      <td class="precio">${boton}</td></tr>`;
+  }).join('');
+
+  abrirPanel(`<h3>PERSONAJE</h3>
+    <span class="bolsa">MEJOR RONDA ${r.ronda || 0} · ${r.bajas || 0} BAJAS · ${r.gloria || 0} DE GLORIA GANADA</span>
+    <h4>ARCOS — se ganan jugando, no se compran</h4>
+    <table>${filas}</table>
+    <h4>LO QUE LLEVAS HECHO</h4>
+    <table>
+      <tr><td class="nom">MUROS ROTOS</td><td>${misiones.get('muros')}</td></tr>
+      <tr><td class="nom">BAJAS TOTALES</td><td>${misiones.get('bajas')}</td></tr>
+      <tr><td class="nom">PORTALES CRUZADOS</td><td>${misiones.get('portales')}</td></tr>
+      <tr><td class="nom">RONDAS SEGUIDAS EN EL OTRO LADO</td><td>${misiones.get('otroLado')}</td></tr>
+      <tr><td class="nom">PARTIDAS GANADAS</td><td>${misiones.get('victorias')}</td></tr>
+    </table>`);
+
+  hoja.querySelectorAll('[data-arco]').forEach(b => {
+    b.addEventListener('click', () => {
+      misiones.ponerArco(b.dataset.arco || null);
+      audio.sonar('recoger');
+      panelPersonaje();
+    });
+  });
 }
 
 function panelSonido() {
@@ -1747,6 +1917,7 @@ document.getElementById('verGloria').addEventListener('click', panelGloria);
 document.getElementById('verControles').addEventListener('click', panelControles);
 document.getElementById('verObjetos').addEventListener('click', panelObjetos);
 document.getElementById('verSonido').addEventListener('click', panelSonido);
+document.getElementById('verPersonaje').addEventListener('click', panelPersonaje);
 btnMenu.addEventListener('click', () => location.reload());
 addEventListener('keydown', e => {
   if (e.code === 'Escape' && panel.classList.contains('ver')) panel.classList.remove('ver');
@@ -1773,6 +1944,7 @@ function ganar() {
   if (ganado) return;
   document.body.classList.add('enJuego');
   ganado = true;
+  if (misiones) misiones.sumar('victorias', 1);
   jefeActual = null;
   elJefe.classList.remove('ver');
   audio.rotarPista();
@@ -2000,6 +2172,10 @@ function pintarHud() {
     const c = cargado ? 1 : manoCuadro;
     clave = 'm' + c;
     url = imagenesMano[c];
+  } else if (bombaReloj > 0 && imagenesBomba.length) {
+    const c = bombaReloj > 0.36 ? 0 : bombaReloj > 0.2 ? 1 : 2;
+    clave = 'bo' + c;
+    url = imagenesBomba[c];
   } else if (jabalinaReloj > 0 && imagenesJabalina.length) {
     clave = 'j' + jabalinaCuadro;
     url = imagenesJabalina[jabalinaCuadro];
@@ -2036,8 +2212,9 @@ function pintarHud() {
     url = imagenesCuerno[cuernoCuadro];
   } else {
     const cuadro = jugador.tension > 0.66 ? 2 : jugador.tension > 0.05 ? 1 : 0;
-    clave = 'a' + cuadro;
-    url = recursos.arco[cuadro] || arcoRespaldo[cuadro];
+    const hoja = arcoPuesto();
+    clave = 'a' + cuadro + (hoja || '');
+    url = (hoja && recursos[hoja] && recursos[hoja][cuadro]) || recursos.arco[cuadro] || arcoRespaldo[cuadro];
   }
   if (arma.dataset.cuadro !== clave) {
     arma.dataset.cuadro = clave;
@@ -2128,6 +2305,7 @@ function paso(dt) {
     portales.actualizar(dt, camara);
     if (portales.cruzar(jugador)) {
       audio.sonar('cruzar');
+      if (misiones) misiones.sumar('portales', 1);
       jugador.actualizar(0);
       const c = portales.ultimoColor || new THREE.Color(0x3fa9ff);
       destello(`rgb(${(c.r * 255) | 0},${(c.g * 255) | 0},${(c.b * 255) | 0})`, 0.55, 260);
@@ -2184,6 +2362,7 @@ function paso(dt) {
         destello('#c25a10', 0.35, 120);
       }
     }
+    if (jefeActual && jefeActual.vivo) mandoJefe(dt);
     director.actualizar(dt, jugador);
     if (director.pideSocorro(jugador)) {
       const libres = celdasLibres();
@@ -2361,6 +2540,11 @@ cargarArte().then(() => {
   flujo = new Flujo(nivel);
   otroLado = new OtroLado({ escena, nivel, antorcha, ambiente, cenit });
   grieta = new Grieta(escena, centroLibre());
+  misiones = new Misiones(a => {
+    anunciar('ARCO GANADO', a.nombre);
+    audio.sonar('comprar');
+    destello('#e8c14a', 0.5, 700);
+  });
   if (modoActivo('otroladoFijo')) otroLado.entrar();
   cerco = new Cerco(escena, nivel, recursos.fuego);
   portales = new Portales(escena, nivel, renderer);
@@ -2408,6 +2592,6 @@ cargarArte().then(() => {
     });
   }
 
-  window.__juego = { jugador, enemigos, objetos, escena, camara, nivel, flechas, rondas, tienda, portales, audio, otroLado, director, cerco, paso, grieta, abrirGrieta, efectos, gloriaDe, renderer, THREE, usarConsumible, bombas };
+  window.__juego = { jugador, enemigos, objetos, escena, camara, nivel, flechas, rondas, tienda, portales, audio, otroLado, director, cerco, paso, grieta, abrirGrieta, efectos, gloriaDe, renderer, THREE, usarConsumible, bombas, misiones, marcarBaja, columnazo };
   bucle();
 });
