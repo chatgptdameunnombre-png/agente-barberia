@@ -1,18 +1,9 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260907153528';
-import { CELDA, esSolido } from './mapa.js?v=20260907153528';
+import { Billboard } from './sprites.js?v=20260907154231';
+import { CELDA, esSolido } from './mapa.js?v=20260907154231';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
-
-const MARCAS = {
-  rayo:   { tinte: 0xbfe4ff, oscurece: 0.85 },
-  fuego:  { tinte: 0xff9a4a, oscurece: 0.8 },
-  hielo:  { tinte: 0x9fd8ff, oscurece: 0 },
-  piedra: { tinte: 0xb9a98f, oscurece: 0.35 },
-  lanza:  { tinte: 0xffffff, oscurece: 0 },
-  cuchillo: { tinte: 0xffffff, oscurece: 0 }
-};
 
 export const TIPOS = {
   ciclope: {
@@ -93,18 +84,6 @@ export class Enemigo {
     return propia && propia.length ? propia : this.recursos.muere;
   }
 
-  _tintarMuerte(avance) {
-    if (this._cuadrosMuerte() !== this.recursos.muere) return;
-    const m = MARCAS[this.marcaMuerte];
-    if (!m) return;
-    const c = this.sprite.material.color;
-    c.setHex(m.tinte);
-    if (m.oscurece) {
-      const f = 1 - Math.min(0.72, avance * m.oscurece);
-      c.multiplyScalar(f);
-    }
-  }
-
   _libre(nx, nz) {
     const rej = this.nivel.rejilla;
     const cx = Math.floor(nx / CELDA), cz = Math.floor(nz / CELDA);
@@ -180,14 +159,12 @@ export class Enemigo {
         this.cuadro = paso;
         this.sprite.fijarVistas([cuadros[paso]]);
       }
-      this._tintarMuerte(Math.min(1, this.reloj / (0.16 * cuadros.length)));
       if (this.reloj > 0.16 * cuadros.length) this.estado = 'muerto';
       this.sprite.malla.position.y = this.baseY;
       this.sprite.encarar(camara, this.rumbo);
       return;
     }
     if (this.estado === 'muerto') {
-      this._tintarMuerte(1);
       this.sprite.encarar(camara, this.rumbo);
       return;
     }
