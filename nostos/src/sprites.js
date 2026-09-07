@@ -28,6 +28,13 @@ export class Billboard {
   fijarVistas(vistas) {
     this.vistas = vistas;
     this.indice = -1;
+    const img = vistas[0] && vistas[0].image;
+    if (!img || !img.width || !img.height) return;
+    const ancho = this.alto * (img.width / img.height);
+    if (Math.abs(ancho - this.ancho) < 0.02) return;
+    this.ancho = ancho;
+    this.malla.geometry.dispose();
+    this.malla.geometry = new THREE.PlaneGeometry(ancho, this.alto);
   }
 
   encarar(camara, rumbo) {
