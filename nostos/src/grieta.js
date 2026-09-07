@@ -11,6 +11,7 @@ export class Grieta {
     this.modo = 'entrar';
     this.armada = false;
     this.reloj = 0;
+    this.cerrando = 0;
 
     this.grupo = new THREE.Group();
     this.grupo.position.copy(this.pos);
@@ -79,6 +80,9 @@ export class Grieta {
     this.modo = modo;
     this.grupo.visible = true;
     this.reloj = 0;
+    this.cerrando = 0;
+    this.grupo.scale.set(1, 1, 1);
+    this.chispas.material.opacity = 0.9;
     const color = modo === 'salir' ? 0x6bd4ff : 0xa86bff;
     const claro = modo === 'salir' ? 0xd6f4ff : 0xf0d0ff;
     this.columna.material.color.setHex(color);
@@ -89,11 +93,36 @@ export class Grieta {
     this.armada = !jugador || this.distancia(jugador) > RADIO * 2;
   }
 
-  cerrar() {
+  cerrar(animado) {
     this.abierta = false;
     this.armada = false;
-    this.grupo.visible = false;
-    this.luz.intensity = 0;
+    if (!animado) {
+      this.cerrando = 0;
+      this.grupo.visible = false;
+      this.luz.intensity = 0;
+      return;
+    }
+    this.cerrando = 1.6;
+  }
+
+  _animarCierre(dt) {
+    this.cerrando -= dt;
+    const p = Math.max(0, this.cerrando / 1.6);
+    const giro = (1 - p) * 14;
+    this.columna.rotation.y += dt * (2 + giro);
+    this.nucleo.rotation.y -= dt * (3 + giro);
+    this.grupo.scale.set(p, Math.max(0.04, p * p), p);
+    this.columna.material.opacity = 0.5 * p;
+    this.nucleo.material.opacity = 0.45 * p;
+    this.anillo.material.opacity = p;
+    this.luz.intensity = 26 * p;
+    this.chispas.material.opacity = p;
+    if (this.cerrando <= 0) {
+      this.cerrando = 0;
+      this.grupo.visible = false;
+      this.grupo.scale.set(1, 1, 1);
+      this.luz.intensity = 0;
+    }
   }
 
   distancia(jugador) {
@@ -101,7 +130,10 @@ export class Grieta {
   }
 
   actualizar(dt, jugador) {
-    if (!this.abierta) return false;
+    if (!this.abierta) {
+      if (this.cerrando > 0) this._animarCierre(dt);
+      return false;
+    }
     this.reloj += dt;
     const pulso = 0.72 + Math.sin(this.reloj * 2.6) * 0.28;
     this.columna.material.opacity = 0.34 * pulso;

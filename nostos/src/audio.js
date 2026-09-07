@@ -59,6 +59,8 @@ export class Audio {
   _cargarMusica() {
     this.pistas = {};
     this.turno = -1;
+    this.opMusica = 0;
+    this.cambiando = false;
     const traer = nombre => {
       const url = new URL('../musica/' + nombre + '.mp3', import.meta.url).href;
       return fetch(url)
@@ -66,7 +68,9 @@ export class Audio {
         .then(b => this.ctx.decodeAudioData(b))
         .then(buf => {
           this.pistas[nombre] = buf;
-          if (this.musicaViva && !this.fuentePista) this._arrancarPista(this.pistaActual || BATALLAS[0]);
+          if (this.musicaViva && !this.fuentePista && !this.cambiando) {
+            this._arrancarPista(this.pistaActual || BATALLAS[0]);
+          }
         })
         .catch(() => {});
     };
@@ -76,9 +80,18 @@ export class Audio {
     });
   }
 
+  _pararPista() {
+    if (this.fuentePista) {
+      try { this.fuentePista.stop(); } catch (e) {}
+      try { this.fuentePista.disconnect(); } catch (e) {}
+    }
+    this.fuentePista = null;
+  }
+
   _arrancarPista(nombre = BATALLAS[0]) {
     const buf = this.pistas && this.pistas[nombre];
-    if (!buf || this.fuentePista) return;
+    if (!buf) return;
+    this._pararPista();
     const f = this.ctx.createBufferSource();
     f.buffer = buf;
     f.loop = true;
@@ -101,17 +114,16 @@ export class Audio {
   cambiarPista(nombre, reinicia) {
     if (!this.listo || !this.pistas || !this.pistas[nombre]) return;
     if (this.pistaActual === nombre && !reinicia) return;
-    const t = this.ctx.currentTime;
-    const vieja = this.fuentePista;
-    if (vieja) {
-      this.canalMusica.gain.setTargetAtTime(0, t, 0.35);
-      setTimeout(() => { try { vieja.stop(); } catch (e) {} }, 1100);
-    }
-    this.fuentePista = null;
-    setTimeout(() => {
+    const mia = ++this.opMusica;
+    this.cambiando = true;
+    if (this.relojCambio) clearTimeout(this.relojCambio);
+    if (this.fuentePista) this.canalMusica.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3);
+    this.relojCambio = setTimeout(() => {
+      if (mia !== this.opMusica) return;
+      this.cambiando = false;
       this._arrancarPista(nombre);
       this.musica(this.intensidad);
-    }, 1150);
+    }, 900);
   }
 
   _tocarMuestra(buf, salida, fuerza) {
@@ -245,6 +257,7 @@ export class Audio {
 
   _arrancarMusica() {
     this.musicaViva = true;
+    if (this.cambiando) return;
     if (this.pistas && this.pistas[BATALLAS[0]]) { this._arrancarPista(BATALLAS[0]); return; }
     const t = this.ctx.currentTime;
     const filtro = this.ctx.createBiquadFilter();
