@@ -28,7 +28,7 @@ export class Audio {
     this.maestro.connect(this.ctx.destination);
 
     this.canalEfectos = this.ctx.createGain();
-    this.canalEfectos.gain.value = 1;
+    this.canalEfectos.gain.value = 0.55;
     this.canalEfectos.connect(this.maestro);
 
     this.canalMusica = this.ctx.createGain();
@@ -214,9 +214,11 @@ export class Audio {
     this.intensidad = intensidad;
     if (!this.musicaViva) this._arrancarMusica();
     const t = this.ctx.currentTime;
-    const base = this.pista ? 0.17 : 0.06;
-    const rango = this.pista ? 0.22 : 0.16;
-    this.canalMusica.gain.setTargetAtTime(base + Math.min(rango, intensidad * (this.pista ? 0.03 : 0.02)), t, 1.5);
+    const conPista = !!(this.pistas && this.pistaActual);
+    const base = conPista ? 0.34 : 0.06;
+    const rango = conPista ? 0.34 : 0.16;
+    this.canalMusica.gain.setTargetAtTime(
+      base + Math.min(rango, intensidad * (conPista ? 0.05 : 0.02)), t, 1.5);
     if (this.filtroDrone) {
       this.filtroDrone.frequency.setTargetAtTime(180 + Math.min(500, intensidad * 60), t, 2);
     }
