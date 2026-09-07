@@ -1,5 +1,7 @@
 const MAX_DIST = 70;
 
+const BATALLAS = ['batalla1', 'batalla2', 'batalla3'];
+
 const MUESTRAS = ['carne', 'piedra', 'garrote', 'muereEnemigo', 'dano', 'tajo', 'comprar',
   'recoger', 'curar', 'vacio', 'fallo', 'ronda', 'portalAzul', 'portalNaranja', 'cruzar',
   'rayo', 'muerte'];
@@ -56,21 +58,25 @@ export class Audio {
 
   _cargarMusica() {
     this.pistas = {};
-    for (const nombre of ['batalla', 'jefe']) {
+    this.turno = -1;
+    const traer = nombre => {
       const url = new URL('../musica/' + nombre + '.mp3', import.meta.url).href;
-      fetch(url)
+      return fetch(url)
         .then(r => (r.ok ? r.arrayBuffer() : Promise.reject(r.status)))
         .then(b => this.ctx.decodeAudioData(b))
         .then(buf => {
           this.pistas[nombre] = buf;
-          if (nombre === 'batalla') this.pista = buf;
-          if (this.musicaViva && !this.fuentePista) this._arrancarPista();
+          if (this.musicaViva && !this.fuentePista) this._arrancarPista(this.pistaActual || BATALLAS[0]);
         })
         .catch(() => {});
-    }
+    };
+    traer(BATALLAS[0]).then(() => {
+      traer('jefe');
+      setTimeout(() => BATALLAS.slice(1).forEach(traer), 6000);
+    });
   }
 
-  _arrancarPista(nombre = 'batalla') {
+  _arrancarPista(nombre = BATALLAS[0]) {
     const buf = this.pistas && this.pistas[nombre];
     if (!buf || this.fuentePista) return;
     const f = this.ctx.createBufferSource();
@@ -84,9 +90,17 @@ export class Audio {
     if (this.tempo) { clearTimeout(this.tempo); this.tempo = 0; }
   }
 
-  cambiarPista(nombre) {
+  rotarPista() {
+    if (!this.listo || !this.pistas) return;
+    const listas = BATALLAS.filter(n => this.pistas[n]);
+    if (!listas.length) return;
+    this.turno = (this.turno + 1) % listas.length;
+    this.cambiarPista(listas[this.turno], true);
+  }
+
+  cambiarPista(nombre, reinicia) {
     if (!this.listo || !this.pistas || !this.pistas[nombre]) return;
-    if (this.pistaActual === nombre) return;
+    if (this.pistaActual === nombre && !reinicia) return;
     const t = this.ctx.currentTime;
     const vieja = this.fuentePista;
     if (vieja) {
@@ -231,7 +245,7 @@ export class Audio {
 
   _arrancarMusica() {
     this.musicaViva = true;
-    if (this.pistas && this.pistas.batalla) { this._arrancarPista('batalla'); return; }
+    if (this.pistas && this.pistas[BATALLAS[0]]) { this._arrancarPista(BATALLAS[0]); return; }
     const t = this.ctx.currentTime;
     const filtro = this.ctx.createBiquadFilter();
     filtro.type = 'lowpass';
