@@ -69,11 +69,13 @@ export function guardar(d) {
   try { localStorage.setItem(LLAVE, JSON.stringify(d)); } catch (e) {}
 }
 
+export const TODO_GRATIS = true;
+
 export function tiene(id) {
-  return estado().comprados.includes(id);
+  return TODO_GRATIS || estado().comprados.includes(id);
 }
 
 export function activo(id) {
   const e = estado();
-  return e.comprados.includes(id) && e.activos.includes(id);
+  return tiene(id) && e.activos.includes(id);
 }

@@ -2,22 +2,22 @@ const LLAVE = 'nostos.misiones';
 
 export const ARCOS = [
   { id: 'fontanero', hoja: 'arcoFontanero', nombre: 'ARCO DE FONTANERO',
-    mision: 'muros', meta: 0, gratis: true, escala: 0.95,
-    pista: 'Es tuyo desde el principio' },
+    mision: 'muros', meta: 100, gratis: true, escala: 0.96,
+    pista: 'Rompe 100 muros con el Pico de Hefesto' },
   { id: 'sierra', hoja: 'arcoSierra', nombre: 'ARCO DE LA SIERRA',
-    mision: 'bajas', meta: 300,
+    mision: 'bajas', meta: 300, gratis: true, escala: 0.95,
     pista: 'Acumula 300 bajas entre todas tus partidas' },
   { id: 'portal', hoja: 'arcoPortal', nombre: 'ARCO DEL PORTAL',
-    mision: 'portales', meta: 50,
+    mision: 'portales', meta: 50, gratis: true, escala: 0.98,
     pista: 'Cruza 50 portales con el Cuerno de Hermes' },
   { id: 'fantasma', hoja: 'arcoFantasma', nombre: 'ARCO CAZAFANTASMAS',
-    mision: 'otroLado', meta: 5,
+    mision: 'otroLado', meta: 5, gratis: true, escala: 0.94,
     pista: 'Sobrevive 5 rondas seguidas dentro del Otro Lado' },
   { id: 'sable', hoja: 'arcoSable', nombre: 'ARCO DE SABLE',
-    mision: 'victorias', meta: 1,
+    mision: 'victorias', meta: 1, gratis: true, escala: 0.95,
     pista: 'Gana la partida: mata a Polifemo' },
   { id: 'abismo', hoja: 'arcoAbismo', nombre: 'ARCO DEL ABISMO',
-    mision: 'bajasOtroLado', meta: 150,
+    mision: 'bajasOtroLado', meta: 150, gratis: true, escala: 0.97,
     pista: 'Mata 150 enemigos dentro del Otro Lado' }
 ];
 
