@@ -2,7 +2,7 @@ const LLAVE = 'nostos.misiones';
 
 export const ARCOS = [
   { id: 'fontanero', hoja: 'arcoFontanero', nombre: 'ARCO DE FONTANERO',
-    mision: 'muros', meta: 0, gratis: true,
+    mision: 'muros', meta: 0, gratis: true, escala: 0.86,
     pista: 'Es tuyo desde el principio' },
   { id: 'sierra', hoja: 'arcoSierra', nombre: 'ARCO DE LA SIERRA',
     mision: 'bajas', meta: 300,
