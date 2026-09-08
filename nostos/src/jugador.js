@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260907192332';
+import { CELDA, esSolido } from './mapa.js?v=20260908063444';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -118,7 +118,7 @@ export class Jugador {
     addEventListener('mousedown', e => {
       if (e.target && e.target.closest && e.target.closest('#botonera, #panel, #tienda')) return;
       if (!this.activo) { this._entrar(); return; }
-      if (e.button === 0) this.tensando = true;
+      if (e.button === 0 && !this.sinArco) this.tensando = true;
       if (e.button === 2 && this.pistola && this.alPortal) {
         e.preventDefault();
         this.alPortal('azul');
