@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, ALTO, esSolido } from './mapa.js?v=20260908064801';
+import { CELDA, ALTO, esSolido } from './mapa.js?v=20260908065819';
 
 const ANCHO_PORTAL = 3.7;
 const ALTO_PORTAL = 5.5;
@@ -199,6 +199,21 @@ export class Portales {
     return m;
   }
 
+  _huecoLibre(otro, jugador) {
+    const base = otro.malla.position;
+    const n = otro.normal;
+    const lx = -n.z, lz = n.x;
+    const libre = (x, z) => !jugador._colisionar || !jugador._colisionar(x, z);
+    for (const frente of [3.2, 2.6, 2.1, 1.7, 4.0, 4.8]) {
+      for (const lado of [0, 1.1, -1.1, 2.0, -2.0]) {
+        const x = base.x + n.x * frente + lx * lado;
+        const z = base.z + n.z * frente + lz * lado;
+        if (libre(x, z)) return { x, z };
+      }
+    }
+    return { x: base.x + n.x * 3.2, z: base.z + n.z * 3.2 };
+  }
+
   cruzar(jugador) {
     if (!this.listos || this.enfriamiento > 0) return false;
     for (const p of [this.azul, this.naranja]) {
@@ -210,7 +225,7 @@ export class Portales {
       const otro = p.destino;
       const giro = otro.malla.rotation.y - p.malla.rotation.y + Math.PI;
       jugador.yaw += giro;
-      const salida = otro.malla.position.clone().addScaledVector(otro.normal, 3.2);
+      const salida = this._huecoLibre(otro, jugador);
       jugador.pos.x = salida.x;
       jugador.pos.z = salida.z;
       const v = jugador.vel;
