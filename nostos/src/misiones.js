@@ -15,10 +15,13 @@ export const ARCOS = [
     pista: 'Sobrevive 5 rondas seguidas dentro del Otro Lado' },
   { id: 'sable', hoja: 'arcoSable', nombre: 'ARCO DE SABLE',
     mision: 'victorias', meta: 1,
-    pista: 'Gana la partida: mata a Polifemo' }
+    pista: 'Gana la partida: mata a Polifemo' },
+  { id: 'abismo', hoja: 'arcoAbismo', nombre: 'ARCO DEL ABISMO',
+    mision: 'bajasOtroLado', meta: 150,
+    pista: 'Mata 150 enemigos dentro del Otro Lado' }
 ];
 
-const VACIO = { muros: 0, bajas: 0, portales: 0, otroLado: 0, victorias: 0, puesto: null };
+const VACIO = { muros: 0, bajas: 0, portales: 0, otroLado: 0, victorias: 0, bajasOtroLado: 0, puesto: null };
 
 export class Misiones {
   constructor(alGanar) {

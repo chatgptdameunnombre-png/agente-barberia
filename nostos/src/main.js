@@ -1,27 +1,27 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260907165729';
-import { Jugador } from './jugador.js?v=20260907165729';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260907165729';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior, Billboard } from './sprites.js?v=20260907165729';
-import { Objeto, CATALOGO } from './objetos.js?v=20260907165729';
-import { Rondas } from './rondas.js?v=20260907165729';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260907165729';
-import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260907165729';
-import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260907165729';
-import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260907165729';
-import { Minimapa, Marcas } from './minimapa.js?v=20260907165729';
-import { Flujo } from './flujo.js?v=20260907165729';
-import { Portales, trazar } from './portales.js?v=20260907165729';
-import { romper } from './mapa.js?v=20260907165729';
-import { Audio } from './audio.js?v=20260907165729';
-import { OtroLado } from './otrolado.js?v=20260907165729';
-import { Grieta } from './grieta.js?v=20260907165729';
-import { Director } from './director.js?v=20260907165729';
-import { Cerco } from './cerco.js?v=20260907165729';
-import { esTactil, esTelefono, Tactil } from './tactil.js?v=20260907165729';
-import { TIPOS as T } from './enemigos.js?v=20260907165729';
-import { siluetaCiclope } from './texturas.js?v=20260907165729';
-import { Misiones, ARCOS } from './misiones.js?v=20260907165729';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260907180012';
+import { Jugador } from './jugador.js?v=20260907180012';
+import { Enemigo, TIPOS } from './enemigos.js?v=20260907180012';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior, Billboard } from './sprites.js?v=20260907180012';
+import { Objeto, CATALOGO } from './objetos.js?v=20260907180012';
+import { Rondas } from './rondas.js?v=20260907180012';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260907180012';
+import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260907180012';
+import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260907180012';
+import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo } from './gloria.js?v=20260907180012';
+import { Minimapa, Marcas } from './minimapa.js?v=20260907180012';
+import { Flujo } from './flujo.js?v=20260907180012';
+import { Portales, trazar } from './portales.js?v=20260907180012';
+import { romper } from './mapa.js?v=20260907180012';
+import { Audio } from './audio.js?v=20260907180012';
+import { OtroLado } from './otrolado.js?v=20260907180012';
+import { Grieta } from './grieta.js?v=20260907180012';
+import { Director } from './director.js?v=20260907180012';
+import { Cerco } from './cerco.js?v=20260907180012';
+import { esTactil, esTelefono, Tactil } from './tactil.js?v=20260907180012';
+import { TIPOS as T } from './enemigos.js?v=20260907180012';
+import { siluetaCiclope } from './texturas.js?v=20260907180012';
+import { Misiones, ARCOS } from './misiones.js?v=20260907180012';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -130,52 +130,66 @@ let destelloGuante = 0;
 
 let texturasNivel = null;
 
+const ARCOS_HOJA = [
+  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20260907180012'],
+  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20260907180012'],
+  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20260907180012'],
+  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20260907180012'],
+  ['arcoSable', './arte/crudo/arco-sable.webp?v=20260907180012'],
+  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20260907180012']
+];
+
+function cargarArcos() {
+  for (const [clave, ruta] of ARCOS_HOJA) {
+    cargarImagen(ruta).then(img => {
+      if (!img) return;
+      recursos[clave] = cortarTira(img, 3, { ajustar: true, altoComun: true })
+        .map(t => t.image.toDataURL());
+    });
+  }
+}
+
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas, cuchilloImg, tajoImg, vueloImg, kTajoImg, cicRayo, cicLanza, cicCuchillo, cicFuego, cicHacha, cicBomba, fichasImg,
-    polIdle, polAtk, polDie, bombaMano, bombaPeg, ...hojasArco] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/ciclope-ataca.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/ciclope-muere.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/arco.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/texturas.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/items.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/tienda.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/pretendiente.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/pretendiente-muere.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/cuerno.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/mercader.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/caras.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/guante.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/objetos2.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/hilo.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/jabalina.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/hacha.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/pico.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/mano.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/fuego.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/insignias.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/cuchillo.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/hacha-tajo.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/hacha-vuelo.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/cuchillo-tajo.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/ciclope-rayo.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/ciclope-lanza.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/ciclope-cuchillo.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/ciclope-fuego.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/ciclope-hacha.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/ciclope-bomba.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/fichas.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/polifemo.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/polifemo-ataca.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/polifemo-muere.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/bomba.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/bomba-pegada.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/arco-fontanero.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/arco-sierra.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/arco-portal.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/arco-fantasma.png?v=20260907165729'),
-    cargarImagen('./arte/crudo/arco-sable.png?v=20260907165729')
+    polIdle, polAtk, polDie, bombaMano, bombaPeg] = await Promise.all([
+    cargarImagen('./arte/crudo/ciclope.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/ciclope-ataca.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/ciclope-muere.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/arco.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/texturas.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/items.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/tienda.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/pretendiente.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/pretendiente-ataca.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/pretendiente-muere.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/cuerno.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/mercader.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/caras.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/guante.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/objetos2.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/hilo.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/jabalina.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/hacha.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/pico.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/mano.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/fuego.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/insignias.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/cuchillo.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/hacha-tajo.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/hacha-vuelo.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/cuchillo-tajo.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/ciclope-rayo.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/ciclope-lanza.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/ciclope-cuchillo.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/ciclope-fuego.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/ciclope-hacha.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/ciclope-bomba.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/fichas.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/polifemo.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/polifemo-ataca.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/polifemo-muere.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/bomba.webp?v=20260907180012'),
+    cargarImagen('./arte/crudo/bomba-pegada.webp?v=20260907180012')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -206,11 +220,7 @@ async function cargarArte() {
     imagenesBomba = recursos.bomba.map(t => t.image.toDataURL());
   }
   if (bombaPeg) recursos.bombaPegada = cortarTira(bombaPeg, 4);
-  ['arcoFontanero', 'arcoSierra', 'arcoPortal', 'arcoFantasma', 'arcoSable'].forEach((clave, i) => {
-    const img = hojasArco[i];
-    if (!img) return;
-    recursos[clave] = cortarTira(img, 3, { ajustar: true, altoComun: true }).map(t => t.image.toDataURL());
-  });
+  cargarArcos();
   if (pIdle) {
     const pq = cortarTira(pIdle, 4);
     recursos.pretendiente = {
@@ -335,7 +345,10 @@ let grieta = null;
 let misiones = null;
 let dentroDesde = null;
 const RONDAS_GRIETA = [3, 13];
-const cierraGrieta = n => RONDAS_GRIETA.includes(n - 2);
+const CICLO_REGRESO = 4;
+const abreGrieta = n => RONDAS_GRIETA.includes(n) ||
+  (otroLado && otroLado.dentro && n % CICLO_REGRESO === 0);
+const cierraGrieta = n => abreGrieta(n - 2);
 let jefeActual = null;
 let ganado = false;
 const elJefe = document.getElementById('jefe');
@@ -449,7 +462,7 @@ function cerrarRonda(n) {
   if (misiones) misiones.rondaDentro(otroLado.dentro);
   if (modoActivo('otroladoFijo')) {
     /* el mundo rojo es permanente: no hay grieta */
-  } else if (RONDAS_GRIETA.includes(n)) {
+  } else if (abreGrieta(n)) {
     abrirGrieta(otroLado.dentro ? 'salir' : 'entrar');
   } else if (grieta && grieta.abierta) {
     verGrieta(true, grieta.modo, true);
@@ -642,7 +655,10 @@ function arcoPuesto() {
 
 function marcarBaja() {
   jugador.bajas++;
-  if (misiones) misiones.sumar('bajas', 1);
+  if (misiones) {
+    misiones.sumar('bajas', 1);
+    if (otroLado && otroLado.dentro) misiones.sumar('bajasOtroLado', 1);
+  }
   jugador.oro += Math.round((13 + rondas.numero * 2) * otroLado.multiplicadores.oro);
 }
 
@@ -1554,6 +1570,10 @@ function golpeRecibido(dano, absorbido) {
 }
 
 let muerto = false;
+let camaraCae = -1;
+let tempCaida = null;
+const DERRUMBE_MS = 1250;
+const tempsLatido = [];
 
 const menu = document.getElementById('menu');
 const panel = document.getElementById('panel');
@@ -1641,6 +1661,7 @@ function panelPersonaje() {
       <tr><td class="nom">PORTALES CRUZADOS</td><td>${misiones.get('portales')}</td></tr>
       <tr><td class="nom">RONDAS SEGUIDAS EN EL OTRO LADO</td><td>${misiones.get('otroLado')}</td></tr>
       <tr><td class="nom">PARTIDAS GANADAS</td><td>${misiones.get('victorias')}</td></tr>
+      <tr><td class="nom">BAJAS DENTRO DEL OTRO LADO</td><td>${misiones.get('bajasOtroLado')}</td></tr>
     </table>`);
 
   hoja.querySelectorAll('[data-arco]').forEach(b => {
@@ -1967,8 +1988,51 @@ function ganar() {
   btnMenu.hidden = false;
 }
 
+function latidosFinales() {
+  const pausas = [0, 460, 1000, 1660, 2500];
+  for (const ms of pausas) {
+    tempsLatido.push(setTimeout(() => audio.sonar('latido'), ms));
+  }
+}
+
+function pararLatidos() {
+  for (const t of tempsLatido) clearTimeout(t);
+  tempsLatido.length = 0;
+}
+
+function derrumbe() {
+  document.body.classList.add('cayendo');
+  camaraCae = 0;
+  latidosFinales();
+  arma.style.transform = 'translateX(-50%) translateY(70vh) rotate(24deg)';
+  arma.style.opacity = '0';
+  for (const el of document.querySelectorAll('#capa > *')) {
+    if (el === elAgonia || el === arma) continue;
+    el.style.transition = 'opacity .7s ease-in';
+    el.style.opacity = '0';
+  }
+}
+
+function limpiarDerrumbe() {
+  pararLatidos();
+  clearTimeout(tempCaida);
+  document.body.classList.remove('cayendo');
+  camaraCae = -1;
+  arma.style.transition = '';
+  arma.style.transform = 'translateX(-50%)';
+  arma.style.opacity = '';
+  for (const el of document.querySelectorAll('#capa > *')) {
+    el.style.transition = '';
+    el.style.opacity = '';
+  }
+  menu.classList.remove('entrando');
+}
+
 function morir() {
   muerto = true;
+  elAgonia.style.opacity = '0';
+  elAgonia.classList.remove('viva');
+  derrumbe();
   document.body.classList.add('enJuego');
   btnMenu.hidden = false;
   const datos = { ronda: rondas.numero, bajas: jugador.bajas, oro: jugador.oro, gano: false };
@@ -1981,16 +2045,22 @@ function morir() {
   jugador.activo = false;
   jugador.libre = false;
   if (document.pointerLockElement) document.exitPointerLock();
-  menu.classList.remove('oculto');
   menu.querySelector('h1').textContent = 'HAS MUERTO';
   menu.querySelector('h2').textContent = 'ITACA SIGUE ESPERANDO';
   const r = leerRecord();
   menu.querySelector('p').textContent =
     `RONDA ${rondas.numero} · ${jugador.bajas} BAJAS · MEJOR: RONDA ${r.ronda || 0}`;
+  clearTimeout(tempCaida);
+  tempCaida = setTimeout(() => {
+    menu.classList.add('entrando');
+    menu.classList.remove('oculto');
+  }, DERRUMBE_MS);
 }
 
 function reiniciar() {
   muerto = false;
+  limpiarDerrumbe();
+  camara.rotation.z = 0;
   jugador.vida = 100;
   jugador.flechas = 40;
   jugador.bajas = 0;
@@ -2111,6 +2181,8 @@ function moverFlechas(dt) {
 }
 
 const elVida = document.getElementById('vida');
+const elAgonia = document.getElementById('agonia');
+const elOcaso = document.getElementById('ocaso');
 const elFlechas = document.getElementById('flechas');
 const elBajas = document.getElementById('bajas');
 const elCara = document.getElementById('cara');
@@ -2134,6 +2206,27 @@ function pintarDescanso() {
   elDescanso.innerHTML = 'SIGUIENTE RONDA EN<b>' + seg + '</b>' + (seg === 1 ? 'SEGUNDO' : 'SEGUNDOS');
 }
 
+const AGONIA_DESDE = 0.5;
+
+function pintarAgonia(salud) {
+  if (muerto || salud > AGONIA_DESDE || salud <= 0) {
+    if (elAgonia.style.opacity !== '0') {
+      elAgonia.style.opacity = '0';
+      elAgonia.classList.remove('viva');
+    }
+    return;
+  }
+  const bruto = (AGONIA_DESDE - salud) / AGONIA_DESDE;
+  const hondo = Math.min(1, bruto * bruto);
+  const min = (0.03 + hondo * 0.49).toFixed(3);
+  const max = (0.11 + hondo * 0.73).toFixed(3);
+  elAgonia.style.setProperty('--min', min);
+  elAgonia.style.setProperty('--max', max);
+  elAgonia.style.animationDuration = (2.1 - hondo * 1.5).toFixed(2) + 's';
+  elAgonia.style.opacity = max;
+  if (!elAgonia.classList.contains('viva')) elAgonia.classList.add('viva');
+}
+
 function pintarHud() {
   elVida.textContent = jugador.vida;
   elFlechas.textContent = jugador.flechas;
@@ -2155,6 +2248,7 @@ function pintarHud() {
   elVivos.textContent = enemigos.filter(e => e.vivo).length;
   pintarRanuras();
   const salud = jugador.vida / jugador.vidaMax;
+  pintarAgonia(salud);
   if (imagenesCara.length === 5) {
     const cara = salud > 0.8 ? 0 : salud > 0.6 ? 1 : salud > 0.4 ? 2 : salud > 0.2 ? 3 : 4;
     if (elCara.dataset.cara !== String(cara)) {
@@ -2413,6 +2507,13 @@ function paso(dt) {
       else if (mallaRayo) mallaRayo.material.opacity = 0.35 + Math.random() * 0.6;
     }
     rondas.actualizar(dt, enemigos, jugador);
+  } else if (camaraCae >= 0) {
+    camaraCae = Math.min(1, camaraCae + dt / (DERRUMBE_MS / 1000));
+    const t = camaraCae * camaraCae * (3 - 2 * camaraCae);
+    camara.position.y = 3.1 - t * 2.75;
+    camara.rotation.z = t * 0.42;
+    camara.rotation.x = Math.min(camara.rotation.x, 0) - t * 0.26;
+    for (const e of enemigos) e.sprite.encarar(camara, e.rumbo);
   } else {
     orbitar(dt);
     for (const e of enemigos) e.sprite.encarar(camara, e.rumbo);
@@ -2429,10 +2530,12 @@ function paso(dt) {
   antorcha.intensity = 62 + Math.sin(performance.now() * 0.011) * 7;
   const balanceo = Math.sin(jugador.balanceo * 0.5) * 8;
   const golpe = Math.sin(empuje * Math.PI) ;
-  arma.style.transform =
-    `translateX(calc(-50% + ${balanceo * 1.5}px)) ` +
-    `translateY(calc(${Math.abs(balanceo) * 1.1}px - ${jugador.tension * 8}vh - ${golpe * 9}vh)) ` +
-    `scale(${1 + golpe * 0.22})`;
+  if (camaraCae < 0) {
+    arma.style.transform =
+      `translateX(calc(-50% + ${balanceo * 1.5}px)) ` +
+      `translateY(calc(${Math.abs(balanceo) * 1.1}px - ${jugador.tension * 8}vh - ${golpe * 9}vh)) ` +
+      `scale(${1 + golpe * 0.22})`;
+  }
 
   if (portales) portales.pintarVistas(camara);
   pintarHud();
@@ -2592,6 +2695,6 @@ cargarArte().then(() => {
     });
   }
 
-  window.__juego = { jugador, enemigos, objetos, escena, camara, nivel, flechas, rondas, tienda, portales, audio, otroLado, director, cerco, paso, grieta, abrirGrieta, efectos, gloriaDe, renderer, THREE, usarConsumible, bombas, misiones, marcarBaja, columnazo };
+  window.__juego = { jugador, enemigos, objetos, escena, camara, nivel, flechas, rondas, tienda, portales, audio, otroLado, director, cerco, paso, grieta, abrirGrieta, efectos, gloriaDe, renderer, THREE, usarConsumible, bombas, misiones, marcarBaja, columnazo, abreGrieta };
   bucle();
 });

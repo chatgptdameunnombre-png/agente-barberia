@@ -395,6 +395,11 @@ const VOCES = {
     a._ruidoVoz(s, { dur: 0.26, tipoFiltro: 'lowpass', de: 900, a: 130, pico: 0.8 });
     a._tono(s, { tipo: 'square', de: 190, a: 70, dur: 0.2, pico: 0.35 });
   } },
+  latido: { vol: 1, tocar: (a, s) => {
+    a._tono(s, { tipo: 'sine', de: 62, a: 30, dur: 0.24, ataque: 0.012, pico: 0.85 });
+    a._tono(s, { tipo: 'sine', de: 44, a: 22, dur: 0.3, ataque: 0.02, pico: 0.5 });
+    a._ruidoVoz(s, { dur: 0.1, tipoFiltro: 'lowpass', de: 260, a: 90, pico: 0.32, ataque: 0.008 });
+  } },
   muerte: { vol: 1, tocar: (a, s) => {
     a._tono(s, { tipo: 'sawtooth', de: 220, a: 28, dur: 1.6, ataque: 0.04, pico: 0.7 });
     a._tono(s, { tipo: 'sine', de: 110, a: 22, dur: 1.9, ataque: 0.1, pico: 0.5 });
