@@ -2,8 +2,8 @@ const LLAVE = 'nostos.misiones';
 
 export const ARCOS = [
   { id: 'fontanero', hoja: 'arcoFontanero', nombre: 'ARCO DE FONTANERO',
-    mision: 'muros', meta: 100,
-    pista: 'Rompe 100 muros con el Pico de Hefesto' },
+    mision: 'muros', meta: 0, gratis: true,
+    pista: 'Es tuyo desde el principio' },
   { id: 'sierra', hoja: 'arcoSierra', nombre: 'ARCO DE LA SIERRA',
     mision: 'bajas', meta: 300,
     pista: 'Acumula 300 bajas entre todas tus partidas' },
@@ -46,7 +46,8 @@ export class Misiones {
 
   ganado(id) {
     const a = ARCOS.find(x => x.id === id);
-    return !!a && this.get(a.mision) >= a.meta;
+    if (!a) return false;
+    return a.gratis || this.get(a.mision) >= a.meta;
   }
 
   sumar(clave, cuanto = 1) {
@@ -87,6 +88,7 @@ export class Misiones {
   }
 
   progreso(a) {
+    if (a.gratis) return { hecho: 1, meta: 1, listo: true, gratis: true };
     return { hecho: Math.min(this.get(a.mision), a.meta), meta: a.meta, listo: this.ganado(a.id) };
   }
 }
