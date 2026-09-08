@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260908063444';
+import { RELIQUIAS } from './reliquias.js?v=20260908064801';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -173,7 +173,10 @@ export class Tienda {
       const p = PROPIEDAD[m.id];
       return !!p && !!this.jugador[p];
     };
-    const libres = MEJORAS.filter(m => !this.compradas.has(m.id) && !yaTiene(m));
+    const DE_ARCO = ['cuerda', 'puntas', 'aljaba', 'atenea', 'doble', 'vista', 'cazador'];
+    const sinArco = !!this.jugador.sinArco;
+    const util = m => !sinArco || !DE_ARCO.includes(m.id);
+    const libres = MEJORAS.filter(m => !this.compradas.has(m.id) && !yaTiene(m) && util(m));
     const revuelve = a => {
       const c = a.slice();
       for (let i = c.length - 1; i > 0; i--) {
@@ -190,7 +193,8 @@ export class Tienda {
     const cuantasArmas = Math.min(fijas.length, Math.random() < 0.5 ? 1 : 2);
     const mejoras = [...fijas.slice(0, cuantasArmas),
                      ...resto.slice(0, Math.max(1, 3 - cuantasArmas))];
-    const consumibles = nuevo(CONSUMIBLES).slice(0, Math.max(1, this.cuantos - mejoras.length));
+    const consumibles = nuevo(CONSUMIBLES.filter(c => c.id !== 'carcaj' || !sinArco))
+      .slice(0, Math.max(1, this.cuantos - mejoras.length));
     this.oferta = revuelve([...mejoras, ...consumibles]);
     const faltanCuchillos = this.jugador.cuchillosMax - this.jugador.cuchillos;
     if (faltanCuchillos >= 4 && Math.random() < 0.45 && !this.oferta.some(o => o.id === 'cuchillos')) {
