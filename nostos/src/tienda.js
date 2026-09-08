@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20260908065819';
+import { RELIQUIAS } from './reliquias.js?v=20260908173923';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -68,7 +68,7 @@ const BASICOS = [
     instantaneo: true, desc: 'Te llena la vida al tope, no ocupa lugar',
     inutil: j => j.vida >= j.vidaMax,
     aplicar: j => { j.vida = j.vidaMax; } },
-  { id: 'frasco', nombre: 'FRASCO DE AMBROSIA', precio: 60, celda: 8, respaldo: 7,
+  { id: 'frasco', nombre: 'FRASCO DE AMBROSIA', precio: 60, celda: 8, respaldo: 7, delSuelo: 7,
     desc: 'Te cura 60 cuando lo uses' },
   { id: 'fuego', nombre: 'FUEGO GRIEGO', precio: 85, celda: 9, respaldo: 4,
     desc: 'Quema a todo el que tengas cerca' },
