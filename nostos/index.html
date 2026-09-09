@@ -103,8 +103,9 @@
            transition:opacity .35s; text-shadow:2px 2px 0 #000; }
   #aviso.ver { opacity:1; }
 
-  #menu { position:fixed; inset:0; pointer-events:none; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  #menu { position:fixed; inset:0; z-index:9; pointer-events:none; display:flex; flex-direction:column; align-items:center; justify-content:center;
           background:rgba(10,6,4,.55); color:#f2e2b0; text-align:center; }
+  body.cayendo #menu { background:rgba(4,3,2,.35); }
   #menu h1 { font-family:"Cinzel Decorative","Times New Roman",serif; font-weight:900;
               font-size:13vw; letter-spacing:.6vw; color:#e8c14a; line-height:1;
               text-shadow:0 0 46px #a3450d, 0 0 14px #ffb15e, 5px 5px 0 #000; }
@@ -314,12 +315,13 @@
     background:radial-gradient(ellipse 74% 68% at 50% 50%, transparent 42%, rgba(150,0,0,.42) 74%, rgba(96,0,0,.92) 100%); }
   #agonia.viva { animation:latido 1.15s ease-in-out infinite; }
   @keyframes latido { 0%,100% { opacity:var(--min,.35); } 50% { opacity:var(--max,.72); } }
-  #lienzo { transition:filter 1.5s ease-out; }
-  body.cayendo #lienzo { filter:saturate(.12) brightness(.45) sepia(.4) hue-rotate(-28deg); }
-  body.cayendo #arma, body.cayendo #capa > div:not(#agonia) { transition:transform 1.15s cubic-bezier(.4,0,.7,1), opacity .9s ease-in; }
-  #ocaso { position:fixed; inset:0; background:#4a0000; opacity:0; pointer-events:none; z-index:7;
-    transition:opacity 1.4s ease-in; }
-  body.cayendo #ocaso { opacity:.55; }
+  #lienzo { transition:filter 1.6s ease-in; }
+  body.cayendo #lienzo { filter:saturate(.15) brightness(.22); }
+  body.cayendo #arma, body.cayendo #capa > div:not(#agonia) { transition:transform 1.15s cubic-bezier(.4,0,.7,1), opacity .55s ease-in; }
+  body.cayendo #capa { opacity:0; transition:opacity .55s ease-in; }
+  #ocaso { position:fixed; inset:0; background:#000; opacity:0; pointer-events:none; z-index:7;
+    transition:opacity 1.7s ease-in; }
+  body.cayendo #ocaso { opacity:.82; }
   #menu.entrando { animation:aparecer 1.1s ease-out both; }
   @keyframes aparecer { from { opacity:0; } to { opacity:1; } }
   #diag { position:fixed; top:8px; left:10px; color:#7fe07f; font-size:11px; white-space:pre; opacity:.5; }
@@ -387,6 +389,6 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260908175040"></script>
+  <script type="module" src="./src/main.js?v=20260908175914"></script>
 </body>
 </html>
