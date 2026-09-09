@@ -1,7 +1,7 @@
-import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=75";
-import { track } from "./track.js?v=75";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=75";
-import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=75";
+import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=76";
+import { track } from "./track.js?v=76";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=76";
+import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=76";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 const SID_KEY = "deportes-martinez_asesor_sid";
@@ -15,7 +15,7 @@ function setProductos(list) {
   if (alCargarProductos) alCargarProductos();
 }
 
-import("./db.js?v=75").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
+import("./db.js?v=76").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
 
 function fsVal(v) {
   const t = Object.keys(v)[0];
@@ -62,7 +62,7 @@ function montar() {
     <div class="asesor-head">
       <div>
         <div class="asesor-title">IA Deportes Martínez</div>
-        <div class="asesor-sub">Te ayudo a encontrar tu bici o accesorio</div>
+        <div class="asesor-sub">Te ayudo a encontrar tu jersey</div>
       </div>
       <div class="asesor-head-btns">
         <button class="asesor-reset" type="button" aria-label="Empezar de nuevo" title="Empezar de nuevo">↻</button>
