@@ -1,5 +1,5 @@
 /* Sección Noticias de la HOME: slider de banners (una noticia a la vez, foto grande + texto al lado). */
-import { firebaseConfig } from "./config.js?v=75";
+import { firebaseConfig } from "./config.js?v=76";
 
 const FS = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 const KEY = firebaseConfig.apiKey;
@@ -50,7 +50,7 @@ async function cargarEventos() {
       .sort((a, b) => (a.orden || 0) - (b.orden || 0))
       .map(e => ({
         img: e.imagen, tipo: e.tipo, titulo: e.titulo, texto: e.texto,
-        link: e.link || "", externo: !!e.externo, fit: !!e.fit
+        link: e.link || "", externo: !!e.externo, fit: !!e.fit, cta: e.cta
       })).filter(a => a.img && a.titulo);
     return evs;
   } catch (e) { return []; }
