@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=76";
+import { firebaseConfig } from "./config.js?v=77";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -18,6 +18,8 @@ let bd = null;
 let ventasPorRef = new Map();
 /* id de producto -> foto, para el jersey mas visto. Se pide una sola vez por sesion. */
 let fotos = new Map();
+let listaVisitas = [];
+let fVisitas = { q: "", dia: "" };
 
 /* El cliente casi nunca regresa de Mercado Pago, asi que no podemos marcar la compra "al volver".
    Cruzamos la referencia que la visita guardo al salir a pagar contra las ventas registradas:
@@ -388,6 +390,45 @@ function listaBarras(obj, total) {
     </div>`).join("")}</div>`;
 }
 
+function diaDe(iso) {
+  const d = new Date(iso || 0);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function filtrarVisitas(list) {
+  const q = fVisitas.q.trim().toLowerCase();
+  return list.filter(s => {
+    if (fVisitas.dia && diaDe(s.inicio) !== fVisitas.dia) return false;
+    if (!q) return true;
+    return [s.nombreCliente, s.clienteEmail, s.refPedido, s.venta?.folio, s.venta?.cliente, s.venta?.telefono]
+      .some(x => String(x || "").toLowerCase().includes(q));
+  });
+}
+
+function filtroVisitas() {
+  const activo = fVisitas.q || fVisitas.dia;
+  return `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px">
+    <input class="input" id="stVisBuscar" type="search" placeholder="Nombre, correo o número de pedido" value="${esc(fVisitas.q)}" style="flex:1 1 220px;min-width:0">
+    <input class="input" id="stVisDia" type="date" value="${fVisitas.dia}" style="width:auto">
+    <button class="btn btn--ghost" id="stVisLimpiar" type="button" style="width:auto;padding:8px 14px"${activo ? "" : " hidden"}>Quitar filtro</button>
+  </div>
+  <div id="stVisitasLista">${listaFiltrada()}</div>`;
+}
+
+function listaFiltrada() {
+  const activo = fVisitas.q || fVisitas.dia;
+  const l = filtrarVisitas(listaVisitas);
+  if (activo && !l.length) return vacio("Ninguna visita coincide con ese filtro.");
+  return (activo ? `<p class="st-bloque__ayuda">${l.length} ${l.length === 1 ? "visita" : "visitas"} con ese filtro</p>` : "") + visitas(l);
+}
+
+function repintarVisitas() {
+  const cont = $("#stVisitasLista");
+  if (cont) cont.innerHTML = listaFiltrada();
+  const x = $("#stVisLimpiar");
+  if (x) x.hidden = !(fVisitas.q || fVisitas.dia);
+}
+
 function visitas(list) {
   if (!list.length) return vacio("Todavía no hay visitas en este periodo.");
   return `<div class="st-visitas">${list.slice(0, 30).map(s => {
@@ -412,13 +453,14 @@ function visitas(list) {
         </div>
       </div>
     </details>`;
-  }).join("")}</div>`;
+  }).join("")}</div>${list.length > 30 ? `<p class="st-bloque__ayuda">Se muestran las 30 más recientes de ${list.length}. Usa el filtro para encontrar una en específico.</p>` : ""}`;
 }
 
 export function pintarLista(list) {
   const cont = $("#estadBody");
   if (!cont) return;
   const r = resumen(list);
+  listaVisitas = list;
   pintarAsistente(r);
   const prods = Object.values(r.productos);
   const top = prods.slice().sort((a, b) => b.personas - a.personas || b.segundos - a.segundos).slice(0, 8);
@@ -452,7 +494,7 @@ export function pintarLista(list) {
 
     ${bloque("Desde qué aparato entran", cubosAparatos(r.dispositivos, r.visitas), "aparatos")}
 
-    ${bloque("Visita por visita", visitas(list), "detalle", "Abre cualquiera para ver, paso a paso, qué hizo esa persona.")}
+    ${bloque("Visita por visita", filtroVisitas(), "detalle", "Abre cualquiera para ver, paso a paso, qué hizo esa persona.")}
   `;
 }
 
@@ -523,6 +565,23 @@ export async function pintarEstadisticas(db) {
 
 document.addEventListener("change", e => {
   if (e.target.id === "estadRango" && bd) pintarEstadisticas(bd);
+  if (e.target.id === "stVisDia") {
+    fVisitas.dia = e.target.value;
+    const rango = $("#estadRango");
+    const dias = fVisitas.dia ? (Date.now() - new Date(fVisitas.dia + "T00:00:00").getTime()) / 86400000 : 0;
+    if (rango && rango.value !== "todo" && dias > Number(rango.value) && bd) {
+      rango.value = "todo";
+      pintarEstadisticas(bd);
+      return;
+    }
+    repintarVisitas();
+  }
+});
+
+document.addEventListener("input", e => {
+  if (e.target.id !== "stVisBuscar") return;
+  fVisitas.q = e.target.value;
+  repintarVisitas();
 });
 
 /* al borrar el historial de alguien, el panel se refresca solo */
@@ -530,6 +589,13 @@ document.addEventListener("panel:recargar-estadisticas", () => { if (bd) pintarE
 
 document.addEventListener("click", async e => {
   if (e.target.id === "estadRefrescar" && bd) { pintarEstadisticas(bd); return; }
+  if (e.target.id === "stVisLimpiar") {
+    fVisitas = { q: "", dia: "" };
+    const b = $("#stVisBuscar"); if (b) b.value = "";
+    const d = $("#stVisDia"); if (d) d.value = "";
+    repintarVisitas();
+    return;
+  }
 
   /* borrar una visita suelta del registro */
   const bor = e.target.closest("[data-borrar-visita]");
