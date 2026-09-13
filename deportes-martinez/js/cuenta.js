@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=76";
+import { db } from "./db.js?v=77";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -57,45 +57,56 @@ const revisar = setInterval(() => {
 
 /* ---------- mis pedidos ---------- */
 const PASOS = {
-  por_cobrar: { n: 1, txt: "Falta tu pago", color: "#f7d154", nota: "Ya te apartamos el jersey. En cuanto recibamos el pago te lo confirmamos." },
-  pagada: { n: 2, txt: "Pagado", color: "#4f8fd6", nota: "" },
-  entregada: { n: 3, txt: "Listo", color: "#b9b9c2", nota: "" },
-  cancelada: { n: 0, txt: "Cancelado", color: "#ff9b9b", nota: "Este pedido se canceló. Si fue un error, escríbenos." }
+  por_cobrar: { txt: "Falta tu pago", color: "#f7d154", nota: "Ya te apartamos el jersey. En cuanto recibamos el pago te lo confirmamos." },
+  pagada: { txt: "Pagado", color: "#4f8fd6", nota: "" },
+  entregada: { txt: "Entregado", color: "#7fd18b", nota: "" },
+  cancelada: { txt: "Cancelado", color: "#ff9b9b", nota: "Este pedido se canceló. Si fue un error, escríbenos." }
 };
 
-function cuando(iso) {
+function estadoDe(v) {
+  const base = PASOS[v.estado] || PASOS.pagada;
+  if (v.estado === "pagada" && v.lista) return { ...base, txt: v.entrega === "domicilio" ? "Enviado" : "Listo para recoger", color: "#e8b923" };
+  return base;
+}
+
+function cuando(iso, conHora) {
   const d = new Date(iso || 0);
   if (!d.getTime()) return "";
   const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-  return `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+  const fecha = `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+  return conHora ? `${fecha} · ${d.toLocaleTimeString("es-MX", { hour: "numeric", minute: "2-digit" })}` : fecha;
 }
 
 const dinero = n => "$" + Number(n || 0).toLocaleString("es-MX");
 
-/* Los tres pasos del pedido, con el actual marcado. Se entiende de un vistazo
-   sin leer nada: 1 pagar, 2 preparar, 3 recibir. */
 function barraPasos(v) {
   if (v.estado === "cancelada") return "";
-  const paso = (PASOS[v.estado] || PASOS.pagada).n;
-  const nombres = ["Pagar", v.entrega === "domicilio" ? "Enviar" : "Apartar", v.entrega === "domicilio" ? "Recibir" : "Recoger"];
-  return `<div class="mc-pasos">${nombres.map((t, i) => {
-    const n = i + 1;
-    const cls = n < paso ? "hecho" : (n === paso ? "ahora" : "");
-    return `<div class="mc-paso ${cls}"><span class="mc-paso__bola">${n < paso ? "✓" : n}</span><span>${t}</span></div>`;
-  }).join("")}</div>`;
+  const casa = v.entrega === "domicilio";
+  const pagoOk = v.estado !== "por_cobrar";
+  const fin = v.estado === "entregada";
+  const fPago = pagoOk ? (v.confirmada || v.fechaISO || "") : "";
+  const pasos = [
+    ["Pagado", fPago],
+    [casa ? "Preparado" : "Apartado", fPago],
+    [casa ? "Enviado" : "Listo para recoger", v.lista || ""],
+    ["Entregado", v.entregada || ""]
+  ];
+  const hechos = [pagoOk, pagoOk, !!v.lista || fin, fin];
+  const ahora = hechos.indexOf(false);
+  return `<ol class="mc-pasos">${pasos.map(([t, f], i) => {
+    const cls = hechos[i] ? "hecho" : (i === ahora ? "ahora" : "");
+    const fecha = hechos[i] ? cuando(f, true) : (i === ahora ? (i === 0 ? "Esperando tu pago" : "En proceso") : "Pendiente");
+    return `<li class="mc-paso ${cls}"><span class="mc-paso__bola">${hechos[i] ? "✓" : i + 1}</span><span class="mc-paso__txt">${t}</span><span class="mc-paso__fecha">${fecha}</span></li>`;
+  }).join("")}</ol>`;
 }
 
 function notaDe(v) {
   const p = PASOS[v.estado] || {};
   if (p.nota) return p.nota;
-  if (v.estado === "pagada") {
-    return v.entrega === "domicilio"
-      ? "Ya recibimos tu pago. Estamos preparando tu envío."
-      : "Ya recibimos tu pago. Tu jersey está apartado, pasa por él cuando quieras.";
-  }
-  if (v.estado === "entregada") {
-    return v.entrega === "domicilio" ? "Tu pedido se envió. ¡Gracias por tu compra!" : "Ya lo recogiste. ¡Gracias por tu compra!";
-  }
+  const casa = v.entrega === "domicilio";
+  if (v.estado === "pagada" && v.lista) return casa ? "Tu pedido ya va en camino." : "Tu jersey ya está listo. Pasa por él cuando quieras.";
+  if (v.estado === "pagada") return casa ? "Ya recibimos tu pago. Estamos preparando tu envío." : "Ya recibimos tu pago y tu jersey está apartado. Aquí vas a ver cuando esté listo para recoger.";
+  if (v.estado === "entregada") return casa ? "Tu pedido llegó. ¡Gracias por tu compra!" : "Ya lo recogiste. ¡Gracias por tu compra!";
   return "";
 }
 
@@ -118,7 +129,7 @@ async function pintarCompras(uid) {
       return p && p.imagen ? `<img class="mc-foto" src="${p.imagen}" alt="">` : `<div class="mc-foto mc-foto--vacia"></div>`;
     };
     cont.innerHTML = compras.map(v => {
-      const e = PASOS[v.estado] || PASOS.pagada;
+      const e = estadoDe(v);
       let lineas = [];
       try { lineas = JSON.parse(v.lineas || "[]"); } catch { }
       const jerseys = lineas.length
