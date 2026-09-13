@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=76";
-import { PRODUCTOS_SEED } from "./seed.js?v=76";
+import { firebaseConfig, usaFirebase } from "./config.js?v=77";
+import { PRODUCTOS_SEED } from "./seed.js?v=77";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -176,6 +176,9 @@ async function crearImplFirebase() {
         estado: "pagada",
         confirmada: new Date().toISOString()
       });
+    },
+    async marcarVentaLista(id) {
+      await updateDoc(doc(fdb, "ventas", id), { lista: new Date().toISOString() });
     },
     /* ya salió de la tienda: enviado o recogido, según cómo lo pidió */
     async marcarVentaEntregada(id) {
@@ -363,6 +366,7 @@ function crearImplDemo() {
     async misCompras() { return []; },
     async productosParaFoto() { return []; },
     async marcarVentaPagada() {},
+    async marcarVentaLista() {},
     async marcarVentaEntregada() {},
     async cancelarVenta() { return 0; },
     async borrarVenta() {},
