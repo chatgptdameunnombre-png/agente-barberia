@@ -1,7 +1,8 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO } from "./config.js?v=76";
-import { db } from "./db.js?v=76";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=76";
-import { track } from "./track.js?v=76";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=77";
+import { abrirLogin } from "./auth.js?v=77";
+import { db } from "./db.js?v=77";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=77";
+import { track } from "./track.js?v=77";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -29,7 +30,7 @@ db.onAuth(async u => {
 });
 
 export function iniciarPago({ items, productos, entrega, promo, onError }) {
-  abrirModal(entrega, datos => enviarPago({ items, productos, entrega, promo, ...datos }, onError), onError);
+  pedirDatos(entrega, datos => enviarPago({ items, productos, entrega, promo, ...datos }, onError), onError);
 }
 
 function enviarPago(payload, onError) {
@@ -37,10 +38,13 @@ function enviarPago(payload, onError) {
      external_reference en Mercado Pago y la venta la guarda. Asi el registro de visitas puede
      cruzarla con la venta y saber si esta persona pago, aunque nunca regrese de Mercado Pago. */
   const ref = nuevoFolio();
+  const { invitado, ...cuerpo } = payload;
+  guardarUltimo(ref, payload);
+  const av = aviso("Te llevamos a Mercado Pago…");
   track("pago_mercadopago", { entrega: payload.entrega, items: (payload.items || []).length, ref, cliente: payload.cliente || "" });
   fetch(COBRO_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...payload, uid: user?.uid || "", folio: ref, ref })
+    body: JSON.stringify({ ...cuerpo, uid: user?.uid || "", folio: ref, ref })
   }).then(r => r.json()).then(d => {
     if (d.link) {
       track("sale_a_pagar", { proveedor: "Mercado Pago", ref, cliente: payload.cliente || "" });
@@ -48,11 +52,11 @@ function enviarPago(payload, onError) {
       return;
     }
     throw new Error("sin link");
-  }).catch(() => { if (onError) onError(); });
+  }).catch(() => { av.remove(); if (onError) onError(); });
 }
 
 export function iniciarTransferencia({ productos, entrega, total, promo, onError }) {
-  abrirModal(entrega, datos => mostrarClabe({ productos, entrega, total, ...datos }), onError);
+  pedirDatos(entrega, datos => mostrarClabe({ productos, entrega, total, ...datos }), onError);
 }
 
 /* Deja el pedido registrado como "por cobrar": aparta el stock y le avisa al dueño.
@@ -79,7 +83,7 @@ function registrarPedido({ productos, entrega, total, cliente, telefono, direcci
   }).then(r => r.json()).catch(() => null);
 }
 
-function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion }) {
+function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion, invitado }) {
   if (document.getElementById("trOverlay")) return;
   const ref = nuevoFolio();
   registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref });
@@ -112,9 +116,13 @@ function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion 
         ${desc
           ? `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span style="color:#e8b923;font-size:13px;font-weight:700">Precio mayorista −10%</span><span><s style="color:#7a7a82;font-size:14px;margin-right:8px">${money(total)}</s><b style="color:#e8b923;font-size:20px">${money(totalFinal)}</b></span></div>`
           : `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:13px">Monto</span><b style="color:#e8b923;font-size:18px">${money(totalFinal)}</b></div>`}
-        <div style="display:flex;justify-content:space-between"><span style="color:#9a9aa2;font-size:13px">Referencia</span><b>${ref}</b></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:#9a9aa2;font-size:13px">Número de pedido</span><b>${ref}</b></div>
       </div>
       <a href="${waLink}" target="_blank" rel="noopener" style="display:block;text-align:center;background:linear-gradient(135deg,#e8b923,#f7d154);color:#1a1405;border-radius:12px;padding:14px;font-weight:800;font-size:15px;text-decoration:none">Enviar comprobante por WhatsApp</a>
+      ${entrega === "domicilio" ? "" : `<a href="${rutaMapa()}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:10px;border:1px solid #2e2e38;color:#f4f4f5;border-radius:12px;padding:13px;font-weight:700;font-size:14px;text-decoration:none">📍 Cómo llegar a la tienda</a>`}
+      <p style="margin:14px 0 0;font-size:12.5px;line-height:1.55;color:${invitado ? "#f7d154" : "#9a9aa2"}">${invitado
+        ? `Guarda tu número de pedido <b>${ref}</b>: cópialo o tómale captura. Como compraste sin cuenta, no lo vas a poder ver después en la página.`
+        : `Puedes seguir tu pedido paso a paso en <a href="cuenta.html" style="color:#e8b923">Mi cuenta</a>.`}</p>
     </div>`;
   document.body.appendChild(ov);
   const q = s => ov.querySelector(s);
@@ -135,6 +143,102 @@ function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion 
     navigator.clipboard?.writeText(CLABE_TRANSFERENCIA.replace(/\s/g, ""));
     btnCopy.textContent = "Copiado ✓";
   };
+}
+
+function rutaMapa() {
+  const q = (String(NEGOCIO.mapa || "").split("q=")[1] || "").split("&")[0];
+  return q ? `https://www.google.com/maps/dir/?api=1&destination=${q}` : NEGOCIO.mapa;
+}
+
+function aviso(txt) {
+  const d = document.createElement("div");
+  d.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(3px);z-index:9999;display:flex;align-items:center;justify-content:center;color:#f4f4f5;font-weight:800;font-size:16px;padding:20px;text-align:center";
+  d.textContent = txt;
+  document.body.appendChild(d);
+  return d;
+}
+
+function guardarUltimo(ref, payload) {
+  try {
+    localStorage.setItem("dm_ultimo_pedido", JSON.stringify({
+      ref,
+      entrega: payload.entrega,
+      invitado: !!payload.invitado,
+      productos: (payload.productos || []).map(p => ({ title: p.title, talla: p.talla || "", qty: p.qty })),
+      fecha: new Date().toISOString()
+    }));
+  } catch { }
+}
+
+function datosCompletos(p, entrega) {
+  if (!p || !p.nombre || String(p.telefono || "").replace(/\D/g, "").length < 10) return false;
+  if (entrega === "domicilio" && !(p.calle && p.colonia && p.cp && p.ciudad && p.estado)) return false;
+  return true;
+}
+
+function direccionDe(p) {
+  return `${p.calle}, Col. ${p.colonia}, ${p.ciudad}, ${p.estado}, C.P. ${p.cp}${p.referencias ? " (" + p.referencias + ")" : ""}`;
+}
+
+async function pedirDatos(entrega, onConfirm, onCancel) {
+  const u = user || db.usuarioAhora?.();
+  if (u && u.uid) {
+    user = u;
+    if (!perfil) perfil = await db.getPerfil(u.uid).catch(() => null);
+    if (datosCompletos(perfil, entrega)) {
+      onConfirm({ cliente: perfil.nombre, telefono: perfil.telefono, direccion: entrega === "domicilio" ? direccionDe(perfil) : "", invitado: false });
+      return;
+    }
+    abrirModal(entrega, d => onConfirm({ ...d, invitado: false }), onCancel);
+    return;
+  }
+  elegirModo(modo => {
+    if (modo === "invitado") {
+      abrirModal(entrega, d => onConfirm({ ...d, invitado: true }), onCancel);
+      return;
+    }
+    abrirLogin("login", nuevo => {
+      const ahora = db.usuarioAhora?.();
+      user = ahora && ahora.uid ? ahora : nuevo;
+      perfil = null;
+      pedirDatos(entrega, onConfirm, onCancel);
+    });
+  });
+}
+
+function elegirModo(onElegir) {
+  if (document.getElementById("modoOverlay")) return;
+  const ov = document.createElement("div");
+  ov.id = "modoOverlay";
+  ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(3px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px";
+  const opcion = "display:block;width:100%;text-align:left;background:#15151a;border:1px solid #2a2a32;border-radius:14px;padding:15px 16px;margin-top:10px;color:#f4f4f5;cursor:pointer;font-family:inherit";
+  ov.innerHTML = `
+    <div style="background:#0f0f12;border:1px solid #26262e;border-radius:18px;max-width:440px;width:100%;padding:24px;font-family:inherit;color:#f4f4f5;max-height:92vh;overflow:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <h3 style="margin:0;font-size:19px;font-weight:800">¿Cómo quieres comprar?</h3>
+        <button id="modoClose" style="background:none;border:none;color:#9a9aa2;font-size:22px;cursor:pointer;line-height:1">✕</button>
+      </div>
+      <p style="margin:0 0 6px;font-size:13px;color:#9a9aa2">Elige una opción para seguir con tu pedido.</p>
+      <button type="button" data-modo="cuenta" style="${opcion}">
+        <b style="display:block;font-size:15px;margin-bottom:4px;color:#e8b923">Con mi cuenta</b>
+        <span style="font-size:13px;color:#b8b8c0;line-height:1.5">Entra o crea tu cuenta. Tus datos se guardan y sigues tu pedido paso a paso.</span>
+      </button>
+      <button type="button" data-modo="invitado" style="${opcion}">
+        <b style="display:block;font-size:15px;margin-bottom:4px">Sin cuenta</b>
+        <span style="font-size:13px;color:#b8b8c0;line-height:1.5">Solo tu nombre y teléfono. Al final te damos tu número de pedido; guárdalo, porque sin cuenta no lo vas a poder ver después.</span>
+      </button>
+    </div>`;
+  document.body.appendChild(ov);
+  const cerrar = () => ov.remove();
+  ov.querySelector("#modoClose").onclick = cerrar;
+  ov.addEventListener("click", e => {
+    if (e.target === ov) { cerrar(); return; }
+    const b = e.target.closest("[data-modo]");
+    if (!b) return;
+    track("elige_modo_compra", { modo: b.dataset.modo });
+    cerrar();
+    onElegir(b.dataset.modo);
+  });
 }
 
 function abrirModal(entrega, onConfirm, onCancel) {
