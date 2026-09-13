@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=76";
+import { db } from "./db.js?v=77";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -141,7 +141,7 @@ function traducirError(err) {
   return "No se pudo completar. Intenta de nuevo.";
 }
 
-function openModal(mode) {
+function openModal(mode, alEntrar) {
   if (document.getElementById("authOv")) return;
   const ov = document.createElement("div");
   ov.id = "authOv";
@@ -207,6 +207,7 @@ function openModal(mode) {
         ? { email: cred.user.email, uid: cred.user.uid }
         : (db.usuarioAhora?.() || { email, uid: "" }));
       cerrar();
+      if (alEntrar) alEntrar(currentUser);
     } catch (err) {
       q("#authErr").textContent = traducirError(err);
       btn.disabled = false; btn.textContent = orig;
@@ -223,7 +224,7 @@ else document.addEventListener("DOMContentLoaded", init);
 function aplicarUsuario(u) {
   currentUser = u;
   updateButton();
-  import("./track.js?v=76").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
+  import("./track.js?v=77").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
 }
 
 db.onAuth(u => aplicarUsuario(u));
@@ -238,4 +239,4 @@ const revisar = setInterval(() => {
   if (intentos >= 6 || (u && currentUser)) clearInterval(revisar);
 }, 700);
 
-export { currentUser };
+export { currentUser, openModal as abrirLogin };
