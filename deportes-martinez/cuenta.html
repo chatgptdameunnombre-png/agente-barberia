@@ -21,7 +21,7 @@
   <meta name="twitter:description" content="Tu cuenta de Deportes Martínez: tus datos de envío y tus pedidos.">
   <meta name="twitter:image" content="https://tuagentedeia.com/deportes-martinez/fotos/logo/logo-og.png">
   <link rel="icon" href="fotos/logo/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=76">
+  <link rel="stylesheet" href="css/styles.css?v=77">
 </head>
 <body>
   <header class="hdr">
@@ -121,15 +121,20 @@
     .mc-tag{font-size:11.5px;font-weight:700;color:#b8b8c0;background:#1c1c24;border-radius:6px;padding:3px 9px}
     .mc-tag--oro{background:#2a2109;color:#f7d154}
 
-    /* los tres pasos del pedido */
-    .mc-pasos{display:flex;align-items:center;gap:6px;margin:16px 0 0}
-    .mc-paso{display:flex;align-items:center;gap:7px;flex:1;font-size:11.5px;color:#6e6e78;letter-spacing:.02em}
-    .mc-paso__bola{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
-      background:#1a1a20;border:1px solid #2c2c36;font-size:11px;font-weight:800;flex:0 0 auto}
-    .mc-paso.hecho{color:#a8a8b0}
+    /* los pasos del pedido */
+    .mc-pasos{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column}
+    .mc-paso{position:relative;display:grid;grid-template-columns:24px 1fr auto;align-items:center;column-gap:10px;padding:7px 0;font-size:13px;color:#6e6e78}
+    .mc-paso:not(:last-child)::after{content:"";position:absolute;left:11px;top:31px;bottom:-7px;width:2px;background:#24242c}
+    .mc-paso.hecho:not(:last-child)::after{background:#4a3f18}
+    .mc-paso__bola{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;position:relative;z-index:1;
+      background:#1a1a20;border:1px solid #2c2c36;font-size:11px;font-weight:800}
+    .mc-paso__fecha{font-size:12px;color:#6e6e78;text-align:right}
+    .mc-paso.hecho{color:#c8c8d0}
     .mc-paso.hecho .mc-paso__bola{background:#2a2109;border-color:#4a3f18;color:#f7d154}
+    .mc-paso.hecho .mc-paso__fecha{color:#a8a8b0}
     .mc-paso.ahora{color:#f4f4f5;font-weight:800}
     .mc-paso.ahora .mc-paso__bola{background:var(--accent,#e8b923);border-color:var(--accent,#e8b923);color:#1a1405}
+    .mc-paso.ahora .mc-paso__fecha{color:#f7d154;font-weight:700}
 
     .mc-nota{font-size:13px;color:#c0c0c8;line-height:1.6;margin:14px 0 0;
       background:#15151a;border-radius:10px;padding:11px 13px}
@@ -161,17 +166,15 @@
     .mc-datos[open]{padding-bottom:18px}
 
     @media (max-width:520px){
-      .mc-paso span:not(.mc-paso__bola){display:none}
-      .mc-paso{flex:0 0 auto}
-      .mc-pasos{gap:10px}
-      .mc-pasos::after{content:"";flex:1}
+      .mc-paso{grid-template-columns:24px 1fr;row-gap:1px}
+      .mc-paso__fecha{grid-column:2;text-align:left}
     }
     .cInp:focus{border-color:var(--accent,#e8b923)}
   </style>
 
-  <script type="module" src="js/auth.js?v=76"></script>
-  <script type="module" src="js/cuenta.js?v=76"></script>
-  <script type="module" src="js/cookies.js?v=76"></script>
-  <script type="module" src="js/track.js?v=76"></script>
+  <script type="module" src="js/auth.js?v=77"></script>
+  <script type="module" src="js/cuenta.js?v=77"></script>
+  <script type="module" src="js/cookies.js?v=77"></script>
+  <script type="module" src="js/track.js?v=77"></script>
 </body>
 </html>
