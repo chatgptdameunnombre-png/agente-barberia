@@ -1,4 +1,5 @@
-import { db } from "./db.js?v=78";
+import { db } from "./db.js?v=79";
+import { WHATSAPP_NUMERO } from "./config.js?v=79";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -60,7 +61,7 @@ const PASOS = {
   por_cobrar: { txt: "Falta tu pago", color: "#f7d154", nota: "Ya te apartamos el jersey. En cuanto recibamos el pago te lo confirmamos." },
   pagada: { txt: "Pagado", color: "#4f8fd6", nota: "" },
   entregada: { txt: "Entregado", color: "#7fd18b", nota: "" },
-  cancelada: { txt: "Cancelado", color: "#ff9b9b", nota: "Este pedido se canceló. Si fue un error, escríbenos." }
+  cancelada: { txt: "Cancelado", color: "#ff9b9b", nota: `Este pedido se canceló. Si fue un error, <a href="https://wa.me/${WHATSAPP_NUMERO}" target="_blank" rel="noopener" style="color:#e8b923;font-weight:700;text-decoration:underline">escríbenos por WhatsApp</a>.` }
 };
 
 function estadoDe(v) {
