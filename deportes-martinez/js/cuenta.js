@@ -1,4 +1,4 @@
-import { db } from "./db.js?v=77";
+import { db } from "./db.js?v=78";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -65,7 +65,7 @@ const PASOS = {
 
 function estadoDe(v) {
   const base = PASOS[v.estado] || PASOS.pagada;
-  if (v.estado === "pagada" && v.lista) return { ...base, txt: v.entrega === "domicilio" ? "Enviado" : "Listo para recoger", color: "#e8b923" };
+  if (v.estado === "entregada" && v.entrega === "domicilio") return { ...base, txt: "Enviado" };
   return base;
 }
 
@@ -85,17 +85,14 @@ function barraPasos(v) {
   const pagoOk = v.estado !== "por_cobrar";
   const fin = v.estado === "entregada";
   const fPago = pagoOk ? (v.confirmada || v.fechaISO || "") : "";
-  const pasos = [
-    ["Pagado", fPago],
-    [casa ? "Preparado" : "Apartado", fPago],
-    [casa ? "Enviado" : "Listo para recoger", v.lista || ""],
-    ["Entregado", v.entregada || ""]
-  ];
-  const hechos = [pagoOk, pagoOk, !!v.lista || fin, fin];
+  const pasos = casa
+    ? [["Pagado", fPago], ["Apartado", fPago], ["Preparando tu envío", fPago], ["Ya lo enviamos", v.entregada || ""]]
+    : [["Pagado", fPago], ["Apartado", fPago], ["Listo para recoger", fPago], ["Entregado", v.entregada || ""]];
+  const hechos = [pagoOk, pagoOk, pagoOk, fin];
   const ahora = hechos.indexOf(false);
   return `<ol class="mc-pasos">${pasos.map(([t, f], i) => {
     const cls = hechos[i] ? "hecho" : (i === ahora ? "ahora" : "");
-    const fecha = hechos[i] ? cuando(f, true) : (i === ahora ? (i === 0 ? "Esperando tu pago" : "En proceso") : "Pendiente");
+    const fecha = hechos[i] ? cuando(f, true) : (i === ahora ? (i === 0 ? "Esperando tu pago" : (casa ? "Lo estamos preparando" : "Te esperamos")) : "Pendiente");
     return `<li class="mc-paso ${cls}"><span class="mc-paso__bola">${hechos[i] ? "✓" : i + 1}</span><span class="mc-paso__txt">${t}</span><span class="mc-paso__fecha">${fecha}</span></li>`;
   }).join("")}</ol>`;
 }
@@ -104,9 +101,8 @@ function notaDe(v) {
   const p = PASOS[v.estado] || {};
   if (p.nota) return p.nota;
   const casa = v.entrega === "domicilio";
-  if (v.estado === "pagada" && v.lista) return casa ? "Tu pedido ya va en camino." : "Tu jersey ya está listo. Pasa por él cuando quieras.";
-  if (v.estado === "pagada") return casa ? "Ya recibimos tu pago. Estamos preparando tu envío." : "Ya recibimos tu pago y tu jersey está apartado. Aquí vas a ver cuando esté listo para recoger.";
-  if (v.estado === "entregada") return casa ? "Tu pedido llegó. ¡Gracias por tu compra!" : "Ya lo recogiste. ¡Gracias por tu compra!";
+  if (v.estado === "pagada") return casa ? "Ya recibimos tu pago. Estamos preparando tu envío." : "Ya recibimos tu pago y tu jersey está listo. Pasa por él cuando quieras.";
+  if (v.estado === "entregada") return casa ? "Ya enviamos tu pedido. ¡Gracias por tu compra!" : "Ya lo recogiste. ¡Gracias por tu compra!";
   return "";
 }
 
@@ -195,6 +191,20 @@ $("#cuentaGuardar")?.addEventListener("click", async () => {
 });
 
 $("#cuentaSalir")?.addEventListener("click", async () => { await db.logout(); });
+
+$("#cuentaBorrarDatos")?.addEventListener("click", async () => {
+  if (!user) return;
+  if (!confirm("¿Borrar tus datos guardados?\n\nTus pedidos no se borran. La próxima vez que compres te volvemos a pedir nombre y teléfono.")) return;
+  const msg = $("#cuentaMsg"); msg.textContent = "";
+  try {
+    await db.borrarDatosPerfil(user.uid);
+    ["fNombre", "fTel", "fCalle", "fCol", "fCP", "fCiudad", "fEstado", "fRef"].forEach(id => { const el = $("#" + id); if (el) el.value = ""; });
+    pistaDatos(null);
+    msg.style.color = "#e8b923"; msg.textContent = "✓ Borramos tus datos guardados.";
+  } catch {
+    msg.style.color = "#ff6b6b"; msg.textContent = "No se pudieron borrar. Intenta de nuevo.";
+  }
+});
 
 /* copiar el número de pedido para mandarlo por WhatsApp */
 document.addEventListener("click", async e => {
