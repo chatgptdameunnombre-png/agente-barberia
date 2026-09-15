@@ -1,5 +1,5 @@
-import { NEGOCIO } from "./config.js?v=77";
-import { db } from "./db.js?v=77";
+import { NEGOCIO } from "./config.js?v=78";
+import { db } from "./db.js?v=78";
 
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
