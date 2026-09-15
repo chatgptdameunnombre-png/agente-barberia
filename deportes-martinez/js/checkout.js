@@ -1,8 +1,8 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=77";
-import { abrirLogin } from "./auth.js?v=77";
-import { db } from "./db.js?v=77";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=77";
-import { track } from "./track.js?v=77";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=78";
+import { abrirLogin } from "./auth.js?v=78";
+import { db } from "./db.js?v=78";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=78";
+import { track } from "./track.js?v=78";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -101,26 +101,26 @@ function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion,
   ov.innerHTML = `
     <div style="background:#0f0f12;border:1px solid #26262e;border-radius:18px;max-width:440px;width:100%;padding:24px;font-family:inherit;color:#f4f4f5;max-height:92vh;overflow:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <h3 style="margin:0;font-size:19px;font-weight:800">Paga por transferencia</h3>
-        <button id="trClose" style="background:none;border:none;color:#9a9aa2;font-size:22px;cursor:pointer;line-height:1">✕</button>
+        <h3 style="margin:0;font-size:24px;font-weight:800">Paga por transferencia</h3>
+        <button id="trClose" style="background:none;border:none;color:#9a9aa2;font-size:24px;cursor:pointer;line-height:1">✕</button>
       </div>
-      <p style="margin:0 0 16px;font-size:13px;color:#9a9aa2">${CLABE_TRANSFERENCIA
+      <p style="margin:0 0 16px;font-size:15.5px;color:#9a9aa2">${CLABE_TRANSFERENCIA
         ? "Transfiere a esta cuenta y mándanos tu comprobante por WhatsApp. Apartamos tu jersey en cuanto confirmes el pago."
         : "Manda tu pedido por WhatsApp y te pasamos los datos para transferir. Apartamos tu jersey en cuanto confirmes el pago."}</p>
       <div style="background:#0e0e11;border:1px solid #2a2a32;border-radius:12px;padding:14px;margin-bottom:14px">
         ${CLABE_TRANSFERENCIA ? `
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:13px">Banco</span><b>${BANCO_TRANSFERENCIA}</b></div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:13px">Beneficiario</span><b style="text-align:right">${BENEFICIARIO_TRANSFERENCIA}</b></div>
-        <div style="margin-bottom:8px"><span style="color:#9a9aa2;font-size:13px">CLABE</span><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><b id="trClabe" style="font-size:18px;letter-spacing:1px">${CLABE_TRANSFERENCIA}</b><button id="trCopy" style="background:#26262c;border:none;color:#e8b923;border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer">Copiar</button></div></div>` : ""}
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:13px">Tu pedido</span><b style="text-align:right;max-width:60%">${resumen}</b></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Banco</span><b>${BANCO_TRANSFERENCIA}</b></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Beneficiario</span><b style="text-align:right">${BENEFICIARIO_TRANSFERENCIA}</b></div>
+        <div style="margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">CLABE</span><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><b id="trClabe" style="font-size:21px;letter-spacing:1px">${CLABE_TRANSFERENCIA}</b><button id="trCopy" style="background:#26262c;border:none;color:#e8b923;border-radius:8px;padding:4px 10px;font-size:14px;cursor:pointer">Copiar</button></div></div>` : ""}
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Tu pedido</span><b style="text-align:right;max-width:60%">${resumen}</b></div>
         ${desc
-          ? `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span style="color:#e8b923;font-size:13px;font-weight:700">Precio mayorista −10%</span><span><s style="color:#7a7a82;font-size:14px;margin-right:8px">${money(total)}</s><b style="color:#e8b923;font-size:20px">${money(totalFinal)}</b></span></div>`
-          : `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:13px">Monto</span><b style="color:#e8b923;font-size:18px">${money(totalFinal)}</b></div>`}
-        <div style="display:flex;justify-content:space-between"><span style="color:#9a9aa2;font-size:13px">Número de pedido</span><b>${ref}</b></div>
+          ? `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span style="color:#e8b923;font-size:15.5px;font-weight:700">Precio mayorista −10%</span><span><s style="color:#7a7a82;font-size:16px;margin-right:8px">${money(total)}</s><b style="color:#e8b923;font-size:23px">${money(totalFinal)}</b></span></div>`
+          : `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Monto</span><b style="color:#e8b923;font-size:21px">${money(totalFinal)}</b></div>`}
+        <div style="display:flex;justify-content:space-between"><span style="color:#9a9aa2;font-size:15.5px">Número de pedido</span><b style="font-size:24px;letter-spacing:.06em">${ref}</b></div>
       </div>
-      <a href="${waLink}" target="_blank" rel="noopener" style="display:block;text-align:center;background:linear-gradient(135deg,#e8b923,#f7d154);color:#1a1405;border-radius:12px;padding:14px;font-weight:800;font-size:15px;text-decoration:none">Enviar comprobante por WhatsApp</a>
-      ${entrega === "domicilio" ? "" : `<a href="${rutaMapa()}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:10px;border:1px solid #2e2e38;color:#f4f4f5;border-radius:12px;padding:13px;font-weight:700;font-size:14px;text-decoration:none">📍 Cómo llegar a la tienda</a>`}
-      <p style="margin:14px 0 0;font-size:12.5px;line-height:1.55;color:${invitado ? "#f7d154" : "#9a9aa2"}">${invitado
+      <a href="${waLink}" target="_blank" rel="noopener" style="display:block;text-align:center;background:linear-gradient(135deg,#e8b923,#f7d154);color:#1a1405;border-radius:12px;padding:14px;font-weight:800;font-size:17px;text-decoration:none">Enviar comprobante por WhatsApp</a>
+      ${entrega === "domicilio" ? "" : `<a href="${rutaMapa()}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:10px;border:1px solid #2e2e38;color:#f4f4f5;border-radius:12px;padding:13px;font-weight:700;font-size:16px;text-decoration:none">📍 Cómo llegar a la tienda</a>`}
+      <p style="margin:14px 0 0;font-size:15px;line-height:1.55;color:${invitado ? "#f7d154" : "#9a9aa2"}">${invitado
         ? `Guarda tu número de pedido <b>${ref}</b>: cópialo o tómale captura. Como compraste sin cuenta, no lo vas a poder ver después en la página.`
         : `Puedes seguir tu pedido paso a paso en <a href="cuenta.html" style="color:#e8b923">Mi cuenta</a>.`}</p>
     </div>`;
@@ -215,17 +215,17 @@ function elegirModo(onElegir) {
   ov.innerHTML = `
     <div style="background:#0f0f12;border:1px solid #26262e;border-radius:18px;max-width:440px;width:100%;padding:24px;font-family:inherit;color:#f4f4f5;max-height:92vh;overflow:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <h3 style="margin:0;font-size:19px;font-weight:800">¿Cómo quieres comprar?</h3>
-        <button id="modoClose" style="background:none;border:none;color:#9a9aa2;font-size:22px;cursor:pointer;line-height:1">✕</button>
+        <h3 style="margin:0;font-size:24px;font-weight:800">¿Cómo quieres comprar?</h3>
+        <button id="modoClose" style="background:none;border:none;color:#9a9aa2;font-size:24px;cursor:pointer;line-height:1">✕</button>
       </div>
-      <p style="margin:0 0 6px;font-size:13px;color:#9a9aa2">Elige una opción para seguir con tu pedido.</p>
+      <p style="margin:0 0 6px;font-size:15.5px;color:#9a9aa2">Elige una opción para seguir con tu pedido.</p>
       <button type="button" data-modo="cuenta" style="${opcion}">
-        <b style="display:block;font-size:15px;margin-bottom:4px;color:#e8b923">Con mi cuenta</b>
-        <span style="font-size:13px;color:#b8b8c0;line-height:1.5">Entra o crea tu cuenta. Tus datos se guardan y sigues tu pedido paso a paso.</span>
+        <b style="display:block;font-size:17px;margin-bottom:4px;color:#e8b923">Con mi cuenta</b>
+        <span style="font-size:15.5px;color:#b8b8c0;line-height:1.5">Entra o crea tu cuenta. Tus datos se guardan y sigues tu pedido paso a paso.</span>
       </button>
       <button type="button" data-modo="invitado" style="${opcion}">
-        <b style="display:block;font-size:15px;margin-bottom:4px">Sin cuenta</b>
-        <span style="font-size:13px;color:#b8b8c0;line-height:1.5">Solo tu nombre y teléfono. Al final te damos tu número de pedido; guárdalo, porque sin cuenta no lo vas a poder ver después.</span>
+        <b style="display:block;font-size:17px;margin-bottom:4px">Sin cuenta</b>
+        <span style="font-size:15.5px;color:#b8b8c0;line-height:1.5">Solo tu nombre y teléfono. Al final te damos tu número de pedido; guárdalo, porque sin cuenta no lo vas a poder ver después.</span>
       </button>
     </div>`;
   document.body.appendChild(ov);
@@ -250,10 +250,10 @@ function abrirModal(entrega, onConfirm, onCancel) {
   ov.innerHTML = `
     <div style="background:#0f0f12;border:1px solid #26262e;border-radius:18px;max-width:440px;width:100%;padding:24px;font-family:inherit;color:#f4f4f5;max-height:92vh;overflow:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <h3 style="margin:0;font-size:19px;font-weight:800">${aDomicilio ? "¿A dónde te lo enviamos?" : "¿Quién recoge el pedido?"}</h3>
-        <button id="dirClose" style="background:none;border:none;color:#9a9aa2;font-size:22px;cursor:pointer;line-height:1">✕</button>
+        <h3 style="margin:0;font-size:24px;font-weight:800">${aDomicilio ? "¿A dónde te lo enviamos?" : "¿Quién recoge el pedido?"}</h3>
+        <button id="dirClose" style="background:none;border:none;color:#9a9aa2;font-size:24px;cursor:pointer;line-height:1">✕</button>
       </div>
-      <p style="margin:0 0 16px;font-size:13px;color:#9a9aa2">${aDomicilio
+      <p style="margin:0 0 16px;font-size:15.5px;color:#9a9aa2">${aDomicilio
         ? (perfil ? "Envío a domicilio (+" + money(ENVIO_DOMICILIO) + "). Revisa que tus datos estén bien y confirma." : "Envío a domicilio (+" + money(ENVIO_DOMICILIO) + "). Llena tus datos para la entrega.")
         : "Recoges en la tienda. Necesitamos tu nombre y teléfono para avisarte cuando esté listo."}</p>
       <div style="display:flex;flex-direction:column;gap:10px">
@@ -270,8 +270,9 @@ function abrirModal(entrega, onConfirm, onCancel) {
           <input id="dEstado" placeholder="Estado" ${inp()} style="flex:1;${inpS()}">
         </div>
         <input id="dRef" placeholder="Referencias (opcional)" ${inp()}>` : ""}
-        <div id="dErr" style="color:#ff6b6b;font-size:12.5px;min-height:16px"></div>
-        <button id="dGo" style="background:#e8b923;color:#1a1405;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.3px">Continuar al pago</button>
+        ${user ? `<label style="display:flex;align-items:center;gap:10px;font-size:15.5px;color:#d8d8de;cursor:pointer;margin-top:2px;line-height:1.4"><input type="checkbox" id="dGuardar" style="width:20px;height:20px;flex:0 0 auto;accent-color:#e8b923"> Guardar mis datos para la próxima compra</label>` : ""}
+        <div id="dErr" style="color:#ff6b6b;font-size:15px;min-height:16px"></div>
+        <button id="dGo" style="background:#e8b923;color:#1a1405;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:17px;cursor:pointer;letter-spacing:.3px">Continuar al pago</button>
       </div>
     </div>`;
   document.body.appendChild(ov);
@@ -291,7 +292,7 @@ function abrirModal(entrega, onConfirm, onCancel) {
     const calle = v("dCalle"), col = v("dCol"), cp = v("dCP"), ciudad = v("dCiudad"), estado = v("dEstado"), ref = v("dRef");
     if (aDomicilio && (!calle || !col || !cp || !ciudad || !estado)) { $("#dErr").textContent = "Completa calle, colonia, C.P., ciudad y estado."; return; }
     const direccion = aDomicilio ? `${calle}, Col. ${col}, ${ciudad}, ${estado}, C.P. ${cp}${ref ? " (" + ref + ")" : ""}` : "";
-    if (user) {
+    if (user && $("#dGuardar")?.checked) {
       const guardar = { nombre, telefono: tel, email: user.email, actualizado: new Date().toISOString() };
       if (aDomicilio) Object.assign(guardar, { calle, colonia: col, cp, ciudad, estado, referencias: ref });
       db.guardarPerfil(user.uid, guardar).catch(() => {});
@@ -303,5 +304,5 @@ function abrirModal(entrega, onConfirm, onCancel) {
 }
 
 function inp() { return `style="${inpBase()}"`; }
-function inpBase() { return "width:100%;padding:12px 14px;border-radius:11px;border:1px solid #2a2a32;background:#0b0b0e;color:#f4f4f5;font-size:14px;outline:none;box-sizing:border-box"; }
+function inpBase() { return "width:100%;padding:12px 14px;border-radius:11px;border:1px solid #2a2a32;background:#0b0b0e;color:#f4f4f5;font-size:16px;outline:none;box-sizing:border-box"; }
 function inpS() { return inpBase(); }
