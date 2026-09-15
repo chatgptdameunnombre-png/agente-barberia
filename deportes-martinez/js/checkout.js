@@ -1,8 +1,8 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=78";
-import { abrirLogin } from "./auth.js?v=78";
-import { db } from "./db.js?v=78";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=78";
-import { track } from "./track.js?v=78";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=79";
+import { abrirLogin } from "./auth.js?v=79";
+import { db } from "./db.js?v=79";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=79";
+import { track } from "./track.js?v=79";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -63,7 +63,7 @@ export function iniciarTransferencia({ productos, entrega, total, promo, onError
    Si el cliente nunca paga, el dueño lo cancela en el panel y el stock regresa. */
 function registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref }) {
   return fetch(PEDIDO_WEBHOOK, {
-    method: "POST", headers: { "Content-Type": "application/json" },
+    method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
     body: JSON.stringify({
       metodo: "transferencia",
       ref,
@@ -83,17 +83,29 @@ function registrarPedido({ productos, entrega, total, cliente, telefono, direcci
   }).then(r => r.json()).catch(() => null);
 }
 
-function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion, invitado }) {
-  if (document.getElementById("trOverlay")) return;
-  const ref = nuevoFolio();
-  registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref });
+async function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion, invitado }) {
+  if (document.getElementById("trOverlay") || mostrarClabe.enCurso) return;
+  mostrarClabe.enCurso = true;
+  const av = aviso("Registrando tu pedido…");
+  const intento = nuevoFolio();
+  const r = await registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref: intento });
+  av.remove();
+  mostrarClabe.enCurso = false;
+  if (!r || r.venta !== true) {
+    const err = aviso("No pudimos registrar tu pedido. Revisa tu internet y vuelve a intentarlo. No se apartó nada.");
+    err.style.cursor = "pointer";
+    err.onclick = () => err.remove();
+    setTimeout(() => err.remove(), 6000);
+    return;
+  }
+  const ref = String(r.id || intento);
   const desc = 0;
   const totalFinal = total - desc;
   const resumen = (productos || []).map(p => `${p.qty}x ${p.title}${p.talla ? " (T " + p.talla + ")" : ""}`).join(", ");
   const entregaTxt = entrega === "domicilio" ? `Entrega a domicilio: ${direccion || ""}` : "Recoge en tienda";
   const descTxt = desc ? `\nDescuento mayoreo -10%: -${money(desc)}` : "";
   track("transferencia", { ref, total: totalFinal, cliente: cliente || "" });
-  const waMsg = encodeURIComponent(`Hola, hice mi pedido en la web (ref ${ref}).\nProductos: ${resumen}${descTxt}\nTotal: ${money(totalFinal)}\n${entregaTxt}\n¿Me pasan los datos para pagar?`);
+  const waMsg = encodeURIComponent(`Hola, hice mi pedido en la web (ref ${ref}).\nProductos: ${resumen}${descTxt}\nTotal: ${money(totalFinal)}\n${entregaTxt}\nAquí está mi comprobante de la transferencia.`);
   const waLink = `https://wa.me/${WHATSAPP_NUMERO}?text=${waMsg}`;
   const ov = document.createElement("div");
   ov.id = "trOverlay";
