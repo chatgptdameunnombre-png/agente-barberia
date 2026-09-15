@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=77";
-import { PRODUCTOS_SEED } from "./seed.js?v=77";
+import { firebaseConfig, usaFirebase } from "./config.js?v=78";
+import { PRODUCTOS_SEED } from "./seed.js?v=78";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -107,6 +107,7 @@ async function crearImplFirebase() {
     logout() { return signOut(auth); },
     onAuth(cb) { return onAuthStateChanged(auth, u => cb(u ? { email: u.email, uid: u.uid } : null)); },
     async guardarPerfil(uid, data) { await setDoc(refCliente(uid), data, { merge: true }); },
+    async borrarDatosPerfil(uid) { await setDoc(refCliente(uid), { borrado: new Date().toISOString() }); },
     async getPerfil(uid) { const s = await getDoc(refCliente(uid)); return s.exists() ? s.data() : null; },
     async solicitarMayoreo(uid, data) { await setDoc(refSolic(uid), { ...data, estado: "pendiente", creado: new Date().toISOString() }, { merge: true }); },
     async getMiMayoreo(uid) { try { const s = await getDoc(refSolic(uid)); return s.exists() ? s.data() : null; } catch { return null; } },
@@ -177,8 +178,8 @@ async function crearImplFirebase() {
         confirmada: new Date().toISOString()
       });
     },
-    async marcarVentaLista(id) {
-      await updateDoc(doc(fdb, "ventas", id), { lista: new Date().toISOString() });
+    async regresarVenta(id) {
+      await updateDoc(doc(fdb, "ventas", id), { estado: "pagada", entregada: deleteField() });
     },
     /* ya salió de la tienda: enviado o recogido, según cómo lo pidió */
     async marcarVentaEntregada(id) {
@@ -366,7 +367,8 @@ function crearImplDemo() {
     async misCompras() { return []; },
     async productosParaFoto() { return []; },
     async marcarVentaPagada() {},
-    async marcarVentaLista() {},
+    async regresarVenta() {},
+    async borrarDatosPerfil() {},
     async marcarVentaEntregada() {},
     async cancelarVenta() { return 0; },
     async borrarVenta() {},
