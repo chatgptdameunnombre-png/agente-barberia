@@ -1,5 +1,5 @@
-import { db } from "./db.js?v=79";
-import { WHATSAPP_NUMERO } from "./config.js?v=79";
+import { db } from "./db.js?v=80";
+import { WHATSAPP_NUMERO, BORRAR_CUENTA_WEBHOOK } from "./config.js?v=80";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -22,11 +22,17 @@ async function loadPerfil(uid) {
   try {
     const p = await db.getPerfil(uid);
     if (!p) return;
-    set("fNombre", p.nombre); set("fTel", p.telefono); set("fCalle", p.calle);
+    set("fNombre", p.nombre); set("fTel", p.telefono); set("fCalle", p.calle); set("fNac", p.nacimiento);
     set("fCol", p.colonia); set("fCP", p.cp); set("fCiudad", p.ciudad);
     set("fEstado", p.estado); set("fRef", p.referencias);
     pistaDatos(p);
+    avisoNacimiento(p);
   } catch (_) {}
+}
+
+function avisoNacimiento(p) {
+  const el = document.getElementById("mcFaltaNac");
+  if (el) el.hidden = !!(p && p.nacimiento);
 }
 
 function pistaDatos(p) {
@@ -173,7 +179,7 @@ $("#cuentaEntrar")?.addEventListener("click", () => document.getElementById("aut
 $("#cuentaGuardar")?.addEventListener("click", async () => {
   if (!user) return;
   const data = {
-    nombre: val("fNombre"), telefono: val("fTel"), calle: val("fCalle"),
+    nombre: val("fNombre"), telefono: val("fTel"), nacimiento: val("fNac"), calle: val("fCalle"),
     colonia: val("fCol"), cp: val("fCP"), ciudad: val("fCiudad"), estado: val("fEstado"),
     referencias: val("fRef"), email: user.email, actualizado: new Date().toISOString()
   };
@@ -181,6 +187,7 @@ $("#cuentaGuardar")?.addEventListener("click", async () => {
   const msg = $("#cuentaMsg"); msg.textContent = ""; msg.style.color = "#e8b923";
   try {
     await db.guardarPerfil(user.uid, data);
+    avisoNacimiento(data);
     msg.textContent = "✓ Datos guardados.";
   } catch (err) {
     msg.style.color = "#ff6b6b";
@@ -217,4 +224,48 @@ document.addEventListener("click", async e => {
     b.textContent = "¡Copiado!";
     setTimeout(() => { b.textContent = antes; }, 1600);
   } catch { }
+});
+
+/* ---------- borrar la cuenta ---------- */
+const $b = id => document.getElementById(id);
+
+$b("cuentaBorrar")?.addEventListener("click", () => {
+  $b("cuentaBorrarCaja").hidden = false;
+  $b("cuentaBorrar").hidden = true;
+  $b("cuentaBorrarTxt").focus();
+});
+
+$b("cuentaBorrarNo")?.addEventListener("click", () => {
+  $b("cuentaBorrarCaja").hidden = true;
+  $b("cuentaBorrar").hidden = false;
+  $b("cuentaBorrarTxt").value = "";
+  $b("cuentaBorrarMsg").textContent = "";
+});
+
+$b("cuentaBorrarOk")?.addEventListener("click", async () => {
+  const msg = $b("cuentaBorrarMsg");
+  msg.style.color = "#ff9b9b";
+  if (!user) { msg.textContent = "Entra a tu cuenta para poder borrarla."; return; }
+  if ($b("cuentaBorrarTxt").value.trim().toUpperCase() !== "BORRAR") {
+    msg.textContent = "Escribe BORRAR para confirmar."; return;
+  }
+  const btn = $b("cuentaBorrarOk");
+  btn.disabled = true; btn.textContent = "Borrando…";
+  msg.style.color = "#a8a8b0"; msg.textContent = "Borrando tus datos…";
+  try {
+    const token = await db.token();
+    const r = await fetch(BORRAR_CUENTA_WEBHOOK, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken: token })
+    }).then(x => x.json());
+    if (!r || r.ok !== true) throw new Error(r?.motivo || "error");
+    msg.style.color = "#7fd18b";
+    msg.textContent = "Listo, borramos tu cuenta y tus datos. Te llevamos a la tienda.";
+    try { await db.logout(); } catch (_) { }
+    setTimeout(() => { window.location.replace("index.html"); }, 2500);
+  } catch (err) {
+    btn.disabled = false; btn.textContent = "Sí, borrar mi cuenta";
+    msg.style.color = "#ff6b6b";
+    msg.textContent = "No se pudo borrar. Vuelve a entrar a tu cuenta e intenta otra vez, o escríbenos.";
+  }
 });
