@@ -1,4 +1,5 @@
-import { db } from "./db.js?v=79";
+import { db } from "./db.js?v=80";
+import { EDAD_MINIMA } from "./config.js?v=80";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -44,6 +45,17 @@ function injectStyles() {
   .authLink{background:none;border:none;color:#9a9aa2;font-size:12.5px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit}
   .authFoot{text-align:center;margin-top:14px}`;
   document.head.appendChild(st);
+}
+
+/* años cumplidos a partir de la fecha de nacimiento (YYYY-MM-DD) */
+export function edadDe(iso) {
+  const d = new Date(iso + "T00:00:00");
+  if (!d.getTime()) return null;
+  const hoy = new Date();
+  let n = hoy.getFullYear() - d.getFullYear();
+  const m = hoy.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < d.getDate())) n--;
+  return n;
 }
 
 function icon() {
@@ -160,6 +172,10 @@ function openModal(mode, alEntrar) {
              inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false">
       <input id="authPass" class="authInp" type="password" placeholder="Contraseña" autocomplete="current-password"
              autocapitalize="none" autocorrect="off" spellcheck="false">
+      <div id="authNacBox" hidden>
+        <label for="authNac" style="display:block;font-size:13px;color:#9a9aa2;margin:2px 0 6px">Tu fecha de nacimiento</label>
+        <input id="authNac" class="authInp" type="date" autocomplete="bday">
+      </div>
       <div class="authErr" id="authErr"></div>
       <div class="authMsg" id="authMsg"></div>
       <button class="authGo" id="authGo">Entrar</button>
@@ -177,8 +193,9 @@ function openModal(mode, alEntrar) {
     q("#authErr").textContent = ""; q("#authMsg").textContent = "";
     q("#authPass").style.display = "";
     q("#authPass").setAttribute("autocomplete", m === "login" ? "current-password" : "new-password");
+    q("#authNacBox").hidden = m !== "register";
     if (m === "login") { q("#authSub").textContent = "Entra para guardar tu dirección y comprar más rápido."; q("#authGo").textContent = "Entrar"; }
-    else { q("#authSub").textContent = "Crea tu cuenta con correo y contraseña."; q("#authGo").textContent = "Crear cuenta"; }
+    else { q("#authSub").textContent = `Crea tu cuenta con correo y contraseña. Necesitas tener ${EDAD_MINIMA} años o más.`; q("#authGo").textContent = "Crear cuenta"; }
   };
   ov.querySelectorAll(".authTab").forEach(t => t.onclick = () => setMode(t.dataset.m));
   setMode(mode);
@@ -190,6 +207,14 @@ function openModal(mode, alEntrar) {
     q("#authErr").textContent = ""; q("#authMsg").textContent = "";
     if (!email || !pass) { q("#authErr").textContent = "Completa correo y contraseña."; return; }
     if (m === "register" && pass.length < 6) { q("#authErr").textContent = "La contraseña necesita al menos 6 letras o números."; return; }
+    const nacimiento = m === "register" ? q("#authNac").value : "";
+    if (m === "register") {
+      if (!nacimiento) { q("#authErr").textContent = "Pon tu fecha de nacimiento."; return; }
+      const años = edadDe(nacimiento);
+      if (años === null) { q("#authErr").textContent = "Esa fecha no se entiende. Revísala."; return; }
+      if (años < EDAD_MINIMA) { q("#authErr").textContent = `Para crear tu cuenta necesitas tener ${EDAD_MINIMA} años o más.`; return; }
+      if (años > 110) { q("#authErr").textContent = "Revisa el año de tu fecha de nacimiento."; return; }
+    }
     const btn = q("#authGo"); btn.disabled = true; const orig = btn.textContent; btn.textContent = "Un momento…";
     try {
       let cred = null;
@@ -198,7 +223,7 @@ function openModal(mode, alEntrar) {
       } else {
         cred = await db.registrar(email, pass);
         const uid = cred?.user?.uid;
-        if (uid) { try { await db.guardarPerfil(uid, { email, creado: new Date().toISOString() }); } catch (_) {} }
+        if (uid) { try { await db.guardarPerfil(uid, { email, nacimiento, creado: new Date().toISOString() }); } catch (_) {} }
       }
       /* No se espera el aviso de Firebase para pintar la interfaz.
          En Safari de iPhone ese aviso a veces tarda o no llega, y la persona se
@@ -224,7 +249,7 @@ else document.addEventListener("DOMContentLoaded", init);
 function aplicarUsuario(u) {
   currentUser = u;
   updateButton();
-  import("./track.js?v=79").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
+  import("./track.js?v=80").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
 }
 
 db.onAuth(u => aplicarUsuario(u));
