@@ -20,6 +20,10 @@ export const PEDIDO_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-pag
 /* revisa un código de descuento y dice cuánto quita, para poder enseñarlo en el carrito */
 export const PROMO_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-promo";
 export const ASESOR_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-asesor";
+/* borra la cuenta del cliente y sus datos; los pedidos se quedan sin datos personales */
+export const BORRAR_CUENTA_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-borrar-cuenta";
+
+export const EDAD_MINIMA = 18;
 
 export const NEGOCIO = {
   nombre: "Deportes Martínez",
