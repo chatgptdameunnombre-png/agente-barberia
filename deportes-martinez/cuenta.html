@@ -21,7 +21,7 @@
   <meta name="twitter:description" content="Tu cuenta de Deportes Martínez: tus datos de envío y tus pedidos.">
   <meta name="twitter:image" content="https://tuagentedeia.com/deportes-martinez/fotos/logo/logo-og.png">
   <link rel="icon" href="fotos/logo/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=79">
+  <link rel="stylesheet" href="css/styles.css?v=80">
 </head>
 <body>
   <header class="hdr">
@@ -71,6 +71,8 @@
         <div style="display:flex;flex-direction:column;gap:10px">
           <input id="fNombre" class="cInp" placeholder="Nombre completo">
           <input id="fTel" class="cInp" placeholder="Teléfono" inputmode="tel">
+          <label for="fNac" style="font-size:13px;color:#8a8a92;margin:2px 0 -4px">Fecha de nacimiento</label>
+          <input id="fNac" class="cInp" type="date" autocomplete="bday">
           <input id="fCalle" class="cInp" placeholder="Calle y número">
           <div style="display:flex;gap:10px">
             <input id="fCol" class="cInp" placeholder="Colonia" style="flex:2">
@@ -87,9 +89,32 @@
         </div>
       </details>
 
+      <p id="mcFaltaNac" class="mc-aviso" hidden>Nos falta tu <b>fecha de nacimiento</b>. Ponla arriba y dale a «Guardar mis datos».</p>
+
       <section class="mc-sec">
         <h3 class="mc-h">Mis pedidos</h3>
         <div id="misCompras"><p class="mc-vacio">Cargando…</p></div>
+      </section>
+
+      <section class="mc-peligro">
+        <h3>Borrar mi cuenta</h3>
+        <p>Se borra para siempre y no se puede deshacer:</p>
+        <ul>
+          <li>Tus datos: nombre, teléfono y dirección.</li>
+          <li>Tu registro de navegación en la tienda.</li>
+          <li>Tu cuenta para entrar (correo y contraseña).</li>
+        </ul>
+        <p>Tus pedidos se quedan guardados <b>sin tus datos personales</b>, solo con el número de pedido, el jersey y el monto, porque son el comprobante para facturas y garantías.</p>
+        <button id="cuentaBorrar" class="mc-peligro__btn" type="button">Borrar mi cuenta</button>
+        <div id="cuentaBorrarCaja" hidden style="margin-top:14px">
+          <p>Para confirmar, escribe <b>BORRAR</b>:</p>
+          <input id="cuentaBorrarTxt" class="cInp" autocapitalize="characters" autocomplete="off" placeholder="BORRAR">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+            <button id="cuentaBorrarOk" class="mc-peligro__ok" type="button">Sí, borrar mi cuenta</button>
+            <button id="cuentaBorrarNo" class="btn-ghost" type="button">Cancelar</button>
+          </div>
+        </div>
+        <div id="cuentaBorrarMsg" style="min-height:18px;font-size:14px;margin-top:10px"></div>
       </section>
 
       <div style="margin-top:26px">
@@ -171,11 +196,24 @@
       .mc-paso__fecha{grid-column:2;text-align:left}
     }
     .cInp:focus{border-color:var(--accent,#e8b923)}
+
+    .mc-aviso{background:#2a2109;border:1px solid #4a3f18;color:#f7d154;border-radius:12px;
+      padding:13px 15px;font-size:14.5px;line-height:1.6;margin:0 0 26px}
+
+    .mc-peligro{border:1px solid #3a2222;background:#140f0f;border-radius:16px;padding:18px 17px;margin-top:34px}
+    .mc-peligro h3{margin:0 0 8px;font-size:18px;color:#ff9b9b;font-family:var(--display,serif)}
+    .mc-peligro p{color:#a8a8b0;font-size:14.5px;line-height:1.6;margin:0 0 12px}
+    .mc-peligro ul{color:#a8a8b0;font-size:14.5px;line-height:1.7;margin:0 0 14px;padding-left:20px}
+    .mc-peligro__btn{border:1px solid #6a2a2a;color:#ff9b9b;background:none;border-radius:11px;
+      padding:12px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+    .mc-peligro__btn:hover{border-color:#ff9b9b}
+    .mc-peligro__ok{background:#8a2020;color:#fff;border:none;border-radius:11px;padding:13px 18px;
+      font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
   </style>
 
-  <script type="module" src="js/auth.js?v=79"></script>
-  <script type="module" src="js/cuenta.js?v=79"></script>
-  <script type="module" src="js/cookies.js?v=79"></script>
-  <script type="module" src="js/track.js?v=79"></script>
+  <script type="module" src="js/auth.js?v=80"></script>
+  <script type="module" src="js/cuenta.js?v=80"></script>
+  <script type="module" src="js/cookies.js?v=80"></script>
+  <script type="module" src="js/track.js?v=80"></script>
 </body>
 </html>
