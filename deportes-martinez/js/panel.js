@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=79";
-import { pintarEstadisticas } from "./estadisticas.js?v=79";
-import "./panel-nav.js?v=79";
+import { db } from "./db.js?v=80";
+import { pintarEstadisticas } from "./estadisticas.js?v=80";
+import "./panel-nav.js?v=80";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -561,9 +561,23 @@ document.addEventListener("panel:cuentas", async () => {
   }
 });
 
+/* fecha de nacimiento + años cumplidos, para el panel */
+function cumple(iso) {
+  if (!iso) return "";
+  const d = new Date(iso + "T00:00:00");
+  if (!d.getTime()) return "";
+  const hoy = new Date();
+  let n = hoy.getFullYear() - d.getFullYear();
+  const m = hoy.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < d.getDate())) n--;
+  const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  return `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()} · ${n} años`;
+}
+
 function filaCliente(c) {
   const campos = [
     ["Nombre", c.nombre], ["Correo", c.email], ["Teléfono", c.telefono],
+    ["Nacimiento", cumple(c.nacimiento)],
     ["Calle", c.calle], ["Colonia", c.colonia], ["C.P.", c.cp],
     ["Ciudad", c.ciudad], ["Estado", c.estado], ["Referencias", c.referencias]
   ];
