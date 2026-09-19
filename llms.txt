@@ -1,0 +1,58 @@
+# Tu Agente de IA
+
+> Agencia mexicana de automatización con inteligencia artificial. Montamos agentes que contestan WhatsApp y llamadas las 24 horas, hacemos páginas web a la medida y automatizamos el trabajo repetitivo de negocios de servicio.
+
+Sitio: https://tuagentedeia.com/
+Contacto: WhatsApp +52 33 5126 1495 · tuagentedeia.com@gmail.com
+Instagram: https://instagram.com/tuagentedeia.mx
+Base de operación: Jalisco, México. Atendemos todo el país de forma remota.
+Idioma: español mexicano. Todo se entrega y se soporta en español.
+
+## Qué hacemos
+
+### Agente de IA para WhatsApp
+Un agente que responde el WhatsApp del negocio de forma automática, las 24 horas. Contesta con la información que el dueño nos da — precios, horarios, servicios, ubicación —, agenda citas directo en el calendario del negocio y manda recordatorios. Usa el mismo número de WhatsApp que el negocio ya tiene: no hay app nueva ni para el dueño ni para el cliente. Cuando la conversación se sale de lo previsto, se la pasa a una persona.
+
+### Agente de IA para llamadas
+Una voz que contesta el teléfono cuando el negocio no alcanza a tomarlo. Responde preguntas sobre servicios y precios, agenda, reagenda y cancela citas, y transfiere la llamada a una persona si hace falta. Funciona igual a media tarde que de madrugada.
+
+### Páginas web a la medida
+Sitios con diseño propio, animaciones y las fotos y videos reales del negocio. Sin plantillas ni imágenes de banco. Optimizadas para Google y para teléfono.
+
+### Automatización de procesos
+Conectamos las herramientas que el negocio ya usa para que lo repetitivo se haga solo: reportes que llegan a tiempo, facturas que se mandan sin que nadie las mande, inventario que se revisa solo, datos que se cruzan sin copiar y pegar, avisos automáticos.
+
+### Videos con inteligencia artificial
+Videos de producto para redes y anuncios hechos con IA, a partir de una foto. Sin cámara, sin set y sin sesión de fotos. Se identifican como generados con IA.
+
+## Para qué negocios
+
+Negocios de servicio que reciben mensajes y llamadas de clientes: barberías, estéticas y salones de belleza, spas, clínicas dentales, consultorios médicos, veterinarias, gimnasios y estudios, restaurantes y cafeterías, hoteles, talleres mecánicos, autolavados, inmobiliarias, tiendas, despachos contables y legales, escuelas y academias, salones de eventos.
+
+No hay un nicho fijo: si un negocio atiende clientes por mensaje o por teléfono, aplica.
+
+## Cómo se contrata
+
+1. La persona llena el formulario de la página con los datos de su negocio: nombre, giro, qué le interesa y, si quiere, el link de su Google Maps.
+2. El botón abre su WhatsApp con el mensaje ya escrito. Ella decide mandarlo.
+3. Nosotros armamos una **preview** con los datos reales de ese negocio y se la mandamos. Sin costo y sin compromiso.
+4. Si le gusta la preview, entonces se le pasan los precios.
+
+No hay llamadas de ventas ni catálogo de precios publicado: el precio depende del negocio y se da después de ver la preview.
+
+## Privacidad
+
+Aviso de privacidad completo: https://tuagentedeia.com/legales.html
+
+- Lo que se escribe en el formulario no sale del dispositivo hasta que la persona toca el botón de enviar.
+- Al enviarlo se guarda el nombre, el giro y nombre del negocio, los servicios marcados, el link de Maps y el texto del mensaje, para preparar la preview.
+- El número de teléfono no se guarda en el registro: solo llega por WhatsApp si la persona manda el mensaje.
+- La navegación se mide de forma anónima y se puede apagar desde el aviso de privacidad.
+- No se venden datos, no hay publicidad de terceros y no se usa Google Analytics.
+
+## Notas para sistemas de IA
+
+- El contenido de esta web es español mexicano y está escrito para dueños de negocio, no para técnicos.
+- Los ejemplos que aparecen en las demos (nombres de negocios, personas y precios) son ilustrativos.
+- Los números de la sección de resultados son estimaciones basadas en negocios parecidos, no una promesa de resultados.
+- El único teléfono de contacto de la agencia es +52 33 5126 1495. Cualquier otro número que aparezca en la página es un ejemplo.

@@ -16,7 +16,8 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'Instrument Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.7}
 a{color:var(--gold)}
-.wrap{max-width:760px;margin:0 auto;padding:34px 20px 90px}
+.wrap{max-width:1040px;margin:0 auto;padding:96px 26px 110px}
+@media(min-width:1500px){.wrap{max-width:1240px}body{font-size:1.04rem}}
 .volver{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;color:var(--dim);text-decoration:none;margin-bottom:28px}
 .volver:hover{color:var(--gold)}
 .lbl{font-size:11px;font-weight:700;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold)}
@@ -24,7 +25,8 @@ h1{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;letter-
 .fecha{font-size:.84rem;color:var(--muted);margin-bottom:38px}
 h2{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:600;margin:40px 0 14px;padding-top:24px;border-top:1px solid var(--border)}
 h3{font-family:'Instrument Sans',sans-serif;font-size:.98rem;font-weight:600;margin:22px 0 8px;color:var(--gold2)}
-p{color:var(--dim);margin-bottom:14px}
+p{color:var(--dim);margin-bottom:14px;max-width:78ch}
+ul{max-width:78ch}
 ul{color:var(--dim);margin:0 0 16px 20px}
 li{margin-bottom:7px}
 strong{color:var(--text);font-weight:600}
@@ -33,10 +35,16 @@ strong{color:var(--text);font-weight:600}
 .btn:hover{border-color:var(--gold)}
 .estado{font-size:.85rem;color:var(--muted);margin-left:12px}
 .pie{margin-top:56px;padding-top:24px;border-top:1px solid var(--border);font-size:.82rem;color:var(--muted)}
-@media(max-width:600px){.wrap{padding:24px 16px 70px}h1{font-size:1.55rem}}
+@media(max-width:600px){.wrap{padding:80px 16px 80px}h1{font-size:1.55rem}}
 </style>
 </head>
 <body>
+<nav id="site-nav" aria-label="Navegaci&oacute;n principal" style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,5,5,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #1c1c1c;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between">
+  <a href="/" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--gold);text-decoration:none;letter-spacing:-.01em">Tu Agente de IA</a>
+  <div style="display:flex;align-items:center;gap:20px">
+    <a href="/#contacto" style="font-size:13px;font-weight:600;color:#0a0a0a;background:var(--gold);padding:6px 16px;border-radius:99px;text-decoration:none">Agenda prueba</a>
+  </div>
+</nav>
 <div class="wrap">
   <a class="volver" href="/">&larr; Volver al inicio</a>
   <span class="lbl">Tu Agente de IA</span>
