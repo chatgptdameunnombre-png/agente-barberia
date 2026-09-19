@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel — Tu Agente de IA</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; base-uri 'self'; form-action 'none'">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050505;--bg2:#0c0c0c;--bg3:#121212;
+  --border:#1c1c1c;--border2:#262626;
+  --text:#f0f0f0;--dim:#999;--muted:#555;
+  --gold:#c9a84c;--gold2:#dfc06a;--gold-g:linear-gradient(135deg,#c9a84c,#dfc06a);
+  --green:#25d366;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Instrument Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 20px 80px}
+h1{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;letter-spacing:-.02em}
+h2{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:600;margin-bottom:16px}
+.lbl{font-size:11px;font-weight:700;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold)}
+
+/* login */
+#login{max-width:380px;margin:14vh auto;padding:32px 28px;background:var(--bg2);border:1px solid var(--border);border-radius:20px}
+#login h1{font-size:1.3rem;margin-bottom:6px}
+#login p{font-size:.86rem;color:var(--dim);margin-bottom:24px}
+.in{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:13px 15px;color:var(--text);font-family:inherit;font-size:16px;margin-bottom:12px}
+.in:focus{outline:none;border-color:var(--gold)}
+.btn{width:100%;background:var(--gold-g);border:none;border-radius:99px;padding:13px;color:#0a0a0a;font-family:inherit;font-weight:700;font-size:.92rem;cursor:pointer;transition:transform .2s}
+.btn:hover{transform:translateY(-1px)}
+.err{font-size:.82rem;color:#e9756b;margin-top:12px;text-align:center}
+
+/* cabecera */
+.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.salir{background:none;border:1px solid var(--border2);color:var(--dim);border-radius:99px;padding:8px 16px;font-family:inherit;font-size:.8rem;cursor:pointer}
+.salir:hover{border-color:var(--gold);color:var(--gold)}
+.sub{font-size:.88rem;color:var(--dim);margin-bottom:30px}
+
+/* tarjetas */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:34px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px 18px}
+.card .n{font-family:'JetBrains Mono',monospace;font-size:1.9rem;font-weight:700;color:var(--gold2);line-height:1.1}
+.card .t{font-size:.8rem;color:var(--dim);margin-top:6px;line-height:1.4}
+
+.sec{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:24px 22px;margin-bottom:22px}
+
+/* embudo */
+.paso{margin-bottom:14px}
+.paso-top{display:flex;justify-content:space-between;font-size:.87rem;margin-bottom:6px}
+.paso-top b{font-weight:600}
+.paso-top span{color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.barra{height:9px;background:var(--bg3);border-radius:99px;overflow:hidden}
+.barra i{display:block;height:100%;background:var(--gold-g);border-radius:99px}
+
+/* listas */
+.fila{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.fila:last-child{border-bottom:none}
+.fila b{font-weight:500}
+.fila span{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--gold2)}
+
+/* visitas */
+.v{border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;background:var(--bg3)}
+.v-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;flex-wrap:wrap}
+.v-h:hover{background:#151515}
+.v-i{display:flex;flex-direction:column;gap:3px;min-width:0}
+.v-t{font-size:.9rem;font-weight:600}
+.v-d{font-size:.78rem;color:var(--dim)}
+.v-tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tag{font-size:.7rem;padding:4px 10px;border-radius:99px;background:#1a1a1a;color:var(--dim);border:1px solid var(--border2);white-space:nowrap}
+.tag.ok{background:#12290f;color:#7ee2a8;border-color:#1f5233}
+.tag.wa{background:#0e2a1a;color:#6fd99a;border-color:#1c5236}
+.v-b{display:none;padding:4px 16px 18px;border-top:1px solid var(--border)}
+.v.on .v-b{display:block}
+.v-b ol{list-style:none;margin-top:12px}
+.v-b li{display:flex;gap:12px;font-size:.84rem;color:var(--dim);padding:5px 0}
+.v-b li em{font-style:normal;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted);flex:none;width:62px}
+.v-form{background:#161008;border:1px solid #2e2413;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:.84rem;line-height:1.7}
+.v-form b{color:var(--gold2);font-weight:600}
+.vacio{text-align:center;color:var(--muted);font-size:.88rem;padding:30px 0}
+.mas{display:block;margin:18px auto 0;background:none;border:1px solid var(--border2);color:var(--dim);border-radius:99px;padding:9px 22px;font-family:inherit;font-size:.82rem;cursor:pointer}
+.mas:hover{border-color:var(--gold);color:var(--gold)}
+@media(max-width:600px){
+  .wrap{padding:22px 14px 70px}
+  .card{padding:16px 14px}
+  .card .n{font-size:1.5rem}
+  .sec{padding:18px 15px}
+}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <span class="lbl">Tu Agente de IA</span>
+  <h1 style="margin-top:10px">Panel</h1>
+  <p>Qu&eacute; hace la gente en tu p&aacute;gina.</p>
+  <input class="in" id="mail" type="email" autocomplete="username" placeholder="Correo">
+  <input class="in" id="pass" type="password" autocomplete="current-password" placeholder="Contrase&ntilde;a">
+  <button class="btn" id="entrar">Entrar</button>
+  <p class="err" id="loginErr" hidden></p>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <div class="top">
+    <div>
+      <span class="lbl">Tu Agente de IA</span>
+      <h1 style="margin-top:8px">Qu&eacute; pasa en tu p&aacute;gina</h1>
+    </div>
+    <button class="salir" id="salir">Salir</button>
+  </div>
+  <p class="sub" id="sub">Cargando&hellip;</p>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="sec">
+    <h2>&iquest;D&oacute;nde se te va la gente?</h2>
+    <div id="embudo"></div>
+  </div>
+
+  <div class="sec">
+    <h2>De d&oacute;nde llegan</h2>
+    <div id="origenes"></div>
+  </div>
+
+  <div class="sec">
+    <h2>Qu&eacute; les interesa</h2>
+    <div id="intereses"></div>
+  </div>
+
+  <div class="sec">
+    <h2>Con qu&eacute; entran</h2>
+    <div id="aparatos"></div>
+  </div>
+
+  <div class="sec">
+    <h2>Visita por visita</h2>
+    <div id="visitas"></div>
+  </div>
+</div>
+
+<script src="js/td-panel.js" defer></script>
+</body>
+</html>
