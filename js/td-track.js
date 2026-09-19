@@ -78,12 +78,16 @@
   }
 
   /* ---------- sesión ---------- */
-  var ses = null, pend = [], msgs = [], t0 = Date.now(), enviando = false, intentos = 0;
+  var ses = null, pend = [], msgs = [], t0 = Date.now(), enviando = false, intentos = 0, interno = 0;
 
   function idNuevo() {
     var s = "abcdefghijklmnopqrstuvwxyz0123456789", r = "";
     for (var i = 0; i < 20; i++) r += s[Math.floor(Math.random() * s.length)];
     return r;
+  }
+
+  function pagina() {
+    return (location.pathname.split("/").pop() || "index.html");
   }
 
   function aparato() {
@@ -223,14 +227,25 @@
     if (Date.now() - ultimaAccion > INACTIVO) return;
     ses.duracion += TICK / 1000;
     var s = seccionEnPantalla();
-    if (s) {
-      ses.secciones[s] = (ses.secciones[s] || 0) + TICK / 1000;
-      if (s !== seccionActual) {
-        seccionActual = s;
-        ev("seccion", s);
-      }
-    }
+    if (s) ses.secciones[s] = (ses.secciones[s] || 0) + TICK / 1000;
     guardaSesion();
+  }
+
+  /* El cambio de secci\u00f3n se apunta EN CUANTO pasa, no en el tic de 5 s:
+     si no, quien baja r\u00e1pido deja la visita sin rastro de por d\u00f3nde anduvo.
+     Va limitado a una revisi\u00f3n por cuadro para no cargar el scroll. */
+  var revisandoSec = false;
+  function revisaSeccion() {
+    if (!ses) return;
+    var s = seccionEnPantalla();
+    if (!s || s === seccionActual) return;
+    seccionActual = s;
+    ev("seccion", s);
+  }
+  function pideRevision() {
+    if (revisandoSec) return;
+    revisandoSec = true;
+    requestAnimationFrame(function () { revisandoSec = false; revisaSeccion(); });
   }
 
   /* ---------- scroll ---------- */
@@ -331,14 +346,27 @@
     });
 
     setInterval(reloj, TICK);
-    window.addEventListener("scroll", scrollDepth, { passive: true });
+    window.addEventListener("scroll", function () { scrollDepth(); pideRevision(); }, { passive: true });
+    setTimeout(revisaSeccion, 600);
+
+    /* en qué página está: index, legales, etc. */
+    ev("pagina", pagina());
 
     document.addEventListener("click", function (e) {
-      var a = e.target.closest && e.target.closest("a[href]");
-      if (!a) return;
-      var h = a.getAttribute("href") || "";
-      if (/wa\.me|whatsapp/.test(h)) { ev("click_whatsapp", a.textContent.trim().slice(0, 40)); hito("Tocó WhatsApp"); }
-      else if (/^tel:/.test(h)) { ev("click_telefono", h.replace("tel:", "")); hito("Tocó llamar"); }
+      var el = e.target.closest && e.target.closest("a[href], button");
+      if (!el) return;
+      var h = (el.getAttribute && el.getAttribute("href")) || "";
+      var texto = (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 46);
+      if (/wa\.me|whatsapp/.test(h)) { ev("click_whatsapp", texto); hito("Tocó WhatsApp"); return; }
+      if (/^tel:/.test(h)) { ev("click_telefono", h.replace("tel:", "")); hito("Tocó llamar"); return; }
+      /* irse a otra página del sitio NO es irse del sitio */
+      if (h && h.charAt(0) !== "#" && !/^https?:/i.test(h) && !/^mailto:/i.test(h)) {
+        interno = Date.now();
+        ev("navega", h.split("/").pop() || h);
+        return;
+      }
+      if (h && h.charAt(0) === "#") { ev("clic", "ancla " + h); return; }
+      if (texto) ev("clic", texto);
     }, true);
 
     var obs = new IntersectionObserver(function (es) {
@@ -359,7 +387,11 @@
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "hidden") manda(true);
     });
-    window.addEventListener("pagehide", function () { ev("se_fue"); manda(true); });
+    window.addEventListener("pagehide", function () {
+      /* si acaba de tocar un enlace interno no se fue del sitio: cambi\u00f3 de p\u00e1gina */
+      if (!interno || Date.now() - interno > 3000) ev("se_fue");
+      manda(true);
+    });
   }
 
   if (document.readyState === "loading") {

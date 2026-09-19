@@ -132,12 +132,16 @@
     inicio: "el inicio", problema: "el problema", "wa-demo": "la demo de WhatsApp",
     llamadas: "la demo de llamadas", comp: "la comparaci\u00f3n", "videos-ia": "los videos con IA",
     industrias: "las industrias", stats: "los n\u00fameros", extras: "las automatizaciones",
-    flow: "c\u00f3mo funciona", contacto: "el formulario"
+    flow: "c\u00f3mo funciona", pwsec: "las p\u00e1ginas web", "llamadas-demo": "la demo de la llamada", contacto: "el formulario"
   };
 
   function frase(e) {
     var n = e.e, d = e.d || "";
     if (n === "entro") return "Entr\u00f3 a la p\u00e1gina";
+    if (n === "pagina") return "Abri\u00f3 " + (d === "index.html" ? "el inicio" : d);
+    if (n === "navega") return "Se fue a " + (d === "legales.html" ? "el aviso de privacidad" : d);
+    if (n === "clic") return "Toc\u00f3 \u00ab" + d + "\u00bb";
+    if (n === "tuia_click") return "Le pregunt\u00f3 a Tuia en " + (SECS[d] || d);
     if (n === "seccion") return "Estuvo en " + (SECS[d] || d);
     if (n === "scroll") return "Baj\u00f3 el " + d;
     if (n === "click_whatsapp") return "Toc\u00f3 WhatsApp" + (d ? " (" + d + ")" : "");

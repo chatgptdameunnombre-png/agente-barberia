@@ -11,20 +11,21 @@
     hero:      { k: 'Soy Tuia', t: 'Si necesitas ayuda para entender algo, haz clic en mí.', g: 'feliz' },
     problema:  { k: 'Qué hacemos', t: 'Para que tu negocio avance más rápido hacen falta las piezas correctas: alguien que conteste, alguien que agende y una página que te haga visible. Nosotros te las montamos y las dejamos trabajando juntas.', g: 'pensando' },
     'wa-demo': { k: 'Qué hacemos', t: 'Te armamos un agente adaptado a tu negocio. Contesta con tu información — precios, horarios, servicios — y agenda la cita solo en tu calendario.', g: 'feliz' },
-    flow:      { k: 'Qué hacemos', t: 'Todo funciona con lo que ya usas: tu mismo WhatsApp y tu mismo calendario. No instalas nada nuevo.', g: 'pensando' },
-    llamadas:  { k: 'Qué hacemos', t: 'Aquí tienes un ejemplo de cómo se oiría una llamada a tu negocio: la voz contesta, resuelve la duda y aparta la cita sola. Así de natural.', g: 'pensando' },
-    pwsec:     { k: 'Qué hacemos', t: 'Así construimos tu página: con tus fotos, tus videos y tus servicios reales. Hecha para que la gente te ubique y te encuentre en Google, no una plantilla.', g: 'feliz' },
+    flow:      { k: 'Qué hacemos', t: 'Todo funciona con lo que ya usas: WhatsApp y tu calendario. No instalas nada nuevo y nosotros lo automatizamos.', g: 'pensando' },
+    llamadas:  { k: 'Qué hacemos', t: 'Cuando estás atendiendo el teléfono sigue sonando. Te ponemos un agente que responde, con los datos de tu negocio.', g: 'pensando' },
+    'llamadas-demo': { k: 'Escúchalo', t: 'Así se oiría una llamada a tu negocio: la voz contesta, resuelve la duda y aparta la cita sola.', g: 'feliz', sel: '.call-demo-wrap' },
+    pwsec:     { k: 'Qué hacemos', t: 'Así construimos tu página: con tus fotos, tus videos y tus servicios reales. Hecha para que la gente te ubique y te encuentre en Google, y pueda saber todo sobre tu negocio sin verte genérico.', g: 'feliz' },
     comp:      { k: 'Qué hacemos', t: 'Te dejamos un negocio que contesta siempre, no cuando alguien alcanza.', g: 'pensando' },
-    'videos-ia': { k: 'Qué hacemos', t: 'Te hacemos los videos de tus redes con IA. Nos das una foto de tu producto y te lo entregamos listo para publicar.', g: 'guino' },
-    industrias:{ k: 'Qué hacemos', t: 'Adaptamos el agente al giro de tu negocio: no le habla igual al cliente de una barbería que al de una clínica.', g: 'pensando' },
+    'videos-ia': { k: 'Qué hacemos', t: 'Te hacemos los videos para tus redes sociales con IA. Nos das una foto de tu producto y te lo entregamos listo para publicar.', g: 'guino' },
+    industrias:{ k: 'Qué hacemos', t: 'Adaptamos nuestros productos a tu negocio, sea cual sea tu tipo de negocio.', g: 'pensando' },
     extras:    { k: 'Qué hacemos', t: 'Conectamos las apps que ya usas para que lo repetitivo se haga solo: facturas, reportes, inventario y avisos.', g: 'pensando' },
-    contacto:  { k: 'Qué hacemos', t: 'Llenas cuatro datos, se abre tu WhatsApp con el mensaje ya escrito, y nosotros te armamos la preview sin costo.', g: 'feliz' },
+    contacto:  { k: 'Qué hacemos', t: 'Llenas el formulario, se abre tu WhatsApp con el mensaje ya escrito, y nosotros te armamos la preview sin costo.', g: 'feliz' },
     legales:   { k: 'Aviso de privacidad', t: '&Eacute;ste es nuestro aviso de privacidad. Léelo para saber a detalle qué datos guardamos, cuáles no, y cómo puedes pedirnos que los borremos.', g: 'pensando' }
   };
 
   var PASEO = {
     problema: [0.74, 0.24], 'wa-demo': [0.28, 0.58], flow: [0.80, 0.30],
-    llamadas: [0.34, 0.62], pwsec: [0.72, 0.26], comp: [0.30, 0.55],
+    llamadas: [0.34, 0.62], 'llamadas-demo': [0.80, 0.30], pwsec: [0.72, 0.26], comp: [0.30, 0.55],
     'videos-ia': [0.82, 0.30], industrias: [0.36, 0.62],
     extras: [0.32, 0.58], contacto: [0.66, 0.40], legales: [0.70, 0.34]
   };
@@ -208,10 +209,16 @@
     if (!suelta) {
       var secciones = [];
       Object.keys(TEXTOS).forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) secciones.push({ id: id, el: el });
+        /* la mayoria son secciones con id; algunas apuntan a un bloque de
+           adentro con 'sel', para poder decir algo distinto ahi mismo */
+        var el = TEXTOS[id].sel ? document.querySelector(TEXTOS[id].sel)
+                                : document.getElementById(id);
+        if (el) secciones.push({ id: id, el: el, hijo: !!TEXTOS[id].sel });
       });
-      if (hero) secciones.unshift({ id: 'hero', el: hero });
+      /* los bloques de adentro se revisan primero: si el centro cae en uno,
+         gana sobre la seccion que lo contiene */
+      secciones.sort(function (a, b) { return (b.hijo ? 1 : 0) - (a.hijo ? 1 : 0); });
+      if (hero) secciones.push({ id: 'hero', el: hero });
 
       function cual() {
         var centro = window.innerHeight / 2;

@@ -1313,7 +1313,7 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
               <div class="diff-item"><span class="mk">✕</span>Los recordatorios los mandas tú</div>
               <div class="diff-item"><span class="mk">✕</span>Te buscan en Google y no te encuentran</div>
               <div class="diff-item"><span class="mk">✕</span>Tu página es una plantilla como la de todos</div>
-              <div class="diff-item"><span class="mk">✕</span>Las facturas y los reportes los haces a mano</div>
+              <div class="diff-item"><span class="mk">✕</span>Haces los mismos trabajos repetitivos siempre</div>
               <div class="diff-item"><span class="mk">✕</span>Cada tarea repetida te quita horas de la semana</div>
             </div>
             <div class="divline"></div>
@@ -1325,7 +1325,7 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
               <div class="diff-item"><span class="mk">✓</span>Agenda y recuerda la cita solo</div>
               <div class="diff-item"><span class="mk">✓</span>Página optimizada para que te encuentren</div>
               <div class="diff-item"><span class="mk">✓</span>Hecha a la medida, con tus fotos y tus videos</div>
-              <div class="diff-item"><span class="mk">✓</span>Facturas y reportes que salen solos</div>
+              <div class="diff-item"><span class="mk">✓</span>Una IA los hace por ti</div>
               <div class="diff-item"><span class="mk">✓</span>Lo repetitivo deja de ocuparte tiempo</div>
             </div>
           </div>
@@ -2294,13 +2294,22 @@ Object.entries(SM).forEach(([step,indices])=>{
     var tema=(esNegocio==='no')?document.getElementById('frmTema').value.trim():'';
     var auto=(!autoBox.hidden)?document.getElementById('frmAuto').value.trim():'';
 
-    var t='Hola, soy '+nombre+'.\nQuiero agendar un preview.\n\n';
-    t+='Me interesa: '+intereses.join(', ')+'\n';
-    if(esNegocio==='si') t+='Negocio: '+negNombre+' ('+giro+')\n';
-    else { t+='No es para un negocio.\n'; if(tema) t+='Es sobre: '+tema+'\n'; }
-    if(auto) t+='Quiere automatizar: '+auto+'\n';
-    else if(intereses.indexOf('Automatizar procesos')!==-1) t+='Quiere automatizar: le gustaria que le propongamos\n';
-    if(maps) t+='Google Maps: '+maps+'\n';
+    /* el mensaje se arma como una lista, con la automatizacion detallada */
+    var lineas=intereses.map(function(x){
+      if(x==='Automatizar procesos'){
+        return auto ? 'Automatizaci\u00f3n de '+auto : 'Automatizaci\u00f3n (d\u00edganme ustedes de qu\u00e9)';
+      }
+      return x;
+    });
+    var t='Hola, soy '+nombre+'. Quiero agendar un preview de:\n';
+    t+=lineas.map(function(x){return '\u00b7 '+x;}).join('\n')+'\n\n';
+    if(esNegocio==='si'){
+      t+='Mi negocio es '+negNombre+', es una '+giro.toLowerCase();
+      t+= maps ? ' y mi Google Maps es '+maps : '';
+      t+='.';
+    } else {
+      t+= tema ? 'No es para un negocio: es sobre '+tema+'.' : 'No es para un negocio.';
+    }
 
     ev('form_enviado',{
       nombre:nombre,
@@ -2317,4 +2326,5 @@ Object.entries(SM).forEach(([step,indices])=>{
 })();
 </script>
 <script src="js/td-track.js" defer></script>
+<script src="js/td-tuia.js" defer></script>
 </body></html>
