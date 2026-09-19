@@ -174,7 +174,7 @@ section{padding:100px 0}
 @media(max-width:640px){
   .fwrap{grid-template-columns:1fr!important;gap:22px!important}
   .fline-svg{display:none!important}
-  .srow{grid-template-columns:1fr 1fr!important}
+  
   .srow > :last-child{grid-column:1 / -1;max-width:60%;margin-left:auto;margin-right:auto}
   .extras-grid{grid-template-columns:1fr!important}
 }
@@ -301,8 +301,6 @@ section{padding:100px 0}
 .diff-phase.on{opacity:1;pointer-events:auto}
 
 /* Title hide on later phases */
-#diff-kicker,#diff-title{transition:opacity .6s ease}
-#comp.hide-title #diff-kicker,#comp.hide-title #diff-title{opacity:0;pointer-events:none}
 
 /* Clock banner */
 .diff-clock{position:absolute;top:-24px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:10px;padding:9px 20px;border:1px solid var(--border);border-radius:99px;background:var(--bg2);font-size:12px;color:var(--dim);letter-spacing:.08em;opacity:0;transition:opacity .6s ease}
@@ -409,8 +407,8 @@ section{padding:100px 0}
 /* Phase 3: table (compact, rounded, original-style) */
 .diff-reveal-big{text-align:center;margin-bottom:28px;opacity:0;transform:translateY(10px);transition:opacity .6s,transform .6s}
 .diff-reveal-big.on{opacity:1;transform:translateY(0)}
-.diff-reveal-big h3{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,4.4vw,3rem);font-weight:400;line-height:1;letter-spacing:-.02em;color:#fff}
-.diff-reveal-big h3 em{font-style:normal;font-weight:600;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.diff-reveal-big h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,4.4vw,3rem);font-weight:400;line-height:1;letter-spacing:-.02em;color:#fff}
+.diff-reveal-big h2 em{font-style:normal;font-weight:600;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 .diff-final{width:100%;max-width:900px;display:flex;flex-direction:column;align-items:center}
 .diff-compact{display:grid;grid-template-columns:1fr 1px 1fr;gap:24px;width:100%;align-items:stretch}
@@ -461,9 +459,9 @@ section{padding:100px 0}
 @media(max-width:820px){.diff-topic{padding:14px 14px 4px}}
 
 /* ═══ STATS ═══ */
-.srow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
-@media(max-width:600px){.srow{grid-template-columns:1fr}}
-.scard{text-align:center;padding:28px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:18px;transition:all .3s}
+
+@media(max-width:600px){}
+
 .scard:hover{border-color:var(--gold);box-shadow:0 0 30px var(--gold-glow)}
 .skip-link{display:inline-flex;align-items:center;gap:7px;margin-top:16px;padding:8px 18px;border:1px solid var(--border2);border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:all .3s}
 .skip-link:hover{border-color:var(--gold);color:var(--gold)}
@@ -472,7 +470,7 @@ section{padding:100px 0}
 @keyframes autoChip{0%{left:2%;opacity:0}10%{opacity:1}44%{left:44%;opacity:1}50%{opacity:0}56%{left:56%;opacity:0}62%{opacity:1}90%{left:95%;opacity:1}100%{left:98%;opacity:0}}
 @keyframes autoGlow{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.35)}50%{box-shadow:0 0 0 8px rgba(201,168,76,0)}}
 .snum{font-size:2.2rem;font-weight:700;font-family:'JetBrains Mono',monospace;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
-.slbl{font-size:.83rem;color:var(--dim);font-weight:500}
+
 
 /* ═══ FLOW ═══ */
 .fwrap{margin-top:44px;display:flex;flex-direction:column;align-items:stretch;gap:4px}
@@ -609,7 +607,7 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
   .hero h1{font-size:clamp(5.2rem,7.6vw,7.2rem)}
   .hero-sub{font-size:1.34rem}
   .frm-wrap{max-width:1080px}
-  #stats .srow{max-width:900px!important}
+  
   #extras .extras-grid{max-width:1000px!important}
 }
 @media(min-width:1650px){
@@ -621,7 +619,7 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
   .hero h1{font-size:clamp(6rem,7.4vw,8.4rem)}
   .hero-sub{font-size:1.45rem}
   .frm-wrap{max-width:1180px}
-  #stats .srow{max-width:1000px!important}
+  
   #extras .extras-grid{max-width:1120px!important}
 }
 </style>
@@ -1216,8 +1214,6 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 
 <section id="comp">
   <div class="ctn">
-    <span class="lbl" id="diff-kicker">El cambio</span>
-    <h2 class="ttl" id="diff-title">La diferencia es clara</h2>
     <div class="diff-stage">
 
       <!-- Phase 1: Two phones with clock, tags, money tickers and reviews -->
@@ -1307,24 +1303,30 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
       <!-- Phase 3: Compact rounded table -->
       <div class="diff-phase on" id="diff-phase-3">
         <div class="diff-final">
-          <div class="diff-reveal-big" id="diff-reveal-big"><h3>La diferencia <em>es clara</em></h3></div>
+          <div class="diff-reveal-big" id="diff-reveal-big"><h2>La diferencia <em>es clara</em></h2></div>
           <div class="diff-compact" id="diff-compact">
             <div class="diff-card sin">
-              <h4><span class="dot"></span>Sin agente IA</h4>
-              <div class="diff-item"><span class="mk">✕</span>Solo responde en horario de barbería</div>
-              <div class="diff-item"><span class="mk">✕</span>Minutos u horas para contestar</div>
-              <div class="diff-item"><span class="mk">✕</span>Clientes se van con la competencia</div>
-              <div class="diff-item"><span class="mk">✕</span>Recordatorios los tienes que mandar tú</div>
-              <div class="diff-item"><span class="mk">✕</span>Mensajes de noche y fin de semana se pierden</div>
+              <h4><span class="dot"></span>Como está hoy</h4>
+              <div class="diff-item"><span class="mk">✕</span>Solo contestas en tu horario</div>
+              <div class="diff-item"><span class="mk">✕</span>Minutos u horas para responder</div>
+              <div class="diff-item"><span class="mk">✕</span>Los mensajes de noche y domingo se pierden</div>
+              <div class="diff-item"><span class="mk">✕</span>Los recordatorios los mandas tú</div>
+              <div class="diff-item"><span class="mk">✕</span>Te buscan en Google y no te encuentran</div>
+              <div class="diff-item"><span class="mk">✕</span>Tu página es una plantilla como la de todos</div>
+              <div class="diff-item"><span class="mk">✕</span>Las facturas y los reportes los haces a mano</div>
+              <div class="diff-item"><span class="mk">✕</span>Cada tarea repetida te quita horas de la semana</div>
             </div>
             <div class="divline"></div>
             <div class="diff-card con">
-              <h4><span class="dot"></span>Con agente IA</h4>
+              <h4><span class="dot"></span>Con nosotros</h4>
               <div class="diff-item"><span class="mk">✓</span>Disponible 24 horas · 7 días</div>
               <div class="diff-item"><span class="mk">✓</span>Responde en segundos, siempre</div>
-              <div class="diff-item"><span class="mk">✓</span>Agenda la cita automáticamente</div>
-              <div class="diff-item"><span class="mk">✓</span>Recordatorios automáticos el día anterior</div>
-              <div class="diff-item"><span class="mk">✓</span>Capta citas fuera de horario</div>
+              <div class="diff-item"><span class="mk">✓</span>Capta clientes fuera de horario</div>
+              <div class="diff-item"><span class="mk">✓</span>Agenda y recuerda la cita solo</div>
+              <div class="diff-item"><span class="mk">✓</span>Página optimizada para que te encuentren</div>
+              <div class="diff-item"><span class="mk">✓</span>Hecha a la medida, con tus fotos y tus videos</div>
+              <div class="diff-item"><span class="mk">✓</span>Facturas y reportes que salen solos</div>
+              <div class="diff-item"><span class="mk">✓</span>Lo repetitivo deja de ocuparte tiempo</div>
             </div>
           </div>
         </div>
@@ -1363,20 +1365,6 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
     <p class="sr-only">Industrias que automatizamos: barberías, clínicas dentales, restaurantes, veterinarias, gimnasios, estéticas, talleres mecánicos, inmobiliarias, consultorios médicos, estudios de yoga, autolavados, spas, notarías, fisioterapeutas, florerías, academias de idiomas, cafeterías, hoteles, despachos contables, bufetes legales, ópticas, salones de eventos, nutriólogos, psicólogos.</p>
   </div>
 </section>
-
-<section id="stats">
-  <div class="ctn" style="text-align:center">
-    <span class="lbl">Resultados esperados</span>
-    <h2 class="ttl" style="max-width:480px;margin:0 auto 6px">Números que impactan tu negocio</h2>
-    <p class="desc" style="margin:0 auto">Basado en negocios similares con agentes IA.</p>
-    <div class="srow" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:720px;margin:44px auto 0">
-      <div class="scard" style="background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:28px 18px;text-align:center"><div style="position:relative;width:104px;height:104px;margin:0 auto 14px"><svg width="104" height="104" viewBox="0 0 104 104" style="transform:rotate(-90deg)"><circle cx="52" cy="52" r="44" fill="none" stroke="var(--border)" stroke-width="8"/><circle cx="52" cy="52" r="44" fill="none" stroke="var(--gold)" stroke-width="8" stroke-linecap="round" stroke-dasharray="276" stroke-dashoffset="276" class="gauge" data-fill="36"/></svg><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--gold2)"><span class="gnum" data-t="87" data-s="%">0%</span></span></div><div class="slbl" style="font-size:.85rem;line-height:1.4;color:var(--dim)">Menos mensajes<br>sin contestar</div></div>
-      <div class="scard" style="background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:28px 18px;text-align:center"><div style="position:relative;width:104px;height:104px;margin:0 auto 14px"><svg width="104" height="104" viewBox="0 0 104 104" style="transform:rotate(-90deg)"><circle cx="52" cy="52" r="44" fill="none" stroke="var(--border)" stroke-width="8"/><circle cx="52" cy="52" r="44" fill="none" stroke="var(--gold)" stroke-width="8" stroke-linecap="round" stroke-dasharray="276" stroke-dashoffset="276" class="gauge" data-fill="20"/></svg><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--gold2)"><span class="gnum" data-t="3" data-s="s">0s</span></span></div><div class="slbl" style="font-size:.85rem;line-height:1.4;color:var(--dim)">Tiempo promedio<br>de respuesta</div></div>
-      <div class="scard" style="background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:28px 18px;text-align:center"><div style="position:relative;width:104px;height:104px;margin:0 auto 14px"><svg width="104" height="104" viewBox="0 0 104 104" style="transform:rotate(-90deg)"><circle cx="52" cy="52" r="44" fill="none" stroke="var(--border)" stroke-width="8"/><circle cx="52" cy="52" r="44" fill="none" stroke="var(--gold)" stroke-width="8" stroke-linecap="round" stroke-dasharray="276" stroke-dashoffset="276" class="gauge" data-fill="58"/></svg><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--gold2)"><span class="gnum" data-t="38" data-s="%">0%</span></span></div><div class="slbl" style="font-size:.85rem;line-height:1.4;color:var(--dim)">Menos citas<br>que no llegan</div></div>
-    </div>
-  </div>
-</section>
-
 
 <section id="extras" style="padding:110px 24px;border-top:1px solid var(--border);background:radial-gradient(70% 55% at 50% 0%,rgba(201,168,76,.07),transparent 60%)">
   <div class="ctn" style="max-width:960px;text-align:center">

@@ -17,7 +17,6 @@
     comp:      { k: 'Qué hacemos', t: 'Te dejamos un negocio que contesta siempre, no cuando alguien alcanza.', g: 'pensando' },
     'videos-ia': { k: 'Qué hacemos', t: 'Te hacemos los videos de tus redes con IA. Nos das una foto de tu producto y te lo entregamos listo para publicar.', g: 'guino' },
     industrias:{ k: 'Qué hacemos', t: 'Adaptamos el agente al giro de tu negocio: no le habla igual al cliente de una barbería que al de una clínica.', g: 'pensando' },
-    stats:     { k: 'Qué esperar', t: 'Estos números salen de negocios que ya trabajan así. El tuyo puede dar más o menos, pero la idea de fondo no cambia: dejar de perder a quien ya te estaba buscando.', g: 'pensando' },
     extras:    { k: 'Qué hacemos', t: 'Conectamos las apps que ya usas para que lo repetitivo se haga solo: facturas, reportes, inventario y avisos.', g: 'pensando' },
     contacto:  { k: 'Qué hacemos', t: 'Llenas cuatro datos, se abre tu WhatsApp con el mensaje ya escrito, y nosotros te armamos la preview sin costo.', g: 'feliz' },
     legales:   { k: 'Aviso de privacidad', t: '&Eacute;ste es nuestro aviso de privacidad. Léelo para saber a detalle qué datos guardamos, cuáles no, y cómo puedes pedirnos que los borremos.', g: 'pensando' }
@@ -26,7 +25,7 @@
   var PASEO = {
     problema: [0.74, 0.24], 'wa-demo': [0.28, 0.58], flow: [0.80, 0.30],
     llamadas: [0.34, 0.62], pwsec: [0.72, 0.26], comp: [0.30, 0.55],
-    'videos-ia': [0.82, 0.30], industrias: [0.36, 0.62], stats: [0.70, 0.27],
+    'videos-ia': [0.82, 0.30], industrias: [0.36, 0.62],
     extras: [0.32, 0.58], contacto: [0.66, 0.40], legales: [0.70, 0.34]
   };
 
@@ -265,8 +264,14 @@
 
       var ax, ay;
       if (chica()) {
+        /* en el telefono se queda abajo a la derecha, como boton de chat,
+           pero subida lo necesario para no tapar el aviso de cookies ni
+           los indicadores que la pagina pone abajo */
         ax = W - ttam - 14;
-        ay = H - ttam - 16;
+        var estorbo = 0;
+        var ck = document.getElementById('tdCk');
+        if (ck && ck.offsetHeight) estorbo = ck.offsetHeight + 14;
+        ay = H - ttam - 16 - estorbo;
       } else {
         var x0 = col.d + 10, x1 = W - ttam - 12;
         if (x1 < x0) { x0 = x1 = Math.max(8, W - ttam - 12); }
@@ -304,7 +309,12 @@
         arriba = false; top = ry + tam + 14;
         if (top + bh > H - 14) { arriba = true; top = Math.max(14, ry - bh - 14); }
       }
-      var left = Math.max(14, Math.min(W - bw - 14, cx - bw / 2));
+      /* Si el hueco de la derecha no alcanza para el globo, se pega a la
+         orilla de la pantalla: asi tapa lo menos posible de la columna de
+         texto. Si si alcanza, se centra debajo de Tuia. */
+      var left;
+      if (!chica() && (W - col.d) < bw + 20) left = W - bw - 14;
+      else left = Math.max(14, Math.min(W - bw - 14, cx - bw / 2));
       globo.style.left = left + 'px';
       globo.style.top = Math.max(14, Math.min(H - bh - 14, top)) + 'px';
       globo.classList.toggle('abajo', arriba);
