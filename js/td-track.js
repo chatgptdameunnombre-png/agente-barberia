@@ -5,7 +5,7 @@
   var IDT = "https://identitytoolkit.googleapis.com/v1/accounts";
   var TOK = "https://securetoken.googleapis.com/v1/token?key=" + API;
 
-  var K_OPT = "td_medicion", K_RT = "td_rt", K_UID = "td_uid", K_SES = "td_ses", K_PEND = "td_pend";
+  var K_OPT = "td_medicion", K_RT = "td_rt", K_UID = "td_uid", K_SES = "td_ses", K_PEND = "td_pend", K_MSG = "td_msg";
   var VIDA = 3 * 60 * 60 * 1000;
   var INACTIVO = 45000;
   var TICK = 5000;
@@ -32,8 +32,8 @@
     b.querySelector("#tdCkSi").onclick = function () { ls_(K_OPT, "si"); b.remove(); arranca(); };
     b.querySelector("#tdCkNo").onclick = function () {
       ls_(K_OPT, "no");
-      lsDel(K_SES); lsDel(K_PEND);
-      ses = null; pend = [];
+      lsDel(K_SES); lsDel(K_PEND); lsDel(K_MSG);
+      ses = null; pend = []; msgs = [];
       b.remove();
     };
   }
@@ -78,7 +78,7 @@
   }
 
   /* ---------- sesión ---------- */
-  var ses = null, pend = [], t0 = Date.now(), enviando = false, intentos = 0;
+  var ses = null, pend = [], msgs = [], t0 = Date.now(), enviando = false, intentos = 0;
 
   function idNuevo() {
     var s = "abcdefghijklmnopqrstuvwxyz0123456789", r = "";
@@ -120,6 +120,7 @@
       aparato: aparato(),
       origen: origen(),
       pantalla: (window.innerWidth || 0) + "x" + (window.innerHeight || 0),
+      nombre: "",
       duracion: 0,
       maxScroll: 0,
       secciones: {},
@@ -150,6 +151,10 @@
     try { var r = ls(K_PEND); return r ? JSON.parse(r) : []; } catch (e) { return []; }
   }
   function guardaPend() { ls_(K_PEND, JSON.stringify(pend.slice(-200))); }
+  function cargaMsgs() {
+    try { var r = ls(K_MSG); return r ? JSON.parse(r) : []; } catch (e) { return []; }
+  }
+  function guardaMsgs() { ls_(K_MSG, JSON.stringify(msgs.slice(-20))); }
 
   /* ---------- eventos ---------- */
   function ev(nombre, datos) {
@@ -157,12 +162,22 @@
     pend.push({ t: Date.now() - t0, e: String(nombre), d: datos ? txt(datos) : "" });
     guardaPend();
     if (nombre === "form_enviado" && datos) {
+      ses.nombre = datos.nombre || ses.nombre || "";
       ses.form = {
+        nombre: datos.nombre || "",
         negocio: datos.negocio || "",
         giro: datos.giro || "",
         interes: datos.interes || "",
-        maps: datos.maps || "no"
+        maps: datos.maps || ""
       };
+      msgs.push({
+        t: Date.now() - t0,
+        cuando: new Date().toISOString(),
+        nombre: datos.nombre || "",
+        negocio: datos.negocio || "",
+        texto: datos.mensaje || ""
+      });
+      guardaMsgs();
       hito("Mandó el formulario");
       guardaSesion();
       manda(true);
@@ -247,6 +262,7 @@
     var lote = pend.slice(0, 120);
     var campos = {
       uid: val(uid),
+      nombre: val(ses.nombre || ""),
       inicio: { timestampValue: ses.inicio },
       fin: { timestampValue: new Date().toISOString() },
       duracion: val(Math.round(ses.duracion)),
@@ -262,12 +278,15 @@
       update: { name: "projects/" + PID + "/databases/(default)/documents/sesiones/" + ses.id, fields: campos },
       updateMask: { fieldPaths: Object.keys(campos) }
     };
+    var trans = [];
     if (lote.length) {
-      write.updateTransforms = [{
-        fieldPath: "eventos",
-        appendMissingElements: { values: lote.map(val) }
-      }];
+      trans.push({ fieldPath: "eventos", appendMissingElements: { values: lote.map(val) } });
     }
+    var loteMsg = msgs.slice(0, 10);
+    if (loteMsg.length) {
+      trans.push({ fieldPath: "mensajes", appendMissingElements: { values: loteMsg.map(val) } });
+    }
+    if (trans.length) write.updateTransforms = trans;
     fetch(FS + ":commit", {
       method: "POST",
       keepalive: !!urgente,
@@ -278,6 +297,8 @@
       if (r.ok) {
         pend = pend.slice(lote.length);
         guardaPend();
+        msgs = msgs.slice(loteMsg.length);
+        guardaMsgs();
         intentos = 0;
         return;
       }
@@ -296,7 +317,9 @@
     if (arrancado || !permite()) return;
     arrancado = true;
     ses = cargaSesion();
+    if (typeof ses.nombre !== "string") ses.nombre = "";
     pend = cargaPend();
+    msgs = cargaMsgs();
     guardaSesion();
 
     identidad().then(function () {

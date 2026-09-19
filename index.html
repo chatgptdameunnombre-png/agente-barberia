@@ -549,32 +549,80 @@ section{padding:100px 0}
 @media(prefers-reduced-motion:reduce){.ind-track{animation:none}}
 
 /* ---- Formulario de preview (#contacto) ---- */
-.frm{max-width:520px;margin:40px auto 0;text-align:left;background:var(--bg2);border:1px solid var(--border);border-radius:22px;padding:30px 28px}
-.frm-f{margin-bottom:20px}
-.frm-l{display:block;font-family:'Instrument Sans',sans-serif;font-size:.86rem;font-weight:600;color:var(--text);margin-bottom:9px}
-.frm-opt{font-weight:400;color:var(--muted)}
-.frm-i{width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:13px 15px;color:var(--text);font-family:'Instrument Sans',sans-serif;font-size:16px;transition:border-color .25s,box-shadow .25s;-webkit-appearance:none;appearance:none}
+.frm-wrap{display:grid;grid-template-columns:.85fr 1.15fr;gap:24px;max-width:1000px;margin:48px auto 0;text-align:left;align-items:stretch}
+.frm-lado{background:linear-gradient(170deg,#161008 0%,var(--bg2) 60%);border:1px solid rgba(201,168,76,.28);border-radius:24px;padding:34px 30px;display:flex;flex-direction:column}
+.frm-lado h3{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.frm-lado>p{font-size:.92rem;color:var(--dim);line-height:1.65;margin-bottom:28px}
+.frm-pasos{list-style:none;display:flex;flex-direction:column;gap:20px;margin:0;padding:0;flex:1}
+.frm-paso{display:flex;gap:15px;align-items:flex-start}
+.frm-paso i{flex:none;width:32px;height:32px;border-radius:10px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.32);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;color:var(--gold2);font-style:normal}
+.frm-paso b{display:block;font-family:'Instrument Sans',sans-serif;font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:3px}
+.frm-paso span{display:block;font-size:.86rem;color:var(--dim);line-height:1.6}
+.frm-sello{display:inline-flex;align-items:center;gap:9px;margin-top:28px;padding-top:22px;border-top:1px solid rgba(201,168,76,.18);font-size:.88rem;font-weight:600;color:#7ee2a8}
+.frm-sello svg{flex:none}
+
+.frm{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:34px 32px}
+.frm-f{margin-bottom:22px}
+.frm-l{display:block;font-family:'Instrument Sans',sans-serif;font-size:.92rem;font-weight:600;color:var(--text);margin-bottom:10px}
+.frm-opt{font-weight:400;color:var(--muted);font-size:.86rem}
+.frm-i{width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border2);border-radius:13px;padding:15px 17px;color:var(--text);font-family:'Instrument Sans',sans-serif;font-size:16px;transition:border-color .25s,box-shadow .25s,background .25s;-webkit-appearance:none;appearance:none}
 .frm-i::placeholder{color:#5a5a5a}
-.frm-i:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}
-select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:17px;padding-right:42px;cursor:pointer}
-.frm-pills{display:flex;flex-wrap:wrap;gap:9px}
-.frm-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:99px;padding:10px 20px;color:var(--dim);font-family:'Instrument Sans',sans-serif;font-size:.86rem;font-weight:500;cursor:pointer;transition:all .22s}
-.frm-pill:hover{border-color:#3a3a3a;color:var(--text)}
-.frm-pill.on{background:var(--gold-g);border-color:var(--gold);color:#0a0a0a;font-weight:600}
-.frm-hint{font-size:.78rem;color:var(--muted);line-height:1.5;margin-top:8px}
-.frm-nota{font-family:'Instrument Sans',sans-serif;font-size:.88rem;line-height:1.6;color:var(--dim);text-align:center;margin:26px 0 18px;padding-top:20px;border-top:1px solid var(--border)}
-.frm-btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:9px;background:var(--green);border:none;border-radius:99px;padding:15px 24px;color:#062d14;font-family:'Instrument Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:transform .22s,box-shadow .22s}
-.frm-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(37,211,102,.22)}
+.frm-i:focus{outline:none;border-color:var(--gold);background:#161208;box-shadow:0 0 0 3px var(--gold-glow)}
+select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 15px center;background-size:18px;padding-right:44px;cursor:pointer}
+.frm-pills{display:flex;flex-wrap:wrap;gap:10px}
+.frm-pill{position:relative;background:var(--bg3);border:1px solid var(--border2);border-radius:99px;padding:11px 21px;color:var(--dim);font-family:'Instrument Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:border-color .22s,color .22s,background .22s,transform .22s}
+.frm-pill:hover{border-color:#43402f;color:var(--text);transform:translateY(-1px)}
+.frm-pill.on{background:var(--gold-g);border-color:var(--gold2);color:#0a0a0a;font-weight:600;box-shadow:0 6px 18px rgba(201,168,76,.22)}
+.frm-si-no .frm-pill{min-width:84px;text-align:center;justify-content:center}
+.frm-hint{font-size:.83rem;color:var(--muted);line-height:1.55;margin-top:9px}
+.frm-box{overflow:hidden;border-left:2px solid rgba(201,168,76,.3);padding-left:18px;margin-bottom:22px}
+.frm-btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--green);border:none;border-radius:99px;padding:17px 24px;color:#062d14;font-family:'Instrument Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .22s,box-shadow .22s;margin-top:4px}
+.frm-btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(37,211,102,.25)}
 .frm-btn svg{flex:none}
-.frm-err{font-size:.82rem;color:#e9756b;text-align:center;margin-top:12px}
-.frm-legal{font-size:.74rem;color:var(--muted);text-align:center;line-height:1.55;margin-top:14px}
+.frm-err{font-size:.87rem;color:#e9756b;text-align:center;margin-top:14px}
+.frm-legal{font-size:.78rem;color:var(--muted);text-align:center;line-height:1.6;margin-top:16px}
 .frm-legal a{color:var(--dim);text-decoration:underline}
 .frm-legal a:hover{color:var(--gold)}
+
+@media(max-width:900px){
+  .frm-wrap{grid-template-columns:1fr;gap:18px;margin-top:36px}
+  .frm-lado{padding:28px 24px;border-radius:20px}
+  .frm-lado h3{font-size:1.18rem}
+  .frm{padding:28px 22px;border-radius:20px}
+}
 @media(max-width:600px){
-  .frm{padding:24px 18px;margin-top:32px;border-radius:18px}
-  .frm-pill{padding:9px 16px;font-size:.82rem}
+  .frm-lado{padding:24px 19px}
+  .frm{padding:24px 18px}
+  .frm-pill{padding:10px 17px;font-size:.86rem}
+  .frm-l{font-size:.88rem}
 }
 
+/* ---- Pantallas grandes: que la pagina ocupe el ancho de verdad ---- */
+@media(min-width:1250px){
+  .ctn{max-width:1180px}
+  .wa-section .ctn{max-width:1180px}
+  #extras .ctn{max-width:1100px!important}
+  .ttl{font-size:clamp(2.2rem,3.1vw,3.2rem)}
+  .desc{font-size:1.08rem;max-width:660px}
+  .lbl{font-size:12px;letter-spacing:2.8px}
+  .hero h1{font-size:clamp(5.2rem,7.6vw,7.2rem)}
+  .hero-sub{font-size:1.34rem}
+  .frm-wrap{max-width:1080px}
+  #stats .srow{max-width:900px!important}
+  #extras .extras-grid{max-width:1000px!important}
+}
+@media(min-width:1650px){
+  .ctn{max-width:1340px}
+  .wa-section .ctn{max-width:1340px}
+  #extras .ctn{max-width:1240px!important}
+  .ttl{font-size:clamp(2.5rem,2.9vw,3.6rem)}
+  .desc{font-size:1.15rem;max-width:720px}
+  .hero h1{font-size:clamp(6rem,7.4vw,8.4rem)}
+  .hero-sub{font-size:1.45rem}
+  .frm-wrap{max-width:1180px}
+  #stats .srow{max-width:1000px!important}
+  #extras .extras-grid{max-width:1120px!important}
+}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"Tu Agente de IA","alternateName":"tuagentedeia.com","url":"https://tuagentedeia.com/","logo":{"@type":"ImageObject","url":"https://tuagentedeia.com/og-image.png","width":1200,"height":630},"description":"Agencia de automatización con inteligencia artificial en Jalisco, México. Creamos agentes de IA para WhatsApp y llamadas 24/7, páginas web premium con animaciones, y automatizamos procesos repetitivos de negocios locales.","telephone":"+5213351261495","address":{"@type":"PostalAddress","addressLocality":"Guadalajara","addressRegion":"Jalisco","addressCountry":"MX"},"areaServed":{"@type":"Country","name":"México"},"sameAs":["https://wa.me/5213351261495","https://instagram.com/tuagentedeia.mx"],"contactPoint":{"@type":"ContactPoint","telephone":"+5213351261495","contactType":"sales","areaServed":"MX","availableLanguage":"Spanish"},"hasOfferCatalog":{"@type":"OfferCatalog","name":"Servicios de automatización con IA","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Agente de IA para WhatsApp","description":"Chatbot con inteligencia artificial que responde WhatsApp 24/7, agenda citas en Google Calendar y envía recordatorios automáticos. Sin apps nuevas para el negocio ni para el cliente."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Agente de llamadas con IA","description":"Sistema de voz con IA que contesta llamadas automáticamente, conversa de forma natural, responde preguntas sobre servicios y precios, agenda citas y transfiere si es necesario."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Páginas web premium","description":"Desarrollo de sitios web de alta calidad con animaciones GSAP, diseño elegante, videos reales del negocio y optimización para Google. Sin templates genéricos."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Automatización de procesos con IA","description":"Automatizamos tareas repetitivas del negocio: reportes, seguimiento de clientes, envío de mensajes, recordatorios, procesamiento de datos y cualquier proceso manual que se pueda hacer con IA."}}]}}
@@ -1355,84 +1403,95 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 <section class="cta-sec" id="contacto">
   <div class="ctn">
     <span class="lbl">Siguiente paso</span>
-    <h2 class="ttl" style="max-width:560px;margin:0 auto 6px;text-align:center">¿Listo para probarlo?</h2>
-    <p class="desc" style="margin:0 auto;text-align:center">Cuéntanos de tu negocio y te armamos una preview.</p>
+    <h2 class="ttl" style="max-width:620px;margin:0 auto 6px;text-align:center">&iquest;Listo para probarlo?</h2>
+    <p class="desc" style="margin:0 auto;text-align:center">Cu&eacute;ntanos de tu negocio y te armamos una preview.</p>
 
-    <form class="frm" id="frm" novalidate>
-      <div class="frm-f">
-        <label class="frm-l" for="frmNombre">Tu nombre</label>
-        <input class="frm-i" id="frmNombre" type="text" autocomplete="name" placeholder="Cómo te llamas">
-      </div>
+    <div class="frm-wrap">
+      <aside class="frm-lado">
+        <h3>C&oacute;mo funciona</h3>
+        <p>Sin llamadas de ventas y sin compromiso. Tres pasos.</p>
+        <ol class="frm-pasos">
+          <li class="frm-paso"><i>01</i><div><b>Nos cuentas de tu negocio</b><span>Te toma menos de un minuto.</span></div></li>
+          <li class="frm-paso"><i>02</i><div><b>Nosotros creamos tu preview</b><span>Armamos tu agente o tu p&aacute;gina con los datos reales de tu negocio para que veas c&oacute;mo quedar&iacute;a.</span></div></li>
+          <li class="frm-paso"><i>03</i><div><b>Si te gusta, te pasamos los precios</b><span>Con tu caso ya armado podemos darte un n&uacute;mero exacto, no un estimado.</span></div></li>
+        </ol>
+        <span class="frm-sello"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>La preview no te cuesta nada</span>
+      </aside>
 
-      <div class="frm-f">
-        <span class="frm-l">¿Es para un negocio?</span>
-        <div class="frm-pills" id="frmNeg">
-          <button type="button" class="frm-pill" data-v="si">Sí</button>
-          <button type="button" class="frm-pill" data-v="no">No</button>
-        </div>
-      </div>
-
-      <div id="frmNegBox" hidden>
+      <form class="frm" id="frm" novalidate>
         <div class="frm-f">
-          <label class="frm-l" for="frmTipo">¿Qué tipo de negocio es?</label>
-          <select class="frm-i" id="frmTipo">
-            <option value="">Elige uno</option>
-            <option>Barbería</option>
-            <option>Estética o salón de belleza</option>
-            <option>Spa</option>
-            <option>Clínica dental</option>
-            <option>Consultorio médico</option>
-            <option>Veterinaria</option>
-            <option>Gimnasio o estudio</option>
-            <option>Restaurante o cafetería</option>
-            <option>Hotel</option>
-            <option>Taller mecánico</option>
-            <option>Autolavado</option>
-            <option>Inmobiliaria</option>
-            <option>Tienda en línea o local</option>
-            <option>Despacho contable o legal</option>
-            <option>Escuela o academia</option>
-            <option>Salón de eventos</option>
-            <option value="otro">Otro</option>
-          </select>
+          <label class="frm-l" for="frmNombre">&iquest;C&oacute;mo te llamas?</label>
+          <input class="frm-i" id="frmNombre" type="text" autocomplete="name" placeholder="Tu nombre">
         </div>
-        <div class="frm-f" id="frmOtroBox" hidden>
-          <label class="frm-l" for="frmOtro">¿Cuál?</label>
-          <input class="frm-i" id="frmOtro" type="text" placeholder="Escribe el giro de tu negocio">
-        </div>
+
         <div class="frm-f">
-          <label class="frm-l" for="frmNegNombre">¿Cómo se llama tu negocio?</label>
-          <input class="frm-i" id="frmNegNombre" type="text" placeholder="Nombre del negocio">
+          <span class="frm-l">&iquest;Es para un negocio?</span>
+          <div class="frm-pills frm-si-no" id="frmNeg">
+            <button type="button" class="frm-pill" data-v="si">S&iacute;</button>
+            <button type="button" class="frm-pill" data-v="no">No</button>
+          </div>
         </div>
-      </div>
 
-      <div class="frm-f">
-        <span class="frm-l">¿Qué te interesa?</span>
-        <div class="frm-pills" id="frmInt">
-          <button type="button" class="frm-pill" data-v="Agente para WhatsApp">Agente para WhatsApp</button>
-          <button type="button" class="frm-pill" data-v="Agente telefónico">Agente telefónico</button>
-          <button type="button" class="frm-pill" data-v="Página web">Página web</button>
-          <button type="button" class="frm-pill" data-v="Automatizar procesos">Automatizar procesos</button>
-          <button type="button" class="frm-pill" data-v="Videos con IA">Videos con IA</button>
-          <button type="button" class="frm-pill" data-v="Todavía no sé">Todavía no sé</button>
+        <div class="frm-box" id="frmNegBox" hidden>
+          <div class="frm-f">
+            <label class="frm-l" for="frmTipo">&iquest;Qu&eacute; tipo de negocio es?</label>
+            <select class="frm-i" id="frmTipo">
+              <option value="">Elige uno</option>
+              <option>Barber&iacute;a</option>
+              <option>Est&eacute;tica o sal&oacute;n de belleza</option>
+              <option>Spa</option>
+              <option>Cl&iacute;nica dental</option>
+              <option>Consultorio m&eacute;dico</option>
+              <option>Veterinaria</option>
+              <option>Gimnasio o estudio</option>
+              <option>Restaurante o cafeter&iacute;a</option>
+              <option>Hotel</option>
+              <option>Taller mec&aacute;nico</option>
+              <option>Autolavado</option>
+              <option>Inmobiliaria</option>
+              <option>Tienda en l&iacute;nea o local</option>
+              <option>Despacho contable o legal</option>
+              <option>Escuela o academia</option>
+              <option>Sal&oacute;n de eventos</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="frm-f" id="frmOtroBox" hidden>
+            <label class="frm-l" for="frmOtro">&iquest;Cu&aacute;l?</label>
+            <input class="frm-i" id="frmOtro" type="text" placeholder="Escribe el giro de tu negocio">
+          </div>
+          <div class="frm-f" style="margin-bottom:0">
+            <label class="frm-l" for="frmNegNombre">&iquest;C&oacute;mo se llama tu negocio?</label>
+            <input class="frm-i" id="frmNegNombre" type="text" placeholder="Nombre del negocio">
+          </div>
         </div>
-      </div>
 
-      <div class="frm-f">
-        <label class="frm-l" for="frmMaps">Link de Google Maps <span class="frm-opt">(opcional)</span></label>
-        <input class="frm-i" id="frmMaps" type="url" inputmode="url" autocomplete="off" placeholder="https://maps.app.goo.gl/…">
-        <p class="frm-hint">(para adaptar la preview exactamente a tu negocio y darte precios exactos)</p>
-      </div>
+        <div class="frm-f">
+          <span class="frm-l">&iquest;Qu&eacute; te interesa? <span class="frm-opt">(los que quieras)</span></span>
+          <div class="frm-pills" id="frmInt">
+            <button type="button" class="frm-pill" data-v="Agente para WhatsApp">Agente para WhatsApp</button>
+            <button type="button" class="frm-pill" data-v="Agente telef&oacute;nico">Agente telef&oacute;nico</button>
+            <button type="button" class="frm-pill" data-v="P&aacute;gina web">P&aacute;gina web</button>
+            <button type="button" class="frm-pill" data-v="Automatizar procesos">Automatizar procesos</button>
+            <button type="button" class="frm-pill" data-v="Videos con IA">Videos con IA</button>
+            <button type="button" class="frm-pill" data-v="Todav&iacute;a no s&eacute;">Todav&iacute;a no s&eacute;</button>
+          </div>
+        </div>
 
-      <p class="frm-nota">Nosotros creamos tu preview. Si te gusta, te pasamos los precios.</p>
+        <div class="frm-f">
+          <label class="frm-l" for="frmMaps">Link de Google Maps <span class="frm-opt">(opcional)</span></label>
+          <input class="frm-i" id="frmMaps" type="url" inputmode="url" autocomplete="off" placeholder="https://maps.app.goo.gl/&hellip;">
+          <p class="frm-hint">Para adaptar la preview exactamente a tu negocio y darte precios exactos.</p>
+        </div>
 
-      <button type="submit" class="frm-btn" id="frmBtn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.5c.1-.2.2-.3.3-.5 0-.2 0-.4-.1-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3z"/><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2z"/></svg>
-        Pedir mi preview por WhatsApp
-      </button>
-      <p class="frm-err" id="frmErr" hidden></p>
-      <p class="frm-legal">Al enviar, tus datos se usan solo para prepararte la preview. Lee el <a href="legales.html">aviso de privacidad</a>.</p>
-    </form>
+        <button type="submit" class="frm-btn" id="frmBtn">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.5c.1-.2.2-.3.3-.5 0-.2 0-.4-.1-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3z"/><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2z"/></svg>
+          Pedir mi preview por WhatsApp
+        </button>
+        <p class="frm-err" id="frmErr" hidden></p>
+        <p class="frm-legal">Guardamos lo que escribes aqu&iacute; para prepararte la preview. Lee el <a href="legales.html">aviso de privacidad</a>.</p>
+      </form>
+    </div>
   </div>
 </section>
 
@@ -2227,15 +2286,21 @@ Object.entries(SM).forEach(([step,indices])=>{
     if(!intereses.length) return fallo('Elige al menos una cosa que te interese.');
     var maps=document.getElementById('frmMaps').value.trim();
 
-    var t='Hola, quiero agendar un preview.\n\n';
+    var t='Hola, soy '+nombre+'.\nQuiero agendar un preview.\n\n';
     t+='Me interesa: '+intereses.join(', ')+'\n';
     if(esNegocio==='si') t+='Negocio: '+negNombre+' ('+giro+')\n';
     else t+='No es para un negocio, es personal.\n';
     if(maps) t+='Google Maps: '+maps+'\n';
-    t+='Soy: '+nombre;
 
-    ev('form_enviado',{negocio:negNombre||'-',giro:giro||'personal',interes:intereses.join(', '),maps:maps?'si':'no'});
-    window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(t),'_blank','noopener');
+    ev('form_enviado',{
+      nombre:nombre,
+      negocio:negNombre||'',
+      giro:giro||'personal',
+      interes:intereses.join(', '),
+      maps:maps||'',
+      mensaje:t.trim()
+    });
+    window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(t.trim()),'_blank','noopener');
   });
 })();
 </script>
