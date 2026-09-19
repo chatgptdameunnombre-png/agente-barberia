@@ -36,7 +36,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@500;600&family=Bebas+Neue&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@500;600&family=Bebas+Neue&display=swap">
 
 
 <style>/* latin-ext */
@@ -349,7 +349,7 @@ section{padding:100px 0}
 /* Money ticker */
 .diff-money{margin-top:8px;text-align:center;min-height:64px}
 .diff-money-lbl{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-.diff-money-num{font-family:'Instrument Serif',Georgia,serif;font-size:34px;line-height:1;letter-spacing:-.02em;font-weight:400;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.diff-money-num{font-family:'Space Grotesk',sans-serif;font-size:34px;line-height:1;letter-spacing:-.02em;font-weight:400;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
 .diff-money-num.bump{transform:scale(1.15)}
 .diff-side.sin .diff-money-num{color:var(--red)}
 .diff-side.con .diff-money-num{color:var(--gold)}
@@ -387,13 +387,13 @@ section{padding:100px 0}
 .diff-solo-text{flex:1;max-width:420px;opacity:0;transform:translateY(14px);transition:opacity .8s ease .4s,transform .8s ease .4s}
 .diff-solo.on .diff-solo-text{opacity:1;transform:translateY(0)}
 .diff-solo-kicker{font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
-.diff-solo-h{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(2.4rem,5.2vw,3.6rem);font-weight:400;line-height:1.02;letter-spacing:-.02em;color:#fff}
-.diff-solo-h em{font-style:italic;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.diff-solo-h{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.4rem,5.2vw,3.6rem);font-weight:400;line-height:1.02;letter-spacing:-.02em;color:#fff}
+.diff-solo-h em{font-style:normal;font-weight:600;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .diff-solo-stats{margin-top:22px;display:flex;flex-direction:column;gap:14px}
 .diff-solo-stat{padding:14px 18px;border:1px solid var(--border);border-radius:14px;background:var(--bg2)}
 .diff-solo-stat.sin{border-color:rgba(255,107,107,.2);background:rgba(255,107,107,.04)}
 .diff-solo-stat.con{border-color:rgba(201,168,76,.25);background:rgba(201,168,76,.04)}
-.diff-solo-stat .num{font-family:'Instrument Serif',Georgia,serif;font-size:28px;line-height:1;margin-right:10px}
+.diff-solo-stat .num{font-family:'Space Grotesk',sans-serif;font-size:28px;line-height:1;margin-right:10px}
 .diff-solo-stat.sin .num{color:var(--red)}
 .diff-solo-stat.con .num{color:var(--gold)}
 .diff-solo-stat .lbl{font-size:.85rem;color:var(--dim)}
@@ -401,16 +401,16 @@ section{padding:100px 0}
 /* Phase 2: "La diferencia es clara" headline (big, old) */
 .diff-reveal{text-align:center}
 .diff-reveal-kicker{font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;opacity:0;animation:diffUp .8s forwards}
-.diff-reveal-h{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(2.8rem,7vw,5rem);font-weight:400;line-height:1;letter-spacing:-.03em;color:#fff;opacity:0;animation:diffUp .9s .15s forwards}
-.diff-reveal-h em{font-style:italic;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.diff-reveal-h{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.8rem,7vw,5rem);font-weight:400;line-height:1;letter-spacing:-.03em;color:#fff;opacity:0;animation:diffUp .9s .15s forwards}
+.diff-reveal-h em{font-style:normal;font-weight:600;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .diff-reveal-sub{margin-top:20px;font-size:1rem;color:var(--dim);opacity:0;animation:diffUp .8s .35s forwards}
 @keyframes diffUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
 /* Phase 3: table (compact, rounded, original-style) */
 .diff-reveal-big{text-align:center;margin-bottom:28px;opacity:0;transform:translateY(10px);transition:opacity .6s,transform .6s}
 .diff-reveal-big.on{opacity:1;transform:translateY(0)}
-.diff-reveal-big h3{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(2rem,4.4vw,3rem);font-weight:400;line-height:1;letter-spacing:-.02em;color:#fff}
-.diff-reveal-big h3 em{font-style:italic;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.diff-reveal-big h3{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,4.4vw,3rem);font-weight:400;line-height:1;letter-spacing:-.02em;color:#fff}
+.diff-reveal-big h3 em{font-style:normal;font-weight:600;background:linear-gradient(135deg,#f7e5a8 0%,#f0d98a 30%,#dfc06a 60%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 .diff-final{width:100%;max-width:900px;display:flex;flex-direction:column;align-items:center}
 .diff-compact{display:grid;grid-template-columns:1fr 1px 1fr;gap:24px;width:100%;align-items:stretch}
@@ -427,7 +427,7 @@ section{padding:100px 0}
 .diff-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.9rem;line-height:1.45;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
 .diff-item:last-child{border:none}
 .diff-item.show{opacity:1;transform:translateY(0)}
-.diff-item .mk{flex-shrink:0;width:16px;font-family:'Instrument Serif',Georgia,serif;font-size:16px;line-height:1.5}
+.diff-item .mk{flex-shrink:0;width:16px;font-family:'Space Grotesk',sans-serif;font-size:16px;line-height:1.5}
 .diff-card.sin .diff-item{color:#d8b0b0}
 .diff-card.sin .diff-item .mk{color:rgba(255,107,107,.6)}
 .diff-card.con .diff-item{color:#e8d99b;font-weight:500}
@@ -449,7 +449,7 @@ section{padding:100px 0}
 .diff-cell.show{opacity:1;transform:translateX(0)}
 .diff-cell.sin{color:#d8b0b0}
 .diff-cell.con{color:#e8d99b;font-weight:500}
-.diff-cell .mk{flex-shrink:0;width:14px;font-family:'Instrument Serif',Georgia,serif;font-size:18px;line-height:1;margin-top:1px}
+.diff-cell .mk{flex-shrink:0;width:14px;font-family:'Space Grotesk',sans-serif;font-size:18px;line-height:1;margin-top:1px}
 .diff-cell.sin .mk{color:rgba(255,107,107,.6)}
 .diff-cell.con .mk{color:var(--gold)}
 .diff-divider{width:1px;background:linear-gradient(to bottom,transparent,rgba(201,168,76,.2),transparent);min-height:100%}
@@ -649,8 +649,8 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .call-demo-wrap{margin-top:80px;padding-top:60px;border-top:1px solid rgba(201,168,76,0.15);position:relative}
 .call-demo-wrap::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .call-intro{text-align:center;margin-bottom:48px}
-.call-title{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:400;letter-spacing:-.02em;margin:6px 0;color:#f0f0f0}
-.call-title em{font-style:italic;color:var(--gold)}
+.call-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:400;letter-spacing:-.02em;margin:6px 0;color:#f0f0f0}
+.call-title em{font-style:normal;font-weight:600;color:var(--gold)}
 .call-sub{color:var(--dim);font-size:.95rem;max-width:440px;margin:0 auto;line-height:1.5}
 .call-stage{display:grid;grid-template-columns:minmax(280px,340px) 1fr;gap:56px;align-items:center;max-width:1040px;margin:0 auto;perspective:2000px}
 
@@ -673,7 +673,7 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 
 .call-head{position:relative;z-index:2;text-align:center;padding:14px 20px 4px}
 .call-incoming{font-size:10px;color:#c9a84c;letter-spacing:.22em;text-transform:uppercase;font-weight:600;margin-bottom:6px;opacity:0;animation:callFadeIn .6s .2s forwards}
-.call-name{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:400;letter-spacing:-.01em;color:#fff;margin-bottom:2px;opacity:0;animation:callFadeIn .6s .4s forwards}
+.call-name{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:400;letter-spacing:-.01em;color:#fff;margin-bottom:2px;opacity:0;animation:callFadeIn .6s .4s forwards}
 .call-number{font-size:11px;color:rgba(255,255,255,0.55);letter-spacing:.02em;opacity:0;animation:callFadeIn .6s .6s forwards}
 
 .call-avatar-wrap{position:relative;z-index:2;margin:10px auto 4px;width:78px;height:78px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -1047,7 +1047,7 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 @keyframes curMove{0%{top:78%;left:40%;opacity:0}5%{opacity:1}18%{top:34%;left:58%}30%{top:52%;left:33%}40%{top:60%;left:50%}43%{transform:scale(.76)}47%{transform:scale(1)}60%{top:30%;left:46%}74%{top:66%;left:60%}88%{top:44%;left:38%}100%{top:78%;left:40%;opacity:1}}
 @keyframes revScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .pw-mapbg{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 40px,#fff 40px 46px),repeating-linear-gradient(0deg,transparent 0 46px,#fff 46px 52px);opacity:.9}
-.pw-serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;background:linear-gradient(135deg,#fff2c4,#f0d98a 45%,#dfc06a 75%,#c9a84c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.pw-serif{font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:-.02em;background:linear-gradient(135deg,#fff2c4,#f0d98a 45%,#dfc06a 75%,#c9a84c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .pw-biz h1,.pw-biz h2,.pw-biz p,.pw-biz span,.pw-biz div{box-sizing:border-box}
 @media(max-width:860px){
   #pwsec [style*="grid-template-columns:0.82fr"]{grid-template-columns:1fr!important}
@@ -1478,10 +1478,22 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
           </div>
         </div>
 
-        <div class="frm-f">
+        <div class="frm-f" id="frmAutoBox" hidden>
+          <label class="frm-l" for="frmAuto">&iquest;Qu&eacute; te gustar&iacute;a automatizar?</label>
+          <input class="frm-i" id="frmAuto" type="text" placeholder="Ej: mandar recordatorios, sacar reportes&hellip;">
+          <p class="frm-hint">Si no sabes por d&oacute;nde empezar, d&eacute;janlo en blanco y nosotros te proponemos.</p>
+        </div>
+
+        <div class="frm-f" id="frmMapsBox">
           <label class="frm-l" for="frmMaps">Link de Google Maps <span class="frm-opt">(opcional)</span></label>
           <input class="frm-i" id="frmMaps" type="url" inputmode="url" autocomplete="off" placeholder="https://maps.app.goo.gl/&hellip;">
           <p class="frm-hint">Para adaptar la preview exactamente a tu negocio y darte precios exactos.</p>
+        </div>
+
+        <div class="frm-f" id="frmTemaBox" hidden>
+          <label class="frm-l" for="frmTema">&iquest;De qu&eacute; quieres tu agente, automatizaci&oacute;n, video o p&aacute;gina?</label>
+          <input class="frm-i" id="frmTema" type="text" placeholder="Cu&eacute;ntanos de qu&eacute; se trata">
+          <p class="frm-hint">Con eso armamos la preview aunque no sea para un negocio.</p>
         </div>
 
         <button type="submit" class="frm-btn" id="frmBtn">
@@ -2237,6 +2249,9 @@ Object.entries(SM).forEach(([step,indices])=>{
       otroBox=document.getElementById('frmOtroBox'),
       tipo=document.getElementById('frmTipo'),
       err=document.getElementById('frmErr'),
+      mapsBox=document.getElementById('frmMapsBox'),
+      temaBox=document.getElementById('frmTemaBox'),
+      autoBox=document.getElementById('frmAutoBox'),
       tocado=false;
 
   function ev(n,d){ try{ if(window.TD&&TD.ev) TD.ev(n,d); }catch(e){} }
@@ -2251,6 +2266,8 @@ Object.entries(SM).forEach(([step,indices])=>{
     b.classList.add('on');
     esNegocio=b.dataset.v;
     negBox.hidden=(esNegocio!=='si');
+    mapsBox.hidden=(esNegocio!=='si');
+    temaBox.hidden=(esNegocio==='si');
     ev('form_negocio',{v:esNegocio});
   });
 
@@ -2259,6 +2276,7 @@ Object.entries(SM).forEach(([step,indices])=>{
     marcar();
     b.classList.toggle('on');
     intereses=Array.prototype.map.call(this.querySelectorAll('.frm-pill.on'),function(p){return p.dataset.v;});
+    autoBox.hidden=(intereses.indexOf('Automatizar procesos')===-1);
     ev('form_interes',{v:intereses.join(', ')});
   });
 
@@ -2284,12 +2302,16 @@ Object.entries(SM).forEach(([step,indices])=>{
       if(!negNombre) return fallo('Falta el nombre de tu negocio.',document.getElementById('frmNegNombre'));
     }
     if(!intereses.length) return fallo('Elige al menos una cosa que te interese.');
-    var maps=document.getElementById('frmMaps').value.trim();
+    var maps=(esNegocio==='si')?document.getElementById('frmMaps').value.trim():'';
+    var tema=(esNegocio==='no')?document.getElementById('frmTema').value.trim():'';
+    var auto=(!autoBox.hidden)?document.getElementById('frmAuto').value.trim():'';
 
     var t='Hola, soy '+nombre+'.\nQuiero agendar un preview.\n\n';
     t+='Me interesa: '+intereses.join(', ')+'\n';
     if(esNegocio==='si') t+='Negocio: '+negNombre+' ('+giro+')\n';
-    else t+='No es para un negocio, es personal.\n';
+    else { t+='No es para un negocio.\n'; if(tema) t+='Es sobre: '+tema+'\n'; }
+    if(auto) t+='Quiere automatizar: '+auto+'\n';
+    else if(intereses.indexOf('Automatizar procesos')!==-1) t+='Quiere automatizar: le gustaria que le propongamos\n';
     if(maps) t+='Google Maps: '+maps+'\n';
 
     ev('form_enviado',{
@@ -2298,6 +2320,8 @@ Object.entries(SM).forEach(([step,indices])=>{
       giro:giro||'personal',
       interes:intereses.join(', '),
       maps:maps||'',
+      tema:tema||'',
+      automatizar:auto||'',
       mensaje:t.trim()
     });
     window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(t.trim()),'_blank','noopener');

@@ -168,7 +168,9 @@
         negocio: datos.negocio || "",
         giro: datos.giro || "",
         interes: datos.interes || "",
-        maps: datos.maps || ""
+        maps: datos.maps || "",
+        tema: datos.tema || "",
+        automatizar: datos.automatizar || ""
       };
       msgs.push({
         t: Date.now() - t0,

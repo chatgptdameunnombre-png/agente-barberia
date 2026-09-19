@@ -9,15 +9,15 @@
   /* ── qué dice: siempre EXPLICA EL SERVICIO, nunca el dolor ── */
   var TEXTOS = {
     hero:      { k: 'Soy Tuia', t: 'Si necesitas ayuda para entender algo, haz clic en mí.', g: 'feliz' },
-    problema:  { k: 'Qué hacemos', t: 'Te montamos un agente que contesta por ti a cualquier hora, para que ningún cliente se quede esperando.', g: 'pensando' },
+    problema:  { k: 'Qué hacemos', t: 'Para que tu negocio avance más rápido hacen falta las piezas correctas: alguien que conteste, alguien que agende y una página que te haga visible. Nosotros te las montamos y las dejamos trabajando juntas.', g: 'pensando' },
     'wa-demo': { k: 'Qué hacemos', t: 'Te armamos un agente adaptado a tu negocio. Contesta con tu información — precios, horarios, servicios — y agenda la cita solo en tu calendario.', g: 'feliz' },
     flow:      { k: 'Qué hacemos', t: 'Todo funciona con lo que ya usas: tu mismo WhatsApp y tu mismo calendario. No instalas nada nuevo.', g: 'pensando' },
-    llamadas:  { k: 'Qué hacemos', t: 'Te ponemos una voz que contesta el teléfono, responde con los datos de tu negocio y aparta el lugar sola.', g: 'pensando' },
-    pwsec:     { k: 'Qué hacemos', t: 'Te hacemos tu página web con todo incluido, con tus fotos y tus videos reales, para que la gente te ubique y te encuentre en Google.', g: 'feliz' },
+    llamadas:  { k: 'Qué hacemos', t: 'Aquí tienes un ejemplo de cómo se oiría una llamada a tu negocio: la voz contesta, resuelve la duda y aparta la cita sola. Así de natural.', g: 'pensando' },
+    pwsec:     { k: 'Qué hacemos', t: 'Así construimos tu página: con tus fotos, tus videos y tus servicios reales. Hecha para que la gente te ubique y te encuentre en Google, no una plantilla.', g: 'feliz' },
     comp:      { k: 'Qué hacemos', t: 'Te dejamos un negocio que contesta siempre, no cuando alguien alcanza.', g: 'pensando' },
     'videos-ia': { k: 'Qué hacemos', t: 'Te hacemos los videos de tus redes con IA. Nos das una foto de tu producto y te lo entregamos listo para publicar.', g: 'guino' },
     industrias:{ k: 'Qué hacemos', t: 'Adaptamos el agente al giro de tu negocio: no le habla igual al cliente de una barbería que al de una clínica.', g: 'pensando' },
-    stats:     { k: 'De dónde salen', t: 'Son estimados de negocios parecidos al tuyo, no una promesa. Cada negocio se comporta distinto.', g: 'pensando' },
+    stats:     { k: 'Qué esperar', t: 'Estos números salen de negocios que ya trabajan así. El tuyo puede dar más o menos, pero la idea de fondo no cambia: dejar de perder a quien ya te estaba buscando.', g: 'pensando' },
     extras:    { k: 'Qué hacemos', t: 'Conectamos las apps que ya usas para que lo repetitivo se haga solo: facturas, reportes, inventario y avisos.', g: 'pensando' },
     contacto:  { k: 'Qué hacemos', t: 'Llenas cuatro datos, se abre tu WhatsApp con el mensaje ya escrito, y nosotros te armamos la preview sin costo.', g: 'feliz' },
     legales:   { k: 'Aviso de privacidad', t: '&Eacute;ste es nuestro aviso de privacidad. Léelo para saber a detalle qué datos guardamos, cuáles no, y cómo puedes pedirnos que los borremos.', g: 'pensando' }
@@ -201,23 +201,45 @@
       try { if (window.TD && TD.ev) TD.ev('tuia_click', sec); } catch (e) { }
     });
 
+    /* Qué sección se está viendo. NO se usa IntersectionObserver: las demos
+       de WhatsApp y llamadas son más altas que varias pantallas y nunca
+       llegan al umbral de visibilidad, así que nunca disparaban. Se busca
+       la sección que cruza el centro de la pantalla, que sí funciona
+       con secciones de cualquier alto. */
     if (!suelta) {
-      var obs = new IntersectionObserver(function (es) {
-        es.forEach(function (e) {
-          if (!e.isIntersecting) return;
-          var s = e.target.id || 'hero';
-          if (s === sec) return;
-          sec = s;
-          if (s in PASEO) { tpx = PASEO[s][0]; tpy = PASEO[s][1]; }
-          if (!hablando && s !== 'hero') gesto('pensando', 900);
-          if (s === 'contacto' && !yaFinal) { yaFinal = true; setTimeout(diSeccion, 900); }
-        });
-      }, { threshold: 0.35 });
-      obs.observe(hero);
+      var secciones = [];
       Object.keys(TEXTOS).forEach(function (id) {
         var el = document.getElementById(id);
-        if (el) obs.observe(el);
+        if (el) secciones.push({ id: id, el: el });
       });
+      if (hero) secciones.unshift({ id: 'hero', el: hero });
+
+      function cual() {
+        var centro = window.innerHeight / 2;
+        for (var i = 0; i < secciones.length; i++) {
+          var r = secciones[i].el.getBoundingClientRect();
+          if (r.top <= centro && r.bottom >= centro) return secciones[i].id;
+        }
+        return null;
+      }
+
+      var revisando = false;
+      function revisa() {
+        var s = cual();
+        if (!s || s === sec) return;
+        sec = s;
+        if (s in PASEO) { tpx = PASEO[s][0]; tpy = PASEO[s][1]; }
+        if (!hablando && s !== 'hero') gesto('pensando', 900);
+        /* si el globo está abierto, cambia el mensaje al de la sección nueva */
+        if (hablando && TEXTOS[s]) diSeccion();
+        if (s === 'contacto' && !yaFinal) { yaFinal = true; setTimeout(diSeccion, 900); }
+      }
+      window.addEventListener('scroll', function () {
+        if (revisando) return;
+        revisando = true;
+        requestAnimationFrame(function () { revisando = false; revisa(); });
+      }, { passive: true });
+      setTimeout(revisa, 400);
     }
 
     function objetivo() {

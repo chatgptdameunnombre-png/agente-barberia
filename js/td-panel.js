@@ -329,6 +329,8 @@
       if (v.form.nombre) html += "<b>Se llama:</b> " + esc(v.form.nombre) + "<br>";
       if (v.form.negocio) html += "<b>Negocio:</b> " + esc(v.form.negocio) + "<br>";
       if (v.form.giro) html += "<b>Giro:</b> " + esc(v.form.giro) + "<br>";
+      if (v.form.tema) html += "<b>Es sobre:</b> " + esc(v.form.tema) + "<br>";
+      if (v.form.automatizar) html += "<b>Quiere automatizar:</b> " + esc(v.form.automatizar) + "<br>";
       html += "<b>Le interesa:</b> " + esc(v.form.interes);
       if (v.form.maps) {
         html += '<br><b>Google Maps:</b> <a href="' + esc(v.form.maps) +
