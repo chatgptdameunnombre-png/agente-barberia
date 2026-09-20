@@ -245,6 +245,25 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
 .pros-estado.cerrado{background:rgba(126,226,168,.12);color:var(--green);border-color:rgba(126,226,168,.3)}
 .pros-notas{font-size:.95rem;color:var(--dim);line-height:1.6;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
 .pros-acc{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+/* ═══ Línea del tiempo de pagos ═══ */
+.tl{position:relative;padding-left:30px}
+.tl::before{content:"";position:absolute;left:6px;top:14px;bottom:14px;width:2px;background:linear-gradient(180deg,rgba(201,168,76,.45),var(--border2) 70%,transparent)}
+.tl-mes{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px;position:relative}
+.tl-mes:first-child{margin-top:0}
+.tl-it{position:relative;padding:15px 18px;margin-bottom:10px;background:var(--bg3);border:1px solid var(--border);border-radius:14px;transition:border-color .2s,transform .2s}
+.tl-it:hover{border-color:var(--border2);transform:translateX(3px)}
+.tl-it::before{content:"";position:absolute;left:-30px;top:22px;width:13px;height:13px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px var(--bg2)}
+.tl-it.pend::before{background:var(--bg2);border:2px solid var(--amber)}
+.tl-it.inicial::before{background:var(--gold2)}
+.tl-it.pend{border-color:rgba(232,180,92,.3)}
+.tl-cab{display:flex;justify-content:space-between;align-items:baseline;gap:14px}
+.tl-cab b{font-weight:500;font-size:1.04rem}
+.tl-monto{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--green);white-space:nowrap}
+.tl-it.pend .tl-monto{color:var(--amber)}
+.tl-it.inicial .tl-monto{color:var(--gold2)}
+.tl-pie{font-size:.9rem;color:var(--muted);margin-top:4px}
+.det-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:13px;margin-top:14px}
+.det-grid .f label{font-size:.88rem}
 .cli-datos a:hover{text-decoration:underline}
 
 /* ═══ Modal ═══ */

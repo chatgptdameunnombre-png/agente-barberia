@@ -76,16 +76,21 @@
 
   /* El mismo cat\u00e1logo que usa el portal del cliente (td-cliente.js).
      Si se agrega uno aqu\u00ed, agregarlo all\u00e1 con la misma clave. */
+  /* clave, icono, nombre, que dato pide, tipo de campo, ejemplo */
   var SERVICIOS = [
-    ["whatsapp", "\ud83d\udcac", "Agente de WhatsApp"],
-    ["voz", "\ud83d\udcde", "Agente de llamadas"],
-    ["web", "\ud83c\udf10", "P\u00e1gina web"],
-    ["tienda", "\ud83d\uded2", "Tienda en l\u00ednea"],
-    ["automatizacion", "\u2699\ufe0f", "Automatizaciones"],
-    ["videos", "\ud83c\udfac", "Videos con IA"],
-    ["panel", "\ud83d\udcca", "Panel de estad\u00edsticas"],
-    ["agenda", "\ud83d\udcc5", "Agenda y recordatorios"]
+    ["whatsapp", "\ud83d\udcac", "Agente de WhatsApp", "N\u00famero del agente", "tel", "33 3598 0142"],
+    ["voz", "\ud83d\udcde", "Agente de llamadas", "N\u00famero al que le llaman", "tel", "675 119 0063"],
+    ["web", "\ud83c\udf10", "P\u00e1gina web", "Link de su p\u00e1gina", "url", "https://sunegocio.com.mx"],
+    ["tienda", "\ud83d\uded2", "Tienda en l\u00ednea", "Link de la tienda", "url", "https://sutienda.com.mx"],
+    ["automatizacion", "\u2699\ufe0f", "Automatizaciones", "Qu\u00e9 le automatizaste", "text", "Recordatorios de cita"],
+    ["videos", "\ud83c\udfac", "Videos con IA", "D\u00f3nde se publican", "text", "Instagram y TikTok"],
+    ["panel", "\ud83d\udcca", "Panel de estad\u00edsticas", "Link de su panel", "url", "https://\u2026/panel.html"],
+    ["agenda", "\ud83d\udcc5", "Agenda y recordatorios", "Calendario que usa", "text", "Google Calendar"]
   ];
+  function servicio(clave) {
+    for (var i = 0; i < SERVICIOS.length; i++) if (SERVICIOS[i][0] === clave) return SERVICIOS[i];
+    return null;
+  }
   function nombreServicio(clave) {
     for (var i = 0; i < SERVICIOS.length; i++) {
       if (SERVICIOS[i][0] === clave) return SERVICIOS[i][2];
@@ -234,6 +239,37 @@
     return pagos.reduce(function (a, p) {
       return (p.clienteId === id && p.estado !== "pendiente") ? a + num(p.monto) : a;
     }, 0);
+  }
+
+  /* ═══════════ línea del tiempo de pagos ═══════════ */
+  function mesDe(isoF) {
+    var p = String(isoF || "").slice(0, 7).split("-");
+    if (p.length !== 2) return "";
+    return MESES_LARGO[+p[1] - 1] + " de " + p[0];
+  }
+
+  function lineaTiempo(lista) {
+    if (!lista.length) return '<p class="vacio">Todav\u00eda no hay pagos.</p>';
+    var orden = lista.slice().sort(function (a, b) {
+      return String(b.fecha).localeCompare(String(a.fecha));
+    });
+    var html = '<div class="tl">', mes = "";
+    orden.forEach(function (x) {
+      var m = mesDe(x.fecha);
+      if (m !== mes) {
+        mes = m;
+        html += '<div class="tl-mes">' + esc(mes) + "</div>";
+      }
+      var pend = x.estado === "pendiente";
+      html += '<div class="tl-it' + (pend ? " pend" : "") + (x.tipo === "unico" ? " inicial" : "") + '">' +
+        '<div class="tl-cab"><b>' + esc(x.concepto || (pend ? "Pago pendiente" : "Pago")) + "</b>" +
+        '<span class="tl-monto">' + esc(pesos(x.monto)) + "</span></div>" +
+        '<div class="tl-pie">' + esc(dia(x.fecha)) +
+        (x.metodo ? " \u00b7 " + esc(x.metodo) : "") +
+        (x.tipo === "unico" ? " \u00b7 cobro de entrada" : "") +
+        (pend ? " \u00b7 <b>te lo debe</b>" : "") + "</div></div>";
+    });
+    return html + "</div>";
   }
 
   /* ═══════════ avisos ═══════════ */
@@ -660,7 +696,21 @@
         ? '<a href="' + esc(c.instagram) + '" target="_blank" rel="noopener">' +
           esc(String(c.instagram).replace(/^https?:\/\/(www\.)?instagram\.com\//, "@").replace(/\/$/, "")) +
           " ↗</a>" : "", 1],
-      ["Qué le diste", serviciosTexto(c.servicios)],
+      ["Qué le diste", listaServicios(c.servicios).map(function (k) {
+        var sv = servicio(k), dd = (c.detalles || {})[k];
+        var nom = sv ? sv[1] + " " + sv[2] : k;
+        if (!dd) return esc(nom);
+        if (/^https?:/.test(dd)) {
+          return esc(nom) + ' \u2192 <a href="' + esc(dd) + '" target="_blank" rel="noopener">' +
+            esc(String(dd).replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")) + "</a>";
+        }
+        if (sv && sv[4] === "tel") {
+          return esc(nom) + ' \u2192 <a href="https://wa.me/52' +
+            esc(String(dd).replace(/\D/g, "").slice(-10)) +
+            '" target="_blank" rel="noopener">' + esc(dd) + "</a>";
+        }
+        return esc(nom) + " \u2192 " + esc(dd);
+      }).join("<br>"), 1],
       ["Cliente desde", c.inicio ? diaLargo(c.inicio) : ""],
       ["Notas", c.notas],
       ["Su cuenta", c.uid
@@ -693,15 +743,9 @@
 
       '<div class="ficha-sec"><h4>Sus datos</h4>' + cobro + datos + "</div>" +
 
-      '<div class="ficha-sec"><h4>Historial de pagos</h4>' +
-      (mios.length ? mios.map(function (p) {
-        return '<div class="hist' + (p.estado === "pendiente" ? " pend" : "") + '"><div><b>' +
-          esc(p.concepto || "Pago") +
-          (p.tipo === "unico" ? ' <span class="tag">de entrada</span>' : "") + "</b><small>" +
-          esc(dia(p.fecha)) + (p.metodo ? " · " + esc(p.metodo) : "") +
-          (p.estado === "pendiente" ? " · pendiente" : "") + "</small></div>" +
-          "<span>" + esc(pesos(p.monto)) + "</span></div>";
-      }).join("") : '<p class="vacio" style="padding:24px 0">Todavía no le registras ningún pago.</p>') +
+      '<div class="ficha-sec"><h4>Su línea de pagos</h4>' +
+      (mios.length ? lineaTiempo(mios)
+        : '<p class="vacio" style="padding:24px 0">Todavía no le registras ningún pago.</p>') +
       "</div>" +
 
       '<div class="ficha-acc">' +
@@ -764,7 +808,8 @@
         return '<label class="chk' + (puesto ? " on" : "") + '"><input type="checkbox" value="' +
           sv[0] + '"' + (puesto ? " checked" : "") + '><span class="chk-ico">' + sv[1] +
           "</span>" + sv[2] + "</label>";
-      }).join("") + "</div></div>" +
+      }).join("") + "</div>" +
+      '<div id="cfDet" class="det-grid"></div></div>' +
       '<div class="f"><label>Cobro de entrada</label><input id="cfInicial" type="number" min="0" step="1" placeholder="2000" value="' + esc(c.montoInicial || "") + '"></div>' +
       '<div class="f"><label id="cfMontoLbl">Cuánto te paga al mes</label><input id="cfMonto" type="number" min="0" step="1" value="' + esc(c.monto || "") + '"></div>' +
       '<div class="f"><label>Cada cuándo</label><select id="cfPer2">' +
@@ -785,9 +830,29 @@
       '<div class="modal-acc"><button class="lnk" id="cfNo">Cancelar</button>' +
       '<button class="lnk oro" id="cfSi">' + (ed ? "Guardar cambios" : "Dar de alta") + "</button></div>");
 
+    var det = (c.detalles && typeof c.detalles === "object") ? c.detalles : {};
+    function pintaDetalles() {
+      Array.prototype.forEach.call($("cfDet").querySelectorAll("input"), function (i) {
+        det[i.dataset.srv] = i.value;
+      });
+      var puestos = Array.prototype.map.call(
+        $("cfSrv").querySelectorAll("input:checked"), function (x) { return x.value; });
+      $("cfDet").innerHTML = puestos.map(function (k) {
+        var sv = servicio(k);
+        if (!sv) return "";
+        return '<div class="f" style="margin-bottom:0"><label>' + esc(sv[3]) +
+          ' <span style="color:var(--muted)">\u00b7 ' + esc(sv[2]) + '</span></label>' +
+          '<input type="' + sv[4] + '" data-srv="' + k + '" placeholder="' + esc(sv[5]) +
+          '" value="' + esc(det[k] || "") + '"></div>';
+      }).join("");
+    }
     Array.prototype.forEach.call($("cfSrv").querySelectorAll("input"), function (x) {
-      x.onchange = function () { x.closest(".chk").classList.toggle("on", x.checked); };
+      x.onchange = function () {
+        x.closest(".chk").classList.toggle("on", x.checked);
+        pintaDetalles();
+      };
     });
+    pintaDetalles();
     function etiquetaMonto() {
       $("cfMontoLbl").textContent = $("cfVaria").value === "1"
         ? "Lo que le cobras normalmente" : "Cu\u00e1nto te paga al mes";
@@ -818,6 +883,14 @@
         instagram: $("cfIg").value.trim(),
         servicios: Array.prototype.map.call(
           $("cfSrv").querySelectorAll("input:checked"), function (x) { return x.value; }),
+        detalles: (function () {
+          var d = {};
+          Array.prototype.forEach.call($("cfDet").querySelectorAll("input"), function (i) {
+            var v = i.value.trim();
+            if (v) d[i.dataset.srv] = v;
+          });
+          return d;
+        })(),
         notas: $("cfNotas").value.trim(),
         avisaA: $("cfAvisa").value,
         uid: $("cfUid").value.trim(),

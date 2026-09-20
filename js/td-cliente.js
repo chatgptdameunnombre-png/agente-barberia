@@ -13,15 +13,16 @@
 
   /* El mismo catálogo que usa el panel (td-negocio.js). Si se agrega uno aquí,
      agregarlo allá con la misma clave. */
+  /* clave, icono, nombre, para qué sirve, cómo se llama su dato */
   var SERVICIOS = [
-    ["whatsapp", "💬", "Agente de WhatsApp", "Responde los mensajes al instante, todos los días."],
-    ["voz", "📞", "Agente de llamadas", "Contesta el teléfono por ti, a cualquier hora."],
-    ["web", "🌐", "Página web", "Tu página en internet, siempre disponible."],
-    ["tienda", "🛒", "Tienda en línea", "Tus productos y tus cobros en tu propia tienda."],
-    ["automatizacion", "⚙️", "Automatizaciones", "Trabajo repetitivo que ya no haces a mano."],
-    ["videos", "🎬", "Videos con IA", "Videos para tus redes, hechos con inteligencia artificial."],
-    ["panel", "📊", "Panel de estadísticas", "Ver qué hace la gente en tu página."],
-    ["agenda", "📅", "Agenda y recordatorios", "Agenda las citas solo y manda recordatorios."]
+    ["whatsapp", "💬", "Agente de WhatsApp", "Responde los mensajes al instante, todos los días.", "Tu número"],
+    ["voz", "📞", "Agente de llamadas", "Contesta el teléfono por ti, a cualquier hora.", "Tu número"],
+    ["web", "🌐", "Página web", "Tu página en internet, siempre disponible.", "Tu página"],
+    ["tienda", "🛒", "Tienda en línea", "Tus productos y tus cobros en tu propia tienda.", "Tu tienda"],
+    ["automatizacion", "⚙️", "Automatizaciones", "Trabajo repetitivo que ya no haces a mano.", "Lo que se automatizó"],
+    ["videos", "🎬", "Videos con IA", "Videos para tus redes, hechos con inteligencia artificial.", "Dónde salen"],
+    ["panel", "📊", "Panel de estadísticas", "Ver qué hace la gente en tu página.", "Tu panel"],
+    ["agenda", "📅", "Agenda y recordatorios", "Agenda las citas solo y manda recordatorios.", "Tu calendario"]
   ];
   function srv(clave) {
     for (var i = 0; i < SERVICIOS.length; i++) {
@@ -238,10 +239,19 @@
       return '<p class="vacio">Todavía no tenemos anotados tus servicios.<br>' +
         "Escríbenos desde <b>Pedir algo</b> y los ponemos.</p>";
     }
+    var det = (cliente.detalles && typeof cliente.detalles === "object") ? cliente.detalles : {};
     return '<div class="srv-grid">' + lista.map(function (k) {
-      var s = srv(k);
+      var s = srv(k), d = det[k], extra = "";
+      if (d) {
+        if (/^https?:/.test(d)) {
+          extra = '<a class="srv-dato" href="' + esc(d) + '" target="_blank" rel="noopener">' +
+            esc(String(d).replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")) + " ↗</a>";
+        } else {
+          extra = '<span class="srv-dato">' + esc(s[4]) + ": <b>" + esc(d) + "</b></span>";
+        }
+      }
       return '<div class="srv"><span class="ico">' + s[1] + "</span><b>" + esc(s[2]) +
-        "</b><span>" + esc(s[3]) + "</span></div>";
+        "</b><span>" + esc(s[3]) + "</span>" + extra + "</div>";
     }).join("") + "</div>";
   }
 
@@ -251,6 +261,32 @@
       (pausado ? "Tu servicio está pausado" : "Todo funcionando") +
       (cliente.inicio ? " · con nosotros desde el " + esc(diaLargo(cliente.inicio)) : "") +
       "</div>";
+  }
+
+  function mesDe(isoF) {
+    var q = String(isoF || "").slice(0, 7).split("-");
+    if (q.length !== 2) return "";
+    return MESES_L[+q[1] - 1] + " de " + q[0];
+  }
+
+  function lineaTiempo(lista) {
+    if (!lista.length) return '<p class="vacio">Todavía no hay pagos registrados.</p>';
+    var orden = lista.slice().sort(function (a, b) {
+      return String(b.fecha).localeCompare(String(a.fecha));
+    });
+    var html = '<div class="tl">', mes = "";
+    orden.forEach(function (x) {
+      var m = mesDe(x.fecha);
+      if (m !== mes) { mes = m; html += '<div class="tl-mes">' + esc(mes) + "</div>"; }
+      var pend = x.estado === "pendiente";
+      html += '<div class="tl-it' + (pend ? " pend" : "") + (x.tipo === "unico" ? " inicial" : "") + '">' +
+        '<div class="tl-cab"><b>' + esc(x.concepto || (pend ? "Pago pendiente" : "Pago")) + "</b>" +
+        '<span class="tl-monto">' + esc(pesos(x.monto)) + "</span></div>" +
+        '<div class="tl-pie">' + esc(dia(x.fecha)) +
+        (x.metodo ? " · " + esc(x.metodo) : "") +
+        (pend ? " · <b>pendiente</b>" : " · pagado") + "</div></div>";
+    });
+    return html + "</div>";
   }
 
   function filaPago(p) {
@@ -272,10 +308,7 @@
       '<div class="blq"><div class="blq-top"><h2>Tus últimos pagos</h2>' +
       (hechos().length > 4 ? '<button class="salir" data-ir="pagos">Ver todos</button>' : "") +
       "</div>" +
-      (pendientes().map(filaPago).join("") || "") +
-      (ultimos.length ? ultimos.map(filaPago).join("")
-        : (pendientes().length ? "" : '<p class="vacio">Todavía no hay pagos registrados.</p>')) +
-      "</div>";
+      lineaTiempo(pendientes().concat(ultimos)) + "</div>";
 
     cada("[data-ir]", function (b) { b.onclick = function () { abreSec(b.dataset.ir); }; });
   }
@@ -283,13 +316,9 @@
   function pintaPagos() {
     var h = hechos(), ps = pendientes();
     var total = h.reduce(function (a, p) { return a + num(p.monto); }, 0);
-    $("pagos").innerHTML = '<div class="blq">' +
-      (ps.length ? "<h2>Lo que está pendiente</h2>" + ps.map(filaPago).join("") +
-        (h.length ? '<h2 style="margin-top:28px">Ya pagados</h2>' : "") : "") +
-      (h.length ? h.map(filaPago).join("") +
-        '<p class="total">Llevas <b>' + esc(pesos(total)) + "</b> pagados en " + h.length +
-        (h.length === 1 ? " pago." : " pagos.") + "</p>"
-        : (ps.length ? "" : '<p class="vacio">Todavía no hay pagos registrados en tu cuenta.</p>')) +
+    $("pagos").innerHTML = '<div class="blq"><h2>Tu línea de pagos</h2>' + lineaTiempo(pagos) +
+      (h.length ? '<p class="total">Llevas <b>' + esc(pesos(total)) + "</b> pagados en " + h.length +
+        (h.length === 1 ? " pago." : " pagos.") + "</p>" : "") +
       "</div>";
 
     $("numPend").textContent = ps.length;
