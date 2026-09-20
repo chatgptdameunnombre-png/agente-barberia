@@ -49,9 +49,10 @@ button,input,select,textarea{font-family:inherit}
 
 /* ═══ Menú lateral ═══ */
 .nav{position:fixed;top:68px;left:0;bottom:0;width:var(--nav);background:var(--bg2);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;gap:5px;z-index:35;overflow-y:auto}
-.nav-marca{display:flex;flex-direction:column;padding:0 12px 20px;margin-bottom:8px;border-bottom:1px solid var(--border)}
-.nav-marca b{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700}
-.nav-marca small{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.nav-marca{display:flex;align-items:center;gap:14px;padding:0 10px 22px;margin-bottom:10px;border-bottom:1px solid var(--border)}
+.nav-marca img{width:50px;height:50px;border-radius:15px;flex:none}
+.nav-marca b{display:block;font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:-.015em;line-height:1.2}
+.nav-marca small{display:block;font-size:.95rem;color:var(--dim);margin-top:3px}
 .nav-sep{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);padding:18px 14px 8px}
 .nav-it{display:flex;align-items:center;gap:13px;width:100%;background:none;border:none;border-radius:13px;padding:13px 14px;color:var(--dim);font-size:1.04rem;font-weight:500;text-align:left;cursor:pointer;transition:background .2s,color .2s}
 .nav-it:hover{background:var(--bg3);color:var(--text)}
@@ -325,7 +326,10 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
   </header>
 
   <aside class="nav" id="nav">
-    <div class="nav-marca"><b>Tu Agente de IA</b><small>Panel del due&ntilde;o</small></div>
+    <div class="nav-marca">
+      <img src="/logo-tuia.png" alt="">
+      <div><b>Tu Agente de IA</b><small>Panel del due&ntilde;o</small></div>
+    </div>
     <span class="nav-sep">Tu p&aacute;gina</span>
     <button class="nav-it on" data-sec="resumen"><span class="nav-ico">&#128202;</span>Resumen</button>
     <button class="nav-it" data-sec="origen"><span class="nav-ico">&#128205;</span>De d&oacute;nde llegan</button>
