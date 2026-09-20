@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu cuenta — Tu Agente de IA</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.ico">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; base-uri 'self'; form-action 'none'">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070707;--bg2:#0e0e0e;--bg3:#141414;--bg4:#1a1a1a;
+  --border:#212121;--border2:#2c2c2c;
+  --text:#f2f2f2;--dim:#a0a0a0;--muted:#666;
+  --gold:#c9a84c;--gold2:#dfc06a;--gold-g:linear-gradient(135deg,#c9a84c,#dfc06a);
+  --glow:rgba(201,168,76,.22);
+  --green:#7ee2a8;--red:#e9756b;--amber:#e8b45c;
+  --wa:#25d366;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:'Instrument Sans',system-ui,sans-serif;font-size:17px;-webkit-font-smoothing:antialiased;line-height:1.6}
+button,input,select,textarea{font-family:inherit}
+::selection{background:rgba(201,168,76,.3)}
+
+/* ═══ Login ═══ */
+#login{max-width:440px;margin:11vh auto;padding:42px 36px;background:var(--bg2);border:1px solid var(--border);border-radius:26px}
+.marca{font-size:12px;font-weight:700;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold)}
+#login h1{font-family:'Space Grotesk',sans-serif;font-size:2.05rem;font-weight:700;letter-spacing:-.02em;margin:13px 0 7px}
+#login p{font-size:.97rem;color:var(--dim);margin-bottom:28px}
+.in{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:13px;padding:15px 17px;color:var(--text);font-size:16px;margin-bottom:13px;transition:border-color .2s,box-shadow .2s}
+.in:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--glow)}
+.btn{width:100%;background:var(--gold-g);border:none;border-radius:99px;padding:16px;color:#0a0a0a;font-weight:700;font-size:1rem;cursor:pointer;transition:transform .2s}
+.btn:hover{transform:translateY(-1px)}
+.err{font-size:.92rem;color:var(--red);margin-top:14px;text-align:center}
+#login .pie{font-size:.86rem;color:var(--muted);margin:22px 0 0;text-align:center;line-height:1.6}
+
+/* ═══ Barra ═══ */
+.top{position:sticky;top:0;z-index:30;background:rgba(7,7,7,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.top-in{display:flex;align-items:center;gap:14px;height:70px;padding:0 24px;max-width:1080px;margin:0 auto}
+.logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.08rem}
+.logo small{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-top:3px}
+.salir{margin-left:auto;background:none;border:1px solid var(--border2);color:var(--dim);border-radius:99px;padding:10px 19px;font-size:.87rem;cursor:pointer;transition:border-color .2s,color .2s}
+.salir:hover{border-color:var(--gold);color:var(--gold2)}
+
+.wrap{max-width:1080px;margin:0 auto;padding:40px 24px 90px}
+
+/* ═══ Saludo ═══ */
+.hola{display:flex;gap:20px;align-items:center;margin-bottom:36px}
+.foto{flex:none;width:76px;height:76px;border-radius:22px;object-fit:cover;background:var(--bg4);border:1px solid rgba(201,168,76,.28)}
+.foto.ini{display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.5rem;color:var(--gold2);background:linear-gradient(140deg,rgba(201,168,76,.2),rgba(201,168,76,.05))}
+.hola h1{font-family:'Space Grotesk',sans-serif;font-size:2.3rem;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.hola p{color:var(--dim);font-size:1rem;margin-top:6px}
+
+h2{font-family:'Space Grotesk',sans-serif;font-size:1.32rem;font-weight:600;letter-spacing:-.01em;margin-bottom:18px}
+.blq{background:var(--bg2);border:1px solid var(--border);border-radius:22px;padding:30px 28px;margin-bottom:22px}
+
+/* ═══ Próximo pago ═══ */
+.prox{position:relative;background:linear-gradient(150deg,rgba(201,168,76,.13),rgba(201,168,76,.02) 55%,transparent);border:1px solid rgba(201,168,76,.32);border-radius:24px;padding:34px 30px;margin-bottom:22px;overflow:hidden}
+.prox::after{content:"";position:absolute;right:-70px;top:-70px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.14),transparent 68%)}
+.prox .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.prox .monto{font-family:'JetBrains Mono',monospace;font-size:3.1rem;font-weight:700;color:var(--gold2);line-height:1;letter-spacing:-.02em}
+.prox .fecha{font-size:1.08rem;margin-top:12px}
+.prox .fecha b{color:var(--text);font-weight:600}
+.prox .nota{font-size:.9rem;color:var(--muted);margin-top:16px;position:relative;z-index:1}
+.prox.alerta{border-color:rgba(233,117,107,.4);background:linear-gradient(150deg,rgba(233,117,107,.1),transparent 55%)}
+.prox.alerta .monto{color:var(--red)}
+.prox.alerta .lbl{color:var(--red)}
+
+/* ═══ Servicios ═══ */
+.srv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.srv{background:var(--bg3);border:1px solid var(--border2);border-radius:18px;padding:24px 22px;transition:border-color .25s,transform .25s}
+.srv:hover{border-color:rgba(201,168,76,.45);transform:translateY(-3px)}
+.srv .ico{font-size:1.5rem;margin-bottom:14px;display:block}
+.srv b{display:block;font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:600;margin-bottom:6px}
+.srv span{font-size:.92rem;color:var(--dim);line-height:1.55}
+.estado{display:inline-flex;align-items:center;gap:8px;font-size:.87rem;padding:8px 16px;border-radius:99px;background:rgba(126,226,168,.1);color:var(--green);border:1px solid rgba(126,226,168,.3);margin-top:18px}
+.estado.pausa{background:rgba(232,180,92,.1);color:var(--amber);border-color:rgba(232,180,92,.3)}
+.punto{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+/* ═══ Pagos ═══ */
+.pago{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:17px 19px;background:var(--bg3);border:1px solid var(--border);border-radius:15px;margin-bottom:10px}
+.pago:last-child{margin-bottom:0}
+.pago b{font-weight:500;display:block}
+.pago small{color:var(--muted);font-size:.85rem}
+.pago .mon{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--green);white-space:nowrap}
+.pago.pend .mon{color:var(--amber)}
+.pago.pend{border-color:rgba(232,180,92,.28)}
+
+/* ═══ Pedir ═══ */
+.pide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:22px}
+.pide{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;color:var(--text);transition:border-color .2s,background .2s,transform .2s}
+.pide:hover{border-color:var(--gold);transform:translateY(-2px)}
+.pide.on{border-color:var(--gold);background:linear-gradient(140deg,rgba(201,168,76,.14),rgba(201,168,76,.03))}
+.pide .ico{font-size:1.25rem;display:block;margin-bottom:9px}
+.pide b{display:block;font-size:.98rem;font-weight:600;margin-bottom:3px}
+.pide span{font-size:.84rem;color:var(--dim);line-height:1.45}
+textarea.in{min-height:130px;resize:vertical;line-height:1.65;margin-bottom:16px}
+.btn-wa{width:100%;background:var(--wa);border:none;border-radius:99px;padding:17px;color:#04210f;font-weight:700;font-size:1.02rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .2s,filter .2s}
+.btn-wa:hover{transform:translateY(-1px);filter:brightness(1.07)}
+.btn-wa[disabled]{opacity:.32;filter:grayscale(.55);cursor:not-allowed;transform:none}
+.pie-nota{font-size:.87rem;color:var(--muted);margin-top:14px;text-align:center;line-height:1.6}
+
+.vacio{text-align:center;color:var(--muted);font-size:.98rem;padding:34px 20px;line-height:1.7}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(16px);background:var(--bg4);border:1px solid var(--border2);border-radius:99px;padding:14px 26px;font-size:.93rem;font-weight:500;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.toast.bien{border-color:rgba(126,226,168,.4);color:var(--green)}
+.toast.mal{border-color:rgba(233,117,107,.4);color:var(--red)}
+
+@media(max-width:620px){
+  body{font-size:16px}
+  .top-in{height:62px;padding:0 16px}
+  .wrap{padding:28px 16px 70px}
+  .hola{gap:15px;margin-bottom:28px}
+  .foto{width:60px;height:60px;border-radius:18px}
+  .hola h1{font-size:1.72rem}
+  .blq{padding:24px 18px;border-radius:19px}
+  .prox{padding:26px 20px}
+  .prox .monto{font-size:2.5rem}
+  .pago{flex-direction:column;align-items:flex-start;gap:8px}
+  .srv-grid,.pide-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <span class="marca">Tu Agente de IA</span>
+  <h1>Tu cuenta</h1>
+  <p>Entra para ver tu servicio y tus pagos.</p>
+  <input class="in" id="mail" type="email" autocomplete="username" placeholder="Correo">
+  <input class="in" id="pass" type="password" autocomplete="current-password" placeholder="Contrase&ntilde;a">
+  <button class="btn" id="entrar">Entrar</button>
+  <p class="err" id="loginErr" hidden></p>
+  <p class="pie">&iquest;No tienes acceso o se te olvid&oacute; tu contrase&ntilde;a?<br>Escr&iacute;benos y te la reponemos.</p>
+</div>
+
+<div id="app" hidden>
+  <header class="top">
+    <div class="top-in">
+      <span class="logo">Tu Agente de IA<small>Tu cuenta</small></span>
+      <button class="salir" id="salir">Salir</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hola" id="hola"></div>
+    <div id="cuerpo"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/td-cliente.js" defer></script>
+</body>
+</html>

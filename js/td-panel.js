@@ -330,6 +330,38 @@
   }
 
   /* ═══ visitas ═══ */
+  function hora12(ms) {
+    try {
+      return new Date(ms).toLocaleTimeString("es-MX", {
+        timeZone: TZ, hour: "numeric", minute: "2-digit", hour12: true
+      }).replace(/\./g, "").replace(/\s+/g, " ");
+    } catch (e) { return ""; }
+  }
+  function horaDe(inicioIso, t) {
+    var base = new Date(inicioIso).getTime();
+    if (!base) return "";
+    return hora12(base + (t || 0));
+  }
+  function hace(iso) {
+    var t = new Date(iso || 0).getTime();
+    if (!t) return "\u2014";
+    var min = Math.round((Date.now() - t) / 60000);
+    if (min < 1) return "ahorita";
+    if (min < 60) return "hace " + min + " min";
+    var h = Math.round(min / 60);
+    if (h < 24) return "hace " + h + " h";
+    var d = Math.round(h / 24);
+    return d === 1 ? "ayer" : "hace " + d + " d\u00edas";
+  }
+  function etiquetaDe(v) {
+    if (tiene(v, "Mand\u00f3 el formulario")) return ["ok", "Pidi\u00f3 su preview"];
+    if (tiene(v, "Toc\u00f3 WhatsApp")) return ["wa", "Toc\u00f3 WhatsApp"];
+    if (tiene(v, "Empez\u00f3 el formulario")) return ["oro", "Empez\u00f3 el formulario"];
+    if (tiene(v, "Lleg\u00f3 al formulario")) return ["", "Lleg\u00f3 al formulario"];
+    if ((v.duracion || 0) >= 30) return ["", "Le dio una le\u00edda"];
+    return ["", "Solo pas\u00f3"];
+  }
+
   function masVisitas() {
     var cont = $("visitas");
     var btn = cont.querySelector(".mas");
@@ -340,29 +372,62 @@
     }
 
     visitas.slice(mostradas, mostradas + PAGINA).forEach(function (v) {
-      var tags = (v.hitos || []).map(function (h) {
-        var c = h === "Mand\u00f3 el formulario" ? "tag ok" : (h === "Toc\u00f3 WhatsApp" ? "tag wa" : "tag");
-        return '<span class="' + c + '">' + esc(h) + "</span>";
-      }).join("");
+      var et = etiquetaDe(v);
       var nom = quien(v);
       var d = document.createElement("div");
       d.className = "v";
       d.innerHTML =
-        '<div class="v-h"><div class="v-i"><span class="v-t">' +
-        (nom ? "<em>" + esc(nom) + "</em> \u00b7 " : "") + esc(fecha(v.inicio)) + "</span>" +
-        '<span class="v-d">' + esc(v.origen || "Directo") + " \u00b7 " + esc(v.aparato || "") +
-        " \u00b7 " + dur(v.duracion) + " \u00b7 baj\u00f3 " + (v.maxScroll || 0) + '%</span></div>' +
-        '<div class="v-tags">' + (tags || '<span class="tag">Solo mir\u00f3</span>') + "</div></div>" +
-        '<div class="v-b"><p class="vacio">Cargando&hellip;</p></div>';
-      var cuerpo = d.querySelector(".v-b");
-      d.querySelector(".v-h").onclick = function () {
-        d.classList.toggle("on");
-        if (d.classList.contains("on") && !d.dataset.listo) {
-          d.dataset.listo = "1";
-          eventosDe(v.id).then(function (evs) { cuerpo.innerHTML = detalle(v, evs); })
-            .catch(function () { cuerpo.innerHTML = '<p class="vacio">No se pudo leer el detalle.</p>'; });
+        '<div class="v-h"><div class="v-i">' +
+        '<span class="v-t"><em class="v-cuando">' + esc(hace(v.inicio)) + "</em>" +
+        (nom ? " <b>" + esc(nom) + "</b>" : " Visitante") + "</span>" +
+        '<span class="v-d">' + esc(fecha(v.inicio)) + " \u00b7 " + dur(v.duracion) +
+        " \u00b7 " + esc(v.aparato || "") + "</span></div>" +
+        '<div class="v-tags"><span class="tag ' + et[0] + '">' + esc(et[1]) + "</span></div></div>" +
+        '<div class="v-b"><p class="v-res">Lleg\u00f3 de <b>' + esc(v.origen || "directo") +
+        "</b> \u00b7 estuvo <b>" + dur(v.duracion) + "</b> \u00b7 baj\u00f3 el <b>" +
+        (v.maxScroll || 0) + "%</b> de la p\u00e1gina</p>" +
+        (v.hitos && v.hitos.length
+          ? '<div class="v-hitos">' + v.hitos.map(function (x) {
+              return '<span class="tag">' + esc(x) + "</span>";
+            }).join("") + "</div>"
+          : "") +
+        '<div class="v-acc">' +
+        '<button class="lnk" data-paso="1">Ver qu\u00e9 hizo paso a paso</button>' +
+        '<button class="lnk mal" data-borravis="1">Borrar esta visita</button></div>' +
+        '<div class="v-paso" hidden></div></div>';
+
+      var cuerpo = d.querySelector(".v-paso");
+      d.querySelector(".v-h").onclick = function () { d.classList.toggle("on"); };
+
+      d.querySelector("[data-paso]").onclick = function (ev) {
+        ev.stopPropagation();
+        var b = ev.currentTarget;
+        if (!cuerpo.hidden) {
+          cuerpo.hidden = true;
+          b.textContent = "Ver qu\u00e9 hizo paso a paso";
+          return;
         }
+        cuerpo.hidden = false;
+        b.textContent = "Ocultar el paso a paso";
+        if (d.dataset.listo) return;
+        d.dataset.listo = "1";
+        cuerpo.innerHTML = '<p class="vacio">Cargando&hellip;</p>';
+        eventosDe(v.id).then(function (evs) { cuerpo.innerHTML = detalle(v, evs); })
+          .catch(function () { cuerpo.innerHTML = '<p class="vacio">No se pudo leer el detalle.</p>'; });
       };
+
+      d.querySelector("[data-borravis]").onclick = function (ev) {
+        ev.stopPropagation();
+        confirmar("Borrar esta visita",
+          "Se borra el registro de " + (nom ? "<b>" + esc(nom) + "</b>" : "esta visita") +
+          " con todo su paso a paso. No se puede deshacer.",
+          "S\u00ed, borrar").then(function (ok) {
+            if (!ok) return;
+            borrarSesion(v.id).then(function () { toast("Visita borrada", "bien"); })
+              .catch(function () { toast("No se pudo borrar", "mal"); });
+          });
+      };
+
       cont.appendChild(d);
     });
     mostradas += PAGINA;
@@ -397,10 +462,11 @@
       var f = frase(e);
       if (f === ultimo) return;
       ultimo = f;
-      lineas.push("<li><em>" + reloj(e.t) + "</em><span>" + esc(f) + "</span></li>");
+      lineas.push("<li><em>" + esc(horaDe(v.inicio, e.t) || reloj(e.t)) + "</em><span>" +
+        esc(f) + "</span></li>");
     });
     html += lineas.length ? "<ol>" + lineas.join("") + "</ol>"
-      : '<p class="vacio">Sin paso a paso guardado.</p>';
+      : '<p class="vacio">De esta visita no se guard\u00f3 el paso a paso.</p>';
     return html;
   }
 

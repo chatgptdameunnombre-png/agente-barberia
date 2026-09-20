@@ -266,6 +266,56 @@
         "<span>" + esc(pesos(x.c.monto)) + " · " + esc(dia(x.f)) + "</span></div>";
     }).join("") : '<p class="vacio">Da de alta un cliente con su monto y su día de pago y aquí sale cuándo toca cobrarle.</p>';
 
+    /* el mes en curso: quien ya pago, quien falta y que te toco pagar */
+    var MESES_L = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+      "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    $("finMesTtl").textContent = "Tu mes de " + MESES_L[h.m - 1];
+
+    var mAct = mesActual();
+    var pagosMes = pagos.filter(function (p) { return String(p.fecha || "").slice(0, 7) === mAct; });
+    var filas = [], porCobrar = 0;
+
+    activos().forEach(function (c) {
+      if (!num(c.monto)) return;
+      var f = proximaFecha(c.diaPago, c.periodicidad || "mensual", c.inicio);
+      var tocaEsteMes = String(f || "").slice(0, 7) === mAct || c.periodicidad === "mensual";
+      if (!tocaEsteMes) return;
+      var suyos = pagosMes.filter(function (p) { return p.clienteId === c.id; });
+      var pagado = suyos.filter(function (p) { return p.estado !== "pendiente"; })
+        .reduce(function (a, p) { return a + num(p.monto); }, 0);
+      var mensual = c.periodicidad === "mensual" ? num(c.monto) : 0;
+      var falta = Math.max(mensual - pagado, 0);
+      if (falta > 0) porCobrar += falta;
+      filas.push({
+        nom: c.negocio || c.persona || "Sin nombre",
+        pagado: pagado, falta: falta, mensual: mensual,
+        listo: mensual > 0 && falta === 0
+      });
+    });
+
+    var cobradoMes = pagosMes.filter(function (p) { return p.estado !== "pendiente"; })
+      .reduce(function (a, p) { return a + num(p.monto); }, 0);
+    var gastosPagados = gastos.filter(function (g) {
+      return g.activo && (g.periodicidad || "mensual") === "mensual" && num(g.dia) <= h.d;
+    });
+    var gastoYa = gastosPagados.reduce(function (a, g) { return a + gastoMensual(g); }, 0);
+
+    $("finMesTot").textContent = pesos(cobradoMes) + " cobrado" +
+      (porCobrar ? " \u00b7 faltan " + pesos(porCobrar) : "");
+
+    $("finMesLista").innerHTML = (filas.length ? filas.map(function (x) {
+      return '<div class="fila"><b>' + esc(x.nom) +
+        ' <span class="tag ' + (x.listo ? "ok" : "oro") + '" style="margin-left:8px">' +
+        (x.listo ? "ya pag\u00f3" : (x.pagado ? "abon\u00f3 " + esc(pesos(x.pagado)) : "falta")) +
+        "</span></b><span>" + esc(pesos(x.listo ? x.pagado : x.falta || x.mensual)) + "</span></div>";
+    }).join("") : '<p class="vacio">Sin clientes de cobro mensual todav\u00eda.</p>') +
+      '<div class="fila" style="border-top:1px solid var(--border2);margin-top:8px;padding-top:16px">' +
+      "<b>Lo que ya te pagaron este mes</b><span style=\"color:var(--green)\">" + esc(pesos(cobradoMes)) + "</span></div>" +
+      '<div class="fila"><b>Lo que te falta por cobrar</b><span style="color:var(--amber)">' +
+      esc(pesos(porCobrar)) + "</span></div>" +
+      '<div class="fila"><b>Lo que t\u00fa ya pagaste este mes</b><span style="color:var(--blue)">' +
+      esc(pesos(gastoYa)) + "</span></div>";
+
     /* te deben */
     var pend = pagos.filter(function (p) { return p.estado === "pendiente"; })
       .sort(function (a, b) { return String(a.fecha).localeCompare(String(b.fecha)); });
@@ -395,6 +445,7 @@
       if (!monto) return P.toast("Falta el monto", "mal");
       var obj = {
         clienteId: cid,
+        clienteUid: (c && c.uid) || "",
         clienteNombre: (c && (c.negocio || c.persona)) || "",
         monto: Math.round(monto),
         fecha: $("pgFecha").value || h.iso,
@@ -528,7 +579,11 @@
       ["Instagram", c.instagram],
       ["Qué le diste", c.servicios],
       ["Cliente desde", c.inicio ? dia(c.inicio) : ""],
-      ["Notas", c.notas]
+      ["Notas", c.notas],
+      ["Su cuenta", c.uid
+        ? '<span style="color:var(--green)">Ya puede entrar a tuagentedeia.com/cliente.html</span>'
+        : '<span style="color:var(--muted)">Todav\u00eda sin acceso</span>', 1],
+      ["Sus mensajes llegan a", c.avisaA === "personal" ? "Tu WhatsApp personal" : "El del negocio"]
     ].filter(function (d) { return d[1]; }).map(function (d) {
       return '<div class="dato"><b>' + d[0] + "</b><span>" + (d[2] ? d[1] : esc(d[1])) + "</span></div>";
     }).join("");
@@ -624,6 +679,10 @@
       '<div class="f"><label>Estado</label><select id="cfEst">' +
       '<option value="activo"' + (c.estado !== "pausado" ? " selected" : "") + ">Activo</option>" +
       '<option value="pausado"' + (c.estado === "pausado" ? " selected" : "") + ">Pausado</option></select></div>" +
+      '<div class="f"><label>Sus mensajes me llegan a</label><select id="cfAvisa">' +
+      '<option value="personal"' + (c.avisaA === "personal" ? " selected" : "") + ">Mi WhatsApp personal</option>" +
+      '<option value="negocio"' + (c.avisaA !== "personal" ? " selected" : "") + ">El del negocio</option></select></div>" +
+      '<div class="f"><label>ID de acceso a su cuenta</label><input id="cfUid" type="text" placeholder="lo copias de Firebase" value="' + esc(c.uid || "") + '"></div>' +
       '<div class="f ancho"><label>Notas</label><textarea id="cfNotas" placeholder="Lo que sea importante recordar de este cliente…">' + esc(c.notas || "") + "</textarea></div>" +
       "</div>" +
       '<div class="modal-acc"><button class="lnk" id="cfNo">Cancelar</button>' +
@@ -652,6 +711,8 @@
         instagram: $("cfIg").value.trim(),
         servicios: $("cfSrv").value.trim(),
         notas: $("cfNotas").value.trim(),
+        avisaA: $("cfAvisa").value,
+        uid: $("cfUid").value.trim(),
         monto: num($("cfMonto").value),
         periodicidad: $("cfPer2").value,
         diaPago: num($("cfDia").value),
@@ -662,7 +723,9 @@
       var op = ed ? actualizar("clientes", c.id, obj) : crear("clientes", obj);
       op.then(function (d) {
         if (ed) {
+          var cambioUid = obj.uid && obj.uid !== c.uid;
           for (var k in obj) c[k] = obj[k];
+          if (cambioUid) ligaPagos(c.id, obj.uid);
         } else {
           obj.id = d.name.split("/").pop();
           obj.creado = new Date().toISOString();
@@ -677,6 +740,24 @@
         if (ed && abierta === c.id) abreFicha(c.id);
       }).catch(function (e) { P.toast("No se pudo guardar: " + e.message, "mal"); });
     };
+  }
+
+  /* Cuando un cliente estrena acceso, sus pagos viejos necesitan su uid
+     o no los ve en su portal (así filtran las reglas de Firestore). */
+  function ligaPagos(clienteId, nuevoUid) {
+    var mios = pagos.filter(function (p) {
+      return p.clienteId === clienteId && p.clienteUid !== nuevoUid;
+    });
+    if (!mios.length) return;
+    Promise.all(mios.map(function (p) {
+      return actualizar("pagos", p.id, { clienteUid: nuevoUid }).then(function () {
+        p.clienteUid = nuevoUid;
+      });
+    })).then(function () {
+      P.toast("Sus " + mios.length + " pagos ya se le ven en su cuenta", "bien");
+    }).catch(function () {
+      P.toast("No se pudieron ligar todos sus pagos", "mal");
+    });
   }
 
   /* foto → cuadrada de 256px, JPEG, para que quepa en el documento */
