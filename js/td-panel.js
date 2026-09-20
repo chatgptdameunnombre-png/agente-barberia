@@ -116,6 +116,12 @@
     var m = Math.floor(s / 60);
     return m + " min" + (s % 60 ? " " + (s % 60) + " s" : "");
   }
+  function durCorto(sg) {
+    sg = Math.round(sg || 0);
+    if (sg < 60) return sg + "s";
+    var m = Math.floor(sg / 60), r = sg % 60;
+    return m + "m" + (r ? " " + r + "s" : "");
+  }
   function reloj(ms) {
     var s = Math.round((ms || 0) / 1000);
     return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
@@ -179,26 +185,25 @@
       ["" + de7, "Visitas en 7 d\u00edas"],
       ["" + forms, "Formularios enviados"],
       ["" + was, "Tocaron WhatsApp"],
-      [dur(prom), "Tiempo promedio"]
+      [durCorto(prom), "Tiempo promedio"]
     ].map(function (c) {
       return '<div class="card"><div class="n">' + esc(c[0]) + '</div><div class="t">' + c[1] + "</div></div>";
     }).join("");
 
     var tot = visitas.length || 1;
-    [
+    var pasos = [
       ["Entraron a la p\u00e1gina", visitas.length],
       ["Vieron la demo de WhatsApp", cuenta(visitas, function (v) { return tiene(v, "Vio la demo de WhatsApp"); })],
       ["Vieron la demo de llamadas", cuenta(visitas, function (v) { return tiene(v, "Vio la demo de llamadas"); })],
       ["Llegaron al formulario", cuenta(visitas, function (v) { return tiene(v, "Lleg\u00f3 al formulario"); })],
       ["Lo empezaron a llenar", cuenta(visitas, function (v) { return tiene(v, "Empez\u00f3 el formulario"); })],
       ["Lo mandaron", forms]
-    ].forEach(function (p, i, arr) {
-      if (i === 0) $("embudo").innerHTML = "";
+    ];
+    $("embudo").innerHTML = visitas.length ? pasos.map(function (p, i) {
       var pc = Math.round((p[1] / tot) * 100);
-      $("embudo").insertAdjacentHTML("beforeend",
-        '<div class="paso"><div class="paso-top"><b>' + p[0] + "</b><span>" + p[1] + " \u00b7 " + pc +
-        '%</span></div><div class="barra"><i style="width:' + pc + '%"></i></div></div>');
-    });
+      return '<div class="paso"><div class="paso-top"><b>' + p[0] + "</b><span>" + p[1] + " \u00b7 " + pc +
+        '%</span></div><div class="barra"><i class="b' + (i || 1) + '" style="width:' + pc + '%"></i></div></div>';
+    }).join("") : '<p class="vacio">Cuando alguien entre a tu p\u00e1gina, aqu\u00ed ves en qu\u00e9 paso se te va.</p>';
 
     $("origenes").innerHTML = lista(agrupa(visitas, function (v) { return v.origen || "Directo"; }));
     $("aparatos").innerHTML = lista(agrupa(visitas, function (v) { return v.aparato || "\u2014"; }));
@@ -236,14 +241,22 @@
   }
 
   /* ═══ mensajes ═══ */
+  function iniciales(n) {
+    var ps = String(n || "").trim().split(/\s+/).filter(Boolean);
+    if (!ps.length) return "?";
+    return (ps[0][0] + (ps.length > 1 ? ps[ps.length - 1][0] : "")).toUpperCase();
+  }
+
   function pintaMensajes() {
     var todos = [];
     visitas.forEach(function (v) {
       (v.mensajes || []).forEach(function (m) {
         todos.push({
+          sid: v.id,
           nombre: m.nombre || quien(v) || "Sin nombre",
           negocio: m.negocio || (v.form && v.form.negocio) || "",
           giro: (v.form && v.form.giro) || "",
+          interes: (v.form && v.form.interes) || "",
           maps: (v.form && v.form.maps) || "",
           texto: m.texto || "",
           cuando: m.cuando || v.inicio,
@@ -256,14 +269,24 @@
 
     $("numMsg").textContent = todos.length;
     $("mensajes").innerHTML = todos.length ? todos.map(function (m) {
-      var sub = m.negocio ? m.negocio + (m.giro ? " \u00b7 " + m.giro : "") : (m.giro || "");
+      var chips = "";
+      if (m.giro) chips += '<span class="tag oro">' + esc(m.giro) + "</span>";
+      if (m.origen) chips += '<span class="tag">' + esc(m.origen) + "</span>";
+      if (m.aparato) chips += '<span class="tag">' + esc(m.aparato) + "</span>";
+
       var pie = '<button class="lnk" data-copiar="1">Copiar mensaje</button>';
       if (m.maps && /^https?:/.test(m.maps)) {
         pie += '<a class="lnk" href="' + esc(m.maps) + '" target="_blank" rel="noopener">Ver en Google Maps \u2197</a>';
       }
-      return '<article class="msg"><div class="msg-top"><div><div class="msg-nom">' + esc(m.nombre) + "</div>" +
-        (sub ? '<div class="msg-neg">' + esc(sub) + "</div>" : "") +
-        '</div><div class="msg-cuando">' + esc(fecha(m.cuando)) + "</div></div>" +
+      pie += '<button class="lnk mal sep" data-borrar="' + esc(m.sid) + '">Borrar registro</button>';
+
+      return '<article class="msg"><div class="msg-top">' +
+        '<div class="msg-id"><span class="ini">' + esc(iniciales(m.nombre)) + "</span><div>" +
+        '<div class="msg-nom">' + esc(m.nombre) + "</div>" +
+        (m.negocio ? '<div class="msg-neg">' + esc(m.negocio) + "</div>" : "") +
+        "</div></div>" +
+        '<div class="msg-der"><span class="msg-cuando">' + esc(fecha(m.cuando)) + "</span>" +
+        (chips ? '<div class="msg-chips">' + chips + "</div>" : "") + "</div></div>" +
         '<div class="msg-txt">' + esc(m.texto) + "</div>" +
         '<div class="msg-pie">' + pie + "</div></article>";
     }).join("") : '<p class="vacio">Todav\u00eda nadie ha mandado el formulario.<br>Cuando alguien lo haga, aqu\u00ed aparece su nombre y el mensaje completo que se llev\u00f3 a WhatsApp.</p>';
@@ -277,6 +300,32 @@
           setTimeout(function () { b.textContent = "Copiar mensaje"; }, 1800);
         } catch (e) { }
       };
+    });
+
+    Array.prototype.forEach.call($("mensajes").querySelectorAll("[data-borrar]"), function (b) {
+      b.onclick = function () {
+        var art = b.closest(".msg");
+        var nom = art.querySelector(".msg-nom").textContent;
+        confirmar("Borrar este registro",
+          "Se borra el mensaje de <b>" + esc(nom) + "</b> y tambi\u00e9n su visita con el paso a paso. No se puede deshacer.",
+          "S\u00ed, borrar").then(function (ok) {
+            if (!ok) return;
+            borrarSesion(b.dataset.borrar).then(function () {
+              toast("Registro borrado", "bien");
+            }).catch(function () { toast("No se pudo borrar", "mal"); });
+          });
+      };
+    });
+  }
+
+  function borrarSesion(id) {
+    return fetch(FS + "/sesiones/" + id, {
+      method: "DELETE",
+      headers: { Authorization: "Bearer " + token }
+    }).then(function (r) {
+      if (!r.ok) throw new Error("borrado " + r.status);
+      visitas = visitas.filter(function (v) { return v.id !== id; });
+      pinta();
     });
   }
 
@@ -355,12 +404,46 @@
     return html;
   }
 
+  /* ═══ avisos, modal y confirmación ═══ */
+  var tToast = null;
+  function toast(txt, tipo) {
+    var t = $("toast");
+    if (!t) return;
+    t.textContent = txt;
+    t.className = "toast on" + (tipo ? " " + tipo : "");
+    clearTimeout(tToast);
+    tToast = setTimeout(function () { t.className = "toast"; }, 2600);
+  }
+
+  function abreModal(html) {
+    $("modal").innerHTML = html;
+    $("modalFondo").classList.add("on");
+    var pri = $("modal").querySelector("input,select,textarea");
+    if (pri) setTimeout(function () { pri.focus(); }, 60);
+  }
+  function cierraModal() {
+    $("modalFondo").classList.remove("on");
+    $("modal").innerHTML = "";
+  }
+
+  function confirmar(titulo, htmlTexto, textoOk) {
+    return new Promise(function (res) {
+      abreModal('<h3>' + esc(titulo) + '</h3><p class="sub">' + htmlTexto + '</p>' +
+        '<div class="modal-acc"><button class="lnk" data-no="1">Cancelar</button>' +
+        '<button class="lnk mal" data-si="1">' + esc(textoOk || "Borrar") + '</button></div>');
+      $("modal").querySelector("[data-no]").onclick = function () { cierraModal(); res(false); };
+      $("modal").querySelector("[data-si]").onclick = function () { cierraModal(); res(true); };
+    });
+  }
+
   /* ═══ navegación ═══ */
   var SEC = {
     resumen: ["secResumen", "Resumen"],
+    origen: ["secOrigen", "De d\u00f3nde llegan"],
     mensajes: ["secMensajes", "Mensajes"],
     visitas: ["secVisitas", "Visitas"],
-    origen: ["secOrigen", "De d\u00f3nde llegan"]
+    finanzas: ["secFinanzas", "Finanzas"],
+    clientes: ["secClientes", "Clientes"]
   };
   function abreSec(k) {
     Object.keys(SEC).forEach(function (x) { $(SEC[x][0]).hidden = (x !== k); });
@@ -370,6 +453,7 @@
     $("topTtl").textContent = SEC[k][1];
     cierraNav();
     window.scrollTo(0, 0);
+    if (window.TDN && (k === "finanzas" || k === "clientes")) window.TDN.abre(k);
   }
   function abreNav() { $("nav").classList.add("abierto"); $("navFondo").classList.add("on"); }
   function cierraNav() { $("nav").classList.remove("abierto"); $("navFondo").classList.remove("on"); }
@@ -386,6 +470,7 @@
   function cargar() {
     $("login").hidden = true;
     $("app").hidden = false;
+    avisaListo();
     leer().then(function (d) { visitas = d; pinta(); })
       .catch(function () {
         $("sub").textContent = "No se pudieron leer las visitas. Revisa que tu correo est\u00e9 en las reglas de Firestore.";
@@ -409,6 +494,38 @@
     $("app").hidden = true;
     $("login").hidden = false;
   };
+
+  $("modalFondo").onclick = function (ev) { if (ev.target === $("modalFondo")) cierraModal(); };
+  $("fichaFondo").onclick = function () {
+    $("ficha").classList.remove("on");
+    $("fichaFondo").classList.remove("on");
+  };
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key !== "Escape") return;
+    if ($("modalFondo").classList.contains("on")) return cierraModal();
+    if ($("ficha").classList.contains("on")) {
+      $("ficha").classList.remove("on");
+      $("fichaFondo").classList.remove("on");
+    }
+  });
+
+  /* ═══ lo que usa td-negocio.js ═══ */
+  window.TDP = {
+    FS: FS,
+    TZ: TZ,
+    tok: function () { return token; },
+    esc: esc,
+    plano: plano,
+    fecha: fecha,
+    toast: toast,
+    modal: abreModal,
+    cierraModal: cierraModal,
+    confirmar: confirmar,
+    listo: function (f) { pendientes.push(f); if (token) f(); }
+  };
+
+  var pendientes = [];
+  function avisaListo() { pendientes.forEach(function (f) { try { f(); } catch (e) { } }); }
 
   refrescar().then(cargar).catch(function () { });
 })();

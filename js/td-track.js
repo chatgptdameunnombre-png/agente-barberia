@@ -378,7 +378,7 @@
         if (id === "videos-ia") hito("Vio los videos con IA");
         if (id === "contacto") hito("Llegó al formulario");
       });
-    }, { threshold: 0.35 });
+    }, { rootMargin: "-45% 0px -45% 0px", threshold: 0 });
     ["wa-demo", "llamadas", "videos-ia", "contacto"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) obs.observe(el);
