@@ -238,6 +238,13 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
 .chk input{accent-color:var(--gold);width:17px;height:17px;flex:none;cursor:pointer}
 .chk-ico{font-size:1.1rem}
 .cli-datos a{color:var(--gold2);text-decoration:none}
+.pros-estado{font-size:.85rem;padding:7px 14px;border-radius:99px;border:1px solid var(--border2);background:var(--bg4);color:var(--dim)}
+.pros-estado.nuevo{background:rgba(111,168,220,.12);color:var(--blue);border-color:rgba(111,168,220,.3)}
+.pros-estado.contactado{background:rgba(232,180,92,.12);color:var(--amber);border-color:rgba(232,180,92,.3)}
+.pros-estado.cotizado{background:rgba(201,168,76,.14);color:var(--gold2);border-color:rgba(201,168,76,.32)}
+.pros-estado.cerrado{background:rgba(126,226,168,.12);color:var(--green);border-color:rgba(126,226,168,.3)}
+.pros-notas{font-size:.95rem;color:var(--dim);line-height:1.6;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.pros-acc{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
 .cli-datos a:hover{text-decoration:underline}
 
 /* ═══ Modal ═══ */
@@ -338,6 +345,7 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
     <span class="nav-sep">Tu negocio</span>
     <button class="nav-it" data-sec="finanzas"><span class="nav-ico">&#128176;</span>Finanzas<span class="nav-num" id="numFin" hidden>0</span></button>
     <button class="nav-it" data-sec="clientes"><span class="nav-ico">&#128100;</span>Clientes<span class="nav-num" id="numCli">0</span></button>
+    <button class="nav-it" data-sec="prospectos"><span class="nav-ico">&#127919;</span>Prospectos<span class="nav-num" id="numPros">0</span></button>
     <button class="nav-it" data-sec="piden"><span class="nav-ico">&#128587;</span>Lo que te piden<span class="nav-num" id="numPide" hidden>0</span></button>
     <div class="nav-pie">
       <button class="nav-it" id="salir"><span class="nav-ico">&#8617;</span>Cerrar sesi&oacute;n</button>
@@ -448,6 +456,18 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
       </div>
       <div id="cliAviso"></div>
       <div class="cli-grid" id="clientes"></div>
+    </section>
+
+    <section class="sec" id="secProspectos" hidden>
+      <div class="head">
+        <div>
+          <h1>Prospectos</h1>
+          <p>Negocios que todav&iacute;a no son clientes. Solo t&uacute; los ves.</p>
+        </div>
+        <button class="lnk oro" id="btnProsNuevo">+ Nuevo prospecto</button>
+      </div>
+      <div id="prosAviso"></div>
+      <div class="cli-grid" id="prospectos"></div>
     </section>
 
     <section class="sec" id="secPiden" hidden>

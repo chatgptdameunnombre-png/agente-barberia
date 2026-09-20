@@ -503,6 +503,7 @@
   }
 
   /* ═══ navegación ═══ */
+  var SEC_NEGOCIO = ["finanzas", "clientes", "prospectos", "piden"];
   var SEC = {
     resumen: ["secResumen", "Resumen"],
     origen: ["secOrigen", "De d\u00f3nde llegan"],
@@ -510,6 +511,7 @@
     visitas: ["secVisitas", "Visitas"],
     finanzas: ["secFinanzas", "Finanzas"],
     clientes: ["secClientes", "Clientes"],
+    prospectos: ["secProspectos", "Prospectos"],
     piden: ["secPiden", "Lo que te piden"]
   };
   function abreSec(k) {
@@ -520,7 +522,7 @@
     $("topTtl").textContent = SEC[k][1];
     cierraNav();
     window.scrollTo(0, 0);
-    if (window.TDN && (k === "finanzas" || k === "clientes" || k === "piden")) window.TDN.abre(k);
+    if (window.TDN && SEC_NEGOCIO.indexOf(k) !== -1) window.TDN.abre(k);
   }
   function abreNav() { $("nav").classList.add("abierto"); $("navFondo").classList.add("on"); }
   function cierraNav() { $("nav").classList.remove("abierto"); $("navFondo").classList.remove("on"); }

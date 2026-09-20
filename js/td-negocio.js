@@ -1,6 +1,6 @@
 (function () {
   var P = null, listo = false;
-  var clientes = [], pagos = [], gastos = [], peticiones = [], verAtendidas = false;
+  var clientes = [], pagos = [], gastos = [], peticiones = [], prospectos = [], verAtendidas = false;
   var cargado = { clientes: false, finanzas: false };
   var USD = 17.5;
 
@@ -214,7 +214,9 @@
   function montoEstimado(c) {
     if (!c.montoVaria) return num(c.monto);
     var suyos = pagos.filter(function (p) {
-      return p.clienteId === c.id && p.estado !== "pendiente";
+      // Solo las mensualidades: el cobro de entrada y los pagos sueltos
+      // inflarian el promedio.
+      return p.clienteId === c.id && p.estado !== "pendiente" && p.tipo !== "unico";
     }).sort(function (a, b) { return String(b.fecha).localeCompare(String(a.fecha)); }).slice(0, 3);
     if (!suyos.length) return num(c.monto);
     return suyos.reduce(function (a, p) { return a + num(p.monto); }, 0) / suyos.length;
@@ -249,7 +251,8 @@
   /* ═══════════ carga ═══════════ */
   function cargaTodo() {
     return Promise.all([listar("clientes"), listar("pagos"), listar("gastos"),
-      listar("sugerencias").catch(function () { return []; })])
+      listar("sugerencias").catch(function () { return []; }),
+      listar("prospectos").catch(function () { return []; })])
       .then(function (r) {
         clientes = r[0].sort(function (a, b) {
           return String(a.negocio || "").localeCompare(String(b.negocio || ""));
@@ -259,6 +262,10 @@
         peticiones = (r[3] || []).sort(function (a, b) {
           return String(b.cuando || "").localeCompare(String(a.cuando || ""));
         });
+        prospectos = (r[4] || []).sort(function (a, b) {
+          return String(a.nombre || "").localeCompare(String(b.nombre || ""));
+        });
+        $("numPros").textContent = prospectos.length;
         cargado.clientes = true;
         cargado.finanzas = true;
         limpiaAviso("cliAviso"); limpiaAviso("finAviso"); limpiaAviso("pideAviso");
@@ -282,7 +289,9 @@
         cada("[data-reintenta]", function (b) {
           b.onclick = function () {
             sinReglas = false;
-            asegura(function () { pintaClientes(); pintaFinanzas(); pintaPeticiones(); });
+            asegura(function () {
+              pintaClientes(); pintaFinanzas(); pintaPeticiones(); pintaProspectos();
+            });
           };
         });
       } else {
@@ -492,7 +501,10 @@
       '<div class="f"><label>Concepto</label><input id="pgConcepto" type="text" placeholder="Mensualidad de septiembre"></div>' +
       '<div class="f"><label>Cómo te pagó</label><select id="pgMetodo">' +
       '<option>Transferencia</option><option>Efectivo</option><option>Depósito</option><option>Mercado Pago</option><option>Otro</option></select></div>' +
-      '<div class="f ancho"><label>Estado</label><select id="pgEstado">' +
+      '<div class="f"><label>Qu\u00e9 pago es</label><select id="pgTipo">' +
+      '<option value="mensualidad">Su mensualidad</option>' +
+      '<option value="unico">Cobro de entrada o algo aparte</option></select></div>' +
+      '<div class="f"><label>Estado</label><select id="pgEstado">' +
       '<option value="pagado">Ya me pagó</option><option value="pendiente">Me lo debe</option></select></div>' +
       "</div>" +
       '<div class="modal-acc"><button class="lnk" id="pgNo">Cancelar</button>' +
@@ -512,6 +524,7 @@
         fecha: $("pgFecha").value || h.iso,
         concepto: $("pgConcepto").value.trim(),
         metodo: $("pgMetodo").value,
+        tipo: $("pgTipo").value,
         estado: $("pgEstado").value,
         creado: new Date().toISOString()
       };
@@ -672,6 +685,8 @@
       '<div class="card"><div class="n">' + esc(montoTxt(c)) + '</div><div class="t">' +
       esc(c.periodicidad === "unico" ? "pago único" : "al " + (c.periodicidad === "anual" ? "año" : "mes")) +
       (c.montoVaria ? " · varía" : "") + "</div></div>" +
+      (num(c.montoInicial) ? '<div class="card"><div class="n">' + esc(pesos(c.montoInicial)) +
+        '</div><div class="t">cobro de entrada</div></div>' : "") +
       '<div class="card verde"><div class="n">' + esc(pesos(totalPagado(id))) + '</div><div class="t">te ha pagado</div></div>' +
       (debe ? '<div class="card roja"><div class="n">' + esc(pesos(debe)) + '</div><div class="t">te debe</div></div>' : "") +
       "</div>" +
@@ -681,8 +696,9 @@
       '<div class="ficha-sec"><h4>Historial de pagos</h4>' +
       (mios.length ? mios.map(function (p) {
         return '<div class="hist' + (p.estado === "pendiente" ? " pend" : "") + '"><div><b>' +
-          esc(p.concepto || "Pago") + "</b><small>" + esc(dia(p.fecha)) +
-          (p.metodo ? " · " + esc(p.metodo) : "") +
+          esc(p.concepto || "Pago") +
+          (p.tipo === "unico" ? ' <span class="tag">de entrada</span>' : "") + "</b><small>" +
+          esc(dia(p.fecha)) + (p.metodo ? " · " + esc(p.metodo) : "") +
           (p.estado === "pendiente" ? " · pendiente" : "") + "</small></div>" +
           "<span>" + esc(pesos(p.monto)) + "</span></div>";
       }).join("") : '<p class="vacio" style="padding:24px 0">Todavía no le registras ningún pago.</p>') +
@@ -749,7 +765,8 @@
           sv[0] + '"' + (puesto ? " checked" : "") + '><span class="chk-ico">' + sv[1] +
           "</span>" + sv[2] + "</label>";
       }).join("") + "</div></div>" +
-      '<div class="f"><label id="cfMontoLbl">Cuánto te paga</label><input id="cfMonto" type="number" min="0" step="1" value="' + esc(c.monto || "") + '"></div>' +
+      '<div class="f"><label>Cobro de entrada</label><input id="cfInicial" type="number" min="0" step="1" placeholder="2000" value="' + esc(c.montoInicial || "") + '"></div>' +
+      '<div class="f"><label id="cfMontoLbl">Cuánto te paga al mes</label><input id="cfMonto" type="number" min="0" step="1" value="' + esc(c.monto || "") + '"></div>' +
       '<div class="f"><label>Cada cuándo</label><select id="cfPer2">' +
       ["mensual", "anual", "unico"].map(function (x) {
         return '<option value="' + x + '"' + ((c.periodicidad || "mensual") === x ? " selected" : "") + ">" +
@@ -773,7 +790,7 @@
     });
     function etiquetaMonto() {
       $("cfMontoLbl").textContent = $("cfVaria").value === "1"
-        ? "Lo que le cobras normalmente" : "Cu\u00e1nto te paga";
+        ? "Lo que le cobras normalmente" : "Cu\u00e1nto te paga al mes";
     }
     $("cfVaria").onchange = etiquetaMonto;
     etiquetaMonto();
@@ -805,6 +822,7 @@
         avisaA: $("cfAvisa").value,
         uid: $("cfUid").value.trim(),
         monto: num($("cfMonto").value),
+        montoInicial: num($("cfInicial").value),
         montoVaria: $("cfVaria").value === "1",
         periodicidad: $("cfPer2").value,
         diaPago: num($("cfDia").value),
@@ -870,6 +888,159 @@
       img.src = fr.result;
     };
     fr.readAsDataURL(file);
+  }
+
+  /* ═══════════ PROSPECTOS ═══════════ */
+  var ESTADOS = [
+    ["nuevo", "Sin contactar"],
+    ["contactado", "Ya le escrib\u00ed"],
+    ["cotizado", "Le pas\u00e9 precio"],
+    ["cerrado", "Cerrado"],
+    ["descartado", "No se dio"]
+  ];
+  function nombreEstado(e) {
+    for (var i = 0; i < ESTADOS.length; i++) if (ESTADOS[i][0] === e) return ESTADOS[i][1];
+    return "Sin contactar";
+  }
+
+  function pintaProspectos() {
+    $("numPros").textContent = prospectos.length;
+    $("prospectos").innerHTML = prospectos.length ? prospectos.map(function (x) {
+      var est = x.estado || "nuevo";
+      var links = "";
+      if (x.maps) links += '<div><i>\ud83d\udccd</i><a href="' + esc(x.maps) +
+        '" target="_blank" rel="noopener" data-noficha="1">Google Maps</a></div>';
+      if (x.instagram) links += '<div><i>\ud83d\udcf8</i><a href="' + esc(x.instagram) +
+        '" target="_blank" rel="noopener" data-noficha="1">Instagram</a></div>';
+      if (x.web) links += '<div><i>\ud83c\udf10</i><a href="' + esc(x.web) +
+        '" target="_blank" rel="noopener" data-noficha="1">Su p\u00e1gina</a></div>';
+      if (x.telefono) links += "<div><i>\ud83d\udcf1</i>" + esc(x.telefono) + "</div>";
+
+      return '<article class="cli"><div class="cli-top">' +
+        '<span class="foto ini">' + esc(iniciales(x.nombre)) + "</span><div>" +
+        '<div class="cli-nom">' + esc(x.nombre || "Sin nombre") + "</div>" +
+        '<div class="cli-per">' + esc(x.giro || "") + "</div></div></div>" +
+        (x.interes ? '<div class="cli-datos"><div><i>\u2699\ufe0f</i>' +
+          esc(serviciosTexto(x.interes)) + "</div>" + links + "</div>"
+          : (links ? '<div class="cli-datos">' + links + "</div>" : "")) +
+        (x.notas ? '<div class="pros-notas">' + esc(x.notas) + "</div>" : "") +
+        '<div class="pros-acc"><span class="pros-estado ' + esc(est) + '">' +
+        esc(nombreEstado(est)) + "</span>" +
+        '<button class="lnk" data-editapros="' + esc(x.id) + '">Editar</button>' +
+        '<button class="lnk oro" data-acliente="' + esc(x.id) + '">Pasarlo a cliente</button>' +
+        '<button class="lnk mal" data-borrapros="' + esc(x.id) + '">Borrar</button></div></article>';
+    }).join("") : '<p class="vacio">Todav\u00eda no tienes prospectos.<br>' +
+      "Dale a <b>+ Nuevo prospecto</b> y anota el negocio que quieres tocar.</p>";
+
+    cada("[data-editapros]", function (b) {
+      b.onclick = function () {
+        var x = prospectos.filter(function (y) { return y.id === b.dataset.editapros; })[0];
+        if (x) formProspecto(x);
+      };
+    });
+    cada("[data-borrapros]", function (b) {
+      b.onclick = function () {
+        P.confirmar("Borrar este prospecto", "Se borra de tu lista.", "S\u00ed, borrar")
+          .then(function (ok) {
+            if (!ok) return;
+            borrar("prospectos", b.dataset.borrapros).then(function () {
+              prospectos = prospectos.filter(function (y) { return y.id !== b.dataset.borrapros; });
+              P.toast("Borrado", "bien");
+              pintaProspectos();
+            }).catch(function (e) { P.toast("No se pudo: " + e.message, "mal"); });
+          });
+      };
+    });
+    cada("[data-acliente]", function (b) {
+      b.onclick = function () {
+        var x = prospectos.filter(function (y) { return y.id === b.dataset.acliente; })[0];
+        if (!x) return;
+        P.confirmar("Pasar a " + (x.nombre || "este prospecto") + " a clientes",
+          "Se crea su ficha de cliente con lo que ya tienes anotado y se quita de prospectos.",
+          "S\u00ed, ya es cliente").then(function (ok) {
+            if (!ok) return;
+            var nuevo = {
+              negocio: x.nombre || "", persona: x.persona || "", telefono: x.telefono || "",
+              correo: "", ubicacion: x.maps || "", instagram: x.instagram || "",
+              servicios: Array.isArray(x.interes) ? x.interes : [],
+              notas: x.notas || "", monto: 0, montoInicial: 0, montoVaria: false,
+              periodicidad: "mensual", diaPago: 0, inicio: hoyMX().iso,
+              estado: "activo", foto: "", avisaA: "negocio", uid: ""
+            };
+            crear("clientes", nuevo).then(function (d) {
+              nuevo.id = d.name.split("/").pop();
+              clientes.push(nuevo);
+              return borrar("prospectos", x.id);
+            }).then(function () {
+              prospectos = prospectos.filter(function (y) { return y.id !== x.id; });
+              P.toast("Ya es cliente", "bien");
+              pintaProspectos(); pintaClientes(); pintaFinanzas();
+            }).catch(function (e) { P.toast("No se pudo: " + e.message, "mal"); });
+          });
+      };
+    });
+  }
+
+  function formProspecto(x) {
+    x = x || {};
+    var ed = !!x.id;
+    var suyos = Array.isArray(x.interes) ? x.interes : [];
+    P.modal("<h3>" + (ed ? "Editar prospecto" : "Nuevo prospecto") + "</h3>" +
+      '<p class="sub">Un negocio que quieres tocar. Esto no lo ve nadie m\u00e1s que t\u00fa.</p>' +
+      '<div class="form-grid">' +
+      '<div class="f"><label>Negocio</label><input id="prNom" type="text" placeholder="Honey Scoop" value="' + esc(x.nombre || "") + '"></div>' +
+      '<div class="f"><label>De qu\u00e9 es</label><input id="prGiro" type="text" placeholder="Helader\u00eda" value="' + esc(x.giro || "") + '"></div>' +
+      '<div class="f"><label>Con qui\u00e9n hablas</label><input id="prPer" type="text" value="' + esc(x.persona || "") + '"></div>' +
+      '<div class="f"><label>Tel\u00e9fono</label><input id="prTel" type="text" value="' + esc(x.telefono || "") + '"></div>' +
+      '<div class="f ancho"><label>Link de su Google Maps</label><input id="prMaps" type="url" placeholder="https://maps.app.goo.gl/\u2026" value="' + esc(x.maps || "") + '"></div>' +
+      '<div class="f ancho"><label>Link de su Instagram</label><input id="prIg" type="url" value="' + esc(x.instagram || "") + '"></div>' +
+      '<div class="f ancho"><label>Su p\u00e1gina o la preview que le hiciste</label><input id="prWeb" type="url" value="' + esc(x.web || "") + '"></div>' +
+      '<div class="f ancho"><span class="f-tit">Qu\u00e9 le vender\u00edas</span><div class="chk-grid" id="prSrv">' +
+      SERVICIOS.map(function (sv) {
+        var puesto = suyos.indexOf(sv[0]) !== -1;
+        return '<label class="chk' + (puesto ? " on" : "") + '"><input type="checkbox" value="' +
+          sv[0] + '"' + (puesto ? " checked" : "") + '><span class="chk-ico">' + sv[1] + "</span>" + sv[2] + "</label>";
+      }).join("") + "</div></div>" +
+      '<div class="f ancho"><label>C\u00f3mo va</label><select id="prEst">' +
+      ESTADOS.map(function (e) {
+        return '<option value="' + e[0] + '"' + ((x.estado || "nuevo") === e[0] ? " selected" : "") + ">" + e[1] + "</option>";
+      }).join("") + "</select></div>" +
+      '<div class="f ancho"><label>Notas</label><textarea id="prNotas" placeholder="Lo que sepas del negocio, del due\u00f1o, por d\u00f3nde entrarle\u2026">' + esc(x.notas || "") + "</textarea></div>" +
+      "</div>" +
+      '<div class="modal-acc"><button class="lnk" id="prNo">Cancelar</button>' +
+      '<button class="lnk oro" id="prSi">' + (ed ? "Guardar" : "Agregar") + "</button></div>");
+
+    Array.prototype.forEach.call($("prSrv").querySelectorAll("input"), function (i) {
+      i.onchange = function () { i.closest(".chk").classList.toggle("on", i.checked); };
+    });
+    $("prNo").onclick = P.cierraModal;
+    $("prSi").onclick = function () {
+      var nom = $("prNom").value.trim();
+      if (!nom) return P.toast("Ponle el nombre del negocio", "mal");
+      var obj = {
+        nombre: nom, giro: $("prGiro").value.trim(), persona: $("prPer").value.trim(),
+        telefono: $("prTel").value.trim(), maps: $("prMaps").value.trim(),
+        instagram: $("prIg").value.trim(), web: $("prWeb").value.trim(),
+        interes: Array.prototype.map.call($("prSrv").querySelectorAll("input:checked"),
+          function (i) { return i.value; }),
+        estado: $("prEst").value, notas: $("prNotas").value.trim()
+      };
+      var op = ed ? actualizar("prospectos", x.id, obj) : crear("prospectos", obj);
+      op.then(function (d) {
+        if (ed) { for (var k in obj) x[k] = obj[k]; }
+        else {
+          obj.id = d.name.split("/").pop();
+          obj.creado = new Date().toISOString();
+          prospectos.push(obj);
+          prospectos.sort(function (a, b) {
+            return String(a.nombre || "").localeCompare(String(b.nombre || ""));
+          });
+        }
+        P.cierraModal();
+        P.toast(ed ? "Guardado" : "Prospecto agregado", "bien");
+        pintaProspectos();
+      }).catch(function (e) { P.toast("No se pudo guardar: " + e.message, "mal"); });
+    };
   }
 
   /* ═══════════ LO QUE TE PIDEN ═══════════ */
@@ -966,6 +1137,7 @@
       asegura(function () {
         if (k === "clientes") pintaClientes();
         else if (k === "piden") pintaPeticiones();
+        else if (k === "prospectos") pintaProspectos();
         else pintaFinanzas();
       });
     }
@@ -978,7 +1150,8 @@
     $("btnPagoNuevo").onclick = function () { formPago(null); };
     $("btnGastoNuevo").onclick = function () { formGasto(null); };
     $("btnPideTodas").onclick = function () { verAtendidas = !verAtendidas; pintaPeticiones(); };
-    asegura(function () { pintaClientes(); pintaFinanzas(); pintaPeticiones(); });
+    $("btnProsNuevo").onclick = function () { formProspecto(null); };
+    asegura(function () { pintaClientes(); pintaFinanzas(); pintaPeticiones(); pintaProspectos(); });
   }
 
   if (window.TDP) window.TDP.listo(init);
