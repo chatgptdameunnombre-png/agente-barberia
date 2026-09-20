@@ -7,11 +7,35 @@
   var K_RT = "td_cli_rt";
   var TZ = "America/Mexico_City";
 
-  /* A dónde llega lo que pide cada cliente.
-     Los de la primera camada avisan al WhatsApp personal de Kiki; el resto,
-     al número del negocio. Se decide por cliente con el campo `avisaA`
-     ("personal" o "negocio") desde la ficha del panel. */
+  /* A dónde llega lo que pide cada cliente. Se decide por cliente con el campo
+     `avisaA` ("personal" o "negocio") desde la ficha del panel. */
   var WA = { personal: "5215563173973", negocio: "5213351261495" };
+
+  /* El mismo catálogo que usa el panel (td-negocio.js). Si se agrega uno aquí,
+     agregarlo allá con la misma clave. */
+  var SERVICIOS = [
+    ["whatsapp", "💬", "Agente de WhatsApp", "Responde los mensajes al instante, todos los días."],
+    ["voz", "📞", "Agente de llamadas", "Contesta el teléfono por ti, a cualquier hora."],
+    ["web", "🌐", "Página web", "Tu página en internet, siempre disponible."],
+    ["tienda", "🛒", "Tienda en línea", "Tus productos y tus cobros en tu propia tienda."],
+    ["automatizacion", "⚙️", "Automatizaciones", "Trabajo repetitivo que ya no haces a mano."],
+    ["videos", "🎬", "Videos con IA", "Videos para tus redes, hechos con inteligencia artificial."],
+    ["panel", "📊", "Panel de estadísticas", "Ver qué hace la gente en tu página."],
+    ["agenda", "📅", "Agenda y recordatorios", "Agenda las citas solo y manda recordatorios."]
+  ];
+  function srv(clave) {
+    for (var i = 0; i < SERVICIOS.length; i++) {
+      if (SERVICIOS[i][0] === clave) return SERVICIOS[i];
+    }
+    return [clave, "✨", clave, "Servicio activo en tu cuenta."];
+  }
+  /* Acepta el formato viejo (texto libre) y el nuevo (lista de claves). */
+  function mios() {
+    var v = cliente && cliente.servicios;
+    if (Array.isArray(v)) return v;
+    if (!v) return [];
+    return String(v).split(/\s*[+,·|]\s*/).map(function (x) { return x.trim(); }).filter(Boolean);
+  }
 
   var token = null, uid = null, cliente = null, pagos = [];
   var tipo = "", enviando = false;
@@ -25,6 +49,7 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
+  function cada(sel, f) { Array.prototype.forEach.call(document.querySelectorAll(sel), f); }
 
   var tToast = null;
   function toast(txt, clase) {
@@ -32,7 +57,7 @@
     t.textContent = txt;
     t.className = "toast on" + (clase ? " " + clase : "");
     clearTimeout(tToast);
-    tToast = setTimeout(function () { t.className = "toast"; }, 3000);
+    tToast = setTimeout(function () { t.className = "toast"; }, 3200);
   }
 
   /* ═══ sesión ═══ */
@@ -86,13 +111,7 @@
       body: JSON.stringify({
         structuredQuery: {
           from: [{ collectionId: col }],
-          where: {
-            fieldFilter: {
-              field: { fieldPath: campo },
-              op: "EQUAL",
-              value: { stringValue: val }
-            }
-          },
+          where: { fieldFilter: { field: { fieldPath: campo }, op: "EQUAL", value: { stringValue: val } } },
           limit: 200
         }
       })
@@ -133,7 +152,7 @@
     if (!isoF) return "—";
     var p = String(isoF).slice(0, 10).split("-");
     if (p.length !== 3) return String(isoF);
-    return +p[2] + " de " + MESES_L[+p[1] - 1];
+    return +p[2] + " de " + MESES_L[+p[1] - 1] + " de " + p[0];
   }
   function ultimoDia(a, m) { return new Date(a, m, 0).getDate(); }
   function isoDe(a, m, d) {
@@ -167,169 +186,222 @@
     if (d < 0) return { txt: "se pasó hace " + Math.abs(d) + " días", d: d };
     return { txt: "faltan " + d + " días", d: d };
   }
-  function iniciales(n) {
-    var ps = String(n || "").trim().split(/\s+/)
-      .map(function (x) { return x.replace(/[^A-Za-zÀ-ſ]/g, ""); })
-      .filter(Boolean);
-    if (!ps.length) return "?";
-    if (ps.length > 1) return (ps[0][0] + ps[1][0]).toUpperCase();
-    return ps[0].slice(0, 2).toUpperCase();
+
+  /* ═══ piezas que se reusan ═══ */
+  function pendientes() {
+    return pagos.filter(function (p) { return p.estado === "pendiente"; });
   }
-
-  /* ═══ servicios en tarjetas ═══ */
-  var ICONOS = [
-    [/llamad|voz|telef/i, "📞", "Contesta el teléfono por ti, a cualquier hora."],
-    [/whats/i, "💬", "Responde los mensajes al instante, todos los días."],
-    [/página|pagina|web|sitio/i, "🌐", "Tu página en internet, siempre disponible."],
-    [/tienda|ecommerce|carrito/i, "🛒", "Tu tienda en línea con tus productos y tus cobros."],
-    [/automat|proceso|reporte/i, "⚙️", "Trabajo repetitivo que ya no tienes que hacer a mano."],
-    [/video/i, "🎬", "Videos para tus redes."],
-    [/agenda|cita|calendar/i, "📅", "Agenda las citas solo y manda recordatorios."]
-  ];
-  function servicios(txt) {
-    var partes = String(txt || "").split(/\s*[+,·|]\s*/).map(function (x) { return x.trim(); })
-      .filter(Boolean);
-    if (!partes.length) return [];
-    return partes.map(function (p) {
-      for (var i = 0; i < ICONOS.length; i++) {
-        if (ICONOS[i][0].test(p)) return { ico: ICONOS[i][1], nom: p, des: ICONOS[i][2] };
-      }
-      return { ico: "✨", nom: p, des: "Servicio activo en tu cuenta." };
-    });
-  }
-
-  /* ═══ pintado ═══ */
-  function pinta() {
-    var nombre = cliente.negocio || cliente.persona || "tu negocio";
-    var saludo = cliente.persona ? "Hola, " + String(cliente.persona).split(" ")[0] : "Hola";
-
-    $("hola").innerHTML = (cliente.foto
-      ? '<img class="foto" src="' + esc(cliente.foto) + '" alt="">'
-      : '<span class="foto ini">' + esc(iniciales(nombre)) + "</span>") +
-      "<div><h1>" + esc(nombre) + "</h1><p>" + esc(saludo) +
-      ". Aquí está tu servicio y tus pagos.</p></div>";
-
-    var html = "";
-    var pausado = cliente.estado === "pausado";
-    var f = proximaFecha(cliente.diaPago, cliente.periodicidad || "mensual", cliente.inicio);
-    var q = cuando(f);
-    var pend = pagos.filter(function (p) { return p.estado === "pendiente"; });
-    var debe = pend.reduce(function (a, p) { return a + num(p.monto); }, 0);
-
-    /* ── próximo pago ── */
-    if (debe > 0) {
-      html += '<div class="prox alerta"><div class="lbl">Tienes un pago pendiente</div>' +
-        '<div class="monto">' + esc(pesos(debe)) + "</div>" +
-        '<div class="fecha">' + (pend.length === 1
-          ? "De <b>" + esc(pend[0].concepto || "tu servicio") + "</b>"
-          : "De <b>" + pend.length + " pagos</b>") + "</div>" +
-        '<div class="nota">Si ya lo pagaste, avísanos aquí abajo y lo marcamos.</div></div>';
-    } else if (!pausado && num(cliente.monto) > 0 && f) {
-      html += '<div class="prox"><div class="lbl">Tu próximo pago</div>' +
-        '<div class="monto">' + esc(pesos(cliente.monto)) + "</div>" +
-        '<div class="fecha">El <b>' + esc(diaLargo(f)) + "</b> · " + esc(q.txt) + "</div>" +
-        '<div class="nota">' +
-        (cliente.periodicidad === "anual" ? "Se cobra una vez al año."
-          : cliente.periodicidad === "unico" ? "Es un pago único."
-            : "Se cobra cada mes el día " + esc(cliente.diaPago || "—") + ".") +
-        " Estás al corriente.</div></div>";
-    }
-
-    /* ── servicios ── */
-    var srv = servicios(cliente.servicios);
-    html += '<div class="blq"><h2>Tus servicios</h2>';
-    html += srv.length
-      ? '<div class="srv-grid">' + srv.map(function (s) {
-        return '<div class="srv"><span class="ico">' + s.ico + "</span><b>" + esc(s.nom) +
-          "</b><span>" + esc(s.des) + "</span></div>";
-      }).join("") + "</div>"
-      : '<p class="vacio">Todavía no tenemos anotados tus servicios. Escríbenos y los ponemos.</p>';
-    html += '<div class="estado' + (pausado ? " pausa" : "") + '"><span class="punto"></span>' +
-      (pausado ? "Tu servicio está pausado" : "Todo funcionando") +
-      (cliente.inicio ? " · con nosotros desde el " + esc(dia(cliente.inicio)) : "") +
-      "</div></div>";
-
-    /* ── pagos ── */
-    var hechos = pagos.filter(function (p) { return p.estado !== "pendiente"; })
+  function hechos() {
+    return pagos.filter(function (p) { return p.estado !== "pendiente"; })
       .sort(function (a, b) { return String(b.fecha).localeCompare(String(a.fecha)); });
-    html += '<div class="blq"><h2>Tus pagos</h2>';
-    if (pend.length) {
-      html += pend.map(function (p) {
-        return '<div class="pago pend"><div><b>' + esc(p.concepto || "Pago pendiente") +
-          "</b><small>" + esc(dia(p.fecha)) + " · pendiente</small></div>" +
-          '<span class="mon">' + esc(pesos(p.monto)) + "</span></div>";
-      }).join("");
-    }
-    html += hechos.length ? hechos.map(function (p) {
-      return '<div class="pago"><div><b>' + esc(p.concepto || "Pago") + "</b><small>" +
-        esc(dia(p.fecha)) + (p.metodo ? " · " + esc(p.metodo) : "") + "</small></div>" +
-        '<span class="mon">' + esc(pesos(p.monto)) + "</span></div>";
-    }).join("") : (pend.length ? "" : '<p class="vacio">Todavía no hay pagos registrados.</p>');
-    if (hechos.length) {
-      var total = hechos.reduce(function (a, p) { return a + num(p.monto); }, 0);
-      html += '<p class="pie-nota">Llevas ' + esc(pesos(total)) + " pagados en " +
-        hechos.length + (hechos.length === 1 ? " pago." : " pagos.") + "</p>";
-    }
-    html += "</div>";
+  }
+  function debe() {
+    return pendientes().reduce(function (a, p) { return a + num(p.monto); }, 0);
+  }
 
-    /* ── pedir ── */
-    html += '<div class="blq"><h2>&iquest;Necesitas algo?</h2>' +
+  function bloqueProximo() {
+    var pausado = cliente.estado === "pausado";
+    var d = debe();
+    if (d > 0) {
+      var ps = pendientes();
+      return '<div class="prox alerta"><div class="lbl">Tienes un pago pendiente</div>' +
+        '<div class="monto">' + esc(pesos(d)) + "</div>" +
+        '<div class="fecha">' + (ps.length === 1
+          ? "De <b>" + esc(ps[0].concepto || "tu servicio") + "</b>"
+          : "De <b>" + ps.length + " pagos</b>") + "</div>" +
+        '<div class="nota">Si ya lo pagaste, avísanos desde <b>Pedir algo</b> y lo marcamos.</div></div>';
+    }
+    if (pausado) {
+      return '<div class="prox"><div class="lbl">Tu servicio</div>' +
+        '<div class="monto chico">En pausa</div>' +
+        '<div class="nota">No se te está cobrando. Cuando quieras retomarlo, avísanos.</div></div>';
+    }
+    var f = proximaFecha(cliente.diaPago, cliente.periodicidad || "mensual", cliente.inicio);
+    if (!f || (!num(cliente.monto) && !cliente.montoVaria)) return "";
+    var q = cuando(f);
+    var monto = cliente.montoVaria
+      ? '<div class="monto chico">Varía cada vez</div>'
+      : '<div class="monto">' + esc(pesos(cliente.monto)) + "</div>";
+    var nota = cliente.montoVaria
+      ? "Te pasamos el monto exacto ese día."
+      : (cliente.periodicidad === "anual" ? "Se cobra una vez al año."
+        : cliente.periodicidad === "unico" ? "Es un pago único."
+          : "Se cobra cada mes el día " + esc(cliente.diaPago || "—") + ".");
+    return '<div class="prox"><div class="lbl">Tu próximo pago</div>' + monto +
+      '<div class="fecha">El <b>' + esc(diaLargo(f)) + "</b> · " + esc(q.txt) + "</div>" +
+      '<div class="nota">' + nota + " Estás al corriente.</div></div>";
+  }
+
+  function tarjetasServicios() {
+    var lista = mios();
+    if (!lista.length) {
+      return '<p class="vacio">Todavía no tenemos anotados tus servicios.<br>' +
+        "Escríbenos desde <b>Pedir algo</b> y los ponemos.</p>";
+    }
+    return '<div class="srv-grid">' + lista.map(function (k) {
+      var s = srv(k);
+      return '<div class="srv"><span class="ico">' + s[1] + "</span><b>" + esc(s[2]) +
+        "</b><span>" + esc(s[3]) + "</span></div>";
+    }).join("") + "</div>";
+  }
+
+  function selloEstado() {
+    var pausado = cliente.estado === "pausado";
+    return '<div class="estado' + (pausado ? " pausa" : "") + '"><span class="punto"></span>' +
+      (pausado ? "Tu servicio está pausado" : "Todo funcionando") +
+      (cliente.inicio ? " · con nosotros desde el " + esc(diaLargo(cliente.inicio)) : "") +
+      "</div>";
+  }
+
+  function filaPago(p) {
+    return '<div class="pago' + (p.estado === "pendiente" ? " pend" : "") + '"><div><b>' +
+      esc(p.concepto || (p.estado === "pendiente" ? "Pago pendiente" : "Pago")) + "</b><small>" +
+      esc(dia(p.fecha)) + (p.metodo ? " · " + esc(p.metodo) : "") +
+      (p.estado === "pendiente" ? " · pendiente" : "") + "</small></div>" +
+      '<span class="mon">' + esc(pesos(p.monto)) + "</span></div>";
+  }
+
+  /* ═══ secciones ═══ */
+  function pintaResumen() {
+    var ultimos = hechos().slice(0, 4);
+    $("hTtl").textContent = "Hola" + (cliente.persona ? ", " + String(cliente.persona).split(" ")[0] : "");
+    $("hSub").textContent = "Aquí está todo lo tuyo de un vistazo.";
+
+    $("resumen").innerHTML = bloqueProximo() +
+      '<div class="blq"><h2>Tus servicios</h2>' + tarjetasServicios() + selloEstado() + "</div>" +
+      '<div class="blq"><div class="blq-top"><h2>Tus últimos pagos</h2>' +
+      (hechos().length > 4 ? '<button class="salir" data-ir="pagos">Ver todos</button>' : "") +
+      "</div>" +
+      (pendientes().map(filaPago).join("") || "") +
+      (ultimos.length ? ultimos.map(filaPago).join("")
+        : (pendientes().length ? "" : '<p class="vacio">Todavía no hay pagos registrados.</p>')) +
+      "</div>";
+
+    cada("[data-ir]", function (b) { b.onclick = function () { abreSec(b.dataset.ir); }; });
+  }
+
+  function pintaPagos() {
+    var h = hechos(), ps = pendientes();
+    var total = h.reduce(function (a, p) { return a + num(p.monto); }, 0);
+    $("pagos").innerHTML = '<div class="blq">' +
+      (ps.length ? "<h2>Lo que está pendiente</h2>" + ps.map(filaPago).join("") +
+        (h.length ? '<h2 style="margin-top:28px">Ya pagados</h2>' : "") : "") +
+      (h.length ? h.map(filaPago).join("") +
+        '<p class="total">Llevas <b>' + esc(pesos(total)) + "</b> pagados en " + h.length +
+        (h.length === 1 ? " pago." : " pagos.") + "</p>"
+        : (ps.length ? "" : '<p class="vacio">Todavía no hay pagos registrados en tu cuenta.</p>')) +
+      "</div>";
+
+    $("numPend").textContent = ps.length;
+    $("numPend").hidden = !ps.length;
+    $("numPend").className = "nav-num" + (ps.length ? " alerta" : "");
+  }
+
+  function pintaServicios() {
+    $("servicios").innerHTML = '<div class="blq">' + tarjetasServicios() + selloEstado() + "</div>";
+  }
+
+  function pintaPedir() {
+    var tengo = mios();
+    var faltan = SERVICIOS.filter(function (s) { return tengo.indexOf(s[0]) === -1; });
+
+    $("pedir").innerHTML =
+      '<div class="blq"><h2>Lo que ya tienes</h2>' +
+      (tengo.length ? '<div class="tengo">' + tengo.map(function (k) {
+        var s = srv(k);
+        return '<span class="chip">' + s[1] + " " + esc(s[2]) + "</span>";
+      }).join("") + "</div>"
+        : '<p class="vacio" style="padding:20px 0">Todavía no tienes servicios anotados.</p>') +
+      "</div>" +
+
+      '<div class="blq"><h2>&iquest;Qué te gustaría agregar?</h2>' +
+      (faltan.length ? '<div class="chk-grid" id="quiero">' + faltan.map(function (s) {
+        return '<label class="chk"><input type="checkbox" value="' + s[0] + '">' +
+          '<span class="chk-ico">' + s[1] + "</span>" + esc(s[2]) + "</label>";
+      }).join("") + "</div>"
+        : '<p class="vacio" style="padding:20px 0">Ya tienes todo lo que ofrecemos.</p>') +
+
+      '<h2 style="margin-top:8px">&iquest;O es otra cosa?</h2>' +
       '<div class="pide-grid">' +
-      [["Contratar otro servicio", "➕", "Quiero agregar algo a lo que ya tengo"],
-       ["Pedir un cambio", "✏️", "Cambiar algo de lo que ya está hecho"],
+      [["Pedir un cambio", "✏️", "Cambiar algo de lo que ya está hecho"],
        ["Reportar un problema", "⚠️", "Algo no está funcionando bien"],
+       ["Avisar que ya pagué", "💵", "Mandar tu comprobante"],
        ["Una sugerencia", "💡", "Se me ocurre algo que estaría bueno"]
       ].map(function (t) {
         return '<button class="pide" data-tipo="' + esc(t[0]) + '"><span class="ico">' + t[1] +
           "</span><b>" + esc(t[0]) + "</b><span>" + esc(t[2]) + "</span></button>";
       }).join("") + "</div>" +
+
       '<textarea class="in" id="txt" placeholder="Cuéntanos con tus palabras qué necesitas…"></textarea>' +
-      '<button class="btn-wa" id="enviar" disabled>Mandar por WhatsApp</button>' +
-      '<p class="pie-nota">Se guarda aquí y se abre tu WhatsApp con el mensaje ya escrito.<br>' +
-      "Te contestamos lo antes posible.</p></div>";
+      '<div class="acc">' +
+      '<button class="b-grande b-aqui" id="bAqui" disabled>Mandarlo por aquí</button>' +
+      '<button class="b-grande b-wa" id="bWa" disabled>Mandarlo por WhatsApp</button>' +
+      "</div>" +
+      '<p class="pie-nota">Por aquí nos llega igual y no tienes que salir de tu cuenta.<br>' +
+      "Por WhatsApp se abre tu chat con el mensaje ya escrito.</p></div>";
 
-    $("cuerpo").innerHTML = html;
-    enlaza();
-  }
-
-  function enlaza() {
-    Array.prototype.forEach.call(document.querySelectorAll("[data-tipo]"), function (b) {
+    cada("[data-tipo]", function (b) {
       b.onclick = function () {
-        Array.prototype.forEach.call(document.querySelectorAll("[data-tipo]"), function (x) {
-          x.classList.remove("on");
-        });
-        b.classList.add("on");
-        tipo = b.dataset.tipo;
+        var ya = b.classList.contains("on");
+        cada("[data-tipo]", function (x) { x.classList.remove("on"); });
+        if (!ya) { b.classList.add("on"); tipo = b.dataset.tipo; }
+        else tipo = "";
         revisa();
       };
     });
+    if ($("quiero")) {
+      cada("#quiero input", function (x) {
+        x.onchange = function () {
+          x.closest(".chk").classList.toggle("on", x.checked);
+          revisa();
+        };
+      });
+    }
     $("txt").addEventListener("input", revisa);
-    $("enviar").onclick = manda;
+    $("bAqui").onclick = function () { manda(false); };
+    $("bWa").onclick = function () { manda(true); };
+    revisa();
+  }
+
+  function elegidos() {
+    if (!$("quiero")) return [];
+    return Array.prototype.map.call($("quiero").querySelectorAll("input:checked"),
+      function (x) { return srv(x.value)[2]; });
   }
   function revisa() {
-    $("enviar").disabled = !(tipo && $("txt").value.trim().length > 2);
+    var hay = elegidos().length > 0 || (tipo && $("txt").value.trim().length > 2);
+    $("bAqui").disabled = !hay;
+    $("bWa").disabled = !hay;
   }
 
-  function manda() {
+  function manda(porWhats) {
     if (enviando) return;
+    var quiere = elegidos();
     var texto = $("txt").value.trim();
-    if (!tipo || !texto) return;
+    if (!quiere.length && !(tipo && texto)) return;
+
     enviando = true;
-    $("enviar").disabled = true;
-    $("enviar").textContent = "Mandando…";
+    $("bAqui").disabled = true;
+    $("bWa").disabled = true;
+    (porWhats ? $("bWa") : $("bAqui")).textContent = "Mandando…";
+
+    var eltipo = quiere.length ? "Contratar otro servicio" : tipo;
+    var cuerpo = "";
+    if (quiere.length) cuerpo += "Me interesa:\n· " + quiere.join("\n· ");
+    if (texto) cuerpo += (cuerpo ? "\n\n" : "") + texto;
 
     var negocio = cliente.negocio || cliente.persona || "";
-    var quien = cliente.persona ? cliente.persona : "";
+    var quien = cliente.persona || "";
     var msg = "Hola, soy " + (quien ? quien + " de " + negocio : negocio) + ".\n\n" +
-      tipo + ":\n" + texto;
+      eltipo + ":\n" + cuerpo;
 
     var doc = {
       fields: {
         uid: { stringValue: uid },
         clienteId: { stringValue: cliente.id },
         negocio: { stringValue: negocio },
-        tipo: { stringValue: tipo },
-        texto: { stringValue: texto },
+        tipo: { stringValue: eltipo },
+        texto: { stringValue: cuerpo },
         cuando: { stringValue: new Date().toISOString() },
         atendida: { booleanValue: false }
       }
@@ -340,34 +412,67 @@
       headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
       body: JSON.stringify(doc)
     }).then(function (r) {
-      if (!r.ok) throw new Error("guardado " + r.status);
+      if (!r.ok) throw new Error("guardado");
+      return true;
     }).catch(function () {
-      /* si no se pudo guardar, igual se manda: lo importante es que llegue */
-    }).then(function () {
-      var destino = WA[cliente.avisaA === "personal" ? "personal" : "negocio"];
-      window.open("https://wa.me/" + destino + "?text=" + encodeURIComponent(msg), "_blank");
-      $("txt").value = "";
-      tipo = "";
-      Array.prototype.forEach.call(document.querySelectorAll("[data-tipo]"), function (x) {
-        x.classList.remove("on");
-      });
-      $("enviar").textContent = "Mandar por WhatsApp";
-      $("enviar").disabled = true;
+      /* si no se pudo guardar y va por WhatsApp, igual se manda */
+      return false;
+    }).then(function (guardado) {
+      if (porWhats) {
+        var destino = WA[cliente.avisaA === "personal" ? "personal" : "negocio"];
+        window.open("https://wa.me/" + destino + "?text=" + encodeURIComponent(msg), "_blank");
+        toast("Listo, ya lo recibimos", "bien");
+      } else if (guardado) {
+        toast("Listo, ya nos llegó. Te contestamos pronto", "bien");
+      } else {
+        toast("No se pudo mandar. Inténtalo por WhatsApp", "mal");
+      }
       enviando = false;
-      toast("Listo, ya lo recibimos", "bien");
+      $("bAqui").textContent = "Mandarlo por aquí";
+      $("bWa").textContent = "Mandarlo por WhatsApp";
+      if (guardado || porWhats) pintaPedir();
+      else revisa();
     });
   }
 
+  /* ═══ navegación ═══ */
+  var SEC = {
+    resumen: ["secResumen", "Resumen"],
+    pagos: ["secPagos", "Mis pagos"],
+    servicios: ["secServicios", "Mis servicios"],
+    pedir: ["secPedir", "Pedir algo"]
+  };
+  function abreSec(k) {
+    Object.keys(SEC).forEach(function (x) { $(SEC[x][0]).hidden = (x !== k); });
+    cada(".nav-it[data-sec]", function (b) { b.classList.toggle("on", b.dataset.sec === k); });
+    $("topTtl").textContent = SEC[k][1];
+    cierraNav();
+    window.scrollTo(0, 0);
+  }
+  function abreNav() { $("nav").classList.add("abierto"); $("navFondo").classList.add("on"); }
+  function cierraNav() { $("nav").classList.remove("abierto"); $("navFondo").classList.remove("on"); }
+
   /* ═══ arranque ═══ */
+  function pintaTodo() {
+    var nombre = cliente.negocio || cliente.persona || "Tu cuenta";
+    $("navNeg").textContent = nombre;
+    document.title = nombre + " — Tu Agente de IA";
+    pintaResumen();
+    pintaPagos();
+    pintaServicios();
+    pintaPedir();
+  }
+
   function cargar() {
     $("login").hidden = true;
     $("app").hidden = false;
-    $("cuerpo").innerHTML = '<p class="vacio">Cargando tu cuenta&hellip;</p>';
+    $("resumen").innerHTML = '<p class="vacio">Cargando tu cuenta&hellip;</p>';
 
     consulta("clientes", "uid", uid).then(function (cs) {
       if (!cs.length) {
-        $("hola").innerHTML = "<div><h1>Tu cuenta</h1><p>Ya entraste bien.</p></div>";
-        $("cuerpo").innerHTML = '<div class="blq"><p class="vacio">' +
+        $("hTtl").textContent = "Tu cuenta";
+        $("hSub").textContent = "Ya entraste bien.";
+        $("resumen").innerHTML = '<div class="blq"><p class="vacio">' +
           "Tu cuenta todavía no está ligada a tu negocio.<br>" +
           "Escríbenos y lo dejamos listo en un momento.</p></div>";
         return;
@@ -375,17 +480,25 @@
       cliente = cs[0];
       return consulta("pagos", "clienteUid", uid).then(function (ps) {
         pagos = ps;
-        pinta();
+        pintaTodo();
       }).catch(function () {
         pagos = [];
-        pinta();
+        pintaTodo();
       });
     }).catch(function (e) {
-      $("cuerpo").innerHTML = '<div class="blq"><p class="vacio">' +
+      $("resumen").innerHTML = '<div class="blq"><p class="vacio">' +
         "No pudimos leer tu cuenta ahorita. Vuelve a entrar en un momento.<br><small>" +
         esc(e.message) + "</small></p></div>";
     });
   }
+
+  cada(".nav-it[data-sec]", function (b) {
+    b.onclick = function () { abreSec(b.dataset.sec); };
+  });
+  $("ham").onclick = function () {
+    $("nav").classList.contains("abierto") ? cierraNav() : abreNav();
+  };
+  $("navFondo").onclick = cierraNav;
 
   $("entrar").onclick = function () {
     var e = $("loginErr");

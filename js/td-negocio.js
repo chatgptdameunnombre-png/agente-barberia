@@ -71,6 +71,42 @@
   function plural(n, uno, varios) { return n + " " + (n === 1 ? uno : varios); }
 
   var MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  var MESES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+    "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+
+  /* El mismo cat\u00e1logo que usa el portal del cliente (td-cliente.js).
+     Si se agrega uno aqu\u00ed, agregarlo all\u00e1 con la misma clave. */
+  var SERVICIOS = [
+    ["whatsapp", "\ud83d\udcac", "Agente de WhatsApp"],
+    ["voz", "\ud83d\udcde", "Agente de llamadas"],
+    ["web", "\ud83c\udf10", "P\u00e1gina web"],
+    ["tienda", "\ud83d\uded2", "Tienda en l\u00ednea"],
+    ["automatizacion", "\u2699\ufe0f", "Automatizaciones"],
+    ["videos", "\ud83c\udfac", "Videos con IA"],
+    ["panel", "\ud83d\udcca", "Panel de estad\u00edsticas"],
+    ["agenda", "\ud83d\udcc5", "Agenda y recordatorios"]
+  ];
+  function nombreServicio(clave) {
+    for (var i = 0; i < SERVICIOS.length; i++) {
+      if (SERVICIOS[i][0] === clave) return SERVICIOS[i][2];
+    }
+    return clave;
+  }
+  /* Acepta el formato viejo (texto libre) y el nuevo (lista de claves). */
+  function listaServicios(v) {
+    if (Array.isArray(v)) return v;
+    if (!v) return [];
+    return String(v).split(/\s*[+,\u00b7|]\s*/).filter(Boolean);
+  }
+  function serviciosTexto(v) {
+    return listaServicios(v).map(nombreServicio).join(" \u00b7 ");
+  }
+  function diaLargo(isoF) {
+    if (!isoF) return "\u2014";
+    var p = String(isoF).slice(0, 10).split("-");
+    if (p.length !== 3) return String(isoF);
+    return +p[2] + " de " + MESES_LARGO[+p[1] - 1] + " de " + p[0];
+  }
 
   function hoyMX() {
     var f = new Date().toLocaleDateString("en-CA", { timeZone: P.TZ });
@@ -140,8 +176,9 @@
   }
   function entraAlMes() {
     return activos().reduce(function (a, c) {
-      if (c.periodicidad === "mensual") return a + num(c.monto);
-      if (c.periodicidad === "anual") return a + num(c.monto) / 12;
+      var m = montoEstimado(c);
+      if (c.periodicidad === "mensual") return a + m;
+      if (c.periodicidad === "anual") return a + m / 12;
       return a;
     }, 0);
   }
@@ -172,6 +209,21 @@
   function gastosAlMes() {
     return gastos.reduce(function (a, g) { return a + gastoMensual(g); }, 0);
   }
+  /* Cuando a un cliente le cobras distinto cada mes, el estimado sale del
+     promedio de sus \u00faltimos 3 pagos. Si no tiene, cae en el monto de su ficha. */
+  function montoEstimado(c) {
+    if (!c.montoVaria) return num(c.monto);
+    var suyos = pagos.filter(function (p) {
+      return p.clienteId === c.id && p.estado !== "pendiente";
+    }).sort(function (a, b) { return String(b.fecha).localeCompare(String(a.fecha)); }).slice(0, 3);
+    if (!suyos.length) return num(c.monto);
+    return suyos.reduce(function (a, p) { return a + num(p.monto); }, 0) / suyos.length;
+  }
+  function montoTxt(c) {
+    var m = montoEstimado(c);
+    return c.montoVaria ? "~" + pesos(m) : pesos(m);
+  }
+
   function pagosDe(id) {
     return pagos.filter(function (p) { return p.clienteId === id; })
       .sort(function (a, b) { return String(b.fecha).localeCompare(String(a.fecha)); });
@@ -263,7 +315,7 @@
     }).join("");
 
     /* próximos cobros */
-    var prox = activos().filter(function (c) { return num(c.monto) > 0; }).map(function (c) {
+    var prox = activos().filter(function (c) { return montoEstimado(c) > 0; }).map(function (c) {
       var f = proximaFecha(c.diaPago, c.periodicidad || "mensual", c.inicio);
       return { c: c, f: f, q: cuando(f) };
     }).sort(function (a, b) { return a.q.d - b.q.d; });
@@ -272,7 +324,7 @@
       var cl = x.q.d < 0 ? "mal" : (x.q.d <= 3 ? "oro" : "");
       return '<div class="fila"><b>' + esc(x.c.negocio || x.c.persona || "Sin nombre") +
         ' <span class="tag ' + cl + '" style="margin-left:8px">' + esc(x.q.txt) + "</span></b>" +
-        "<span>" + esc(pesos(x.c.monto)) + " · " + esc(dia(x.f)) + "</span></div>";
+        "<span>" + esc(montoTxt(x.c)) + " · " + esc(dia(x.f)) + "</span></div>";
     }).join("") : '<p class="vacio">Da de alta un cliente con su monto y su día de pago y aquí sale cuándo toca cobrarle.</p>';
 
     /* el mes en curso: quien ya pago, quien falta y que te toco pagar */
@@ -285,14 +337,14 @@
     var filas = [], porCobrar = 0;
 
     activos().forEach(function (c) {
-      if (!num(c.monto)) return;
+      if (!montoEstimado(c)) return;
       var f = proximaFecha(c.diaPago, c.periodicidad || "mensual", c.inicio);
       var tocaEsteMes = String(f || "").slice(0, 7) === mAct || c.periodicidad === "mensual";
       if (!tocaEsteMes) return;
       var suyos = pagosMes.filter(function (p) { return p.clienteId === c.id; });
       var pagado = suyos.filter(function (p) { return p.estado !== "pendiente"; })
         .reduce(function (a, p) { return a + num(p.monto); }, 0);
-      var mensual = c.periodicidad === "mensual" ? num(c.monto) : 0;
+      var mensual = c.periodicidad === "mensual" ? montoEstimado(c) : 0;
       var falta = Math.max(mensual - pagado, 0);
       if (falta > 0) porCobrar += falta;
       filas.push({
@@ -552,10 +604,12 @@
         '<div class="cli-per">' + esc(c.persona || "") + "</div></div></div>" +
         '<div class="cli-datos">' +
         (c.telefono ? "<div><i>📱</i>" + esc(c.telefono) + "</div>" : "") +
-        (c.ubicacion ? "<div><i>📍</i>" + esc(c.ubicacion) + "</div>" : "") +
-        (c.servicios ? "<div><i>⚙️</i>" + esc(c.servicios) + "</div>" : "") +
+        (c.ubicacion ? '<div><i>📍</i><a href="' + esc(c.ubicacion) +
+          '" target="_blank" rel="noopener" data-noficha="1">Ver en Google Maps</a></div>' : "") +
+        (listaServicios(c.servicios).length
+          ? "<div><i>⚙️</i>" + esc(serviciosTexto(c.servicios)) + "</div>" : "") +
         "</div>" +
-        '<div class="cli-pie"><div class="cli-monto">' + esc(pesos(c.monto)) +
+        '<div class="cli-pie"><div class="cli-monto">' + esc(montoTxt(c)) +
         "<small>" + esc(c.periodicidad === "unico" ? "pago único" : (c.periodicidad || "mensual")) + "</small></div>" +
         '<div class="v-tags">' +
         (pausado ? '<span class="tag">pausado</span>'
@@ -565,7 +619,10 @@
     }).join("") : '<p class="vacio">Todavía no tienes clientes dados de alta.<br>Dale a <b>+ Nuevo cliente</b> y pon su negocio, su teléfono, qué le diste y cuánto te paga.</p>';
 
     cada("[data-cli]", function (el) {
-      el.onclick = function () { abreFicha(el.dataset.cli); };
+      el.onclick = function (ev) {
+        if (ev.target.closest("[data-noficha]")) return;
+        abreFicha(el.dataset.cli);
+      };
     });
   }
 
@@ -584,10 +641,14 @@
       ["Contacto", c.persona],
       ["Teléfono", c.telefono ? '<a href="https://wa.me/' + esc(String(c.telefono).replace(/\D/g, "")) + '" target="_blank" rel="noopener">' + esc(c.telefono) + " ↗</a>" : "", 1],
       ["Correo", c.correo],
-      ["Dónde está", c.ubicacion],
-      ["Instagram", c.instagram],
-      ["Qué le diste", c.servicios],
-      ["Cliente desde", c.inicio ? dia(c.inicio) : ""],
+      ["Dónde está", c.ubicacion
+        ? '<a href="' + esc(c.ubicacion) + '" target="_blank" rel="noopener">Abrir su Google Maps ↗</a>' : "", 1],
+      ["Instagram", c.instagram
+        ? '<a href="' + esc(c.instagram) + '" target="_blank" rel="noopener">' +
+          esc(String(c.instagram).replace(/^https?:\/\/(www\.)?instagram\.com\//, "@").replace(/\/$/, "")) +
+          " ↗</a>" : "", 1],
+      ["Qué le diste", serviciosTexto(c.servicios)],
+      ["Cliente desde", c.inicio ? diaLargo(c.inicio) : ""],
       ["Notas", c.notas],
       ["Su cuenta", c.uid
         ? '<span style="color:var(--green)">Ya puede entrar a tuagentedeia.com/cliente.html</span>'
@@ -605,11 +666,12 @@
       '<button class="ficha-x" id="fichaX">✕</button>' +
       '<div class="ficha-cab">' + fotoHTML(c) + "<div>" +
       "<h3>" + esc(c.negocio || c.persona || "Sin nombre") + "</h3>" +
-      "<p>" + esc(c.servicios || "Sin servicios anotados") + "</p></div></div>" +
+      "<p>" + esc(serviciosTexto(c.servicios) || "Sin servicios anotados") + "</p></div></div>" +
 
       '<div class="cards" style="margin-bottom:26px">' +
-      '<div class="card"><div class="n">' + esc(pesos(c.monto)) + '</div><div class="t">' +
-      esc(c.periodicidad === "unico" ? "pago único" : "al " + (c.periodicidad === "anual" ? "año" : "mes")) + "</div></div>" +
+      '<div class="card"><div class="n">' + esc(montoTxt(c)) + '</div><div class="t">' +
+      esc(c.periodicidad === "unico" ? "pago único" : "al " + (c.periodicidad === "anual" ? "año" : "mes")) +
+      (c.montoVaria ? " · varía" : "") + "</div></div>" +
       '<div class="card verde"><div class="n">' + esc(pesos(totalPagado(id))) + '</div><div class="t">te ha pagado</div></div>' +
       (debe ? '<div class="card roja"><div class="n">' + esc(pesos(debe)) + '</div><div class="t">te debe</div></div>' : "") +
       "</div>" +
@@ -674,11 +736,20 @@
       '<div class="f"><label>Con quién tratas</label><input id="cfPer" type="text" placeholder="Gabriel" value="' + esc(c.persona || "") + '"></div>' +
       '<div class="f"><label>WhatsApp / teléfono</label><input id="cfTel" type="text" placeholder="33 2767 4349" value="' + esc(c.telefono || "") + '"></div>' +
       '<div class="f"><label>Correo</label><input id="cfMail" type="email" value="' + esc(c.correo || "") + '"></div>' +
-      '<div class="f ancho"><label>Dónde está</label><input id="cfUbi" type="text" placeholder="Plaza Xóchitl, Zapopan" value="' + esc(c.ubicacion || "") + '"></div>' +
-      '<div class="f"><label>Instagram</label><input id="cfIg" type="text" placeholder="@is.barberisimo" value="' + esc(c.instagram || "") + '"></div>' +
+      '<div class="f ancho"><label>Link de su Google Maps</label><input id="cfUbi" type="url" inputmode="url" placeholder="https://maps.app.goo.gl/…" value="' + esc(c.ubicacion || "") + '"></div>' +
+      '<div class="f ancho"><label>Link de su Instagram</label><input id="cfIg" type="url" inputmode="url" placeholder="https://instagram.com/is.barberisimo" value="' + esc(c.instagram || "") + '"></div>' +
       '<div class="f"><label>Cliente desde</label><input id="cfIni" type="date" value="' + esc(c.inicio || h.iso) + '"></div>' +
-      '<div class="f ancho"><label>Qué le diste</label><input id="cfSrv" type="text" placeholder="Agente de voz + WhatsApp + página" value="' + esc(c.servicios || "") + '"></div>' +
-      '<div class="f"><label>Cuánto te paga</label><input id="cfMonto" type="number" min="0" step="1" value="' + esc(c.monto || "") + '"></div>' +
+      '<div class="f"><label>Cómo le cobras</label><select id="cfVaria">' +
+      '<option value="0"' + (!c.montoVaria ? " selected" : "") + ">Siempre lo mismo</option>" +
+      '<option value="1"' + (c.montoVaria ? " selected" : "") + ">Varía cada vez</option></select></div>" +
+      '<div class="f ancho"><span class="f-tit">Qué le diste</span><div class="chk-grid" id="cfSrv">' +
+      SERVICIOS.map(function (sv) {
+        var puesto = listaServicios(c.servicios).indexOf(sv[0]) !== -1;
+        return '<label class="chk' + (puesto ? " on" : "") + '"><input type="checkbox" value="' +
+          sv[0] + '"' + (puesto ? " checked" : "") + '><span class="chk-ico">' + sv[1] +
+          "</span>" + sv[2] + "</label>";
+      }).join("") + "</div></div>" +
+      '<div class="f"><label id="cfMontoLbl">Cuánto te paga</label><input id="cfMonto" type="number" min="0" step="1" value="' + esc(c.monto || "") + '"></div>' +
       '<div class="f"><label>Cada cuándo</label><select id="cfPer2">' +
       ["mensual", "anual", "unico"].map(function (x) {
         return '<option value="' + x + '"' + ((c.periodicidad || "mensual") === x ? " selected" : "") + ">" +
@@ -696,6 +767,16 @@
       "</div>" +
       '<div class="modal-acc"><button class="lnk" id="cfNo">Cancelar</button>' +
       '<button class="lnk oro" id="cfSi">' + (ed ? "Guardar cambios" : "Dar de alta") + "</button></div>");
+
+    Array.prototype.forEach.call($("cfSrv").querySelectorAll("input"), function (x) {
+      x.onchange = function () { x.closest(".chk").classList.toggle("on", x.checked); };
+    });
+    function etiquetaMonto() {
+      $("cfMontoLbl").textContent = $("cfVaria").value === "1"
+        ? "Lo que le cobras normalmente" : "Cu\u00e1nto te paga";
+    }
+    $("cfVaria").onchange = etiquetaMonto;
+    etiquetaMonto();
 
     var foto = c.foto || "";
     $("cfFoto").onchange = function () {
@@ -718,11 +799,13 @@
         correo: $("cfMail").value.trim(),
         ubicacion: $("cfUbi").value.trim(),
         instagram: $("cfIg").value.trim(),
-        servicios: $("cfSrv").value.trim(),
+        servicios: Array.prototype.map.call(
+          $("cfSrv").querySelectorAll("input:checked"), function (x) { return x.value; }),
         notas: $("cfNotas").value.trim(),
         avisaA: $("cfAvisa").value,
         uid: $("cfUid").value.trim(),
         monto: num($("cfMonto").value),
+        montoVaria: $("cfVaria").value === "1",
         periodicidad: $("cfPer2").value,
         diaPago: num($("cfDia").value),
         inicio: $("cfIni").value,

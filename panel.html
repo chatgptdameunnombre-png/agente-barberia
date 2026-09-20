@@ -229,6 +229,15 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
 .f select{cursor:pointer}
 .f-foto{display:flex;gap:16px;align-items:center}
 .f-foto .foto{width:72px;height:72px;border-radius:20px}
+.f-tit{font-size:.93rem;color:var(--dim);font-weight:500;display:block;margin-bottom:10px}
+.chk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:9px}
+.chk{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:13px;padding:13px 15px;font-size:.97rem;cursor:pointer;transition:border-color .2s,background .2s}
+.chk:hover{border-color:rgba(201,168,76,.45)}
+.chk.on{border-color:var(--gold);background:linear-gradient(140deg,rgba(201,168,76,.14),rgba(201,168,76,.03));color:var(--gold2)}
+.chk input{accent-color:var(--gold);width:17px;height:17px;flex:none;cursor:pointer}
+.chk-ico{font-size:1.1rem}
+.cli-datos a{color:var(--gold2);text-decoration:none}
+.cli-datos a:hover{text-decoration:underline}
 
 /* ═══ Modal ═══ */
 .modal-fondo{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(3px);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
