@@ -129,6 +129,20 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
 .msg-pie{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
 .msg-pie .sep{margin-left:auto}
 
+/* ═══ Lo que te piden ═══ */
+.pet{background:linear-gradient(160deg,var(--bg2),#0b0b0b);border:1px solid var(--border);border-radius:22px;padding:26px;margin-bottom:16px;transition:border-color .25s,transform .25s}
+.pet:hover{border-color:var(--border2);transform:translateY(-2px)}
+.pet.ok{opacity:.62}
+.pet-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.pet-neg{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:-.01em}
+.pet-tipo{display:inline-block;font-size:.88rem;padding:7px 15px;border-radius:99px;margin-top:7px;background:rgba(201,168,76,.13);color:var(--gold2);border:1px solid rgba(201,168,76,.3)}
+.pet-tipo.prob{background:rgba(233,117,107,.12);color:var(--red);border-color:rgba(233,117,107,.3)}
+.pet-tipo.nuevo{background:rgba(126,226,168,.1);color:var(--green);border-color:rgba(126,226,168,.3)}
+.pet-cuando{font-size:.93rem;color:var(--muted);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.pet-txt{background:var(--bg3);border:1px solid var(--border2);border-left:3px solid var(--gold);border-radius:14px;padding:20px 22px;font-size:1.06rem;line-height:1.75;color:#ddd;white-space:pre-wrap;word-break:break-word}
+.pet-pie{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.pet-pie .sep{margin-left:auto}
+
 /* ═══ Visitas ═══ */
 .v{border:1px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden;background:var(--bg2)}
 .v-h{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 22px;cursor:pointer;flex-wrap:wrap;transition:background .2s}
@@ -311,6 +325,7 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
     <span class="nav-sep">Tu negocio</span>
     <button class="nav-it" data-sec="finanzas"><span class="nav-ico">&#128176;</span>Finanzas<span class="nav-num" id="numFin" hidden>0</span></button>
     <button class="nav-it" data-sec="clientes"><span class="nav-ico">&#128100;</span>Clientes<span class="nav-num" id="numCli">0</span></button>
+    <button class="nav-it" data-sec="piden"><span class="nav-ico">&#128587;</span>Lo que te piden<span class="nav-num" id="numPide" hidden>0</span></button>
     <div class="nav-pie">
       <button class="nav-it" id="salir"><span class="nav-ico">&#8617;</span>Cerrar sesi&oacute;n</button>
     </div>
@@ -420,6 +435,18 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
       </div>
       <div id="cliAviso"></div>
       <div class="cli-grid" id="clientes"></div>
+    </section>
+
+    <section class="sec" id="secPiden" hidden>
+      <div class="head">
+        <div>
+          <h1>Lo que te piden</h1>
+          <p>Todo lo que tus clientes mandan desde su cuenta.</p>
+        </div>
+        <button class="lnk" id="btnPideTodas">Ver tambi&eacute;n las atendidas</button>
+      </div>
+      <div id="pideAviso"></div>
+      <div id="piden"></div>
     </section>
 
   </main>

@@ -1,6 +1,6 @@
 (function () {
   var P = null, listo = false;
-  var clientes = [], pagos = [], gastos = [];
+  var clientes = [], pagos = [], gastos = [], peticiones = [], verAtendidas = false;
   var cargado = { clientes: false, finanzas: false };
   var USD = 17.5;
 
@@ -196,17 +196,22 @@
 
   /* ═══════════ carga ═══════════ */
   function cargaTodo() {
-    return Promise.all([listar("clientes"), listar("pagos"), listar("gastos")])
+    return Promise.all([listar("clientes"), listar("pagos"), listar("gastos"),
+      listar("sugerencias").catch(function () { return []; })])
       .then(function (r) {
         clientes = r[0].sort(function (a, b) {
           return String(a.negocio || "").localeCompare(String(b.negocio || ""));
         });
         pagos = r[1];
         gastos = r[2];
+        peticiones = (r[3] || []).sort(function (a, b) {
+          return String(b.cuando || "").localeCompare(String(a.cuando || ""));
+        });
         cargado.clientes = true;
         cargado.finanzas = true;
-        limpiaAviso("cliAviso"); limpiaAviso("finAviso");
+        limpiaAviso("cliAviso"); limpiaAviso("finAviso"); limpiaAviso("pideAviso");
         $("numCli").textContent = clientes.length;
+        contadorPeticiones();
       });
   }
 
@@ -218,11 +223,15 @@
     cargaTodo().then(cb).catch(function (e) {
       if (String(e.message) === "reglas") {
         sinReglas = true;
-        avisoReglas("cliAviso"); avisoReglas("finAviso");
+        avisoReglas("cliAviso"); avisoReglas("finAviso"); avisoReglas("pideAviso");
         $("clientes").innerHTML = "";
         $("finCards").innerHTML = "";
+        $("piden").innerHTML = "";
         cada("[data-reintenta]", function (b) {
-          b.onclick = function () { sinReglas = false; asegura(function () { pintaClientes(); pintaFinanzas(); }); };
+          b.onclick = function () {
+            sinReglas = false;
+            asegura(function () { pintaClientes(); pintaFinanzas(); pintaPeticiones(); });
+          };
         });
       } else {
         P.toast("No se pudo leer: " + e.message, "mal");
@@ -780,12 +789,100 @@
     fr.readAsDataURL(file);
   }
 
+  /* ═══════════ LO QUE TE PIDEN ═══════════ */
+  function sinAtender() {
+    return peticiones.filter(function (x) { return !x.atendida; });
+  }
+  function contadorPeticiones() {
+    var n = sinAtender().length;
+    $("numPide").textContent = n;
+    $("numPide").hidden = !n;
+    $("numPide").className = "nav-num" + (n ? " alerta" : "");
+  }
+  function claseTipo(t) {
+    if (/problema/i.test(t)) return "prob";
+    if (/contratar/i.test(t)) return "nuevo";
+    return "";
+  }
+  function cuandoTxt(iso) {
+    if (!iso) return "\u2014";
+    var min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    if (min < 1) return "ahorita";
+    if (min < 60) return "hace " + min + " min";
+    var h = Math.round(min / 60);
+    if (h < 24) return "hace " + h + " h";
+    var d = Math.round(h / 24);
+    return d === 1 ? "ayer" : "hace " + d + " d\u00edas";
+  }
+
+  function pintaPeticiones() {
+    var lista = verAtendidas ? peticiones : sinAtender();
+    $("btnPideTodas").textContent = verAtendidas
+      ? "Ver solo las pendientes"
+      : "Ver tambi\u00e9n las atendidas";
+    contadorPeticiones();
+
+    $("piden").innerHTML = lista.length ? lista.map(function (x) {
+      var c = clientes.filter(function (y) { return y.id === x.clienteId; })[0];
+      var tel = (c && c.telefono) ? String(c.telefono).replace(/\D/g, "") : "";
+      var pie = "";
+      if (tel) {
+        pie += '<a class="lnk" href="https://wa.me/52' + esc(tel.slice(-10)) +
+          '" target="_blank" rel="noopener">Contestarle por WhatsApp \u2197</a>';
+      }
+      if (c) pie += '<button class="lnk" data-verficha="' + esc(c.id) + '">Ver su ficha</button>';
+      pie += '<button class="lnk ' + (x.atendida ? "" : "oro") + ' sep" data-atender="' + esc(x.id) +
+        '">' + (x.atendida ? "Marcar sin atender" : "Ya lo atend\u00ed") + "</button>";
+      pie += '<button class="lnk mal" data-borrapet="' + esc(x.id) + '">Borrar</button>';
+
+      return '<article class="pet' + (x.atendida ? " ok" : "") + '"><div class="pet-top"><div>' +
+        '<div class="pet-neg">' + esc(x.negocio || "Sin nombre") + "</div>" +
+        '<span class="pet-tipo ' + claseTipo(x.tipo) + '">' + esc(x.tipo || "Petici\u00f3n") + "</span>" +
+        (x.atendida ? ' <span class="tag ok">atendida</span>' : "") +
+        '</div><span class="pet-cuando">' + esc(cuandoTxt(x.cuando)) + "</span></div>" +
+        '<div class="pet-txt">' + esc(x.texto || "") + "</div>" +
+        '<div class="pet-pie">' + pie + "</div></article>";
+    }).join("") : '<p class="vacio">' + (verAtendidas
+      ? "Todav\u00eda nadie te ha pedido nada desde su cuenta."
+      : "Nada pendiente. Todo lo que te han pedido ya lo atendiste.") + "</p>";
+
+    cada("[data-atender]", function (b) {
+      b.onclick = function () {
+        var x = peticiones.filter(function (y) { return y.id === b.dataset.atender; })[0];
+        if (!x) return;
+        var nuevo = !x.atendida;
+        actualizar("sugerencias", x.id, { atendida: nuevo }).then(function () {
+          x.atendida = nuevo;
+          P.toast(nuevo ? "Marcada como atendida" : "De vuelta a pendientes", "bien");
+          pintaPeticiones();
+        }).catch(function (e) { P.toast("No se pudo: " + e.message, "mal"); });
+      };
+    });
+    cada("[data-borrapet]", function (b) {
+      b.onclick = function () {
+        P.confirmar("Borrar esta petici\u00f3n",
+          "Se borra de tu panel. El cliente no se entera.", "S\u00ed, borrar").then(function (ok) {
+            if (!ok) return;
+            borrar("sugerencias", b.dataset.borrapet).then(function () {
+              peticiones = peticiones.filter(function (y) { return y.id !== b.dataset.borrapet; });
+              P.toast("Borrada", "bien");
+              pintaPeticiones();
+            }).catch(function (e) { P.toast("No se pudo: " + e.message, "mal"); });
+          });
+      };
+    });
+    cada("[data-verficha]", function (b) {
+      b.onclick = function () { abreFicha(b.dataset.verficha); };
+    });
+  }
+
   /* ═══════════ arranque ═══════════ */
   window.TDN = {
     abre: function (k) {
       if (!listo) return;
       asegura(function () {
         if (k === "clientes") pintaClientes();
+        else if (k === "piden") pintaPeticiones();
         else pintaFinanzas();
       });
     }
@@ -797,7 +894,8 @@
     $("btnCliNuevo").onclick = function () { formCliente(null); };
     $("btnPagoNuevo").onclick = function () { formPago(null); };
     $("btnGastoNuevo").onclick = function () { formGasto(null); };
-    asegura(function () { pintaClientes(); pintaFinanzas(); });
+    $("btnPideTodas").onclick = function () { verAtendidas = !verAtendidas; pintaPeticiones(); };
+    asegura(function () { pintaClientes(); pintaFinanzas(); pintaPeticiones(); });
   }
 
   if (window.TDP) window.TDP.listo(init);

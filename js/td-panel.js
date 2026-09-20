@@ -509,7 +509,8 @@
     mensajes: ["secMensajes", "Mensajes"],
     visitas: ["secVisitas", "Visitas"],
     finanzas: ["secFinanzas", "Finanzas"],
-    clientes: ["secClientes", "Clientes"]
+    clientes: ["secClientes", "Clientes"],
+    piden: ["secPiden", "Lo que te piden"]
   };
   function abreSec(k) {
     Object.keys(SEC).forEach(function (x) { $(SEC[x][0]).hidden = (x !== k); });
@@ -519,7 +520,7 @@
     $("topTtl").textContent = SEC[k][1];
     cierraNav();
     window.scrollTo(0, 0);
-    if (window.TDN && (k === "finanzas" || k === "clientes")) window.TDN.abre(k);
+    if (window.TDN && (k === "finanzas" || k === "clientes" || k === "piden")) window.TDN.abre(k);
   }
   function abreNav() { $("nav").classList.add("abierto"); $("navFondo").classList.add("on"); }
   function cierraNav() { $("nav").classList.remove("abierto"); $("navFondo").classList.remove("on"); }
