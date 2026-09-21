@@ -60,6 +60,7 @@ button,input,select,textarea{font-family:inherit}
 .nav-ico{font-size:1.15rem;width:24px;text-align:center;flex:none}
 .nav-num{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.82rem;background:var(--bg4);border-radius:99px;padding:3px 10px;color:var(--dim)}
 .nav-num.alerta{background:rgba(232,180,92,.16);color:var(--amber)}
+.nav-pie{margin-top:auto;padding-top:14px;border-top:1px solid var(--border)}
 .nav-fondo{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:34;display:none}
 
 /* ═══ Contenido ═══ */
@@ -234,7 +235,7 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
     <div class="top-in">
       <button class="ham" id="ham" aria-label="Men&uacute;"><span></span><span></span><span></span></button>
       <span class="top-ttl" id="topTtl">Resumen</span>
-      <button class="salir" id="salir">Salir</button>
+      <button class="salir" id="salir">Cerrar sesi&oacute;n</button>
     </div>
   </header>
 
@@ -247,6 +248,9 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
     <button class="nav-it" data-sec="pagos"><span class="nav-ico">&#128179;</span>Mis pagos<span class="nav-num" id="numPend" hidden>0</span></button>
     <button class="nav-it" data-sec="servicios"><span class="nav-ico">&#9881;&#65039;</span>Mis servicios</button>
     <button class="nav-it" data-sec="pedir"><span class="nav-ico">&#128172;</span>Pedir algo</button>
+    <div class="nav-pie">
+      <button class="nav-it" id="salirNav"><span class="nav-ico">&#8617;</span>Cerrar sesi&oacute;n</button>
+    </div>
   </aside>
   <div class="nav-fondo" id="navFondo"></div>
 

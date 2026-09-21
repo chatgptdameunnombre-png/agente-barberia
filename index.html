@@ -638,10 +638,15 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
     <a href="#wa-demo" style="font-size:13px;color:#999;text-decoration:none;display:none" class="nav-link">WhatsApp</a>
     <a href="#llamadas" style="font-size:13px;color:#999;text-decoration:none;display:none" class="nav-link">Llamadas</a>
     <a href="#contacto" style="font-size:13px;font-weight:600;color:#0a0a0a;background:var(--gold);padding:6px 16px;border-radius:99px;text-decoration:none">Agenda prueba</a>
+    <a href="/cliente.html" class="nav-entrar" aria-label="Iniciar sesi&oacute;n para clientes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="ne-l">Iniciar sesi&oacute;n</span><span class="ne-c">Entrar</span></a>
   </div>
 </nav>
 <style>@media(min-width:600px){.nav-link{display:block!important}}
 #site-nav.nav-hidden{transform:translateY(-100%);opacity:0;pointer-events:none}
+.nav-entrar{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--gold2,#dfc06a);border:1px solid rgba(201,168,76,.45);padding:5px 14px;border-radius:99px;text-decoration:none;transition:background .2s,border-color .2s}
+.nav-entrar:hover{background:rgba(201,168,76,.12);border-color:var(--gold)}
+.nav-entrar .ne-c{display:none}
+@media(max-width:420px){.nav-entrar .ne-l{display:none}.nav-entrar .ne-c{display:inline}#site-nav>div{gap:10px!important}}
 
 /* ═══ Demo de llamada ═══ */
 .call-demo-wrap{margin-top:80px;padding-top:60px;border-top:1px solid rgba(201,168,76,0.15);position:relative}
