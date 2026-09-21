@@ -845,7 +845,8 @@
 
       '<p class="fpie">' + (!c.uid ? "⚪ Todavía sin cuenta"
         : c.claveCambiada ? "✅ Ya entró y tiene su propia contraseña"
-          : "🟡 Tiene cuenta, pero sigue con la contraseña temporal") +
+          : c.claveFecha ? "🟢 Entró y se quedó con la contraseña que le diste"
+            : "🟡 Tiene cuenta, pero todavía no entra") +
       " · sus mensajes te llegan " + (c.avisaA === "personal" ? "a tu WhatsApp personal" : "al del negocio") + "</p>" +
 
       '<div class="ficha-acc">' +

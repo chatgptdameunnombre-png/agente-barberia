@@ -81,6 +81,9 @@ a.nav-it{text-decoration:none}
 .clave .btn{margin-top:6px}
 .clave-salir{display:none;width:100%;margin-top:12px;background:none;border:none;color:var(--muted);font-size:.92rem;cursor:pointer;text-decoration:underline}
 .clave.forzada .clave-salir{display:block}
+.clave-quedo{display:none;width:100%;margin-top:10px;background:none;border:1px solid var(--border2);border-radius:99px;padding:14px;color:var(--text);font-size:.97rem;font-weight:600;cursor:pointer}
+.clave-quedo:hover{border-color:var(--gold);color:var(--gold2)}
+.clave.forzada .clave-quedo{display:block}
 .clave .btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
 .nav-pie{margin-top:auto;padding-top:14px;border-top:1px solid var(--border)}
 .nav-fondo{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:34;display:none}
@@ -317,7 +320,7 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
   <div class="clave" role="dialog" aria-modal="true" aria-labelledby="claveTtl">
     <button class="clave-x" id="claveX" aria-label="Cerrar">&#10005;</button>
     <h2 id="claveTtl">Elige tu contrase&ntilde;a</h2>
-    <p class="clave-sub" id="claveSub">La que te dimos es temporal. Pon una que solo t&uacute; sepas.</p>
+    <p class="clave-sub" id="claveSub">Puedes poner una que solo t&uacute; sepas o seguir con la que te dimos.</p>
     <label class="clave-l" for="claveAct">Contrase&ntilde;a que te dimos</label>
     <input class="in" id="claveAct" type="password" autocomplete="current-password">
     <label class="clave-l" for="claveNueva">Tu contrase&ntilde;a nueva</label>
@@ -331,6 +334,7 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
     <input class="in" id="claveOtra" type="password" autocomplete="new-password">
     <p class="err" id="claveErr" hidden></p>
     <button class="btn" id="claveGuardar" disabled>Guardar mi contrase&ntilde;a</button>
+    <button class="clave-quedo" id="claveQuedo">Seguir con la que me dieron</button>
     <button class="clave-salir" id="claveSalir">Salir por ahora</button>
   </div>
 </div>

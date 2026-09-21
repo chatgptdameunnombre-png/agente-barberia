@@ -110,7 +110,7 @@
     caja.classList.toggle("forzada", claveForzada);
     $("claveTtl").textContent = claveForzada ? "Elige tu contraseña" : "Cambiar contraseña";
     $("claveSub").textContent = claveForzada
-      ? "La que te dimos es temporal. Pon una que solo tú sepas."
+      ? "Puedes poner una que solo tú sepas o seguir con la que te dimos."
       : "Pon la que usas hoy y luego la nueva.";
     document.querySelector('label[for="claveAct"]').textContent =
       claveForzada ? "Contraseña que te dimos" : "Tu contraseña de hoy";
@@ -186,11 +186,29 @@
     });
   }
 
-  /* Le deja dicho a Kiki en la ficha que el cliente ya tiene su propia
-     contraseña. Si la regla de Firebase aún no lo permite, no pasa nada. */
-  function avisaCambio() {
+  /* Si decide seguir con la que le dimos, ya no se le vuelve a pedir.
+     Se guarda en su ficha (claveCambiada=false con fecha) y en su navegador
+     por si la regla de Firebase todavía no deja escribir. */
+  function quedaConTemporal() {
+    try { localStorage.setItem("td_cli_quedo_" + uid, "1"); } catch (e) { }
+    avisaCambio(false);
+    claveForzada = false;
+    $("claveFondo").hidden = true;
+    toast("Listo, sigues con la que te dimos", "bien");
+  }
+  function yaDecidio() {
+    try { if (localStorage.getItem("td_cli_quedo_" + uid)) return true; } catch (e) { }
+    return !!(cliente && cliente.claveFecha);
+  }
+
+  /* Le deja dicho a Kiki en la ficha si el cliente ya tiene su propia
+     contraseña o decidió quedarse con la temporal. */
+  function avisaCambio(cambio) {
     if (!cliente) return;
-    var f = { claveCambiada: { booleanValue: true }, claveFecha: { stringValue: new Date().toISOString() } };
+    if (cambio === undefined) cambio = true;
+    cliente.claveCambiada = cambio;
+    cliente.claveFecha = new Date().toISOString();
+    var f = { claveCambiada: { booleanValue: cambio }, claveFecha: { stringValue: cliente.claveFecha } };
     fetch(FS + "/clientes/" + cliente.id +
       "?updateMask.fieldPaths=claveCambiada&updateMask.fieldPaths=claveFecha", {
       method: "PATCH",
@@ -678,7 +696,7 @@
       cliente = cs[0];
       miCuenta().then(function (u) {
         if (u.email) correo = u.email;
-        if (esTemporal(u)) abreClave(true);
+        if (esTemporal(u)) { if (!yaDecidio()) abreClave(true); }
         else if (!cliente.claveCambiada) avisaCambio();
       }).catch(function () { });
       return consulta("pagos", "clienteUid", uid).then(function (ps) {
@@ -734,6 +752,7 @@
   });
   $("claveGuardar").onclick = guardaClave;
   $("claveSalir").onclick = cerrarSesion;
+  $("claveQuedo").onclick = quedaConTemporal;
 
   refrescar().then(cargar).catch(function () { });
 })();
