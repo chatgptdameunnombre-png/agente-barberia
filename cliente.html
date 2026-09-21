@@ -79,11 +79,6 @@ a.nav-it{text-decoration:none}
 .clave-reglas li.ok{color:var(--green);border-color:rgba(126,226,168,.35);background:rgba(126,226,168,.08)}
 .clave-reglas li.ok::before{content:"\2713  "}
 .clave .btn{margin-top:6px}
-.clave-salir{display:none;width:100%;margin-top:12px;background:none;border:none;color:var(--muted);font-size:.92rem;cursor:pointer;text-decoration:underline}
-.clave.forzada .clave-salir{display:block}
-.clave-quedo{display:none;width:100%;margin-top:10px;background:none;border:1px solid var(--border2);border-radius:99px;padding:14px;color:var(--text);font-size:.97rem;font-weight:600;cursor:pointer}
-.clave-quedo:hover{border-color:var(--gold);color:var(--gold2)}
-.clave.forzada .clave-quedo{display:block}
 .clave .btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
 .nav-pie{margin-top:auto;padding-top:14px;border-top:1px solid var(--border)}
 .nav-fondo{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:34;display:none}
@@ -334,8 +329,6 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
     <input class="in" id="claveOtra" type="password" autocomplete="new-password">
     <p class="err" id="claveErr" hidden></p>
     <button class="btn" id="claveGuardar" disabled>Guardar mi contrase&ntilde;a</button>
-    <button class="clave-quedo" id="claveQuedo">Seguir con la que me dieron</button>
-    <button class="clave-salir" id="claveSalir">Salir por ahora</button>
   </div>
 </div>
 
