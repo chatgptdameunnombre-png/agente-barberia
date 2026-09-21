@@ -10,9 +10,11 @@
     ".lt .cuerpo{transform-origin:60px 60px;transition:transform .5s cubic-bezier(.2,.8,.2,1)}" +
     ".lt .ojos{transition:transform .25s cubic-bezier(.2,.8,.2,1)}" +
     ".lt .ojo{transform-origin:center;transform-box:fill-box;animation:lt-parpadeo 5s infinite}" +
-    ".lt .manos{opacity:0;transform:translateY(16px);transition:opacity .25s,transform .3s cubic-bezier(.2,.8,.2,1)}" +
-    ".lt.tapa .manos{opacity:1;transform:none}" +
-    ".lt.tapa .ojos{opacity:0}" +
+    ".lt .cara{transition:opacity .12s .2s}" +
+    ".lt.tapa .cuerpo,.lt.regresa .cuerpo{animation:lt-voltea .45s cubic-bezier(.4,0,.2,1)}" +
+    ".lt.tapa .cara{opacity:0}" +
+    ".lt .espalda{opacity:0;transition:opacity .12s .2s}" +
+    ".lt.tapa .espalda{opacity:1}" +
     ".lt .feliz{display:none}" +
     ".lt.ok .feliz{display:block}.lt.ok .ojos{display:none}" +
     ".lt.pensando .cuerpo{animation:lt-gira 1.1s cubic-bezier(.5,.1,.5,.9) infinite}" +
@@ -21,6 +23,7 @@
     "@keyframes lt-flota{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}" +
     "@keyframes lt-parpadeo{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}" +
     "@keyframes lt-gira{to{transform:rotate(360deg)}}" +
+    "@keyframes lt-voltea{0%{transform:scaleX(1)}50%{transform:scaleX(.06)}100%{transform:scaleX(1)}}" +
     "@keyframes lt-no{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}" +
     "@media (prefers-reduced-motion:reduce){.lt svg,.lt .ojo,.lt.pensando .cuerpo{animation:none}}";
   var st = document.createElement("style");
@@ -39,13 +42,12 @@
     '<circle r="2.8" fill="#fff1c4"><animateMotion dur="4.5s" repeatCount="indefinite" ' +
     'path="M114,60 A54,20 0 1,1 6,60 A54,20 0 1,1 114,60"/></circle>' +
     '<g class="cuerpo"><circle cx="60" cy="60" r="34" fill="url(#ltOro)" filter="url(#ltBrillo)"/>' +
-    '<circle cx="49" cy="48" r="6" fill="#fff8e2" opacity=".34"/>' +
+    '<g class="cara"><circle cx="49" cy="48" r="6" fill="#fff8e2" opacity=".34"/>' +
     '<g class="ojos"><rect class="ojo" x="45" y="52" width="9" height="18" rx="4.5" fill="#0a0a0a"/>' +
     '<rect class="ojo" x="66" y="52" width="9" height="18" rx="4.5" fill="#0a0a0a"/></g>' +
     '<g class="feliz" fill="none" stroke="#0a0a0a" stroke-width="5" stroke-linecap="round">' +
-    '<path d="M44 62 q5 -8 10 0"/><path d="M66 62 q5 -8 10 0"/></g>' +
-    '<g class="manos" fill="#c9a84c" stroke="#0a0a0a" stroke-width="1.5">' +
-    '<ellipse cx="50" cy="60" rx="12" ry="9"/><ellipse cx="70" cy="60" rx="12" ry="9"/></g></g></svg>';
+    '<path d="M44 62 q5 -8 10 0"/><path d="M66 62 q5 -8 10 0"/></g></g>' +
+    '<g class="espalda"><circle cx="71" cy="48" r="6" fill="#fff8e2" opacity=".34"/></g></g></svg>';
 
   var zona = document.createElement("div");
   zona.className = "lt";
@@ -76,22 +78,32 @@
   });
 
   if (mail) {
-    mail.addEventListener("focus", function () { zona.classList.remove("tapa"); di("Escribe tu correo."); mira(0, 5); });
+    mail.addEventListener("focus", function () { di("Escribe tu correo."); mira(0, 5); });
     mail.addEventListener("input", function () {
       var n = Math.min(mail.value.length, 28);
       mira(-5 + n * 0.36, 5);
     });
   }
   if (pass) {
-    pass.addEventListener("focus", function () { zona.classList.add("tapa"); di("No veo nada, lo prometo."); });
-    pass.addEventListener("blur", function () { zona.classList.remove("tapa"); });
+    pass.addEventListener("focus", function () {
+      zona.classList.remove("regresa");
+      zona.classList.add("tapa");
+      di("Me volteo, no veo nada.");
+    });
+    pass.addEventListener("blur", function () {
+      if (!zona.classList.contains("tapa")) return;
+      zona.classList.remove("tapa");
+      void zona.offsetWidth;
+      zona.classList.add("regresa");
+      setTimeout(function () { zona.classList.remove("regresa"); }, 460);
+    });
   }
 
   /* mientras entra: da vueltas; si falla, dice que no; si entra, sonríe */
   if (btn) {
     btn.addEventListener("click", function () {
       if (!mail || !pass || !mail.value.trim() || !pass.value) return;
-      zona.classList.remove("tapa", "mal", "ok");
+      zona.classList.remove("tapa", "regresa", "mal", "ok");
       zona.classList.add("pensando");
       di("Déjame ver…");
       var t0 = Date.now();
