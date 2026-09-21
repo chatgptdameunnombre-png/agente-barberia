@@ -1,6 +1,6 @@
 (function () {
   var P = null, listo = false;
-  var clientes = [], pagos = [], gastos = [], peticiones = [], prospectos = [], verAtendidas = false;
+  var clientes = [], pagos = [], gastos = [], egresos = [], peticiones = [], prospectos = [], verAtendidas = false;
   var cargado = { clientes: false, finanzas: false };
   var USD = 17.5;
 
@@ -212,7 +212,24 @@
     return 0;
   }
   function gastosAlMes() {
-    return gastos.reduce(function (a, g) { return a + gastoMensual(g); }, 0);
+    var puestos = gastos.reduce(function (a, g) { return a + gastoMensual(g); }, 0);
+    if (puestos) return puestos;
+    return promedioEgresos();
+  }
+  /* Promedio de los ultimos 3 meses con movimiento, para cuando todavia no
+     se han dado de alta los gastos recurrentes a mano. */
+  function promedioEgresos() {
+    var porMes = {};
+    egresos.forEach(function (e) {
+      var m = String(e.fecha || "").slice(0, 7);
+      if (m) porMes[m] = (porMes[m] || 0) + num(e.monto);
+    });
+    var meses = Object.keys(porMes).sort().slice(-3);
+    if (!meses.length) return 0;
+    return meses.reduce(function (a, m) { return a + porMes[m]; }, 0) / meses.length;
+  }
+  function gastoEsCalculado() {
+    return !gastos.reduce(function (a, g) { return a + gastoMensual(g); }, 0) && egresos.length > 0;
   }
   /* Cuando a un cliente le cobras distinto cada mes, el estimado sale del
      promedio de sus \u00faltimos 3 pagos. Si no tiene, cae en el monto de su ficha. */
@@ -229,6 +246,19 @@
   function montoTxt(c) {
     var m = montoEstimado(c);
     return c.montoVaria ? "~" + pesos(m) : pesos(m);
+  }
+
+  /* Lo que te ha costado un cliente: sus egresos propios.
+     Las herramientas de todos (Claude, n8n) NO se le cargan a nadie. */
+  function gastadoEn(id) {
+    return egresos.reduce(function (a, e) {
+      return e.clienteId === id ? a + num(e.monto) : a;
+    }, 0);
+  }
+  function gastoHerramientas() {
+    return egresos.reduce(function (a, e) {
+      return e.clienteId ? a : a + num(e.monto);
+    }, 0);
   }
 
   function pagosDe(id) {
@@ -288,7 +318,8 @@
   function cargaTodo() {
     return Promise.all([listar("clientes"), listar("pagos"), listar("gastos"),
       listar("sugerencias").catch(function () { return []; }),
-      listar("prospectos").catch(function () { return []; })])
+      listar("prospectos").catch(function () { return []; }),
+      listar("egresos").catch(function () { return []; })])
       .then(function (r) {
         clientes = r[0].sort(function (a, b) {
           return String(a.negocio || "").localeCompare(String(b.negocio || ""));
@@ -302,6 +333,7 @@
           return String(a.nombre || "").localeCompare(String(b.nombre || ""));
         });
         $("numPros").textContent = prospectos.length;
+        egresos = r[5] || [];
         cargado.clientes = true;
         cargado.finanzas = true;
         limpiaAviso("cliAviso"); limpiaAviso("finAviso"); limpiaAviso("pideAviso");
@@ -352,7 +384,9 @@
       ["", pesos(entra), "Entra al mes", plural(activos().length, "cliente activo", "clientes activos")],
       ["verde", pesos(cobrado), "Cobrado este mes", "lo que ya te pagaron"],
       ["roja", pesos(deben), "Te deben", plural(pagos.filter(function (p) { return p.estado === "pendiente"; }).length, "pago pendiente", "pagos pendientes")],
-      ["azul", pesos(gm), "Tus gastos al mes", plural(gastos.filter(function (g) { return g.activo; }).length, "gasto activo", "gastos activos")],
+      ["azul", pesos(gm), "Tus gastos al mes", gastoEsCalculado()
+        ? "promedio de lo que gastas"
+        : plural(gastos.filter(function (g) { return g.activo; }).length, "gasto activo", "gastos activos")],
       [limpio >= 0 ? "verde" : "roja", pesos(limpio), "Te queda limpio", "entra menos gastos"]
     ].map(function (c) {
       return '<div class="card ' + c[0] + '"><div class="n">' + esc(c[1]) + '</div><div class="t">' +
@@ -386,7 +420,9 @@
       var f = proximaFecha(c.diaPago, c.periodicidad || "mensual", c.inicio);
       var tocaEsteMes = String(f || "").slice(0, 7) === mAct || c.periodicidad === "mensual";
       if (!tocaEsteMes) return;
-      var suyos = pagosMes.filter(function (p) { return p.clienteId === c.id; });
+      var suyos = pagosMes.filter(function (p) {
+        return p.clienteId === c.id && p.tipo !== "unico";
+      });
       var pagado = suyos.filter(function (p) { return p.estado !== "pendiente"; })
         .reduce(function (a, p) { return a + num(p.monto); }, 0);
       var mensual = c.periodicidad === "mensual" ? montoEstimado(c) : 0;
@@ -401,10 +437,14 @@
 
     var cobradoMes = pagosMes.filter(function (p) { return p.estado !== "pendiente"; })
       .reduce(function (a, p) { return a + num(p.monto); }, 0);
-    var gastosPagados = gastos.filter(function (g) {
-      return g.activo && (g.periodicidad || "mensual") === "mensual" && num(g.dia) <= h.d;
-    });
-    var gastoYa = gastosPagados.reduce(function (a, g) { return a + gastoMensual(g); }, 0);
+    var gastoYa = egresos.reduce(function (a, e) {
+      return String(e.fecha || "").slice(0, 7) === mAct ? a + num(e.monto) : a;
+    }, 0);
+    if (!gastoYa) {
+      gastoYa = gastos.filter(function (g) {
+        return g.activo && (g.periodicidad || "mensual") === "mensual" && num(g.dia) <= h.d;
+      }).reduce(function (a, g) { return a + gastoMensual(g); }, 0);
+    }
 
     $("finMesTot").textContent = pesos(cobradoMes) + " cobrado" +
       (porCobrar ? " \u00b7 faltan " + pesos(porCobrar) : "");
@@ -421,6 +461,60 @@
       esc(pesos(porCobrar)) + "</span></div>" +
       '<div class="fila"><b>Lo que t\u00fa ya pagaste este mes</b><span style="color:var(--blue)">' +
       esc(pesos(gastoYa)) + "</span></div>";
+
+    /* lo que deja cada cliente */
+    var filasMg = clientes.map(function (c) {
+      var cob = totalPagado(c.id), gas = gastadoEn(c.id);
+      return { nom: c.negocio || c.persona || "Sin nombre", cob: cob, gas: gas, deja: cob - gas };
+    }).sort(function (a, b) { return b.deja - a.deja; });
+
+    var totCob = filasMg.reduce(function (a, x) { return a + x.cob; }, 0);
+    var totGas = filasMg.reduce(function (a, x) { return a + x.gas; }, 0);
+    var herr = gastoHerramientas();
+    var dejan = totCob - totGas;
+
+    $("finMargenTot").textContent = "dejan " + pesos(dejan);
+    $("finMargen").innerHTML = filasMg.length
+      ? '<div class="mg mg-cab"><b>Cliente</b><span>Te cobr\u00f3</span><span>Te cost\u00f3</span><span>Te deja</span></div>' +
+        filasMg.map(function (x) {
+          return '<div class="mg"><b>' + esc(x.nom) + "</b>" +
+            '<span class="v" data-et="te cobr\u00f3">' + esc(pesos(x.cob)) + "</span>" +
+            '<span class="a" data-et="te cost\u00f3">' + esc(pesos(x.gas)) + "</span>" +
+            '<span class="' + (x.deja >= 0 ? "v" : "r") + '" data-et="te deja">' +
+            esc(pesos(x.deja)) + "</span></div>";
+        }).join("") +
+        '<div class="mg mg-tot"><b>Entre todos</b>' +
+        '<span class="v" data-et="te cobraron">' + esc(pesos(totCob)) + "</span>" +
+        '<span class="a" data-et="costaron">' + esc(pesos(totGas)) + "</span>" +
+        '<span class="' + (dejan >= 0 ? "v" : "r") + '" data-et="dejan">' + esc(pesos(dejan)) + "</span></div>"
+      : '<p class="vacio">Cuando registres pagos y gastos, aqu\u00ed ves qu\u00e9 te deja cada quien.</p>';
+
+    /* herramientas de la agencia */
+    var porHerr = {};
+    egresos.forEach(function (e) {
+      if (e.clienteId) return;
+      var limpio = String(e.concepto || "Otro").replace(/\s*\d+\s*%\s*$/i, "").trim();
+      var k = limpio.toLowerCase();
+      if (!porHerr[k]) porHerr[k] = { nom: limpio.charAt(0).toUpperCase() + limpio.slice(1), t: 0 };
+      porHerr[k].t += num(e.monto);
+    });
+    var listaHerr = Object.keys(porHerr).map(function (k) { return [porHerr[k].nom, porHerr[k].t]; })
+      .sort(function (a, b) { return b[1] - a[1]; });
+
+    $("finHerrTot").textContent = pesos(herr) + " en total";
+    $("finHerr").innerHTML = (listaHerr.length
+      ? listaHerr.map(function (x) {
+          return '<div class="fila"><b>' + esc(x[0]) + '</b><span style="color:var(--blue)">' +
+            esc(pesos(x[1])) + "</span></div>";
+        }).join("")
+      : '<p class="vacio">Todav\u00eda no tienes gastos de herramientas registrados.</p>') +
+      (herr ? '<div class="equil">Tus herramientas te han costado <b>' + esc(pesos(herr)) +
+        "</b> y tus clientes te dejan <b>" + esc(pesos(dejan)) + "</b>. " +
+        (dejan >= herr
+          ? "Ya las cubres."
+          : "Te faltan <b>" + esc(pesos(herr - dejan)) + "</b> para cubrirlas" +
+            (entra > 0 ? ", como <b>" + Math.ceil((herr - dejan) / entra) +
+              "</b> meses de lo que entra hoy" : "") + ".") + "</div>" : "");
 
     /* te deben */
     var pend = pagos.filter(function (p) { return p.estado === "pendiente"; })
@@ -738,6 +832,15 @@
       (num(c.montoInicial) ? '<div class="card"><div class="n">' + esc(pesos(c.montoInicial)) +
         '</div><div class="t">cobro de entrada</div></div>' : "") +
       '<div class="card verde"><div class="n">' + esc(pesos(totalPagado(id))) + '</div><div class="t">te ha pagado</div></div>' +
+      (function () {
+        var g = gastadoEn(id);
+        if (!g && !totalPagado(id)) return "";
+        var deja = totalPagado(id) - g;
+        return '<div class="card azul"><div class="n">' + esc(pesos(g)) +
+          '</div><div class="t">te ha costado</div></div>' +
+          '<div class="card ' + (deja >= 0 ? "verde" : "roja") + '"><div class="n">' +
+          esc(pesos(deja)) + '</div><div class="t">te deja</div></div>';
+      })() +
       (debe ? '<div class="card roja"><div class="n">' + esc(pesos(debe)) + '</div><div class="t">te debe</div></div>' : "") +
       "</div>" +
 

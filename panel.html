@@ -262,6 +262,21 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
 .tl-it.pend .tl-monto{color:var(--amber)}
 .tl-it.inicial .tl-monto{color:var(--gold2)}
 .tl-pie{font-size:.9rem;color:var(--muted);margin-top:4px}
+.mg{display:grid;grid-template-columns:1.4fr repeat(3,minmax(90px,.7fr));gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid var(--border);font-size:1.02rem}
+.mg:last-of-type{border-bottom:none}
+.mg-cab{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border2);padding-bottom:10px}
+.mg span{font-family:'JetBrains Mono',monospace;text-align:right;white-space:nowrap}
+.mg .v{color:var(--green)}.mg .r{color:var(--red)}.mg .a{color:var(--blue)}
+.mg b{font-weight:500}
+.mg-tot{border-top:1px solid var(--border2);margin-top:6px;padding-top:16px;font-weight:600}
+.equil{margin-top:18px;padding:18px 20px;border-radius:16px;background:var(--bg3);border:1px solid var(--border2);font-size:1.02rem;line-height:1.6}
+.equil b{color:var(--gold2)}
+@media(max-width:700px){
+  .mg{grid-template-columns:1fr 1fr;gap:6px 12px}
+  .mg-cab{display:none}
+  .mg span::before{content:attr(data-et) " ";font-family:'Instrument Sans',sans-serif;font-size:.82rem;color:var(--muted);letter-spacing:0}
+  .mg span{text-align:left}
+}
 .det-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:13px;margin-top:14px}
 .det-grid .f label{font-size:.88rem}
 .cli-datos a:hover{text-decoration:underline}
@@ -444,6 +459,20 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:600;lette
           <span class="tag" id="finMesTot"></span>
         </div>
         <div id="finMesLista"></div>
+      </div>
+      <div class="blq">
+        <div class="blq-top">
+          <h2>Lo que te deja cada cliente</h2>
+          <span class="tag" id="finMargenTot"></span>
+        </div>
+        <div id="finMargen"></div>
+      </div>
+      <div class="blq">
+        <div class="blq-top">
+          <h2>Tus herramientas</h2>
+          <span class="tag" id="finHerrTot"></span>
+        </div>
+        <div id="finHerr"></div>
       </div>
       <div class="blq">
         <div class="blq-top">
