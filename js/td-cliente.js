@@ -363,10 +363,8 @@
 
   function pintaPagos() {
     var h = hechos(), ps = pendientes();
-    var total = h.reduce(function (a, p) { return a + num(p.monto); }, 0);
+    /* Al cliente nunca se le suma lo que lleva pagado: si lo quiere, lo saca él. */
     $("pagos").innerHTML = atraso() + '<div class="blq"><h2>Tu línea de pagos</h2>' + lineaTiempo(h) +
-      (h.length ? '<p class="total">Llevas <b>' + esc(pesos(total)) + "</b> pagados en " + h.length +
-        (h.length === 1 ? " pago." : " pagos.") + "</p>" : "") +
       "</div>";
 
     $("numPend").textContent = ps.length;
