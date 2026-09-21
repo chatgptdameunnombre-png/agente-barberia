@@ -541,7 +541,13 @@
     pintaPedir();
   }
 
+  function volver(ver) {
+    var v = document.querySelector(".volver");
+    if (v) v.style.display = ver ? "" : "none";
+  }
+
   function cargar() {
+    volver(false);
     $("login").hidden = true;
     $("app").hidden = false;
     $("resumen").innerHTML = '<p class="vacio">Cargando tu cuenta&hellip;</p>';
@@ -595,6 +601,7 @@
     $("pass").value = "";
     $("app").hidden = true;
     $("login").hidden = false;
+    volver(true);
     window.scrollTo(0, 0);
   }
   $("salirNav").onclick = cerrarSesion;

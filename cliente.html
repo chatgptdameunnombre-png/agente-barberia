@@ -60,6 +60,11 @@ button,input,select,textarea{font-family:inherit}
 .nav-ico{font-size:1.15rem;width:24px;text-align:center;flex:none}
 .nav-num{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.82rem;background:var(--bg4);border-radius:99px;padding:3px 10px;color:var(--dim)}
 .nav-num.alerta{background:rgba(232,180,92,.16);color:var(--amber)}
+.volver{display:inline-flex;align-items:center;gap:6px;position:absolute;top:24px;left:26px;color:var(--dim);text-decoration:none;font-size:.95rem;padding:9px 16px;border:1px solid var(--border2);border-radius:99px;transition:border-color .2s,color .2s}
+.volver:hover{border-color:var(--gold);color:var(--gold2)}
+body:has(#app:not([hidden])) .volver{display:none}
+a.nav-it{text-decoration:none}
+@media(max-width:620px){.volver{position:static;display:flex;width:max-content;margin:18px 16px 0}}
 .nav-pie{margin-top:auto;padding-top:14px;border-top:1px solid var(--border)}
 .nav-fondo{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:34;display:none}
 
@@ -219,6 +224,7 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
 </head>
 <body>
 
+<a class="volver" href="/">&larr; Volver a tuagentedeia.com</a>
 <div id="login">
   <span class="marca">Tu Agente de IA</span>
   <h1>Tu cuenta</h1>
@@ -248,6 +254,7 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
     <button class="nav-it" data-sec="servicios"><span class="nav-ico">&#9881;&#65039;</span>Mis servicios</button>
     <button class="nav-it" data-sec="pedir"><span class="nav-ico">&#128172;</span>Pedir algo</button>
     <div class="nav-pie">
+      <a class="nav-it" href="/"><span class="nav-ico">&#127760;</span>Ir a la p&aacute;gina</a>
       <button class="nav-it" id="salirNav"><span class="nav-ico">&#8617;</span>Cerrar sesi&oacute;n</button>
     </div>
   </aside>
