@@ -289,7 +289,7 @@
         (chips ? '<div class="msg-chips">' + chips + "</div>" : "") + "</div></div>" +
         '<div class="msg-txt">' + esc(m.texto) + "</div>" +
         '<div class="msg-pie">' + pie + "</div></article>";
-    }).join("") : '<p class="vacio">Todav\u00eda nadie ha mandado el formulario.<br>Cuando alguien lo haga, aqu\u00ed aparece su nombre y el mensaje completo que se llev\u00f3 a WhatsApp.</p>';
+    }).join("") : '<p class="vacio">Todav\u00eda nadie ha llenado el formulario.</p>';
 
     Array.prototype.forEach.call($("mensajes").querySelectorAll("[data-copiar]"), function (b) {
       b.onclick = function () {
@@ -419,8 +419,7 @@
       d.querySelector("[data-borravis]").onclick = function (ev) {
         ev.stopPropagation();
         confirmar("Borrar esta visita",
-          "Se borra el registro de " + (nom ? "<b>" + esc(nom) + "</b>" : "esta visita") +
-          " con todo su paso a paso. No se puede deshacer.",
+          "Se borra " + (nom ? "la visita de <b>" + esc(nom) + "</b>" : "esta visita") + ". No se puede deshacer.",
           "S\u00ed, borrar").then(function (ok) {
             if (!ok) return;
             borrarSesion(v.id).then(function () { toast("Visita borrada", "bien"); })
@@ -466,7 +465,7 @@
         esc(f) + "</span></li>");
     });
     html += lineas.length ? "<ol>" + lineas.join("") + "</ol>"
-      : '<p class="vacio">De esta visita no se guard\u00f3 el paso a paso.</p>';
+      : '<p class="vacio">Sin paso a paso guardado.</p>';
     return html;
   }
 
@@ -542,7 +541,7 @@
     avisaListo();
     leer().then(function (d) { visitas = d; pinta(); })
       .catch(function () {
-        $("sub").textContent = "No se pudieron leer las visitas. Revisa que tu correo est\u00e9 en las reglas de Firestore.";
+        $("sub").textContent = "No se pudieron leer las visitas. Revisa las reglas de Firebase.";
       });
   }
 

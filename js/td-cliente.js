@@ -15,14 +15,14 @@
      agregarlo allá con la misma clave. */
   /* clave, icono, nombre, para qué sirve, cómo se llama su dato */
   var SERVICIOS = [
-    ["whatsapp", "💬", "Agente de WhatsApp", "Responde los mensajes al instante, todos los días.", "Tu número"],
-    ["voz", "📞", "Agente de llamadas", "Contesta el teléfono por ti, a cualquier hora.", "Tu número"],
-    ["web", "🌐", "Página web", "Tu página en internet, siempre disponible.", "Tu página"],
-    ["tienda", "🛒", "Tienda en línea", "Tus productos y tus cobros en tu propia tienda.", "Tu tienda"],
-    ["automatizacion", "⚙️", "Automatizaciones", "Trabajo repetitivo que ya no haces a mano.", "Lo que se automatizó"],
-    ["videos", "🎬", "Videos con IA", "Videos para tus redes, hechos con inteligencia artificial.", "Dónde salen"],
-    ["panel", "📊", "Panel de estadísticas", "Ver qué hace la gente en tu página.", "Tu panel"],
-    ["agenda", "📅", "Agenda y recordatorios", "Agenda las citas solo y manda recordatorios.", "Tu calendario"]
+    ["whatsapp", "💬", "Agente de WhatsApp", "Contesta tus mensajes solo.", "Tu número"],
+    ["voz", "📞", "Agente de llamadas", "Contesta el teléfono solo.", "Tu número"],
+    ["web", "🌐", "Página web", "Tu página en internet.", "Tu página"],
+    ["tienda", "🛒", "Tienda en línea", "Vendes desde tu página.", "Tu tienda"],
+    ["automatizacion", "⚙️", "Automatizaciones", "Ya no lo haces a mano.", "Qué se automatizó"],
+    ["videos", "🎬", "Videos con IA", "Videos para tus redes.", "Dónde salen"],
+    ["panel", "📊", "Panel", "Ves quién entra a tu página.", "Tu panel"],
+    ["agenda", "📅", "Agenda", "Agenda las citas y avisa.", "Tu calendario"]
   ];
   function srv(clave) {
     for (var i = 0; i < SERVICIOS.length; i++) {
@@ -200,6 +200,34 @@
     return pendientes().reduce(function (a, p) { return a + num(p.monto); }, 0);
   }
 
+  function cuadros() {
+    var pausado = cliente.estado === "pausado";
+    var deb = debe();
+    var f = proximaFecha(cliente.diaPago, cliente.periodicidad || "mensual", cliente.inicio);
+    var q = cuando(f);
+    var pagado = hechos().reduce(function (a, p) { return a + num(p.monto); }, 0);
+    var c = [];
+
+    if (deb > 0) {
+      c.push(["roja", pesos(deb), "Debes", pendientes().length === 1
+        ? (pendientes()[0].concepto || "un pago") : pendientes().length + " pagos"]);
+    } else if (!pausado && f && (num(cliente.monto) || cliente.montoVaria)) {
+      c.push(["oro", cliente.montoVaria ? "Varía" : pesos(cliente.monto), "Tu próximo pago",
+        diaLargo(f) + " · " + q.txt]);
+    }
+
+    c.push([pausado ? "amber" : "verde", pausado ? "En pausa" : "Todo bien", "Tu servicio",
+      cliente.inicio ? "desde el " + dia(cliente.inicio) : ""]);
+    c.push(["", String(mios().length), "Servicios", "contratados"]);
+    if (pagado) c.push(["verde", pesos(pagado), "Llevas pagado", hechos().length + " pagos"]);
+
+    return '<div class="cuadros">' + c.map(function (x) {
+      return '<div class="cuadro ' + x[0] + '"><div class="cn">' + esc(x[1]) + "</div>" +
+        '<div class="ct">' + esc(x[2]) + "</div>" +
+        (x[3] ? '<div class="cp">' + esc(x[3]) + "</div>" : "") + "</div>";
+    }).join("") + "</div>";
+  }
+
   function bloqueProximo() {
     var pausado = cliente.estado === "pausado";
     var d = debe();
@@ -210,12 +238,12 @@
         '<div class="fecha">' + (ps.length === 1
           ? "De <b>" + esc(ps[0].concepto || "tu servicio") + "</b>"
           : "De <b>" + ps.length + " pagos</b>") + "</div>" +
-        '<div class="nota">Si ya lo pagaste, avísanos desde <b>Pedir algo</b> y lo marcamos.</div></div>';
+        '<div class="nota">Si ya lo pagaste, avísanos y lo quitamos.</div></div>';
     }
     if (pausado) {
       return '<div class="prox"><div class="lbl">Tu servicio</div>' +
         '<div class="monto chico">En pausa</div>' +
-        '<div class="nota">No se te está cobrando. Cuando quieras retomarlo, avísanos.</div></div>';
+        '<div class="nota">No se te cobra. Avísanos cuando lo quieras de vuelta.</div></div>';
     }
     var f = proximaFecha(cliente.diaPago, cliente.periodicidad || "mensual", cliente.inicio);
     if (!f || (!num(cliente.monto) && !cliente.montoVaria)) return "";
@@ -224,20 +252,20 @@
       ? '<div class="monto chico">Varía cada vez</div>'
       : '<div class="monto">' + esc(pesos(cliente.monto)) + "</div>";
     var nota = cliente.montoVaria
-      ? "Te pasamos el monto exacto ese día."
-      : (cliente.periodicidad === "anual" ? "Se cobra una vez al año."
-        : cliente.periodicidad === "unico" ? "Es un pago único."
+      ? "Ese día te decimos cuánto."
+      : (cliente.periodicidad === "anual" ? "Una vez al año."
+        : cliente.periodicidad === "unico" ? "Es un solo pago."
           : "Se cobra cada mes el día " + esc(cliente.diaPago || "—") + ".");
     return '<div class="prox"><div class="lbl">Tu próximo pago</div>' + monto +
       '<div class="fecha">El <b>' + esc(diaLargo(f)) + "</b> · " + esc(q.txt) + "</div>" +
-      '<div class="nota">' + nota + " Estás al corriente.</div></div>";
+      '<div class="nota">' + nota + " Vas al corriente.</div></div>";
   }
 
   function tarjetasServicios() {
     var lista = mios();
     if (!lista.length) {
-      return '<p class="vacio">Todavía no tenemos anotados tus servicios.<br>' +
-        "Escríbenos desde <b>Pedir algo</b> y los ponemos.</p>";
+      return '<p class="vacio">Todavía no anotamos tus servicios.<br>' +
+        "Dinos desde <b>Pedir algo</b> y los ponemos.</p>";
     }
     var det = (cliente.detalles && typeof cliente.detalles === "object") ? cliente.detalles : {};
     return '<div class="srv-grid">' + lista.map(function (k) {
@@ -299,16 +327,14 @@
 
   /* ═══ secciones ═══ */
   function pintaResumen() {
-    var ultimos = hechos().slice(0, 4);
     $("hTtl").textContent = "Hola" + (cliente.persona ? ", " + String(cliente.persona).split(" ")[0] : "");
-    $("hSub").textContent = "Aquí está todo lo tuyo de un vistazo.";
+    $("hSub").textContent = "Tu servicio y tus pagos.";
 
-    $("resumen").innerHTML = bloqueProximo() +
-      '<div class="blq"><h2>Tus servicios</h2>' + tarjetasServicios() + selloEstado() + "</div>" +
-      '<div class="blq"><div class="blq-top"><h2>Tus últimos pagos</h2>' +
-      (hechos().length > 4 ? '<button class="salir" data-ir="pagos">Ver todos</button>' : "") +
-      "</div>" +
-      lineaTiempo(pendientes().concat(ultimos)) + "</div>";
+    $("resumen").innerHTML = cuadros() +
+      '<div class="blq"><h2>Tus servicios</h2>' + tarjetasServicios() + "</div>" +
+      '<div class="blq"><div class="blq-top"><h2>Últimos pagos</h2>' +
+      (hechos().length > 3 ? '<button class="salir" data-ir="pagos">Ver todos</button>' : "") +
+      "</div>" + lineaTiempo(pendientes().concat(hechos().slice(0, 3))) + "</div>";
 
     cada("[data-ir]", function (b) { b.onclick = function () { abreSec(b.dataset.ir); }; });
   }
@@ -352,22 +378,22 @@
 
       '<h2 style="margin-top:8px">&iquest;O es otra cosa?</h2>' +
       '<div class="pide-grid">' +
-      [["Pedir un cambio", "✏️", "Cambiar algo de lo que ya está hecho"],
-       ["Reportar un problema", "⚠️", "Algo no está funcionando bien"],
-       ["Avisar que ya pagué", "💵", "Mandar tu comprobante"],
-       ["Una sugerencia", "💡", "Se me ocurre algo que estaría bueno"]
+      [["Pedir un cambio", "✏️", "Cambiar algo de lo que ya está"],
+       ["Reportar un problema", "⚠️", "Algo no sirve"],
+       ["Avisar que ya pagué", "💵", "Mándanos tu comprobante"],
+       ["Una sugerencia", "💡", "Se me ocurrió algo"]
       ].map(function (t) {
         return '<button class="pide" data-tipo="' + esc(t[0]) + '"><span class="ico">' + t[1] +
           "</span><b>" + esc(t[0]) + "</b><span>" + esc(t[2]) + "</span></button>";
       }).join("") + "</div>" +
 
-      '<textarea class="in" id="txt" placeholder="Cuéntanos con tus palabras qué necesitas…"></textarea>' +
+      '<textarea class="in" id="txt" placeholder="Escríbenos qué necesitas…"></textarea>' +
       '<div class="acc">' +
       '<button class="b-grande b-aqui" id="bAqui" disabled>Mandarlo por aquí</button>' +
       '<button class="b-grande b-wa" id="bWa" disabled>Mandarlo por WhatsApp</button>' +
       "</div>" +
-      '<p class="pie-nota">Por aquí nos llega igual y no tienes que salir de tu cuenta.<br>' +
-      "Por WhatsApp se abre tu chat con el mensaje ya escrito.</p></div>";
+      '<p class="pie-nota">Las dos nos llegan igual.<br>' +
+      "Por WhatsApp además se te abre el chat.</p></div>";
 
     cada("[data-tipo]", function (b) {
       b.onclick = function () {
@@ -452,9 +478,9 @@
         window.open("https://wa.me/" + destino + "?text=" + encodeURIComponent(msg), "_blank");
         toast("Listo, ya lo recibimos", "bien");
       } else if (guardado) {
-        toast("Listo, ya nos llegó. Te contestamos pronto", "bien");
+        toast("Listo, ya nos llegó", "bien");
       } else {
-        toast("No se pudo mandar. Inténtalo por WhatsApp", "mal");
+        toast("No se pudo. Mándalo por WhatsApp", "mal");
       }
       enviando = false;
       $("bAqui").textContent = "Mandarlo por aquí";
@@ -535,7 +561,7 @@
     var m = $("mail").value.trim(), p = $("pass").value;
     if (!m || !p) { e.textContent = "Escribe tu correo y tu contraseña."; e.hidden = false; return; }
     entrar(m, p).then(cargar).catch(function () {
-      e.textContent = "Ese correo o esa contraseña no son.";
+      e.textContent = "Ese correo o contraseña no son.";
       e.hidden = false;
     });
   };

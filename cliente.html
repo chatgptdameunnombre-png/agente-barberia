@@ -75,6 +75,24 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.42rem;font-weight:600;lett
 .blq-top h2{margin-bottom:0}
 
 /* ═══ Próximo pago ═══ */
+.cuadros{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:15px;margin-bottom:26px}
+.cuadro{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:22px 20px;overflow:hidden;transition:border-color .25s,transform .25s}
+.cuadro::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--border2)}
+.cuadro:hover{transform:translateY(-3px)}
+.cuadro .cn{font-family:'JetBrains Mono',monospace;font-size:1.85rem;font-weight:700;line-height:1.1;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cuadro .ct{font-size:.97rem;color:var(--dim);margin-top:8px}
+.cuadro .cp{font-size:.85rem;color:var(--muted);margin-top:3px}
+.cuadro.oro .cn{color:var(--gold2)}.cuadro.oro::before{background:var(--gold-g)}.cuadro.oro:hover{border-color:var(--gold)}
+.cuadro.verde .cn{color:var(--green)}.cuadro.verde::before{background:linear-gradient(135deg,#4fbf85,#7ee2a8)}
+.cuadro.roja .cn{color:var(--red)}.cuadro.roja::before{background:linear-gradient(135deg,#c9584c,#e9756b)}
+.cuadro.amber .cn{color:var(--amber)}.cuadro.amber::before{background:linear-gradient(135deg,#c08a4c,#e8b45c)}
+@media(max-width:620px){
+  .cuadros{grid-template-columns:1fr 1fr;gap:11px}
+  .cuadro{padding:17px 15px;border-radius:15px}
+  .cuadro .cn{font-size:1.4rem}
+  .cuadro .ct{font-size:.9rem;margin-top:6px}
+  .cuadro .cp{font-size:.8rem}
+}
 .prox{position:relative;background:linear-gradient(150deg,rgba(201,168,76,.13),rgba(201,168,76,.02) 55%,transparent);border:1px solid rgba(201,168,76,.32);border-radius:24px;padding:36px 32px;margin-bottom:24px;overflow:hidden}
 .prox::after{content:"";position:absolute;right:-70px;top:-70px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.14),transparent 68%)}
 .prox .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:15px}
@@ -194,12 +212,12 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
   <img src="/logo-tuia.png" alt="">
   <span class="marca">Tu Agente de IA</span>
   <h1>Tu cuenta</h1>
-  <p>Entra para ver tu servicio y tus pagos.</p>
+  <p>Tu servicio y tus pagos.</p>
   <input class="in" id="mail" type="email" autocomplete="username" placeholder="Correo">
   <input class="in" id="pass" type="password" autocomplete="current-password" placeholder="Contrase&ntilde;a">
   <button class="btn" id="entrar">Entrar</button>
   <p class="err" id="loginErr" hidden></p>
-  <p class="pie">&iquest;No tienes acceso o se te olvid&oacute; tu contrase&ntilde;a?<br>Escr&iacute;benos y te la reponemos.</p>
+  <p class="pie">&iquest;Se te olvid&oacute; tu contrase&ntilde;a? Escr&iacute;benos.</p>
 </div>
 
 <div id="app" hidden>
@@ -235,7 +253,7 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
     <section class="sec" id="secPagos" hidden>
       <div class="head">
         <h1>Mis pagos</h1>
-        <p>Todo lo que has pagado, con su fecha y su concepto.</p>
+        <p>Todo lo que has pagado.</p>
       </div>
       <div id="pagos"></div>
     </section>
@@ -243,7 +261,7 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
     <section class="sec" id="secServicios" hidden>
       <div class="head">
         <h1>Mis servicios</h1>
-        <p>Lo que tienes contratado con nosotros.</p>
+        <p>Lo que tienes con nosotros.</p>
       </div>
       <div id="servicios"></div>
     </section>
@@ -251,7 +269,7 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
     <section class="sec" id="secPedir" hidden>
       <div class="head">
         <h1>Pedir algo</h1>
-        <p>Cont&aacute;tanos qu&eacute; necesitas y nos ponemos con ello.</p>
+        <p>Dinos qu&eacute; necesitas.</p>
       </div>
       <div id="pedir"></div>
     </section>

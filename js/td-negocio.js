@@ -305,11 +305,8 @@
   /* ═══════════ avisos ═══════════ */
   function avisoReglas(donde) {
     $(donde).innerHTML = '<div class="aviso"><i>⚠️</i><div>' +
-      "<b>Falta publicar las reglas de Firestore.</b><br>" +
-      "Las colecciones <code>clientes</code>, <code>pagos</code> y <code>gastos</code> " +
-      "todavía no están permitidas. Abre la consola de Firebase, pega las reglas de " +
-      "<code>firebase/firestore-rules.txt</code> y dale Publicar. Mientras tanto esta sección " +
-      "se queda vacía.<br><br>" +
+      "<b>Faltan las reglas de Firebase.</b><br>" +
+      "Pega las de <code>firebase/firestore-rules.txt</code> en la consola y dale Publicar.<br><br>" +
       '<button class="lnk" data-reintenta="1">Ya las publiqu\u00e9, reintentar</button></div></div>';
   }
   function limpiaAviso(donde) { if ($(donde)) $(donde).innerHTML = ""; }
@@ -404,7 +401,7 @@
       return '<div class="fila"><b>' + esc(x.c.negocio || x.c.persona || "Sin nombre") +
         ' <span class="tag ' + cl + '" style="margin-left:8px">' + esc(x.q.txt) + "</span></b>" +
         "<span>" + esc(montoTxt(x.c)) + " · " + esc(dia(x.f)) + "</span></div>";
-    }).join("") : '<p class="vacio">Da de alta un cliente con su monto y su día de pago y aquí sale cuándo toca cobrarle.</p>';
+    }).join("") : '<p class="vacio">Da de alta un cliente y aquí sale cuándo cobrarle.</p>';
 
     /* el mes en curso: quien ya pago, quien falta y que te toco pagar */
     var MESES_L = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
@@ -545,7 +542,7 @@
         esc(g.moneda === "USD" ? "$" + num(g.monto) : pesos(g.monto)) + esc(et) + "</span>" +
         '<button class="lnk" data-editagasto="' + esc(g.id) + '">Editar</button>' +
         '<button class="lnk mal" data-borragasto="' + esc(g.id) + '">Borrar</button></div></div>';
-    }).join("") : '<p class="vacio">Agrega lo que pagas tú cada mes (Twilio, Claude, dominios, VAPI…) y aquí ves cuándo toca y cuánto se te va.</p>';
+    }).join("") : '<p class="vacio">Agrega lo que pagas cada mes y aquí ves cuándo toca.</p>';
 
     /* historial */
     var hist = pagos.filter(function (p) { return p.estado !== "pendiente"; })
@@ -623,7 +620,7 @@
         esc(c.negocio || c.persona || "Sin nombre") + "</option>";
     }).join("");
 
-    P.modal('<h3>Registrar un pago</h3><p class="sub">Quién te pagó, cuánto y por qué.</p>' +
+    P.modal('<h3>Registrar un pago</h3><p class="sub">Quién te pagó y cuánto.</p>' +
       '<div class="form-grid">' +
       '<div class="f ancho"><label>Cliente</label><select id="pgCli">' + ops + "</select></div>" +
       '<div class="f"><label>Monto (MXN)</label><input id="pgMonto" type="number" min="0" step="1" placeholder="1500"></div>' +
@@ -674,7 +671,7 @@
     g = g || {};
     var ed = !!g.id;
     P.modal("<h3>" + (ed ? "Editar gasto" : "Agregar un gasto") + '</h3>' +
-      '<p class="sub">Lo que pagas tú: Twilio, Claude, dominios, VAPI, servidores…</p>' +
+      '<p class="sub">Lo que pagas tú cada mes.</p>' +
       '<div class="form-grid">' +
       '<div class="f ancho"><label>Qué es</label><input id="gsNom" type="text" placeholder="Twilio" value="' + esc(g.nombre || "") + '"></div>' +
       '<div class="f"><label>Monto</label><input id="gsMonto" type="number" min="0" step="0.01" value="' + esc(g.monto || "") + '"></div>' +
@@ -759,7 +756,7 @@
           : '<span class="tag' + (q.d < 0 ? " mal" : (q.d <= 3 ? " oro" : "")) + '">cobra ' + esc(q.txt) + "</span>") +
         (debe ? '<span class="tag mal">debe ' + esc(pesos(debe)) + "</span>" : "") +
         "</div></div></article>";
-    }).join("") : '<p class="vacio">Todavía no tienes clientes dados de alta.<br>Dale a <b>+ Nuevo cliente</b> y pon su negocio, su teléfono, qué le diste y cuánto te paga.</p>';
+    }).join("") : '<p class="vacio">Todavía no tienes clientes.<br>Dale a <b>+ Nuevo cliente</b>.</p>';
 
     cada("[data-cli]", function (el) {
       el.onclick = function (ev) {
@@ -864,7 +861,7 @@
     $("fEdit").onclick = function () { formCliente(c); };
     $("fBorra").onclick = function () {
       P.confirmar("Borrar a " + (c.negocio || "este cliente"),
-        "Se borra su ficha. Sus pagos registrados <b>no</b> se borran, quedan en el historial.",
+        "Se borra su ficha. Sus pagos se quedan.",
         "Sí, borrar").then(function (ok) {
           if (!ok) return;
           borrar("clientes", id).then(function () {
@@ -888,7 +885,7 @@
     var ed = !!c.id;
     var h = hoyMX();
     P.modal("<h3>" + (ed ? "Editar ficha" : "Nuevo cliente") + '</h3>' +
-      '<p class="sub">Todo lo que necesitas de un vistazo cuando te escriba.</p>' +
+      '<p class="sub">Sus datos.</p>' +
       '<div class="f-foto" style="margin-bottom:20px">' +
       '<span id="cfFotoPrev">' + fotoHTML(c) + "</span>" +
       '<div><label class="lnk" for="cfFoto">Subir foto</label>' +
@@ -928,7 +925,7 @@
       '<option value="personal"' + (c.avisaA === "personal" ? " selected" : "") + ">Mi WhatsApp personal</option>" +
       '<option value="negocio"' + (c.avisaA !== "personal" ? " selected" : "") + ">El del negocio</option></select></div>" +
       '<div class="f"><label>ID de acceso a su cuenta</label><input id="cfUid" type="text" placeholder="lo copias de Firebase" value="' + esc(c.uid || "") + '"></div>' +
-      '<div class="f ancho"><label>Notas</label><textarea id="cfNotas" placeholder="Lo que sea importante recordar de este cliente…">' + esc(c.notas || "") + "</textarea></div>" +
+      '<div class="f ancho"><label>Notas</label><textarea id="cfNotas" placeholder="Lo que quieras recordar de él…">' + esc(c.notas || "") + "</textarea></div>" +
       "</div>" +
       '<div class="modal-acc"><button class="lnk" id="cfNo">Cancelar</button>' +
       '<button class="lnk oro" id="cfSi">' + (ed ? "Guardar cambios" : "Dar de alta") + "</button></div>");
@@ -1106,7 +1103,7 @@
         '<button class="lnk oro" data-acliente="' + esc(x.id) + '">Pasarlo a cliente</button>' +
         '<button class="lnk mal" data-borrapros="' + esc(x.id) + '">Borrar</button></div></article>';
     }).join("") : '<p class="vacio">Todav\u00eda no tienes prospectos.<br>' +
-      "Dale a <b>+ Nuevo prospecto</b> y anota el negocio que quieres tocar.</p>";
+      "Dale a <b>+ Nuevo prospecto</b>.</p>";
 
     cada("[data-editapros]", function (b) {
       b.onclick = function () {
@@ -1132,7 +1129,7 @@
         var x = prospectos.filter(function (y) { return y.id === b.dataset.acliente; })[0];
         if (!x) return;
         P.confirmar("Pasar a " + (x.nombre || "este prospecto") + " a clientes",
-          "Se crea su ficha de cliente con lo que ya tienes anotado y se quita de prospectos.",
+          "Se crea su ficha con lo que ya anotaste y sale de prospectos.",
           "S\u00ed, ya es cliente").then(function (ok) {
             if (!ok) return;
             var nuevo = {
@@ -1162,7 +1159,7 @@
     var ed = !!x.id;
     var suyos = Array.isArray(x.interes) ? x.interes : [];
     P.modal("<h3>" + (ed ? "Editar prospecto" : "Nuevo prospecto") + "</h3>" +
-      '<p class="sub">Un negocio que quieres tocar. Esto no lo ve nadie m\u00e1s que t\u00fa.</p>' +
+      '<p class="sub">Un negocio que quieres tocar.</p>' +
       '<div class="form-grid">' +
       '<div class="f"><label>Negocio</label><input id="prNom" type="text" placeholder="Honey Scoop" value="' + esc(x.nombre || "") + '"></div>' +
       '<div class="f"><label>De qu\u00e9 es</label><input id="prGiro" type="text" placeholder="Helader\u00eda" value="' + esc(x.giro || "") + '"></div>' +
@@ -1181,7 +1178,7 @@
       ESTADOS.map(function (e) {
         return '<option value="' + e[0] + '"' + ((x.estado || "nuevo") === e[0] ? " selected" : "") + ">" + e[1] + "</option>";
       }).join("") + "</select></div>" +
-      '<div class="f ancho"><label>Notas</label><textarea id="prNotas" placeholder="Lo que sepas del negocio, del due\u00f1o, por d\u00f3nde entrarle\u2026">' + esc(x.notas || "") + "</textarea></div>" +
+      '<div class="f ancho"><label>Notas</label><textarea id="prNotas" placeholder="Lo que sepas del negocio\u2026">' + esc(x.notas || "") + "</textarea></div>" +
       "</div>" +
       '<div class="modal-acc"><button class="lnk" id="prNo">Cancelar</button>' +
       '<button class="lnk oro" id="prSi">' + (ed ? "Guardar" : "Agregar") + "</button></div>");
@@ -1273,8 +1270,8 @@
         '<div class="pet-txt">' + esc(x.texto || "") + "</div>" +
         '<div class="pet-pie">' + pie + "</div></article>";
     }).join("") : '<p class="vacio">' + (verAtendidas
-      ? "Todav\u00eda nadie te ha pedido nada desde su cuenta."
-      : "Nada pendiente. Todo lo que te han pedido ya lo atendiste.") + "</p>";
+      ? "Nadie te ha pedido nada."
+      : "Nada pendiente.") + "</p>";
 
     cada("[data-atender]", function (b) {
       b.onclick = function () {
@@ -1291,7 +1288,7 @@
     cada("[data-borrapet]", function (b) {
       b.onclick = function () {
         P.confirmar("Borrar esta petici\u00f3n",
-          "Se borra de tu panel. El cliente no se entera.", "S\u00ed, borrar").then(function (ok) {
+          "El cliente no se entera.", "S\u00ed, borrar").then(function (ok) {
             if (!ok) return;
             borrar("sugerencias", b.dataset.borrapet).then(function () {
               peticiones = peticiones.filter(function (y) { return y.id !== b.dataset.borrapet; });
