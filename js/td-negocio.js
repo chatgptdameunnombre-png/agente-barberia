@@ -1,6 +1,6 @@
 (function () {
   var P = null, listo = false;
-  var clientes = [], pagos = [], gastos = [], egresos = [], peticiones = [], prospectos = [], verAtendidas = false;
+  var clientes = [], pagos = [], gastos = [], egresos = [], peticiones = [], prospectos = [], resenas = [], verAtendidas = false;
   var cargado = { clientes: false, finanzas: false };
   var USD = 17.5;
 
@@ -65,7 +65,7 @@
   /* ═══════════ formato ═══════════ */
   function pesos(n) {
     n = Math.round(Number(n) || 0);
-    return "$" + n.toLocaleString("es-MX");
+    return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("es-MX");
   }
   function num(v) { var n = Number(v); return isFinite(n) ? n : 0; }
   function plural(n, uno, varios) { return n + " " + (n === 1 ? uno : varios); }
@@ -83,9 +83,7 @@
     ["web", "\ud83c\udf10", "P\u00e1gina web", "Link de su p\u00e1gina", "url", "https://sunegocio.com.mx"],
     ["tienda", "\ud83d\uded2", "Tienda en l\u00ednea", "Link de la tienda", "url", "https://sutienda.com.mx"],
     ["automatizacion", "\u2699\ufe0f", "Automatizaciones", "Qu\u00e9 le automatizaste", "text", "Recordatorios de cita"],
-    ["videos", "\ud83c\udfac", "Videos con IA", "D\u00f3nde se publican", "text", "Instagram y TikTok"],
-    ["panel", "\ud83d\udcca", "Panel de estad\u00edsticas", "Link de su panel", "url", "https://\u2026/panel.html"],
-    ["agenda", "\ud83d\udcc5", "Agenda y recordatorios", "Calendario que usa", "text", "Google Calendar"]
+    ["videos", "\ud83c\udfac", "Videos con IA", "D\u00f3nde se publican", "text", "Instagram y TikTok"]
   ];
   function servicio(clave) {
     for (var i = 0; i < SERVICIOS.length; i++) if (SERVICIOS[i][0] === clave) return SERVICIOS[i];
@@ -316,7 +314,8 @@
     return Promise.all([listar("clientes"), listar("pagos"), listar("gastos"),
       listar("sugerencias").catch(function () { return []; }),
       listar("prospectos").catch(function () { return []; }),
-      listar("egresos").catch(function () { return []; })])
+      listar("egresos").catch(function () { return []; }),
+      listar("resenas").catch(function () { return null; })])
       .then(function (r) {
         clientes = r[0].sort(function (a, b) {
           return String(a.negocio || "").localeCompare(String(b.negocio || ""));
@@ -331,6 +330,11 @@
         });
         $("numPros").textContent = prospectos.length;
         egresos = r[5] || [];
+        resenasSinReglas = r[6] === null;
+        resenas = (r[6] || []).sort(function (a, b) {
+          return String(b.fecha || "").localeCompare(String(a.fecha || ""));
+        });
+        $("numRes").textContent = resenas.length;
         cargado.clientes = true;
         cargado.finanzas = true;
         limpiaAviso("cliAviso"); limpiaAviso("finAviso"); limpiaAviso("pideAviso");
@@ -366,165 +370,101 @@
   }
 
   /* ═══════════ FINANZAS ═══════════ */
+  function fotoMini(c) {
+    return c.foto ? '<img src="' + esc(c.foto) + '" alt="">'
+      : '<span class="foto ini">' + esc(iniciales(c.negocio || c.persona)) + "</span>";
+  }
+  function pct(a, b) { return b ? Math.round((a / b) * 100) : 0; }
+  function mesCorto(m) {
+    var q = String(m).split("-");
+    return MESES_LARGO[+q[1] - 1].charAt(0).toUpperCase() + MESES_LARGO[+q[1] - 1].slice(1) + " " + q[0];
+  }
+  function opcionesClientes(sel, conTodos) {
+    var actual = $(sel).value;
+    $(sel).innerHTML = (conTodos ? '<option value="">Todos los clientes</option>' : "") +
+      clientes.map(function (c) {
+        return '<option value="' + esc(c.id) + '">' + esc(c.negocio || c.persona) + "</option>";
+      }).join("");
+    if (actual) $(sel).value = actual;
+  }
+
   function pintaFinanzas() {
-    var entra = entraAlMes(), cobrado = cobradoEsteMes(), deben = teDeben(), gm = gastosAlMes();
-    var limpio = entra - gm;
     var h = hoyMX();
+    var hechos = pagos.filter(function (p) { return p.estado !== "pendiente"; });
+    var pend = pagos.filter(function (p) { return p.estado === "pendiente"; });
+    var cobradoTotal = hechos.reduce(function (a, p) { return a + num(p.monto); }, 0);
+    var costoTotal = egresos.reduce(function (a, e) { return e.clienteId ? a + num(e.monto) : a; }, 0);
+    var ganancia = cobradoTotal - costoTotal;
+    var deben = teDeben();
 
-    $("finMes").textContent = MESES[h.m - 1].toUpperCase() + " " + h.a;
-    $("finSub").textContent = clientes.length
-      ? plural(activos().length, "cliente activo", "clientes activos") + " de " + clientes.length +
-        " · tipo de cambio $" + USD + " por dólar"
-      : "Todavía no has dado de alta ningún cliente.";
+    $("finSub").textContent = plural(activos().length, "cliente activo", "clientes activos") +
+      " · dólar a $" + USD;
 
+    /* ── te deben, en grande ── */
+    $("finDeben").innerHTML = pend.length
+      ? '<div class="deben"><div class="deben-top"><div><div class="deben-lbl">Te deben</div>' +
+        '<div class="deben-n">' + esc(pesos(deben)) + "</div></div></div>" +
+        pend.sort(function (a, b) { return String(a.fecha).localeCompare(String(b.fecha)); }).map(function (p) {
+          var dias = diasEntre(String(p.fecha).slice(0, 10), h.iso);
+          var meses = Math.floor(dias / 30);
+          var hace = meses >= 1 ? meses + (meses === 1 ? " mes" : " meses") : dias + " días";
+          return '<div class="deben-it"><div><b>' + esc(p.clienteNombre || "—") + "</b>" +
+            "<small>" + esc(p.concepto || "Pago") + " · atrasado " + esc(hace) + "</small></div>" +
+            '<div class="hist-acc"><span class="m">' + esc(pesos(p.monto)) + "</span>" +
+            '<button class="lnk" data-cobrado="' + esc(p.id) + '">Ya me pagó</button>' +
+            '<button class="lnk mal" data-borrapago="' + esc(p.id) + '">Borrar</button></div></div>';
+        }).join("") + "</div>"
+      : '<div class="deben cero"><div class="deben-lbl">Te deben</div><div class="deben-n">$0</div>' +
+        '<p style="color:var(--dim);margin-top:10px">Nadie te debe nada.</p></div>';
+
+    /* ── estadísticas ── */
     $("finCards").innerHTML = [
-      ["", pesos(entra), "Entra al mes", plural(activos().length, "cliente activo", "clientes activos")],
-      ["verde", pesos(cobrado), "Cobrado este mes", "lo que ya te pagaron"],
-      ["roja", pesos(deben), "Te deben", plural(pagos.filter(function (p) { return p.estado === "pendiente"; }).length, "pago pendiente", "pagos pendientes")],
-      ["azul", pesos(gm), "Tus gastos al mes", gastoEsCalculado()
-        ? "promedio de lo que gastas"
-        : plural(gastos.filter(function (g) { return g.activo; }).length, "gasto activo", "gastos activos")],
-      [limpio >= 0 ? "verde" : "roja", pesos(limpio), "Te queda limpio", "entra menos gastos"]
+      ["", pesos(entraAlMes()), "Entra al mes", "lo que te pagan cada mes"],
+      ["verde", pesos(cobradoEsteMes()), "Cobrado este mes", MESES_LARGO[h.m - 1]],
+      ["verde", pesos(cobradoTotal), "Cobrado en total", plural(hechos.length, "pago", "pagos")],
+      ["azul", pesos(costoTotal), "Te costaron", "lo que gastas en tus clientes"],
+      [ganancia >= 0 ? "verde" : "roja", pesos(ganancia), "Ganancia", pct(ganancia, cobradoTotal) + "% de lo cobrado"]
     ].map(function (c) {
       return '<div class="card ' + c[0] + '"><div class="n">' + esc(c[1]) + '</div><div class="t">' +
         esc(c[2]) + '</div><div class="p">' + esc(c[3]) + "</div></div>";
     }).join("");
 
-    /* próximos cobros */
-    var prox = activos().filter(function (c) { return montoEstimado(c) > 0; }).map(function (c) {
+    /* ── ganancia por cliente ── */
+    var gan = clientes.map(function (c) {
+      var cob = totalPagado(c.id), gas = gastadoEn(c.id);
+      return { c: c, cob: cob, gas: gas, g: cob - gas, p: pct(cob - gas, cob) };
+    }).sort(function (a, b) { return b.g - a.g; });
+    $("finMargenTot").textContent = pesos(ganancia) + " entre todos";
+    $("finMargen").innerHTML = gan.length ? '<div class="gan-grid">' + gan.map(function (x) {
+      return '<div class="gan"><div class="gan-nom">' + fotoMini(x.c) + esc(x.c.negocio || x.c.persona) + "</div>" +
+        '<div class="gan-f">Le cobraste<span>' + esc(pesos(x.cob)) + "</span></div>" +
+        '<div class="gan-f">Te costó<span>' + esc(pesos(x.gas)) + "</span></div>" +
+        '<div class="gan-g"><b>Ganancia</b><span' + (x.g < 0 ? ' class="r"' : "") + ">" + esc(pesos(x.g)) + "</span></div>" +
+        '<div class="gan-bar"><i style="width:' + Math.max(0, Math.min(100, x.p)) + '%"></i></div>' +
+        '<div class="gan-pct">Te quedas con el ' + x.p + "% de lo que te paga</div></div>";
+    }).join("") + "</div>" : '<p class="vacio">Da de alta un cliente para ver su ganancia.</p>';
+
+    /* ── por mes ── */
+    opcionesClientes("finMesSel", true);
+    pintaPorMes();
+
+    /* ── próximos cobros ── */
+    var prox = activos().filter(function (c) { return montoEstimado(c) > 0 || c.montoVaria; }).map(function (c) {
       var f = proximaFecha(c.diaPago, c.periodicidad || "mensual", c.inicio);
       return { c: c, f: f, q: cuando(f) };
     }).sort(function (a, b) { return a.q.d - b.q.d; });
-
     $("finProx").innerHTML = prox.length ? prox.map(function (x) {
       var cl = x.q.d < 0 ? "mal" : (x.q.d <= 3 ? "oro" : "");
       return '<div class="fila"><b>' + esc(x.c.negocio || x.c.persona || "Sin nombre") +
         ' <span class="tag ' + cl + '" style="margin-left:8px">' + esc(x.q.txt) + "</span></b>" +
-        "<span>" + esc(montoTxt(x.c)) + " · " + esc(dia(x.f)) + "</span></div>";
+        "<span>" + esc(x.c.montoVaria ? "por definir" : montoTxt(x.c)) + " · " + esc(dia(x.f)) + "</span></div>";
     }).join("") : '<p class="vacio">Da de alta un cliente y aquí sale cuándo cobrarle.</p>';
 
-    /* el mes en curso: quien ya pago, quien falta y que te toco pagar */
-    var MESES_L = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
-      "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-    $("finMesTtl").textContent = "Tu mes de " + MESES_L[h.m - 1];
+    /* ── pagos hechos ── */
+    opcionesClientes("finTablaSel", true);
+    pintaTablaPagos();
 
-    var mAct = mesActual();
-    var pagosMes = pagos.filter(function (p) { return String(p.fecha || "").slice(0, 7) === mAct; });
-    var filas = [], porCobrar = 0;
-
-    activos().forEach(function (c) {
-      if (!montoEstimado(c)) return;
-      var f = proximaFecha(c.diaPago, c.periodicidad || "mensual", c.inicio);
-      var tocaEsteMes = String(f || "").slice(0, 7) === mAct || c.periodicidad === "mensual";
-      if (!tocaEsteMes) return;
-      var suyos = pagosMes.filter(function (p) {
-        return p.clienteId === c.id && p.tipo !== "unico";
-      });
-      var pagado = suyos.filter(function (p) { return p.estado !== "pendiente"; })
-        .reduce(function (a, p) { return a + num(p.monto); }, 0);
-      var mensual = c.periodicidad === "mensual" ? montoEstimado(c) : 0;
-      var falta = Math.max(mensual - pagado, 0);
-      if (falta > 0) porCobrar += falta;
-      filas.push({
-        nom: c.negocio || c.persona || "Sin nombre",
-        pagado: pagado, falta: falta, mensual: mensual,
-        listo: mensual > 0 && falta === 0
-      });
-    });
-
-    var cobradoMes = pagosMes.filter(function (p) { return p.estado !== "pendiente"; })
-      .reduce(function (a, p) { return a + num(p.monto); }, 0);
-    var gastoYa = egresos.reduce(function (a, e) {
-      return String(e.fecha || "").slice(0, 7) === mAct ? a + num(e.monto) : a;
-    }, 0);
-    if (!gastoYa) {
-      gastoYa = gastos.filter(function (g) {
-        return g.activo && (g.periodicidad || "mensual") === "mensual" && num(g.dia) <= h.d;
-      }).reduce(function (a, g) { return a + gastoMensual(g); }, 0);
-    }
-
-    $("finMesTot").textContent = pesos(cobradoMes) + " cobrado" +
-      (porCobrar ? " \u00b7 faltan " + pesos(porCobrar) : "");
-
-    $("finMesLista").innerHTML = (filas.length ? filas.map(function (x) {
-      return '<div class="fila"><b>' + esc(x.nom) +
-        ' <span class="tag ' + (x.listo ? "ok" : "oro") + '" style="margin-left:8px">' +
-        (x.listo ? "ya pag\u00f3" : (x.pagado ? "abon\u00f3 " + esc(pesos(x.pagado)) : "falta")) +
-        "</span></b><span>" + esc(pesos(x.listo ? x.pagado : x.falta || x.mensual)) + "</span></div>";
-    }).join("") : '<p class="vacio">Sin clientes de cobro mensual todav\u00eda.</p>') +
-      '<div class="fila" style="border-top:1px solid var(--border2);margin-top:8px;padding-top:16px">' +
-      "<b>Lo que ya te pagaron este mes</b><span style=\"color:var(--green)\">" + esc(pesos(cobradoMes)) + "</span></div>" +
-      '<div class="fila"><b>Lo que te falta por cobrar</b><span style="color:var(--amber)">' +
-      esc(pesos(porCobrar)) + "</span></div>" +
-      '<div class="fila"><b>Lo que t\u00fa ya pagaste este mes</b><span style="color:var(--blue)">' +
-      esc(pesos(gastoYa)) + "</span></div>";
-
-    /* lo que deja cada cliente */
-    var filasMg = clientes.map(function (c) {
-      var cob = totalPagado(c.id), gas = gastadoEn(c.id);
-      return { nom: c.negocio || c.persona || "Sin nombre", cob: cob, gas: gas, deja: cob - gas };
-    }).sort(function (a, b) { return b.deja - a.deja; });
-
-    var totCob = filasMg.reduce(function (a, x) { return a + x.cob; }, 0);
-    var totGas = filasMg.reduce(function (a, x) { return a + x.gas; }, 0);
-    var herr = gastoHerramientas();
-    var dejan = totCob - totGas;
-
-    $("finMargenTot").textContent = "dejan " + pesos(dejan);
-    $("finMargen").innerHTML = filasMg.length
-      ? '<div class="mg mg-cab"><b>Cliente</b><span>Te cobr\u00f3</span><span>Te cost\u00f3</span><span>Te deja</span></div>' +
-        filasMg.map(function (x) {
-          return '<div class="mg"><b>' + esc(x.nom) + "</b>" +
-            '<span class="v" data-et="te cobr\u00f3">' + esc(pesos(x.cob)) + "</span>" +
-            '<span class="a" data-et="te cost\u00f3">' + esc(pesos(x.gas)) + "</span>" +
-            '<span class="' + (x.deja >= 0 ? "v" : "r") + '" data-et="te deja">' +
-            esc(pesos(x.deja)) + "</span></div>";
-        }).join("") +
-        '<div class="mg mg-tot"><b>Entre todos</b>' +
-        '<span class="v" data-et="te cobraron">' + esc(pesos(totCob)) + "</span>" +
-        '<span class="a" data-et="costaron">' + esc(pesos(totGas)) + "</span>" +
-        '<span class="' + (dejan >= 0 ? "v" : "r") + '" data-et="dejan">' + esc(pesos(dejan)) + "</span></div>"
-      : '<p class="vacio">Cuando registres pagos y gastos, aqu\u00ed ves qu\u00e9 te deja cada quien.</p>';
-
-    /* herramientas de la agencia */
-    var porHerr = {};
-    egresos.forEach(function (e) {
-      if (e.clienteId) return;
-      var limpio = String(e.concepto || "Otro").replace(/\s*\d+\s*%\s*$/i, "").trim();
-      var k = limpio.toLowerCase();
-      if (!porHerr[k]) porHerr[k] = { nom: limpio.charAt(0).toUpperCase() + limpio.slice(1), t: 0 };
-      porHerr[k].t += num(e.monto);
-    });
-    var listaHerr = Object.keys(porHerr).map(function (k) { return [porHerr[k].nom, porHerr[k].t]; })
-      .sort(function (a, b) { return b[1] - a[1]; });
-
-    $("finHerrTot").textContent = pesos(herr) + " en total";
-    $("finHerr").innerHTML = (listaHerr.length
-      ? listaHerr.map(function (x) {
-          return '<div class="fila"><b>' + esc(x[0]) + '</b><span style="color:var(--blue)">' +
-            esc(pesos(x[1])) + "</span></div>";
-        }).join("")
-      : '<p class="vacio">Todav\u00eda no tienes gastos de herramientas registrados.</p>') +
-      (herr ? '<div class="equil">Tus herramientas te han costado <b>' + esc(pesos(herr)) +
-        "</b> y tus clientes te dejan <b>" + esc(pesos(dejan)) + "</b>. " +
-        (dejan >= herr
-          ? "Ya las cubres."
-          : "Te faltan <b>" + esc(pesos(herr - dejan)) + "</b> para cubrirlas" +
-            (entra > 0 ? ", como <b>" + Math.ceil((herr - dejan) / entra) +
-              "</b> meses de lo que entra hoy" : "") + ".") + "</div>" : "");
-
-    /* te deben */
-    var pend = pagos.filter(function (p) { return p.estado === "pendiente"; })
-      .sort(function (a, b) { return String(a.fecha).localeCompare(String(b.fecha)); });
-    $("finDeben").innerHTML = pend.length ? pend.map(function (p) {
-      return '<div class="hist pend"><div><b>' + esc(p.clienteNombre || "—") + "</b>" +
-        "<small>" + esc(p.concepto || "Sin concepto") + " · " + esc(dia(p.fecha)) + "</small></div>" +
-        '<div class="hist-acc"><span>' + esc(pesos(p.monto)) + "</span>" +
-        '<button class="lnk" data-cobrado="' + esc(p.id) + '">Ya me pagó</button>' +
-        '<button class="lnk mal" data-borrapago="' + esc(p.id) + '">Borrar</button></div></div>';
-    }).join("") : '<p class="vacio">Nadie te debe nada. Todo al corriente.</p>';
-
-    /* gastos propios */
+    /* ── lo que pagas tú ── */
     var gs = gastos.slice().map(function (g) {
       var pf = proximaFecha(g.dia, g.periodicidad || "mensual", g.fecha);
       return { g: g, d: g.activo ? cuando(pf).d : 99999 };
@@ -533,33 +473,84 @@
       var f = proximaFecha(g.dia, g.periodicidad || "mensual", g.fecha);
       var q = cuando(f);
       var mxn = num(g.monto) * (g.moneda === "USD" ? USD : 1);
-      var et = g.moneda === "USD" ? " USD · " + pesos(mxn) : "";
-      return '<div class="hist' + (g.activo ? "" : " pend") + '"><div><b>' + esc(g.nombre || "—") +
-        (g.activo ? "" : ' <span class="tag">pausado</span>') + "</b>" +
+      return '<div class="hist' + (g.activo ? "" : " pend") + '"><div><b>' + esc(g.nombre || "—") + "</b>" +
         "<small>" + esc(g.periodicidad || "mensual") + " · día " + esc(g.dia || "—") +
-        (g.activo ? " · " + esc(q.txt) : "") + (g.notas ? " · " + esc(g.notas) : "") + "</small></div>" +
-        '<div class="hist-acc"><span style="color:var(--blue)">' +
-        esc(g.moneda === "USD" ? "$" + num(g.monto) : pesos(g.monto)) + esc(et) + "</span>" +
+        (g.activo ? " · " + esc(q.txt) : " · pausado") + "</small></div>" +
+        '<div class="hist-acc"><span style="color:var(--blue)">' + esc(pesos(mxn)) + "</span>" +
         '<button class="lnk" data-editagasto="' + esc(g.id) + '">Editar</button>' +
         '<button class="lnk mal" data-borragasto="' + esc(g.id) + '">Borrar</button></div></div>';
     }).join("") : '<p class="vacio">Agrega lo que pagas cada mes y aquí ves cuándo toca.</p>';
 
-    /* historial */
-    var hist = pagos.filter(function (p) { return p.estado !== "pendiente"; })
-      .sort(function (a, b) { return String(b.fecha).localeCompare(String(a.fecha)); }).slice(0, 15);
-    $("finHist").innerHTML = hist.length ? hist.map(function (p) {
-      return '<div class="hist"><div><b>' + esc(p.clienteNombre || "—") + "</b>" +
-        "<small>" + esc(p.concepto || "Sin concepto") + " · " + esc(dia(p.fecha)) +
-        (p.metodo ? " · " + esc(p.metodo) : "") + "</small></div>" +
-        '<div class="hist-acc"><span>' + esc(pesos(p.monto)) + "</span>" +
-        '<button class="lnk mal" data-borrapago="' + esc(p.id) + '">Borrar</button></div></div>';
-    }).join("") : '<p class="vacio">Cuando registres un pago aparece aquí.</p>';
+    $("numFin").textContent = pend.length;
+    $("numFin").hidden = !pend.length;
+    $("numFin").className = "nav-num" + (pend.length ? " alerta" : "");
 
-    var pendN = pend.length;
-    $("numFin").textContent = pendN;
-    $("numFin").hidden = !pendN;
-    $("numFin").className = "nav-num" + (pendN ? " alerta" : "");
+    enlaza();
+  }
 
+  /* Tabla por mes: cuánto le cobraste, cuánto te costó, ganancia y %.
+     Las tablas que Kiki pase de cada mes se cargan como egresos del cliente
+     y caen aquí solas. */
+  function pintaPorMes() {
+    var cid = $("finMesSel").value;
+    var meses = {};
+    pagos.forEach(function (p) {
+      if (p.estado === "pendiente" || (cid && p.clienteId !== cid)) return;
+      var m = String(p.fecha || "").slice(0, 7);
+      if (!m) return;
+      meses[m] = meses[m] || { c: 0, g: 0 };
+      meses[m].c += num(p.monto);
+    });
+    egresos.forEach(function (e) {
+      if (!e.clienteId || (cid && e.clienteId !== cid)) return;
+      var m = String(e.fecha || "").slice(0, 7);
+      if (!m) return;
+      meses[m] = meses[m] || { c: 0, g: 0 };
+      meses[m].g += num(e.monto);
+    });
+    var lista = Object.keys(meses).sort().reverse();
+    if (!lista.length) {
+      $("finMesTabla").innerHTML = '<tbody><tr><td class="vacio">Sin movimientos.</td></tr></tbody>';
+      return;
+    }
+    var tc = 0, tg = 0;
+    var filas = lista.map(function (m) {
+      var x = meses[m], gan = x.c - x.g;
+      tc += x.c; tg += x.g;
+      return "<tr><td>" + esc(mesCorto(m)) + '</td><td class="n v">' + esc(pesos(x.c)) +
+        '</td><td class="n a">' + esc(pesos(x.g)) + '</td><td class="n ' + (gan >= 0 ? "v" : "r") + '">' +
+        esc(pesos(gan)) + '</td><td class="n o">' + (x.c ? pct(gan, x.c) + "%" : "—") + "</td></tr>";
+    }).join("");
+    var tgan = tc - tg;
+    $("finMesTabla").innerHTML =
+      '<thead><tr><th>Mes</th><th class="n">Le cobraste</th><th class="n">Te costó</th>' +
+      '<th class="n">Ganancia</th><th class="n">% ganancia</th></tr></thead><tbody>' + filas + "</tbody>" +
+      '<tfoot><tr><td>Total</td><td class="n v">' + esc(pesos(tc)) + '</td><td class="n a">' + esc(pesos(tg)) +
+      '</td><td class="n ' + (tgan >= 0 ? "v" : "r") + '">' + esc(pesos(tgan)) + '</td><td class="n o">' +
+      (tc ? pct(tgan, tc) + "%" : "—") + "</td></tr></tfoot>";
+  }
+
+  /* Pagos hechos como hoja de Excel. */
+  function pintaTablaPagos() {
+    var cid = $("finTablaSel").value;
+    var lista = pagos.filter(function (p) {
+      return p.estado !== "pendiente" && (!cid || p.clienteId === cid);
+    }).sort(function (a, b) { return String(b.fecha).localeCompare(String(a.fecha)); });
+    if (!lista.length) {
+      $("finTabla").innerHTML = '<tbody><tr><td class="vacio">Todavía no hay pagos.</td></tr></tbody>';
+      return;
+    }
+    var total = lista.reduce(function (a, p) { return a + num(p.monto); }, 0);
+    $("finTabla").innerHTML =
+      '<thead><tr><th>Fecha</th><th>Cliente</th><th>Concepto</th><th>Tipo</th><th class="n">Monto</th><th class="x"></th></tr></thead><tbody>' +
+      lista.map(function (p) {
+        return "<tr><td>" + esc(dia(p.fecha)) + "</td><td>" + esc(p.clienteNombre || "—") + "</td><td>" +
+          esc(p.concepto || "") + '</td><td><span class="chip-t' + (p.tipo === "unico" ? " e" : "") + '">' +
+          (p.tipo === "unico" ? "Entrada" : "Mensualidad") + '</span></td><td class="n v">' + esc(pesos(p.monto)) +
+          '</td><td class="x"><button class="borra" title="Borrar" data-borrapago="' + esc(p.id) + '">✕</button></td></tr>';
+      }).join("") + "</tbody>" +
+      '<tfoot><tr><td colspan="4">' + plural(lista.length, "pago", "pagos") + '</td><td class="n v">' +
+      esc(pesos(total)) + "</td><td></td></tr></tfoot>";
     enlaza();
   }
 
@@ -755,13 +746,33 @@
         (pausado ? '<span class="tag">pausado</span>'
           : '<span class="tag' + (q.d < 0 ? " mal" : (q.d <= 3 ? " oro" : "")) + '">cobra ' + esc(q.txt) + "</span>") +
         (debe ? '<span class="tag mal">debe ' + esc(pesos(debe)) + "</span>" : "") +
-        "</div></div></article>";
+        "</div></div>" +
+        '<div class="cli-ops">' +
+        '<button class="lnk oro" data-acc="ver">Ver todo</button>' +
+        '<button class="lnk" data-acc="pago">+ Pago</button>' +
+        (c.telefono ? '<button class="lnk" data-acc="wa">WhatsApp</button>' : "") +
+        '<button class="lnk" data-acc="editar">Editar</button></div></article>';
     }).join("") : '<p class="vacio">Todavía no tienes clientes.<br>Dale a <b>+ Nuevo cliente</b>.</p>';
 
     cada("[data-cli]", function (el) {
       el.onclick = function (ev) {
         if (ev.target.closest("[data-noficha]")) return;
-        abreFicha(el.dataset.cli);
+        var accion = ev.target.closest("[data-acc]");
+        var id = el.dataset.cli;
+        var c = clientes.filter(function (x) { return x.id === id; })[0];
+        if (accion) {
+          var a = accion.dataset.acc;
+          if (a === "ver") abreFicha(id);
+          else if (a === "pago") formPago(id);
+          else if (a === "editar" && c) formCliente(c);
+          else if (a === "wa" && c && c.telefono) {
+            window.open("https://wa.me/52" + String(c.telefono).replace(/\D/g, "").slice(-10), "_blank");
+          }
+          return;
+        }
+        var ya = el.classList.contains("abierta");
+        cada(".cli.abierta", function (x) { x.classList.remove("abierta"); });
+        if (!ya) el.classList.add("abierta");
       };
     });
   }
@@ -776,81 +787,68 @@
     var q = cuando(f);
     var mios = pagosDe(id);
     var debe = deudaDe(id);
+    var cob = totalPagado(id), gan = cob - gastadoEn(id);
+    var det = c.detalles || {};
 
-    var datos = [
-      ["Contacto", c.persona],
-      ["Teléfono", c.telefono ? '<a href="https://wa.me/' + esc(String(c.telefono).replace(/\D/g, "")) + '" target="_blank" rel="noopener">' + esc(c.telefono) + " ↗</a>" : "", 1],
-      ["Correo", c.correo],
-      ["Dónde está", c.ubicacion
-        ? '<a href="' + esc(c.ubicacion) + '" target="_blank" rel="noopener">Abrir su Google Maps ↗</a>' : "", 1],
-      ["Instagram", c.instagram
-        ? '<a href="' + esc(c.instagram) + '" target="_blank" rel="noopener">' +
-          esc(String(c.instagram).replace(/^https?:\/\/(www\.)?instagram\.com\//, "@").replace(/\/$/, "")) +
-          " ↗</a>" : "", 1],
-      ["Qué le diste", listaServicios(c.servicios).map(function (k) {
-        var sv = servicio(k), dd = (c.detalles || {})[k];
-        var nom = sv ? sv[1] + " " + sv[2] : k;
-        if (!dd) return esc(nom);
-        if (/^https?:/.test(dd)) {
-          return esc(nom) + ' \u2192 <a href="' + esc(dd) + '" target="_blank" rel="noopener">' +
-            esc(String(dd).replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")) + "</a>";
-        }
-        if (sv && sv[4] === "tel") {
-          return esc(nom) + ' \u2192 <a href="https://wa.me/52' +
-            esc(String(dd).replace(/\D/g, "").slice(-10)) +
-            '" target="_blank" rel="noopener">' + esc(dd) + "</a>";
-        }
-        return esc(nom) + " \u2192 " + esc(dd);
-      }).join("<br>"), 1],
-      ["Cliente desde", c.inicio ? diaLargo(c.inicio) : ""],
-      ["Notas", c.notas],
-      ["Su cuenta", c.uid
-        ? '<span style="color:var(--green)">Ya puede entrar a tuagentedeia.com/cliente.html</span>'
-        : '<span style="color:var(--muted)">Todav\u00eda sin acceso</span>', 1],
-      ["Sus mensajes llegan a", c.avisaA === "personal" ? "Tu WhatsApp personal" : "El del negocio"]
-    ].filter(function (d) { return d[1]; }).map(function (d) {
-      return '<div class="dato"><b>' + d[0] + "</b><span>" + (d[2] ? d[1] : esc(d[1])) + "</span></div>";
+    var srvs = listaServicios(c.servicios).map(function (k) {
+      var sv = servicio(k), dd = det[k];
+      if (!sv) return "";
+      var dato = "";
+      if (dd && /^https?:/.test(dd)) {
+        dato = '<a href="' + esc(dd) + '" target="_blank" rel="noopener">' +
+          esc(String(dd).replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")) + " ↗</a>";
+      } else if (dd && sv[4] === "tel") {
+        dato = '<a href="https://wa.me/52' + esc(String(dd).replace(/\D/g, "").slice(-10)) +
+          '" target="_blank" rel="noopener">' + esc(dd) + "</a>";
+      } else if (dd) dato = esc(dd);
+      return '<div class="fs"><span>' + sv[1] + "</span><div><b>" + esc(sv[2]) + "</b>" +
+        (dato ? "<small>" + dato + "</small>" : "") + "</div></div>";
     }).join("");
 
-    var cobro = c.estado === "pausado"
-      ? '<div class="dato"><b>Estado</b><span>Pausado</span></div>'
-      : '<div class="dato"><b>Próximo cobro</b><span>' + esc(dia(f)) + " · " + esc(q.txt) + "</span></div>";
+    var datos = [
+      ["📱", c.telefono ? '<a href="https://wa.me/52' + esc(String(c.telefono).replace(/\D/g, "").slice(-10)) +
+        '" target="_blank" rel="noopener">' + esc(c.telefono) + "</a>" : ""],
+      ["📍", c.ubicacion ? '<a href="' + esc(c.ubicacion) + '" target="_blank" rel="noopener">Google Maps</a>' : ""],
+      ["📸", c.instagram ? '<a href="' + esc(c.instagram) + '" target="_blank" rel="noopener">' +
+        esc(String(c.instagram).replace(/^https?:\/\/(www\.)?instagram\.com\//, "@").replace(/\/$/, "")) + "</a>" : ""],
+      ["✉️", c.correo ? esc(c.correo) : ""]
+    ].filter(function (d) { return d[1]; }).map(function (d) {
+      return '<span class="fd">' + d[0] + " " + d[1] + "</span>";
+    }).join("");
 
     $("fichaIn").innerHTML =
       '<button class="ficha-x" id="fichaX">✕</button>' +
       '<div class="ficha-cab">' + fotoHTML(c) + "<div>" +
       "<h3>" + esc(c.negocio || c.persona || "Sin nombre") + "</h3>" +
-      "<p>" + esc(serviciosTexto(c.servicios) || "Sin servicios anotados") + "</p></div></div>" +
+      "<p>" + esc(c.persona || "") + (c.inicio ? " · desde " + esc(diaLargo(c.inicio)) : "") + "</p></div></div>" +
+      (datos ? '<div class="fds">' + datos + "</div>" : "") +
 
-      '<div class="cards" style="margin-bottom:26px">' +
-      '<div class="card"><div class="n">' + esc(montoTxt(c)) + '</div><div class="t">' +
-      esc(c.periodicidad === "unico" ? "pago único" : "al " + (c.periodicidad === "anual" ? "año" : "mes")) +
-      (c.montoVaria ? " · varía" : "") + "</div></div>" +
-      (num(c.montoInicial) ? '<div class="card"><div class="n">' + esc(pesos(c.montoInicial)) +
-        '</div><div class="t">cobro de entrada</div></div>' : "") +
-      '<div class="card verde"><div class="n">' + esc(pesos(totalPagado(id))) + '</div><div class="t">te ha pagado</div></div>' +
-      (function () {
-        var g = gastadoEn(id);
-        if (!g && !totalPagado(id)) return "";
-        var deja = totalPagado(id) - g;
-        return '<div class="card azul"><div class="n">' + esc(pesos(g)) +
-          '</div><div class="t">te ha costado</div></div>' +
-          '<div class="card ' + (deja >= 0 ? "verde" : "roja") + '"><div class="n">' +
-          esc(pesos(deja)) + '</div><div class="t">te deja</div></div>';
-      })() +
-      (debe ? '<div class="card roja"><div class="n">' + esc(pesos(debe)) + '</div><div class="t">te debe</div></div>' : "") +
-      "</div>" +
+      (debe ? '<div class="deben" style="padding:18px 20px;margin-bottom:18px"><div class="deben-lbl">Te debe</div>' +
+        '<div class="deben-n" style="font-size:2.1rem">' + esc(pesos(debe)) + "</div></div>" : "") +
 
-      '<div class="ficha-sec"><h4>Sus datos</h4>' + cobro + datos + "</div>" +
+      '<div class="fcards">' +
+      '<div class="card"><div class="n">' + esc(c.montoVaria ? "Por definir" : pesos(c.monto)) + '</div><div class="t">al mes' +
+      (c.estado === "pausado" ? " · en pausa" : " · cobra " + esc(q.txt)) + "</div></div>" +
+      '<div class="card verde"><div class="n">' + esc(pesos(cob)) + '</div><div class="t">te ha pagado</div></div>' +
+      '<div class="card ' + (gan >= 0 ? "verde" : "roja") + '"><div class="n">' + esc(pesos(gan)) +
+      '</div><div class="t">ganancia</div></div></div>' +
 
-      '<div class="ficha-sec"><h4>Su línea de pagos</h4>' +
-      (mios.length ? lineaTiempo(mios)
-        : '<p class="vacio" style="padding:24px 0">Todavía no le registras ningún pago.</p>') +
-      "</div>" +
+      (srvs ? '<div class="ficha-sec"><h4>Sus servicios</h4>' + srvs + "</div>" : "") +
+
+      '<div class="ficha-sec"><h4>Sus pagos</h4>' +
+      (mios.filter(function (p) { return p.estado !== "pendiente"; }).length
+        ? lineaTiempo(mios.filter(function (p) { return p.estado !== "pendiente"; }))
+        : '<p class="vacio" style="padding:20px 0">Todavía no le registras pagos.</p>') + "</div>" +
+
+      (c.notas ? '<div class="ficha-sec"><h4>Notas</h4><p style="color:var(--dim);line-height:1.6">' +
+        esc(c.notas) + "</p></div>" : "") +
+
+      '<p class="fpie">' + (c.uid ? "✅ Ya puede entrar a su cuenta" : "⚪ Todavía sin cuenta") +
+      " · sus mensajes te llegan " + (c.avisaA === "personal" ? "a tu WhatsApp personal" : "al del negocio") + "</p>" +
 
       '<div class="ficha-acc">' +
       '<button class="lnk oro" id="fPago">+ Registrar pago</button>' +
-      '<button class="lnk" id="fEdit">Editar ficha</button>' +
+      '<button class="lnk" id="fEdit">Editar</button>' +
       '<button class="lnk mal" id="fBorra">Borrar cliente</button>' +
       "</div>";
 
@@ -861,8 +859,7 @@
     $("fEdit").onclick = function () { formCliente(c); };
     $("fBorra").onclick = function () {
       P.confirmar("Borrar a " + (c.negocio || "este cliente"),
-        "Se borra su ficha. Sus pagos se quedan.",
-        "Sí, borrar").then(function (ok) {
+        "Se borra su ficha. Sus pagos se quedan.", "Sí, borrar").then(function (ok) {
           if (!ok) return;
           borrar("clientes", id).then(function () {
             clientes = clientes.filter(function (x) { return x.id !== id; });
@@ -1216,6 +1213,112 @@
     };
   }
 
+  /* ═══════════ RESEÑAS ═══════════ */
+  var resenasSinReglas = false;
+  function estrellasTxt(n) {
+    n = Math.max(0, Math.min(5, num(n)));
+    return new Array(n + 1).join("★") + "<i>" + new Array(6 - n).join("★") + "</i>";
+  }
+  function pintaResenas() {
+    $("numRes").textContent = resenas.length;
+    if (resenasSinReglas) {
+      $("resAviso").innerHTML = '<div class="aviso"><i>⚠️</i><div><b>Faltan las reglas de reseñas.</b><br>' +
+        "Pega otra vez <code>firebase/firestore-rules.txt</code> en la consola y dale Publicar.</div></div>";
+    } else $("resAviso").innerHTML = "";
+    $("resenas").innerHTML = resenas.length ? resenas.map(function (x) {
+      var c = clientes.filter(function (y) { return y.id === x.clienteId; })[0];
+      var cara = c && c.foto ? '<img src="' + esc(c.foto) + '" alt="">'
+        : '<span class="foto ini">' + esc(iniciales(x.nombre || x.negocio)) + "</span>";
+      return '<article class="res"><div class="res-est">' + estrellasTxt(x.estrellas || 5) + "</div>" +
+        '<p class="res-txt">“' + esc(x.texto || "") + "”</p>" +
+        '<div class="res-quien">' + cara + "<div><b>" + esc(x.nombre || "") + "</b>" +
+        "<small>" + esc(x.negocio || "") + (x.fecha ? " · " + esc(dia(x.fecha)) : "") + "</small></div></div>" +
+        '<div class="res-acc"><span class="tag ' + (x.publicar ? "ok" : "") + '">' +
+        (x.publicar ? "Lista para la página" : "Solo en el panel") + "</span>" +
+        '<button class="lnk" data-editres="' + esc(x.id) + '">Editar</button>' +
+        '<button class="lnk mal" data-borrares="' + esc(x.id) + '">Borrar</button></div></article>';
+    }).join("") : '<p class="vacio">Todavía no tienes reseñas.<br>Dale a <b>+ Nueva reseña</b> cuando te den una.</p>';
+
+    cada("[data-editres]", function (b) {
+      b.onclick = function () {
+        var x = resenas.filter(function (y) { return y.id === b.dataset.editres; })[0];
+        if (x) formResena(x);
+      };
+    });
+    cada("[data-borrares]", function (b) {
+      b.onclick = function () {
+        P.confirmar("Borrar esta reseña", "No se puede deshacer.", "Sí, borrar").then(function (ok) {
+          if (!ok) return;
+          borrar("resenas", b.dataset.borrares).then(function () {
+            resenas = resenas.filter(function (y) { return y.id !== b.dataset.borrares; });
+            P.toast("Borrada", "bien");
+            pintaResenas();
+          }).catch(function (e) { P.toast("No se pudo: " + e.message, "mal"); });
+        });
+      };
+    });
+  }
+
+  function formResena(x) {
+    x = x || {};
+    var ed = !!x.id, est = num(x.estrellas) || 5;
+    P.modal("<h3>" + (ed ? "Editar reseña" : "Nueva reseña") + "</h3>" +
+      '<p class="sub">Lo que te dijo tal cual.</p>' +
+      '<div class="form-grid">' +
+      '<div class="f"><label>De qué cliente</label><select id="rsCli"><option value="">Otro</option>' +
+      clientes.map(function (c) {
+        return '<option value="' + esc(c.id) + '"' + (x.clienteId === c.id ? " selected" : "") + ">" +
+          esc(c.negocio || c.persona) + "</option>";
+      }).join("") + "</select></div>" +
+      '<div class="f"><label>Fecha</label><input id="rsFecha" type="date" value="' + esc(x.fecha || hoyMX().iso) + '"></div>' +
+      '<div class="f"><label>Quién la dio</label><input id="rsNom" type="text" placeholder="Gabriel" value="' + esc(x.nombre || "") + '"></div>' +
+      '<div class="f"><label>Su negocio</label><input id="rsNeg" type="text" placeholder="Barberísimo" value="' + esc(x.negocio || "") + '"></div>' +
+      '<div class="f ancho"><label>Estrellas</label><div class="estrellas" id="rsEst">' +
+      [1, 2, 3, 4, 5].map(function (i) {
+        return '<button type="button" data-e="' + i + '"' + (i <= est ? ' class="on"' : "") + ">★</button>";
+      }).join("") + "</div></div>" +
+      '<div class="f ancho"><label>Lo que dijo</label><textarea id="rsTxt">' + esc(x.texto || "") + "</textarea></div>" +
+      '<div class="f ancho"><label>¿La ponemos en la página cuando esté la sección?</label><select id="rsPub">' +
+      '<option value="0"' + (!x.publicar ? " selected" : "") + ">Todavía no</option>" +
+      '<option value="1"' + (x.publicar ? " selected" : "") + ">Sí</option></select></div>" +
+      "</div>" +
+      '<div class="modal-acc"><button class="lnk" id="rsNo">Cancelar</button>' +
+      '<button class="lnk oro" id="rsSi">Guardar</button></div>');
+
+    Array.prototype.forEach.call($("rsEst").querySelectorAll("button"), function (b) {
+      b.onclick = function () {
+        est = +b.dataset.e;
+        Array.prototype.forEach.call($("rsEst").querySelectorAll("button"), function (y) {
+          y.classList.toggle("on", +y.dataset.e <= est);
+        });
+      };
+    });
+    $("rsCli").onchange = function () {
+      var c = clientes.filter(function (y) { return y.id === $("rsCli").value; })[0];
+      if (c) {
+        if (!$("rsNom").value) $("rsNom").value = c.persona || "";
+        if (!$("rsNeg").value) $("rsNeg").value = c.negocio || "";
+      }
+    };
+    $("rsNo").onclick = P.cierraModal;
+    $("rsSi").onclick = function () {
+      var txt = $("rsTxt").value.trim();
+      if (!txt) return P.toast("Falta lo que dijo", "mal");
+      var obj = {
+        clienteId: $("rsCli").value, nombre: $("rsNom").value.trim(), negocio: $("rsNeg").value.trim(),
+        estrellas: est, texto: txt, fecha: $("rsFecha").value, publicar: $("rsPub").value === "1"
+      };
+      var op = ed ? actualizar("resenas", x.id, obj) : crear("resenas", obj);
+      op.then(function (d) {
+        if (ed) { for (var k in obj) x[k] = obj[k]; }
+        else { obj.id = d.name.split("/").pop(); resenas.unshift(obj); }
+        P.cierraModal();
+        P.toast("Reseña guardada", "bien");
+        pintaResenas();
+      }).catch(function (e) { P.toast("No se pudo guardar: " + e.message, "mal"); });
+    };
+  }
+
   /* ═══════════ LO QUE TE PIDEN ═══════════ */
   function sinAtender() {
     return peticiones.filter(function (x) { return !x.atendida; });
@@ -1311,6 +1414,7 @@
         if (k === "clientes") pintaClientes();
         else if (k === "piden") pintaPeticiones();
         else if (k === "prospectos") pintaProspectos();
+        else if (k === "resenas") pintaResenas();
         else pintaFinanzas();
       });
     }
@@ -1322,8 +1426,11 @@
     $("btnCliNuevo").onclick = function () { formCliente(null); };
     $("btnPagoNuevo").onclick = function () { formPago(null); };
     $("btnGastoNuevo").onclick = function () { formGasto(null); };
+    $("finMesSel").onchange = pintaPorMes;
+    $("finTablaSel").onchange = pintaTablaPagos;
     $("btnPideTodas").onclick = function () { verAtendidas = !verAtendidas; pintaPeticiones(); };
     $("btnProsNuevo").onclick = function () { formProspecto(null); };
+    $("btnResNueva").onclick = function () { formResena(null); };
     asegura(function () { pintaClientes(); pintaFinanzas(); pintaPeticiones(); pintaProspectos(); });
   }
 

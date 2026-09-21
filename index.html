@@ -2300,14 +2300,13 @@ Object.entries(SM).forEach(([step,indices])=>{
       }
       return x;
     });
-    var t='Hola, soy '+nombre+'. Quiero agendar un preview de:\n';
-    t+=lineas.map(function(x){return '\u00b7 '+x;}).join('\n')+'\n\n';
+    var t='Hola, soy *'+nombre+'*. Quiero mi preview.\n\n';
+    t+='*Me interesa:*\n'+lineas.map(function(x){return '\u2022 '+x;}).join('\n')+'\n\n';
     if(esNegocio==='si'){
-      t+='Mi negocio es '+negNombre+', es una '+giro.toLowerCase();
-      t+= maps ? ' y mi Google Maps es '+maps : '';
-      t+='.';
+      t+='*Mi negocio:* '+negNombre+' ('+giro.toLowerCase()+')';
+      t+= maps ? '\n*Google Maps:* '+maps : '';
     } else {
-      t+= tema ? 'No es para un negocio: es sobre '+tema+'.' : 'No es para un negocio.';
+      t+='*Es para:* algo personal'+(tema ? ', '+tema : '');
     }
 
     ev('form_enviado',{

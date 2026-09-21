@@ -247,6 +247,27 @@
     return (ps[0][0] + (ps.length > 1 ? ps[ps.length - 1][0] : "")).toUpperCase();
   }
 
+  /* El mensaje del formulario en renglones claros, en vez del texto corrido. */
+  function estructura(m) {
+    var filas = [];
+    var quiere = String(m.interes || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+    if (quiere.length) {
+      filas.push(["Quiere", quiere.map(function (x) {
+        return '<span class="tag oro">' + esc(x) + "</span>";
+      }).join(" ")]);
+    }
+    if (m.auto) filas.push(["Automatizar", esc(m.auto)]);
+    if (m.negocio) filas.push(["Negocio", esc(m.negocio) + (m.giro ? ' <span style="color:var(--muted)">\u00b7 ' + esc(m.giro) + "</span>" : "")]);
+    else if (m.tema) filas.push(["Es para", esc(m.tema)]);
+    if (m.maps && /^https?:/.test(m.maps)) {
+      filas.push(["Ubicaci\u00f3n", '<a href="' + esc(m.maps) + '" target="_blank" rel="noopener" style="color:var(--gold2)">Abrir en Google Maps \u2197</a>']);
+    }
+    if (!filas.length) return '<div class="msg-txt">' + esc(m.texto) + "</div>";
+    return '<div class="msg-est">' + filas.map(function (f) {
+      return '<div class="me"><b>' + f[0] + "</b><div>" + f[1] + "</div></div>";
+    }).join("") + "</div>";
+  }
+
   function pintaMensajes() {
     var todos = [];
     visitas.forEach(function (v) {
@@ -259,6 +280,9 @@
           interes: (v.form && v.form.interes) || "",
           maps: (v.form && v.form.maps) || "",
           texto: m.texto || "",
+          interes: (v.form && v.form.interes) || "",
+          auto: (v.form && v.form.automatizar) || "",
+          tema: (v.form && v.form.tema) || "",
           cuando: m.cuando || v.inicio,
           origen: v.origen || "Directo",
           aparato: v.aparato || ""
@@ -275,7 +299,7 @@
       if (m.aparato) chips += '<span class="tag">' + esc(m.aparato) + "</span>";
 
       var pie = '<button class="lnk" data-copiar="1">Copiar mensaje</button>';
-      if (m.maps && /^https?:/.test(m.maps)) {
+      if (m.maps && /^https?:/.test(m.maps) && !m.interes) {
         pie += '<a class="lnk" href="' + esc(m.maps) + '" target="_blank" rel="noopener">Ver en Google Maps \u2197</a>';
       }
       pie += '<button class="lnk mal sep" data-borrar="' + esc(m.sid) + '">Borrar registro</button>';
@@ -287,7 +311,9 @@
         "</div></div>" +
         '<div class="msg-der"><span class="msg-cuando">' + esc(fecha(m.cuando)) + "</span>" +
         (chips ? '<div class="msg-chips">' + chips + "</div>" : "") + "</div></div>" +
-        '<div class="msg-txt">' + esc(m.texto) + "</div>" +
+        estructura(m) +
+        '<details class="msg-raw"><summary>Ver el mensaje tal cual</summary><div class="msg-txt">' +
+        esc(m.texto) + "</div></details>" +
         '<div class="msg-pie">' + pie + "</div></article>";
     }).join("") : '<p class="vacio">Todav\u00eda nadie ha llenado el formulario.</p>';
 
@@ -502,7 +528,7 @@
   }
 
   /* ═══ navegación ═══ */
-  var SEC_NEGOCIO = ["finanzas", "clientes", "prospectos", "piden"];
+  var SEC_NEGOCIO = ["finanzas", "clientes", "prospectos", "resenas", "piden"];
   var SEC = {
     resumen: ["secResumen", "Resumen"],
     origen: ["secOrigen", "De d\u00f3nde llegan"],
@@ -511,6 +537,7 @@
     finanzas: ["secFinanzas", "Finanzas"],
     clientes: ["secClientes", "Clientes"],
     prospectos: ["secProspectos", "Prospectos"],
+    resenas: ["secResenas", "Rese\u00f1as"],
     piden: ["secPiden", "Lo que te piden"]
   };
   function abreSec(k) {

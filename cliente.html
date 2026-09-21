@@ -93,6 +93,16 @@ h2{font-family:'Space Grotesk',sans-serif;font-size:1.42rem;font-weight:600;lett
   .cuadro .ct{font-size:.9rem;margin-top:6px}
   .cuadro .cp{font-size:.8rem}
 }
+.atraso{background:linear-gradient(150deg,rgba(233,117,107,.14),rgba(233,117,107,.03));border:1px solid rgba(233,117,107,.45);border-radius:18px;padding:20px 22px;margin-bottom:16px}
+.at-n{font-family:'JetBrains Mono',monospace;font-size:1.55rem;font-weight:700;color:var(--red);letter-spacing:-.01em}
+.at-n span{font-family:'Instrument Sans',sans-serif;font-size:1rem;font-weight:600}
+.at-p{font-size:.95rem;color:var(--dim);margin-top:6px}
+.at-p b{color:var(--text)}
+.cuadro .cn.txt{font-family:'Space Grotesk',sans-serif;font-size:1.5rem}
+.cuadro.srvc .cn.ico{font-size:1.6rem;font-family:inherit}
+.cuadro.srvc .ct{color:var(--text);font-weight:600}
+.cuadro .cl{display:block;color:var(--gold2);text-decoration:none;word-break:break-word;white-space:normal}
+.cuadro .cl:hover{text-decoration:underline}
 .prox{position:relative;background:linear-gradient(150deg,rgba(201,168,76,.13),rgba(201,168,76,.02) 55%,transparent);border:1px solid rgba(201,168,76,.32);border-radius:24px;padding:36px 32px;margin-bottom:24px;overflow:hidden}
 .prox::after{content:"";position:absolute;right:-70px;top:-70px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.14),transparent 68%)}
 .prox .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:15px}
@@ -209,7 +219,6 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
 <body>
 
 <div id="login">
-  <img src="/logo-tuia.png" alt="">
   <span class="marca">Tu Agente de IA</span>
   <h1>Tu cuenta</h1>
   <p>Tu servicio y tus pagos.</p>
@@ -278,6 +287,7 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
 
 <div class="toast" id="toast"></div>
 
+<script src="js/td-login-tuia.js" defer></script>
 <script src="js/td-cliente.js" defer></script>
 </body>
 </html>

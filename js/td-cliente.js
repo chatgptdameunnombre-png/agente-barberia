@@ -20,9 +20,7 @@
     ["web", "🌐", "Página web", "Tu página en internet.", "Tu página"],
     ["tienda", "🛒", "Tienda en línea", "Vendes desde tu página.", "Tu tienda"],
     ["automatizacion", "⚙️", "Automatizaciones", "Ya no lo haces a mano.", "Qué se automatizó"],
-    ["videos", "🎬", "Videos con IA", "Videos para tus redes.", "Dónde salen"],
-    ["panel", "📊", "Panel", "Ves quién entra a tu página.", "Tu panel"],
-    ["agenda", "📅", "Agenda", "Agenda las citas y avisa.", "Tu calendario"]
+    ["videos", "🎬", "Videos con IA", "Videos para tus redes.", "Dónde salen"]
   ];
   function srv(clave) {
     for (var i = 0; i < SERVICIOS.length; i++) {
@@ -135,7 +133,7 @@
 
   function pesos(n) {
     n = Math.round(Number(n) || 0);
-    return "$" + n.toLocaleString("es-MX");
+    return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("es-MX");
   }
   function num(v) { var n = Number(v); return isFinite(n) ? n : 0; }
   function hoyMX() {
@@ -200,32 +198,57 @@
     return pendientes().reduce(function (a, p) { return a + num(p.monto); }, 0);
   }
 
+  /* Aviso rojo arriba cuando debe algo: cuanto y desde hace cuanto. */
+  function atraso() {
+    var ps = pendientes();
+    if (!ps.length) return "";
+    var total = ps.reduce(function (a, p) { return a + num(p.monto); }, 0);
+    var viejo = ps.map(function (p) { return String(p.fecha || ""); }).sort()[0];
+    var dias = viejo ? diasEntre(viejo.slice(0, 10), hoyMX().iso) : 0;
+    var meses = Math.floor(dias / 30);
+    var tiempo = meses >= 1 ? meses + (meses === 1 ? " mes" : " meses")
+      : (dias > 0 ? dias + (dias === 1 ? " d\u00eda" : " d\u00edas") : "");
+    var de = ps.length === 1 ? (ps[0].concepto || "Un pago pendiente") : ps.length + " pagos pendientes";
+    return '<div class="atraso"><div class="at-n">' + esc(pesos(total)) + " atrasados" +
+      (tiempo ? ' <span>\u00b7 ' + esc(tiempo) + "</span>" : "") + "</div>" +
+      '<div class="at-p">' + esc(de) + ". Si ya lo pagaste, av\u00edsanos en <b>Pedir algo</b>.</div></div>";
+  }
+
+  function datoCorto(d) {
+    return String(d || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+  }
+
   function cuadros() {
     var pausado = cliente.estado === "pausado";
-    var deb = debe();
     var f = proximaFecha(cliente.diaPago, cliente.periodicidad || "mensual", cliente.inicio);
     var q = cuando(f);
-    var pagado = hechos().reduce(function (a, p) { return a + num(p.monto); }, 0);
-    var c = [];
+    var det = (cliente.detalles && typeof cliente.detalles === "object") ? cliente.detalles : {};
+    var html = "";
 
-    if (deb > 0) {
-      c.push(["roja", pesos(deb), "Debes", pendientes().length === 1
-        ? (pendientes()[0].concepto || "un pago") : pendientes().length + " pagos"]);
-    } else if (!pausado && f && (num(cliente.monto) || cliente.montoVaria)) {
-      c.push(["oro", cliente.montoVaria ? "Varía" : pesos(cliente.monto), "Tu próximo pago",
-        diaLargo(f) + " · " + q.txt]);
+    if (pausado) {
+      html += '<div class="cuadro amber"><div class="cn">En pausa</div><div class="ct">Tu servicio</div>' +
+        '<div class="cp">No se te cobra</div></div>';
+    } else if (f && (num(cliente.monto) || cliente.montoVaria)) {
+      html += '<div class="cuadro oro"><div class="cn' + (cliente.montoVaria ? " txt" : "") + '">' +
+        esc(cliente.montoVaria ? "Por definir" : pesos(cliente.monto)) + "</div>" +
+        '<div class="ct">Tu pr\u00f3ximo pago</div><div class="cp">' + esc(diaLargo(f)) +
+        " \u00b7 " + esc(q.txt) + "</div></div>";
     }
 
-    c.push([pausado ? "amber" : "verde", pausado ? "En pausa" : "Todo bien", "Tu servicio",
-      cliente.inicio ? "desde el " + dia(cliente.inicio) : ""]);
-    c.push(["", String(mios().length), "Servicios", "contratados"]);
-    if (pagado) c.push(["verde", pesos(pagado), "Llevas pagado", hechos().length + " pagos"]);
+    mios().forEach(function (k) {
+      var sv = srv(k), d = det[k];
+      var abajo = "";
+      if (d && /^https?:/.test(d)) {
+        abajo = '<a class="cp cl" href="' + esc(d) + '" target="_blank" rel="noopener">' +
+          esc(datoCorto(d)) + " \u2197</a>";
+      } else if (d) {
+        abajo = '<div class="cp">' + esc(d) + "</div>";
+      }
+      html += '<div class="cuadro srvc"><div class="cn ico">' + sv[1] + "</div>" +
+        '<div class="ct">' + esc(sv[2]) + "</div>" + abajo + "</div>";
+    });
 
-    return '<div class="cuadros">' + c.map(function (x) {
-      return '<div class="cuadro ' + x[0] + '"><div class="cn">' + esc(x[1]) + "</div>" +
-        '<div class="ct">' + esc(x[2]) + "</div>" +
-        (x[3] ? '<div class="cp">' + esc(x[3]) + "</div>" : "") + "</div>";
-    }).join("") + "</div>";
+    return '<div class="cuadros">' + html + "</div>";
   }
 
   function bloqueProximo() {
@@ -330,11 +353,10 @@
     $("hTtl").textContent = "Hola" + (cliente.persona ? ", " + String(cliente.persona).split(" ")[0] : "");
     $("hSub").textContent = "Tu servicio y tus pagos.";
 
-    $("resumen").innerHTML = cuadros() +
-      '<div class="blq"><h2>Tus servicios</h2>' + tarjetasServicios() + "</div>" +
+    $("resumen").innerHTML = atraso() + cuadros() +
       '<div class="blq"><div class="blq-top"><h2>Últimos pagos</h2>' +
       (hechos().length > 3 ? '<button class="salir" data-ir="pagos">Ver todos</button>' : "") +
-      "</div>" + lineaTiempo(pendientes().concat(hechos().slice(0, 3))) + "</div>";
+      "</div>" + lineaTiempo(hechos().slice(0, 3)) + "</div>";
 
     cada("[data-ir]", function (b) { b.onclick = function () { abreSec(b.dataset.ir); }; });
   }
@@ -342,7 +364,7 @@
   function pintaPagos() {
     var h = hechos(), ps = pendientes();
     var total = h.reduce(function (a, p) { return a + num(p.monto); }, 0);
-    $("pagos").innerHTML = '<div class="blq"><h2>Tu línea de pagos</h2>' + lineaTiempo(pagos) +
+    $("pagos").innerHTML = atraso() + '<div class="blq"><h2>Tu línea de pagos</h2>' + lineaTiempo(h) +
       (h.length ? '<p class="total">Llevas <b>' + esc(pesos(total)) + "</b> pagados en " + h.length +
         (h.length === 1 ? " pago." : " pagos.") + "</p>" : "") +
       "</div>";
@@ -447,8 +469,11 @@
 
     var negocio = cliente.negocio || cliente.persona || "";
     var quien = cliente.persona || "";
-    var msg = "Hola, soy " + (quien ? quien + " de " + negocio : negocio) + ".\n\n" +
-      eltipo + ":\n" + cuerpo;
+    var msg = "*" + negocio + "*" + (quien ? " \u00b7 " + quien : "") + "\n" +
+      "*Pide:* " + eltipo + "\n";
+    if (quiere.length) msg += "\n*Le interesa:*\n\u2022 " + quiere.join("\n\u2022 ") + "\n";
+    if (texto) msg += "\n*Mensaje:*\n" + texto + "\n";
+    msg += "\n_Enviado desde su cuenta_";
 
     var doc = {
       fields: {
