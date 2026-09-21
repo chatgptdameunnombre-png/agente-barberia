@@ -65,6 +65,23 @@ button,input,select,textarea{font-family:inherit}
 body:has(#app:not([hidden])) .volver{display:none}
 a.nav-it{text-decoration:none}
 @media(max-width:620px){.volver{position:static;display:flex;width:max-content;margin:18px 16px 0}}
+.clave-fondo{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:18px}
+.clave-fondo[hidden]{display:none}
+.clave{position:relative;width:min(440px,100%);max-height:92vh;overflow-y:auto;background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:34px 30px}
+.clave h2{font-size:1.6rem;margin-bottom:8px}
+.clave-sub{color:var(--dim);font-size:.98rem;margin-bottom:22px;line-height:1.5}
+.clave-l{display:block;font-size:.9rem;color:var(--dim);margin:4px 0 7px}
+.clave-x{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);color:var(--dim);cursor:pointer}
+.clave-x:hover{border-color:var(--gold);color:var(--gold2)}
+.clave.forzada .clave-x{display:none}
+.clave-reglas{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 16px}
+.clave-reglas li{font-size:.82rem;padding:5px 11px;border-radius:99px;background:var(--bg3);border:1px solid var(--border2);color:var(--muted)}
+.clave-reglas li.ok{color:var(--green);border-color:rgba(126,226,168,.35);background:rgba(126,226,168,.08)}
+.clave-reglas li.ok::before{content:"\2713  "}
+.clave .btn{margin-top:6px}
+.clave-salir{display:none;width:100%;margin-top:12px;background:none;border:none;color:var(--muted);font-size:.92rem;cursor:pointer;text-decoration:underline}
+.clave.forzada .clave-salir{display:block}
+.clave .btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
 .nav-pie{margin-top:auto;padding-top:14px;border-top:1px solid var(--border)}
 .nav-fondo{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:34;display:none}
 
@@ -254,6 +271,7 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
     <button class="nav-it" data-sec="servicios"><span class="nav-ico">&#9881;&#65039;</span>Mis servicios</button>
     <button class="nav-it" data-sec="pedir"><span class="nav-ico">&#128172;</span>Pedir algo</button>
     <div class="nav-pie">
+      <button class="nav-it" id="cambiarClave"><span class="nav-ico">&#128273;</span>Cambiar contrase&ntilde;a</button>
       <a class="nav-it" href="/"><span class="nav-ico">&#127760;</span>Ir a la p&aacute;gina</a>
       <button class="nav-it" id="salirNav"><span class="nav-ico">&#8617;</span>Cerrar sesi&oacute;n</button>
     </div>
@@ -293,6 +311,28 @@ textarea.in{min-height:140px;resize:vertical;line-height:1.65;margin-bottom:18px
       <div id="pedir"></div>
     </section>
   </main>
+</div>
+
+<div class="clave-fondo" id="claveFondo" hidden>
+  <div class="clave" role="dialog" aria-modal="true" aria-labelledby="claveTtl">
+    <button class="clave-x" id="claveX" aria-label="Cerrar">&#10005;</button>
+    <h2 id="claveTtl">Elige tu contrase&ntilde;a</h2>
+    <p class="clave-sub" id="claveSub">La que te dimos es temporal. Pon una que solo t&uacute; sepas.</p>
+    <label class="clave-l" for="claveAct">Contrase&ntilde;a que te dimos</label>
+    <input class="in" id="claveAct" type="password" autocomplete="current-password">
+    <label class="clave-l" for="claveNueva">Tu contrase&ntilde;a nueva</label>
+    <input class="in" id="claveNueva" type="password" autocomplete="new-password">
+    <ul class="clave-reglas" id="claveReglas">
+      <li data-r="largo">Al menos 10 caracteres</li>
+      <li data-r="mayus">Una may&uacute;scula</li>
+      <li data-r="num">Un n&uacute;mero</li>
+    </ul>
+    <label class="clave-l" for="claveOtra">Escr&iacute;bela otra vez</label>
+    <input class="in" id="claveOtra" type="password" autocomplete="new-password">
+    <p class="err" id="claveErr" hidden></p>
+    <button class="btn" id="claveGuardar" disabled>Guardar mi contrase&ntilde;a</button>
+    <button class="clave-salir" id="claveSalir">Salir por ahora</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>

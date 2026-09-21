@@ -36,7 +36,7 @@
     return String(v).split(/\s*[+,·|]\s*/).map(function (x) { return x.trim(); }).filter(Boolean);
   }
 
-  var token = null, uid = null, cliente = null, pagos = [];
+  var token = null, uid = null, correo = "", cliente = null, pagos = [];
   var tipo = "", enviando = false;
 
   var $ = function (id) { return document.getElementById(id); };
@@ -71,6 +71,7 @@
     }).then(function (d) {
       token = d.idToken;
       uid = d.localId;
+      correo = d.email || mail;
       ls_(K_RT, d.refreshToken);
     });
   }
@@ -83,6 +84,119 @@
       body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(rt)
     }).then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (d) { token = d.id_token; uid = d.user_id; });
+  }
+
+  /* ═══ contraseña ═══
+     Firebase guarda cuándo se creó la cuenta y cuándo se cambió la contraseña
+     por última vez. Si son la misma fecha, el cliente sigue con la temporal
+     que le dio Kiki y se le pide elegir la suya. */
+  function miCuenta() {
+    return fetch(IDT + ":lookup?key=" + API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken: token })
+    }).then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (d) { return (d.users || [])[0] || {}; });
+  }
+  function esTemporal(u) {
+    var c = +u.createdAt || 0, p = +u.passwordUpdatedAt || 0;
+    return c > 0 && Math.abs(p - c) < 60000;
+  }
+
+  var claveForzada = false;
+  function abreClave(forzada) {
+    claveForzada = !!forzada;
+    var caja = document.querySelector(".clave");
+    caja.classList.toggle("forzada", claveForzada);
+    $("claveTtl").textContent = claveForzada ? "Elige tu contraseña" : "Cambiar contraseña";
+    $("claveSub").textContent = claveForzada
+      ? "La que te dimos es temporal. Pon una que solo tú sepas."
+      : "Pon la que usas hoy y luego la nueva.";
+    document.querySelector('label[for="claveAct"]').textContent =
+      claveForzada ? "Contraseña que te dimos" : "Tu contraseña de hoy";
+    ["claveAct", "claveNueva", "claveOtra"].forEach(function (k) { $(k).value = ""; });
+    $("claveErr").hidden = true;
+    revisaClave();
+    $("claveFondo").hidden = false;
+    setTimeout(function () { $("claveAct").focus(); }, 60);
+  }
+  function cierraClave() {
+    if (claveForzada) return;
+    $("claveFondo").hidden = true;
+  }
+  function reglas(v) {
+    return { largo: v.length >= 10, mayus: /[A-ZÑÁÉÍÓÚ]/.test(v), num: /\d/.test(v) };
+  }
+  function revisaClave() {
+    var n = $("claveNueva").value, r = reglas(n);
+    Array.prototype.forEach.call(document.querySelectorAll("#claveReglas li"), function (li) {
+      li.classList.toggle("ok", !!r[li.dataset.r]);
+    });
+    $("claveGuardar").disabled = !($("claveAct").value && r.largo && r.mayus && r.num && $("claveOtra").value);
+  }
+  function errClave(t) { $("claveErr").textContent = t; $("claveErr").hidden = false; }
+
+  function guardaClave() {
+    var act = $("claveAct").value, nueva = $("claveNueva").value, otra = $("claveOtra").value;
+    $("claveErr").hidden = true;
+    if (nueva !== otra) return errClave("Las dos contraseñas nuevas no son iguales.");
+    if (nueva === act) return errClave("La nueva tiene que ser distinta a la de hoy.");
+    if (correo && nueva.toLowerCase().indexOf(correo.split("@")[0].toLowerCase()) !== -1) {
+      return errClave("No uses tu correo dentro de la contraseña.");
+    }
+    $("claveGuardar").disabled = true;
+    $("claveGuardar").textContent = "Guardando…";
+
+    /* primero se confirma la de hoy (Firebase pide una sesion reciente para
+       cambiarla) y luego se pone la nueva */
+    fetch(IDT + ":signInWithPassword?key=" + API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: correo, password: act, returnSecureToken: true })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("actual");
+      return r.json();
+    }).then(function (d) {
+      return fetch(IDT + ":update?key=" + API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: d.idToken, password: nueva, returnSecureToken: true })
+      });
+    }).then(function (r) {
+      return r.json().then(function (j) {
+        if (!r.ok) throw new Error((j.error && j.error.message) || "update");
+        return j;
+      });
+    }).then(function (j) {
+      token = j.idToken;
+      if (j.refreshToken) ls_(K_RT, j.refreshToken);
+      avisaCambio();
+      claveForzada = false;
+      $("claveFondo").hidden = true;
+      toast("Listo, ya tienes tu contraseña", "bien");
+    }).catch(function (e) {
+      var m = String(e.message || "");
+      if (m === "actual" || /INVALID_PASSWORD|INVALID_LOGIN/.test(m)) errClave("La contraseña de hoy no es correcta.");
+      else if (/WEAK_PASSWORD/.test(m)) errClave("Esa contraseña es muy débil. Prueba otra más larga.");
+      else if (/TOO_MANY/.test(m)) errClave("Demasiados intentos. Espera unos minutos.");
+      else errClave("No se pudo guardar. Inténtalo otra vez.");
+    }).then(function () {
+      $("claveGuardar").textContent = "Guardar mi contraseña";
+      revisaClave();
+    });
+  }
+
+  /* Le deja dicho a Kiki en la ficha que el cliente ya tiene su propia
+     contraseña. Si la regla de Firebase aún no lo permite, no pasa nada. */
+  function avisaCambio() {
+    if (!cliente) return;
+    var f = { claveCambiada: { booleanValue: true }, claveFecha: { stringValue: new Date().toISOString() } };
+    fetch(FS + "/clientes/" + cliente.id +
+      "?updateMask.fieldPaths=claveCambiada&updateMask.fieldPaths=claveFecha", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({ fields: f })
+    }).catch(function () { });
   }
 
   /* ═══ Firestore ═══ */
@@ -562,6 +676,11 @@
         return;
       }
       cliente = cs[0];
+      miCuenta().then(function (u) {
+        if (u.email) correo = u.email;
+        if (esTemporal(u)) abreClave(true);
+        else if (!cliente.claveCambiada) avisaCambio();
+      }).catch(function () { });
       return consulta("pagos", "clienteUid", uid).then(function (ps) {
         pagos = ps;
         pintaTodo();
@@ -596,7 +715,8 @@
   };
   $("pass").addEventListener("keydown", function (ev) { if (ev.key === "Enter") $("entrar").click(); });
   function cerrarSesion() {
-    lsDel(K_RT); token = null; uid = null; cliente = null; pagos = [];
+    lsDel(K_RT); token = null; uid = null; correo = ""; cliente = null; pagos = [];
+    claveForzada = false; $("claveFondo").hidden = true;
     cierraNav();
     $("pass").value = "";
     $("app").hidden = true;
@@ -605,6 +725,15 @@
     window.scrollTo(0, 0);
   }
   $("salirNav").onclick = cerrarSesion;
+  $("cambiarClave").onclick = function () { cierraNav(); abreClave(false); };
+  $("claveX").onclick = cierraClave;
+  $("claveFondo").onclick = function (e) { if (e.target === $("claveFondo")) cierraClave(); };
+  ["claveAct", "claveNueva", "claveOtra"].forEach(function (k) { $(k).addEventListener("input", revisaClave); });
+  $("claveOtra").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !$("claveGuardar").disabled) guardaClave();
+  });
+  $("claveGuardar").onclick = guardaClave;
+  $("claveSalir").onclick = cerrarSesion;
 
   refrescar().then(cargar).catch(function () { });
 })();

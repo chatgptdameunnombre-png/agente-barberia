@@ -843,7 +843,9 @@
       (c.notas ? '<div class="ficha-sec"><h4>Notas</h4><p style="color:var(--dim);line-height:1.6">' +
         esc(c.notas) + "</p></div>" : "") +
 
-      '<p class="fpie">' + (c.uid ? "✅ Ya puede entrar a su cuenta" : "⚪ Todavía sin cuenta") +
+      '<p class="fpie">' + (!c.uid ? "⚪ Todavía sin cuenta"
+        : c.claveCambiada ? "✅ Ya entró y tiene su propia contraseña"
+          : "🟡 Tiene cuenta, pero sigue con la contraseña temporal") +
       " · sus mensajes te llegan " + (c.avisaA === "personal" ? "a tu WhatsApp personal" : "al del negocio") + "</p>" +
 
       '<div class="ficha-acc">' +
