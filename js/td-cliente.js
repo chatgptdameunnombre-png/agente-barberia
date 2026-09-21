@@ -595,12 +595,8 @@
     $("pass").value = "";
     $("app").hidden = true;
     $("login").hidden = false;
-    var t = document.querySelector(".lt"), g = document.querySelector(".lt-globo");
-    if (t) t.classList.remove("ok", "pensando", "tapa", "regresa");
-    if (g) g.textContent = "Hasta luego.";
     window.scrollTo(0, 0);
   }
-  $("salir").onclick = cerrarSesion;
   $("salirNav").onclick = cerrarSesion;
 
   refrescar().then(cargar).catch(function () { });
