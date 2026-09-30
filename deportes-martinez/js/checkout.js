@@ -1,8 +1,8 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=80";
-import { abrirLogin } from "./auth.js?v=80";
-import { db } from "./db.js?v=80";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=80";
-import { track } from "./track.js?v=80";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=81";
+import { abrirLogin } from "./auth.js?v=81";
+import { db } from "./db.js?v=81";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=81";
+import { track } from "./track.js?v=81";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -15,13 +15,9 @@ function nuevoFolio() {
   return "DM-" + f;
 }
 
-/* DATOS DE MUESTRA para la presentación: el modal se ve completo pero nadie puede
-   transferir a una cuenta ajena por error. Los 3 primeros dígitos son el código real
-   de BBVA (012) y el resto es un patrón que no corresponde a ninguna cuenta.
-   ⚠️ Cambiar por la CLABE real de Daniel antes de recibir clientes de verdad. */
-const CLABE_TRANSFERENCIA = "012 320 00112233445 8";
-const BANCO_TRANSFERENCIA = "BBVA México";
-const BENEFICIARIO_TRANSFERENCIA = "Deportes Martínez";
+const CLABE_TRANSFERENCIA = "722 969 07099512872 1";
+const BANCO_TRANSFERENCIA = "Mercado Pago W";
+const BENEFICIARIO_TRANSFERENCIA = "Jose Daniel Martinez Velez";
 
 let user = null, perfil = null;
 db.onAuth(async u => {
