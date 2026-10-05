@@ -9,15 +9,6 @@
     a.rel = "noopener";
   });
 
-  const botonMapa = document.querySelector(".ver-mapa");
-  if (botonMapa) botonMapa.addEventListener("click", () => {
-    const f = document.createElement("iframe");
-    f.title = "Mapa del Consultorio Psicológico Mándala";
-    f.referrerPolicy = "strict-origin-when-cross-origin";
-    f.src = botonMapa.dataset.mapa;
-    botonMapa.replaceWith(f);
-  });
-
   const nav = document.getElementById("nav");
   const pintarNav = () => nav.classList.toggle("solida", scrollY > 30);
   addEventListener("scroll", pintarNav, {passive: true});
