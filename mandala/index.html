@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src https://www.google.com https://maps.google.com; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Consultorio Psicológico Mándala · Terapia en Azcapotzalco y en línea</title>
 <meta name="description" content="Terapia individual, para ruptura amorosa y de pareja. Ansiedad, dependencia emocional, duelo y autoestima. Atención presencial en Azcapotzalco, CDMX, y en línea. Todos los días de 8:00 a.m. a 10:00 p.m.">
 <link rel="canonical" href="https://tuagentedeia.com/mandala/">
@@ -113,6 +115,8 @@ section{padding:110px 0}
 .pago{grid-column:1/-1;text-align:center;color:var(--suave);font-size:1rem;margin-top:-8px}
 footer .legal{display:inline-block;margin-top:18px;font-size:.92rem;color:var(--suave);text-decoration:underline;text-underline-offset:3px}
 footer .legal:hover{color:var(--azul)}
+footer .credito{display:block;margin-top:26px;font-size:.68rem;letter-spacing:.06em;color:var(--suave);opacity:.35;transition:opacity .3s}
+footer .credito:hover{opacity:.7}
 .tarjeta .btn{align-self:flex-start;min-height:50px;padding:0 24px;font-size:.98rem}
 
 .modalidad .contenedor{display:grid;grid-template-columns:1fr 1fr;gap:24px}
@@ -385,87 +389,12 @@ footer img{width:64px;margin:0 auto}
 </section>
 </main>
 
-<footer><img src="assets/img/logo.png" alt="Mándala"><a class="legal" href="aviso-privacidad.html">Aviso de privacidad</a></footer>
+<footer><img src="assets/img/logo.png" alt="Mándala"><a class="legal" href="aviso-privacidad.html">Aviso de privacidad</a><a class="credito" href="https://tuagentedeia.com" target="_blank" rel="noopener">hecho por tuagentedeia.com</a></footer>
 
 <a class="flotante" data-wa="Hola, me gustaría agendar una sesión." href="#" aria-label="Escribir por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.4.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg></a>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="assets/datos.js"></script>
-<script>
-(() => {
-  const WA = "525659062267";
-  const ICONO_WA = '<svg class="ico-wa" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
-  document.querySelectorAll("[data-wa]").forEach(a => {
-    a.querySelectorAll("svg").forEach(s => s.remove());
-    a.insertAdjacentHTML("afterbegin", ICONO_WA);
-    a.href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(a.dataset.wa);
-    a.target = "_blank";
-    a.rel = "noopener";
-  });
-
-  const nav = document.getElementById("nav");
-  const pintarNav = () => nav.classList.toggle("solida", scrollY > 30);
-  addEventListener("scroll", pintarNav, {passive: true});
-  pintarNav();
-
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-  const D = window.MANDALA || {fotos: [], resenas: [], articulos: []};
-
-  const fotos = document.getElementById("fotos");
-  fotos.innerHTML = D.fotos.map(f => `<figure class="anim"><a href="https://www.instagram.com/consultorio_mandala/" target="_blank" rel="noopener"><img src="${esc(f.src)}" alt="${esc(f.alt)}" loading="lazy"></a></figure>`).join("");
-  if (!D.fotos.length) document.getElementById("frases").remove();
-
-  const car = document.getElementById("carrusel");
-  const tarjeta = r => `<article class="resena"><span class="estrellas">★★★★★</span><p>“${esc(r.texto)}”</p><span class="quien">${esc(r.nombre)}</span></article>`;
-  car.innerHTML = D.resenas.map(tarjeta).join("") + D.resenas.map(tarjeta).join("");
-
-  document.getElementById("articulos").innerHTML = D.articulos.map(a => `
-    <a class="articulo anim" href="${esc(a.link)}" target="_blank" rel="noopener">
-      <span class="etiqueta">${esc(a.tema)}</span>
-      <h3>${esc(a.titulo)}</h3>
-      <p>${esc(a.extracto)}</p>
-      <span class="leer">Leer artículo →</span>
-    </a>`).join("");
-
-  let pausa = false, reanudar;
-  const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const detener = () => { pausa = true; clearTimeout(reanudar); };
-  const soltar = () => { clearTimeout(reanudar); reanudar = setTimeout(() => pausa = false, 2500); };
-  let x0 = 0, s0 = 0, arrastra = false;
-  car.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") return; arrastra = true; x0 = e.clientX; s0 = car.scrollLeft; car.classList.add("arrastrando"); detener(); });
-  addEventListener("pointermove", e => { if (arrastra) car.scrollLeft = s0 - (e.clientX - x0); });
-  addEventListener("pointerup", () => { if (arrastra) { arrastra = false; car.classList.remove("arrastrando"); soltar(); } });
-  car.addEventListener("touchstart", detener, {passive: true});
-  car.addEventListener("touchend", soltar, {passive: true});
-  car.addEventListener("wheel", () => { detener(); soltar(); }, {passive: true});
-  let acumulado = 0, previo = performance.now();
-  const avanzar = t => {
-    const dt = Math.min(t - previo, 60); previo = t;
-    if (!pausa && !quieto && car.scrollWidth > car.clientWidth) {
-      acumulado += dt * 0.035;
-      if (acumulado >= 1) { const p = Math.floor(acumulado); acumulado -= p; car.scrollLeft += p; }
-      const mitad = car.scrollWidth / 2;
-      if (car.scrollLeft >= mitad) car.scrollLeft -= mitad;
-    }
-    requestAnimationFrame(avanzar);
-  };
-  requestAnimationFrame(avanzar);
-
-  const animados = [...document.querySelectorAll(".anim")];
-  if (window.gsap && !quieto && "IntersectionObserver" in window) {
-    gsap.from(".anim-hero", {opacity: 0, y: 26, duration: 1, stagger: .14, ease: "power3.out", clearProps: "all"});
-    gsap.set(animados, {opacity: 0, y: 34});
-    const io = new IntersectionObserver(entradas => {
-      const visibles = entradas.filter(e => e.isIntersecting).map(e => e.target);
-      if (!visibles.length) return;
-      visibles.forEach(el => io.unobserve(el));
-      gsap.to(visibles, {opacity: 1, y: 0, duration: .9, stagger: .1, ease: "power3.out", clearProps: "transform"});
-    }, {rootMargin: "0px 0px -8% 0px"});
-    animados.forEach(el => io.observe(el));
-    setTimeout(() => gsap.to(animados.filter(el => getComputedStyle(el).opacity === "0" && el.getBoundingClientRect().top < innerHeight), {opacity: 1, y: 0, duration: .5}), 2500);
-    addEventListener("load", () => setTimeout(() => animados.forEach(el => { if (getComputedStyle(el).opacity === "0" && el.getBoundingClientRect().top < innerHeight) gsap.to(el, {opacity: 1, y: 0, duration: .4}); }), 3000));
-  }
-})();
-</script>
+<script src="assets/app.js"></script>
 </body>
 </html>
