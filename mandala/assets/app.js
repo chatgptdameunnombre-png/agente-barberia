@@ -9,12 +9,22 @@
     a.rel = "noopener";
   });
 
+  const botonMapa = document.querySelector(".ver-mapa");
+  if (botonMapa) botonMapa.addEventListener("click", () => {
+    const f = document.createElement("iframe");
+    f.title = "Mapa del Consultorio Psicológico Mándala";
+    f.referrerPolicy = "strict-origin-when-cross-origin";
+    f.src = botonMapa.dataset.mapa;
+    botonMapa.replaceWith(f);
+  });
+
   const nav = document.getElementById("nav");
   const pintarNav = () => nav.classList.toggle("solida", scrollY > 30);
   addEventListener("scroll", pintarNav, {passive: true});
   pintarNav();
 
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const segura = u => /^https:\/\//.test(String(u)) ? u : "#";
   const D = window.MANDALA || {fotos: [], resenas: [], articulos: []};
 
   const fotos = document.getElementById("fotos");
@@ -26,7 +36,7 @@
   car.innerHTML = D.resenas.map(tarjeta).join("") + D.resenas.map(tarjeta).join("");
 
   document.getElementById("articulos").innerHTML = D.articulos.map(a => `
-    <a class="articulo anim" href="${esc(a.link)}" target="_blank" rel="noopener">
+    <a class="articulo anim" href="${esc(segura(a.link))}" target="_blank" rel="noopener">
       <span class="etiqueta">${esc(a.tema)}</span>
       <h3>${esc(a.titulo)}</h3>
       <p>${esc(a.extracto)}</p>

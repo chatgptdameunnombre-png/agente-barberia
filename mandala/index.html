@@ -115,8 +115,11 @@ section{padding:110px 0}
 .pago{grid-column:1/-1;text-align:center;color:var(--suave);font-size:1rem;margin-top:-8px}
 footer .legal{display:inline-block;margin-top:18px;font-size:.92rem;color:var(--suave);text-decoration:underline;text-underline-offset:3px}
 footer .legal:hover{color:var(--azul)}
-footer .credito{display:block;margin-top:26px;font-size:.68rem;letter-spacing:.06em;color:var(--suave);opacity:.35;transition:opacity .3s}
-footer .credito:hover{opacity:.7}
+footer{position:relative}
+footer .credito{position:absolute;left:20px;bottom:16px;display:inline-flex;align-items:center;gap:7px;font-size:.68rem;letter-spacing:.05em;color:var(--suave);opacity:.4;transition:opacity .3s}
+footer .credito img{width:18px;height:18px;border-radius:5px;margin:0}
+footer .credito:hover{opacity:.8}
+@media (max-width:720px){footer{padding-bottom:64px}}
 .tarjeta .btn{align-self:flex-start;min-height:50px;padding:0 24px;font-size:.98rem}
 
 .modalidad .contenedor{display:grid;grid-template-columns:1fr 1fr;gap:24px}
@@ -186,6 +189,11 @@ footer .credito:hover{opacity:.7}
 .redes svg{width:20px;height:20px}
 .mapa{border-radius:var(--radio);overflow:hidden;min-height:420px;border:1px solid var(--linea);background:var(--crema-2)}
 .mapa iframe{width:100%;height:100%;min-height:420px;border:0;display:block}
+.ver-mapa{width:100%;height:100%;min-height:420px;border:0;background:var(--crema-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;color:var(--azul);font:inherit;transition:background .3s}
+.ver-mapa:hover{background:#e3ded7}
+.ver-mapa svg{width:42px;height:42px}
+.ver-mapa span{font-weight:700;font-size:1.05rem}
+.ver-mapa small{font-size:.8rem;color:var(--suave)}
 .aviso-crisis{grid-column:1/-1;border-left:3px solid var(--azul);background:var(--papel);border-radius:0 12px 12px 0;padding:20px 24px;font-size:1.05rem;color:var(--texto)}
 .aviso-crisis a{color:var(--azul);font-weight:700;white-space:nowrap}
 
@@ -213,7 +221,7 @@ footer img{width:64px;margin:0 auto}
   .tarjetas,.articulos,.modalidad .contenedor{grid-template-columns:1fr}
   .tarjetas .tarjeta:last-child{grid-column:auto}
   .modo{padding:38px 28px}
-  .mapa,.mapa iframe{min-height:320px}
+  .mapa,.mapa iframe,.ver-mapa{min-height:320px}
   .btn{width:100%}
   .botones{flex-direction:column;align-items:stretch}
   .tarjeta .btn{width:auto}
@@ -382,19 +390,19 @@ footer img{width:64px;margin:0 auto}
       </div>
     </div>
     <div class="mapa anim">
-      <iframe title="Mapa del Consultorio Psicológico Mándala" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Kioka+40,+Euzkadi,+Azcapotzalco,+02660+Ciudad+de+M%C3%A9xico&output=embed"></iframe>
+      <button type="button" class="ver-mapa" data-mapa="https://www.google.com/maps?q=Kioka+40,+Euzkadi,+Azcapotzalco,+02660+Ciudad+de+M%C3%A9xico&output=embed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span>Ver mapa</span><small>Se carga Google Maps al tocar</small></button>
     </div>
     <p class="aviso-crisis anim">Si estás pasando por una emergencia o piensas en hacerte daño, no esperes: llama a la Línea de la Vida <a href="tel:8009112000">800 911 2000</a> (gratis, 24 horas) o al <a href="tel:911">911</a>.</p>
   </div>
 </section>
 </main>
 
-<footer><img src="assets/img/logo.png" alt="Mándala"><a class="legal" href="aviso-privacidad.html">Aviso de privacidad</a><a class="credito" href="https://tuagentedeia.com" target="_blank" rel="noopener">hecho por tuagentedeia.com</a></footer>
+<footer><img src="assets/img/logo.png" alt="Mándala"><a class="legal" href="aviso-privacidad.html">Aviso de privacidad</a><a class="credito" href="https://tuagentedeia.com" target="_blank" rel="noopener"><img src="assets/img/tuagentedeia.png" alt="" width="18" height="18">hecho por tuagentedeia.com</a></footer>
 
 <a class="flotante" data-wa="Hola, me gustaría agendar una sesión." href="#" aria-label="Escribir por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.4.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg></a>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="assets/datos.js"></script>
-<script src="assets/app.js?v=2"></script>
+<script src="assets/app.js?v=3"></script>
 </body>
 </html>
