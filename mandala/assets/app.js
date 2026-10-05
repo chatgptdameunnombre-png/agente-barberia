@@ -68,7 +68,7 @@
       gsap.to(visibles, {opacity: 1, y: 0, duration: .9, stagger: .1, ease: "power3.out", clearProps: "transform"});
     }, {rootMargin: "0px 0px -8% 0px"});
     animados.forEach(el => io.observe(el));
-    setTimeout(() => gsap.to(animados.filter(el => getComputedStyle(el).opacity === "0" && el.getBoundingClientRect().top < innerHeight), {opacity: 1, y: 0, duration: .5}), 2500);
+    setTimeout(() => { const pendientes = animados.filter(el => getComputedStyle(el).opacity === "0" && el.getBoundingClientRect().top < innerHeight); if (pendientes.length) gsap.to(pendientes, {opacity: 1, y: 0, duration: .5}); }, 2500);
     addEventListener("load", () => setTimeout(() => animados.forEach(el => { if (getComputedStyle(el).opacity === "0" && el.getBoundingClientRect().top < innerHeight) gsap.to(el, {opacity: 1, y: 0, duration: .4}); }), 3000));
   }
 })();
