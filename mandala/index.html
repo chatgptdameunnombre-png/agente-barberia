@@ -109,14 +109,16 @@ section{padding:110px 0}
 .tarjeta li{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--azul);border:1px solid var(--linea);border-radius:99px;padding:5px 11px}
 .precio{font-size:1.05rem;color:var(--suave);margin:-6px 0 22px}
 .precio b{font-family:var(--serif);font-size:2rem;font-weight:600;color:var(--azul);margin-right:4px}
+.precio .duracion{display:block;margin-top:4px;font-size:.98rem;color:var(--suave)}
 .primera{text-align:center;margin-top:40px;font-family:var(--serif);font-style:italic;font-weight:600;font-size:1.55rem;color:var(--tinta)}
 .primera b{font-style:normal;color:var(--azul)}
+.primera .duracion{display:block;margin-top:4px;font-family:var(--sans);font-style:normal;font-weight:400;font-size:.98rem;color:var(--suave)}
 .pago{grid-column:1/-1;text-align:center;color:var(--suave);font-size:1rem;margin-top:-8px}
 footer .legal{display:inline-block;margin-top:18px;font-size:.92rem;color:var(--suave);text-decoration:underline;text-underline-offset:3px}
 footer .legal:hover{color:var(--azul)}
 footer{position:relative}
 footer .credito{position:absolute;left:20px;bottom:16px;display:inline-flex;align-items:center;gap:7px;font-size:.68rem;letter-spacing:.05em;color:var(--suave);opacity:.22;transition:opacity .3s}
-footer .credito img{width:18px;height:18px;border-radius:5px;margin:0}
+footer .credito img{width:22px;height:22px;margin:0}
 footer .credito:hover{opacity:.6}
 @media (max-width:720px){footer{padding-bottom:64px}}
 .tarjeta .btn{align-self:flex-start;min-height:50px;padding:0 24px;font-size:.98rem}
@@ -281,7 +283,7 @@ footer img{width:64px;margin:0 auto}
         <h3>Terapia individual</h3>
         <p>Acompañamiento psicológico para ansiedad, autoestima, estrés y crisis emocionales.</p>
         <ul><li>Ansiedad</li><li>Autoestima</li><li>Estrés</li><li>Crisis</li></ul>
-        <div class="precio"><b>Precio 1</b> por sesión · Duración 1</div>
+        <div class="precio"><b>Precio 1</b> por sesión<span class="duracion">Duración 1</span></div>
         <a class="btn btn-borde" data-wa="Hola, me gustaría agendar una sesión de terapia individual." href="#">Agendar</a>
       </article>
       <article class="tarjeta anim">
@@ -289,7 +291,7 @@ footer img{width:64px;margin:0 auto}
         <h3>Terapia para ruptura amorosa</h3>
         <p>Proceso terapéutico para superar una relación, trabajar el duelo y reconstruirte emocionalmente.</p>
         <ul><li>Duelo</li><li>Dependencia emocional</li><li>Reconstrucción</li></ul>
-        <div class="precio"><b>Precio 2</b> por sesión · Duración 2</div>
+        <div class="precio"><b>Precio 2</b> por sesión<span class="duracion">Duración 2</span></div>
         <a class="btn btn-borde" data-wa="Hola, me gustaría agendar una sesión de terapia para ruptura amorosa." href="#">Agendar</a>
       </article>
       <article class="tarjeta anim">
@@ -297,11 +299,11 @@ footer img{width:64px;margin:0 auto}
         <h3>Terapia de pareja</h3>
         <p>Un espacio para mejorar la comunicación, resolver conflictos y fortalecer la relación.</p>
         <ul><li>Comunicación</li><li>Conflictos</li><li>Confianza</li></ul>
-        <div class="precio"><b>Precio 3</b> por sesión · Duración 3</div>
+        <div class="precio"><b>Precio 3</b> por sesión<span class="duracion">Duración 3</span></div>
         <a class="btn btn-borde" data-wa="Hola, nos gustaría agendar una sesión de terapia de pareja." href="#">Agendar</a>
       </article>
     </div>
-    <p class="primera anim">Primera sesión de valoración: <b>Precio 4</b></p>
+    <p class="primera anim">Primera sesión de valoración: <b>Precio 4</b><span class="duracion">Duración 4</span></p>
   </div>
 </section>
 
@@ -320,7 +322,7 @@ footer img{width:64px;margin:0 auto}
       <a class="btn btn-lleno" data-wa="Hola, me gustaría agendar una sesión en línea." href="#">Agendar en línea</a>
     </div>
     <p class="horario anim">Atención todos los días · <b>8:00 a.m. – 10:00 p.m.</b></p>
-    <p class="pago anim">Pago con Forma de pago 1, Forma de pago 2 o Forma de pago 3 · Tienes 15 minutos de tolerancia</p>
+    <p class="pago anim">Pago con Forma de pago 1, Forma de pago 2 o Forma de pago 3</p>
   </div>
 </section>
 
@@ -397,6 +399,6 @@ footer img{width:64px;margin:0 auto}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="assets/datos.js"></script>
-<script src="assets/app.js?v=4"></script>
+<script src="assets/app.js?v=5"></script>
 </body>
 </html>
