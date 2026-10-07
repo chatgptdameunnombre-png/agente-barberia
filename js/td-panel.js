@@ -615,6 +615,8 @@
     esc: esc,
     plano: plano,
     fecha: fecha,
+    hace: hace,
+    hora12: hora12,
     toast: toast,
     modal: abreModal,
     cierraModal: cierraModal,

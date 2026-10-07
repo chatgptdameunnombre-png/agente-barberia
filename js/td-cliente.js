@@ -664,6 +664,29 @@
     if (v) v.style.display = ver ? "" : "none";
   }
 
+  function registraIngreso() {
+    var k = "td_cli_ing_" + uid, ahora = Date.now(), antes = 0;
+    try { antes = Number(localStorage.getItem(k)) || 0; } catch (e) { }
+    if (ahora - antes < 30 * 60 * 1000) return;
+    var ua = navigator.userAgent || "";
+    var aparato = /iPad|Tablet/i.test(ua) ? "Tablet" : (/Mobi|Android|iPhone/i.test(ua) ? "Tel\u00e9fono" : "Computadora");
+    fetch(FS + "/ingresos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({
+        fields: {
+          uid: { stringValue: uid },
+          clienteId: { stringValue: cliente.id },
+          negocio: { stringValue: String(cliente.negocio || cliente.persona || "").slice(0, 120) },
+          cuando: { stringValue: new Date(ahora).toISOString() },
+          aparato: { stringValue: aparato }
+        }
+      })
+    }).then(function (r) {
+      if (r.ok) { try { localStorage.setItem(k, String(ahora)); } catch (e) { } }
+    }).catch(function () { });
+  }
+
   function cargar() {
     volver(false);
     $("login").hidden = true;
@@ -680,6 +703,7 @@
         return;
       }
       cliente = cs[0];
+      registraIngreso();
       miCuenta().then(function (u) {
         if (u.email) correo = u.email;
         if (esTemporal(u)) { if (!cliente.claveFecha) avisaCambio(false); }

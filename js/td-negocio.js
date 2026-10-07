@@ -1,6 +1,6 @@
 (function () {
   var P = null, listo = false;
-  var clientes = [], pagos = [], gastos = [], egresos = [], peticiones = [], prospectos = [], resenas = [], verAtendidas = false;
+  var clientes = [], pagos = [], gastos = [], egresos = [], peticiones = [], prospectos = [], resenas = [], ingresos = [], verAtendidas = false;
   var cargado = { clientes: false, finanzas: false };
   var USD = 17.5;
 
@@ -315,7 +315,8 @@
       listar("sugerencias").catch(function () { return []; }),
       listar("prospectos").catch(function () { return []; }),
       listar("egresos").catch(function () { return []; }),
-      listar("resenas").catch(function () { return null; })])
+      listar("resenas").catch(function () { return null; }),
+      listar("ingresos").catch(function () { return []; })])
       .then(function (r) {
         clientes = r[0].sort(function (a, b) {
           return String(a.negocio || "").localeCompare(String(b.negocio || ""));
@@ -335,6 +336,9 @@
           return String(b.fecha || "").localeCompare(String(a.fecha || ""));
         });
         $("numRes").textContent = resenas.length;
+        ingresos = (r[7] || []).sort(function (a, b) {
+          return String(b.cuando || "").localeCompare(String(a.cuando || ""));
+        });
         cargado.clientes = true;
         cargado.finanzas = true;
         limpiaAviso("cliAviso"); limpiaAviso("finAviso"); limpiaAviso("pideAviso");
@@ -722,6 +726,28 @@
     }).map(function (x) { return x.c; });
   }
 
+  function ingresosDe(id) {
+    return ingresos.filter(function (x) { return x.clienteId === id; });
+  }
+
+  function fechaHora(iso) {
+    var t = new Date(iso || 0).getTime();
+    if (!t) return "";
+    return diaLargo(new Date(t).toLocaleDateString("en-CA", { timeZone: P.TZ })) + ", " + P.hora12(t);
+  }
+
+  function ingresosHTML(c) {
+    var lista = ingresosDe(c.id);
+    var html = lista.slice(0, 15).map(function (x) {
+      return '<div class="me"><b>' + esc(P.hace(x.cuando)) + "</b><div>" + esc(fechaHora(x.cuando)) +
+        ' <span style="color:var(--muted)">\u00b7 ' + esc(x.aparato || "") + "</span></div></div>";
+    }).join("");
+    if (!html) html = '<p class="vacio" style="padding:14px 0">Todav\u00eda no hay ingresos registrados.</p>';
+    if (lista.length > 15) html += '<p style="color:var(--muted);font-size:.9rem;margin-top:8px">y ' + (lista.length - 15) + " m\u00e1s</p>";
+    if (c.claveFecha) html += '<p style="color:var(--muted);font-size:.9rem;margin-top:10px">Primera vez que entr\u00f3: ' + esc(fechaHora(c.claveFecha)) + "</p>";
+    return '<div class="ficha-sec"><h4>Sus ingresos</h4><div class="msg-est">' + html + "</div></div>";
+  }
+
   function pintaClientes() {
     $("numCli").textContent = clientes.length;
     $("clientes").innerHTML = clientes.length ? ordenados().map(function (c) {
@@ -746,6 +772,7 @@
         (pausado ? '<span class="tag">pausado</span>'
           : '<span class="tag' + (q.d < 0 ? " mal" : (q.d <= 3 ? " oro" : "")) + '">cobra ' + esc(q.txt) + "</span>") +
         (debe ? '<span class="tag mal">debe ' + esc(pesos(debe)) + "</span>" : "") +
+        (c.uid ? '<span class="tag">' + esc(ingresosDe(c.id).length ? "entr\u00f3 " + P.hace(ingresosDe(c.id)[0].cuando) : "sin ingresos") + "</span>" : "") +
         "</div></div>" +
         '<div class="cli-ops">' +
         '<button class="lnk oro" data-acc="ver">Ver todo</button>' +
@@ -839,6 +866,8 @@
       (mios.filter(function (p) { return p.estado !== "pendiente"; }).length
         ? lineaTiempo(mios.filter(function (p) { return p.estado !== "pendiente"; }))
         : '<p class="vacio" style="padding:20px 0">Todavía no le registras pagos.</p>') + "</div>" +
+
+      (c.uid ? ingresosHTML(c) : "") +
 
       (c.notas ? '<div class="ficha-sec"><h4>Notas</h4><p style="color:var(--dim);line-height:1.6">' +
         esc(c.notas) + "</p></div>" : "") +
