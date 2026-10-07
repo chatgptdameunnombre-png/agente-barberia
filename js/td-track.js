@@ -174,7 +174,8 @@
         interes: datos.interes || "",
         maps: datos.maps || "",
         tema: datos.tema || "",
-        automatizar: datos.automatizar || ""
+        automatizar: datos.automatizar || "",
+        para: datos.para || ""
       };
       msgs.push({
         t: Date.now() - t0,

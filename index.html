@@ -1471,22 +1471,16 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
           </div>
         </div>
 
-        <div class="frm-f" id="frmAutoBox" hidden>
-          <label class="frm-l" for="frmAuto">&iquest;Qu&eacute; te gustar&iacute;a automatizar?</label>
-          <input class="frm-i" id="frmAuto" type="text" placeholder="Ej: mandar recordatorios, sacar reportes&hellip;">
-          <p class="frm-hint">Si no sabes por d&oacute;nde empezar, d&eacute;janlo en blanco y nosotros te proponemos.</p>
+        <div class="frm-f">
+          <label class="frm-l" for="frmPara" id="frmParaL">&iquest;Para qu&eacute; lo quieres?</label>
+          <textarea class="frm-i" id="frmPara" rows="3" maxlength="800" placeholder="Cu&eacute;ntanos qu&eacute; quieres que haga"></textarea>
+          <p class="frm-hint">Con esto te armamos la preview m&aacute;s r&aacute;pido.</p>
         </div>
 
         <div class="frm-f" id="frmMapsBox">
           <label class="frm-l" for="frmMaps">Link de Google Maps <span class="frm-opt">(opcional)</span></label>
           <input class="frm-i" id="frmMaps" type="url" inputmode="url" autocomplete="off" placeholder="https://maps.app.goo.gl/&hellip;">
           <p class="frm-hint">Para adaptar la preview exactamente a tu negocio y darte precios exactos.</p>
-        </div>
-
-        <div class="frm-f" id="frmTemaBox" hidden>
-          <label class="frm-l" for="frmTema">&iquest;De qu&eacute; quieres tu agente, automatizaci&oacute;n, video o p&aacute;gina?</label>
-          <input class="frm-i" id="frmTema" type="text" placeholder="Cu&eacute;ntanos de qu&eacute; se trata">
-          <p class="frm-hint">Con eso armamos la preview aunque no sea para un negocio.</p>
         </div>
 
         <button type="submit" class="frm-btn" id="frmBtn">
@@ -2243,8 +2237,8 @@ Object.entries(SM).forEach(([step,indices])=>{
       tipo=document.getElementById('frmTipo'),
       err=document.getElementById('frmErr'),
       mapsBox=document.getElementById('frmMapsBox'),
-      temaBox=document.getElementById('frmTemaBox'),
-      autoBox=document.getElementById('frmAutoBox'),
+      paraL=document.getElementById('frmParaL'),
+      para=document.getElementById('frmPara'),
       tocado=false;
 
   function ev(n,d){ try{ if(window.TD&&TD.ev) TD.ev(n,d); }catch(e){} }
@@ -2260,7 +2254,6 @@ Object.entries(SM).forEach(([step,indices])=>{
     esNegocio=b.dataset.v;
     negBox.hidden=(esNegocio!=='si');
     mapsBox.hidden=(esNegocio!=='si');
-    temaBox.hidden=(esNegocio==='si');
     ev('form_negocio',{v:esNegocio});
   });
 
@@ -2269,9 +2262,23 @@ Object.entries(SM).forEach(([step,indices])=>{
     marcar();
     b.classList.toggle('on');
     intereses=Array.prototype.map.call(this.querySelectorAll('.frm-pill.on'),function(p){return p.dataset.v;});
-    autoBox.hidden=(intereses.indexOf('Automatizar procesos')===-1);
+    pintaPara();
     ev('form_interes',{v:intereses.join(', ')});
   });
+
+  var PARA={
+    'Agente para WhatsApp':['tu agente de WhatsApp','Ej: que conteste dudas y agende citas'],
+    'Agente telef\u00f3nico':['tu agente telef\u00f3nico','Ej: que conteste llamadas y tome pedidos'],
+    'P\u00e1gina web':['tu p\u00e1gina web','Ej: mostrar mis servicios y que me escriban'],
+    'Automatizar procesos':['la automatizaci\u00f3n','Ej: mandar recordatorios, sacar reportes'],
+    'Videos con IA':['tus videos con IA','Ej: anuncios para Instagram de mis productos']
+  };
+  function pintaPara(){
+    var n=intereses.filter(function(x){return PARA[x];}).map(function(x){return PARA[x][0];});
+    var txt=!n.length?'lo quieres':(n.length===1?'quieres '+n[0]:'quieres '+n.slice(0,-1).join(', ')+' y '+n[n.length-1]);
+    paraL.textContent='\u00bfPara qu\u00e9 '+txt+'?';
+    para.placeholder=n.length?PARA[intereses.filter(function(x){return PARA[x];})[0]][1]:'Cu\u00e9ntanos qu\u00e9 quieres que haga';
+  }
 
   tipo.addEventListener('change',function(){ otroBox.hidden=(tipo.value!=='otro'); });
 
@@ -2296,24 +2303,18 @@ Object.entries(SM).forEach(([step,indices])=>{
     }
     if(!intereses.length) return fallo('Elige al menos una cosa que te interese.');
     var maps=(esNegocio==='si')?document.getElementById('frmMaps').value.trim():'';
-    var tema=(esNegocio==='no')?document.getElementById('frmTema').value.trim():'';
-    var auto=(!autoBox.hidden)?document.getElementById('frmAuto').value.trim():'';
-
-    /* el mensaje se arma como una lista, con la automatizacion detallada */
-    var lineas=intereses.map(function(x){
-      if(x==='Automatizar procesos'){
-        return auto ? 'Automatizaci\u00f3n de '+auto : 'Automatizaci\u00f3n (d\u00edganme ustedes de qu\u00e9)';
-      }
-      return x;
-    });
+    var paraTxt=para.value.trim();
+    if(!paraTxt) return fallo('Cu\u00e9ntanos para qu\u00e9 lo quieres.',para);
+    var lineas=intereses;
     var t='Hola, soy *'+nombre+'*. Quiero mi preview.\n\n';
     t+='*Me interesa:*\n'+lineas.map(function(x){return '\u2022 '+x;}).join('\n')+'\n\n';
     if(esNegocio==='si'){
       t+='*Mi negocio:* '+negNombre+' ('+giro.toLowerCase()+')';
       t+= maps ? '\n*Google Maps:* '+maps : '';
     } else {
-      t+='*Es para:* algo personal'+(tema ? ', '+tema : '');
+      t+='*Es para:* algo personal';
     }
+    t+='\n\n*Para qu\u00e9 lo quiero:* '+paraTxt;
 
     ev('form_enviado',{
       nombre:nombre,
@@ -2321,8 +2322,7 @@ Object.entries(SM).forEach(([step,indices])=>{
       giro:giro||'personal',
       interes:intereses.join(', '),
       maps:maps||'',
-      tema:tema||'',
-      automatizar:auto||'',
+      para:paraTxt,
       mensaje:t.trim()
     });
     window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(t.trim()),'_blank','noopener');

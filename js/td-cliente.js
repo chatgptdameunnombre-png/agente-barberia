@@ -8,8 +8,9 @@
   var TZ = "America/Mexico_City";
 
   /* A dónde llega lo que pide cada cliente. Se decide por cliente con el campo
-     `avisaA` ("personal" o "negocio") desde la ficha del panel. */
-  var WA = { personal: "5215563173973", negocio: "5213351261495" };
+     `avisaA` ("personal" o "negocio") desde la ficha del panel; el número
+     personal vive en la ficha (`avisaNum`), nunca en este archivo público. */
+  var WA_NEGOCIO = "5213351261495";
 
   /* El mismo catálogo que usa el panel (td-negocio.js). Si se agrega uno aquí,
      agregarlo allá con la misma clave. */
@@ -614,7 +615,7 @@
       return false;
     }).then(function (guardado) {
       if (porWhats) {
-        var destino = WA[cliente.avisaA === "personal" ? "personal" : "negocio"];
+        var destino = (cliente.avisaA === "personal" && cliente.avisaNum) ? cliente.avisaNum : WA_NEGOCIO;
         window.open("https://wa.me/" + destino + "?text=" + encodeURIComponent(msg), "_blank");
         toast("Listo, ya lo recibimos", "bien");
       } else if (guardado) {

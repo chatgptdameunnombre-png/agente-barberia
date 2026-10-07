@@ -256,6 +256,7 @@
         return '<span class="tag oro">' + esc(x) + "</span>";
       }).join(" ")]);
     }
+    if (m.para) filas.push(["Para qu\u00e9", esc(m.para)]);
     if (m.auto) filas.push(["Automatizar", esc(m.auto)]);
     if (m.negocio) filas.push(["Negocio", esc(m.negocio) + (m.giro ? ' <span style="color:var(--muted)">\u00b7 ' + esc(m.giro) + "</span>" : "")]);
     else if (m.tema) filas.push(["Es para", esc(m.tema)]);
@@ -283,6 +284,7 @@
           interes: (v.form && v.form.interes) || "",
           auto: (v.form && v.form.automatizar) || "",
           tema: (v.form && v.form.tema) || "",
+          para: (v.form && v.form.para) || "",
           cuando: m.cuando || v.inicio,
           origen: v.origen || "Directo",
           aparato: v.aparato || ""
@@ -473,6 +475,7 @@
       if (v.form.negocio) html += "<b>Negocio:</b> " + esc(v.form.negocio) + "<br>";
       if (v.form.giro) html += "<b>Giro:</b> " + esc(v.form.giro) + "<br>";
       if (v.form.tema) html += "<b>Es sobre:</b> " + esc(v.form.tema) + "<br>";
+      if (v.form.para) html += "<b>Para qué lo quiere:</b> " + esc(v.form.para) + "<br>";
       if (v.form.automatizar) html += "<b>Quiere automatizar:</b> " + esc(v.form.automatizar) + "<br>";
       html += "<b>Le interesa:</b> " + esc(v.form.interes);
       if (v.form.maps) {

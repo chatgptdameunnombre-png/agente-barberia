@@ -924,6 +924,7 @@
       '<div class="f"><label>Sus mensajes me llegan a</label><select id="cfAvisa">' +
       '<option value="personal"' + (c.avisaA === "personal" ? " selected" : "") + ">Mi WhatsApp personal</option>" +
       '<option value="negocio"' + (c.avisaA !== "personal" ? " selected" : "") + ">El del negocio</option></select></div>" +
+      '<div class="f"><label>Mi WhatsApp personal</label><input id="cfAvisaNum" type="tel" inputmode="tel" placeholder="55 1234 5678" value="' + esc(c.avisaNum ? String(c.avisaNum).slice(-10) : "") + '"></div>' +
       '<div class="f"><label>ID de acceso a su cuenta</label><input id="cfUid" type="text" placeholder="lo copias de Firebase" value="' + esc(c.uid || "") + '"></div>' +
       '<div class="f ancho"><label>Notas</label><textarea id="cfNotas" placeholder="Lo que quieras recordar de él…">' + esc(c.notas || "") + "</textarea></div>" +
       "</div>" +
@@ -993,6 +994,10 @@
         })(),
         notas: $("cfNotas").value.trim(),
         avisaA: $("cfAvisa").value,
+        avisaNum: (function () {
+          var d = $("cfAvisaNum").value.replace(/\D/g, "").slice(-10);
+          return d.length === 10 ? "521" + d : "";
+        })(),
         uid: $("cfUid").value.trim(),
         monto: num($("cfMonto").value),
         montoInicial: num($("cfInicial").value),
