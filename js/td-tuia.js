@@ -10,7 +10,7 @@
   var TEXTOS = {
     hero:      { k: 'Soy Tuia', t: 'Si necesitas ayuda para entender algo, haz clic en mí.', g: 'feliz' },
     problema:  { k: 'Qué hacemos', t: 'Para que tu negocio avance más rápido hacen falta las piezas correctas: alguien que conteste, alguien que agende y una página que te haga visible. Nosotros te las montamos y las dejamos trabajando juntas.', g: 'pensando' },
-    'wa-demo': { k: 'Qué hacemos', t: 'Te armamos un agente adaptado a tu negocio. Contesta con tu información — precios, horarios, servicios — y agenda la cita solo en tu calendario.', g: 'feliz' },
+    'wa-demo': { k: 'Qué hacemos', t: 'Te armamos un agente adaptado a tu negocio. Contesta con tu información (precios, horarios y servicios) y agenda la cita solo en tu calendario.', g: 'feliz' },
     flow:      { k: 'Qué hacemos', t: 'Todo funciona con lo que ya usas: WhatsApp y tu calendario. No instalas nada nuevo y nosotros lo automatizamos.', g: 'pensando' },
     llamadas:  { k: 'Qué hacemos', t: 'Cuando estás atendiendo el teléfono sigue sonando. Te ponemos un agente que responde, con los datos de tu negocio.', g: 'pensando' },
     'llamadas-demo': { k: 'Escúchalo', t: 'Así se oiría una llamada a tu negocio: la voz contesta, resuelve la duda y aparta la cita sola.', g: 'feliz', sel: '.call-demo-wrap' },

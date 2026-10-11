@@ -27,6 +27,7 @@
     var b = document.createElement("div");
     b.id = "tdCk";
     b.style.cssText = "position:fixed;left:16px;right:16px;bottom:18px;z-index:9998;max-width:660px;margin:0 auto;background:#0c0c0c;border:1px solid #262626;border-radius:16px;padding:15px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;box-shadow:0 20px 50px rgba(0,0,0,.6);font-family:'Instrument Sans',system-ui,sans-serif";
+    b.setAttribute("data-lg", "aviso");
     b.innerHTML = '<p style="flex:1;min-width:230px;margin:0;font-size:13px;color:#999;line-height:1.55">Medimos de forma anónima cómo se usa esta página para mejorarla. <a href="legales.html#medicion" style="color:#c9a84c;text-decoration:underline;white-space:nowrap">Cómo lo usamos</a></p><div style="display:flex;gap:8px"><button type="button" id="tdCkNo" style="background:none;border:1px solid #262626;color:#999;border-radius:99px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:inherit">Solo lo necesario</button><button type="button" id="tdCkSi" style="background:linear-gradient(135deg,#c9a84c,#dfc06a);border:none;color:#0a0a0a;border-radius:99px;padding:9px 20px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">Entendido</button></div>';
     document.body.appendChild(b);
     b.querySelector("#tdCkSi").onclick = function () { ls_(K_OPT, "si"); b.remove(); arranca(); };

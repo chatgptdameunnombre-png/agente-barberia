@@ -652,7 +652,7 @@
   function pintaTodo() {
     var nombre = cliente.negocio || cliente.persona || "Tu cuenta";
     $("navNeg").textContent = nombre;
-    document.title = nombre + " — Tu Agente de IA";
+    document.title = nombre + " | Tu Agente de IA";
     pintaResumen();
     pintaPagos();
     pintaServicios();
