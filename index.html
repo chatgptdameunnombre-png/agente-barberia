@@ -635,7 +635,7 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 <a href="#main-content" style="position:absolute;left:-9999px;top:0;z-index:99999;padding:8px 16px;background:var(--gold);color:#0a0a0a;font-weight:700;border-radius:0 0 8px 0;transition:left .2s" onfocus="this.style.left='0'">Saltar al contenido</a>
 <nav id="site-nav" aria-label="Navegación principal" style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,5,5,0.85);backdrop-filter:blur(12px);border-bottom:1px solid #1c1c1c;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;transition:transform .5s cubic-bezier(.4,0,.2,1),opacity .5s ease">
   <a href="/" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--gold);text-decoration:none;letter-spacing:-.01em">Tu Agente de IA</a>
-  <div class="lg-secs" aria-label="Secciones">
+  <div class="lg-secs" id="lgSecs" aria-label="Secciones">
     <a href="#wa-demo">WhatsApp</a>
     <a href="#llamadas">Llamadas</a>
     <a href="#pwsec">P&aacute;ginas web</a>
@@ -645,6 +645,7 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
   <div class="lg-acc" style="display:flex;align-items:center;gap:20px">
     <a href="#contacto" style="font-size:13px;font-weight:600;color:#0a0a0a;background:var(--gold);padding:6px 16px;border-radius:99px;text-decoration:none">Agenda prueba</a>
     <a href="/cliente.html" class="nav-entrar" aria-label="Iniciar sesi&oacute;n para clientes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="ne-l">Inicio de sesi&oacute;n para clientes</span><span class="ne-c">Clientes</span></a>
+    <button type="button" class="lg-menu" aria-label="Ver secciones" aria-expanded="false" aria-controls="lgSecs"><span></span><span></span><span></span></button>
   </div>
 </nav>
 <style>@media(min-width:600px){.nav-link{display:block!important}}

@@ -13,6 +13,17 @@
     "</filter>";
   function monta() {
     document.body.appendChild(svg);
+    var nav = document.getElementById("site-nav"), btn = document.querySelector(".lg-menu");
+    if (nav && btn) {
+      var pon = function (abre) {
+        nav.classList.toggle("abierto", abre);
+        btn.setAttribute("aria-expanded", abre ? "true" : "false");
+      };
+      btn.addEventListener("click", function (e) { e.stopPropagation(); pon(!nav.classList.contains("abierto")); });
+      nav.addEventListener("click", function (e) { if (e.target.closest(".lg-secs a")) pon(false); });
+      document.addEventListener("click", function (e) { if (!nav.contains(e.target)) pon(false); });
+      window.addEventListener("scroll", function () { if (nav.classList.contains("abierto") && nav.classList.contains("nav-hidden")) pon(false); }, { passive: true });
+    }
     var links = document.querySelectorAll(".lg-secs a");
     if (!links.length || !("IntersectionObserver" in window)) return;
     var mapa = {};
