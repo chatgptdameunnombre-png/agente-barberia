@@ -1753,12 +1753,27 @@ label, .field label { color: var(--ink-soft); }
 
 .hdr .nav .nav-buscar { display: none; }
 
-.sec__head .filtros--head { flex: 1 1 420px; min-width: 0; max-width: 640px; margin: 0 0 4px auto; }
+.sec__head .filtros--head { flex: 1 1 420px; min-width: 0; max-width: 640px; margin: 0 0 4px auto; position: relative; top: 18px; }
 .buscador input { width: 100%; }
 .sec__head .filtros--head .buscador { max-width: none; }
 .sec__head .filtros--head .buscar-res { position: absolute; top: calc(100% + 8px); left: 2px; margin: 0; white-space: nowrap; }
 .sec__head:has(.filtros--head) { position: relative; z-index: 20; }
 @media (max-width: 720px) {
-  .sec__head .filtros--head { flex-basis: 100%; max-width: none; margin: 4px 0 0; order: 3; }
+  .sec__head .filtros--head { flex-basis: 100%; max-width: none; margin: 14px 0 0; order: 3; top: 0; }
   .sec__head .filtros--head .buscar-res { position: static; margin-top: 10px; white-space: normal; }
 }
+
+.filtros-panel { width: 320px; max-height: min(70vh, 560px); overflow-y: auto; overscroll-behavior: contain; }
+.acc.open .acc__b { max-height: 300px; overflow-y: auto; overscroll-behavior: contain; }
+.acc--chips .acc__b { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 10px; }
+.acc--chips.open .acc__b { padding: 2px 10px 12px; }
+.acc--chips .opt { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; font-size: 12.5px; }
+.acc--chips .opt.sel { border-color: var(--accent); background: rgba(232,185,35,.12); }
+.acc--chips .opt.sel::before { content: none; }
+.pinta { width: 13px; height: 13px; border-radius: 50%; border: 1px solid rgba(255,255,255,.35); flex: 0 0 auto; }
+.pinta--blanco { background: #f5f5f2; } .pinta--negro { background: #111; } .pinta--rojo { background: #d0262f; }
+.pinta--azul { background: #1f4fb8; } .pinta--celeste { background: #74b9ea; } .pinta--verde { background: #13865a; }
+.pinta--amarillo { background: #f4d21f; } .pinta--dorado { background: linear-gradient(135deg,#f7e08a,#c9911f); }
+.pinta--naranja { background: #f07a1a; } .pinta--rosa { background: #f3a6c8; } .pinta--morado { background: #7a4fc9; }
+.pinta--gris { background: #9a9a9a; } .pinta--beige { background: #efe3bf; }
+@media (max-width: 720px) { .filtros-panel { width: auto; right: 0; max-height: 65vh; } }
