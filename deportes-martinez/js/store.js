@@ -1,9 +1,9 @@
-import { db, MODO } from "./db.js?v=83";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=83";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=83";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=83";
-import { track } from "./track.js?v=83";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=83";
+import { db, MODO } from "./db.js?v=84";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=84";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=84";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=84";
+import { track } from "./track.js?v=84";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=84";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -20,6 +20,7 @@ let f = {
   temporada: "Todas",
   marca: qs.get("marca") || "Todas",
   talla: "Todas",
+  color: qs.get("color") || "Todos",
   orden: "rel"
 };
 let q = qs.get("q") || "";
@@ -60,12 +61,47 @@ function lev(a, b) {
   return d[a.length][b.length];
 }
 
-function palabraCoincide(t, w, conErrores = true) {
-  if (/^\d+$/.test(t)) return w === t || (t.length === 2 && /^\d{4}$/.test(w) && w.endsWith(t));
+function palabraCoincide(t, w) {
   if (w.startsWith(t)) return true;
-  if (!conErrores || t.length < 4) return false;
+  if (t.length < 4 || /\d/.test(t)) return false;
   const tope = t.length >= 7 ? 2 : 1;
   return lev(t, w.slice(0, t.length)) <= tope || lev(t, w) <= tope;
+}
+
+const COLOR = {
+  blanco: "blanco", blanca: "blanco", bca: "blanco", white: "blanco",
+  negro: "negro", negra: "negro", black: "negro",
+  rojo: "rojo", roja: "rojo", red: "rojo", granate: "rojo",
+  azul: "azul", marino: "azul", blue: "azul",
+  celeste: "celeste", cielo: "celeste",
+  verde: "verde", green: "verde",
+  amarillo: "amarillo", amarilla: "amarillo", yellow: "amarillo",
+  dorado: "dorado", dorada: "dorado", oro: "dorado", gold: "dorado", dorados: "dorado",
+  naranja: "naranja", anaranjado: "naranja", orange: "naranja",
+  rosa: "rosa", rosado: "rosa", rosita: "rosa", pink: "rosa",
+  morado: "morado", morada: "morado", purpura: "morado", lila: "morado", violeta: "morado",
+  gris: "gris", plata: "gris", plateado: "gris",
+  beige: "beige", crema: "beige", hueso: "beige"
+};
+
+function aniosDe(p) {
+  const anios = new Set();
+  const txt = `${p.temporada || ""} ${p.nombre || ""}`;
+  for (const m of txt.matchAll(/(\d{4})(?:\s*[-/]\s*(\d{2,4}))?/g)) {
+    const ini = +m[1];
+    let fin = m[2] ? +(m[2].length === 2 ? String(ini).slice(0, 2) + m[2] : m[2]) : ini;
+    if (fin < ini) fin += 100;
+    if (ini < 2015) for (let a = ini; a <= fin; a++) anios.add(a);
+    else { anios.add(ini); if (fin !== ini) anios.add(-fin); }
+  }
+  return anios;
+}
+
+function anioCoincide(t, anios, palabras) {
+  if (palabras.includes(t)) return true;
+  if (t.length === 4) return anios.has(+t);
+  if (t.length === 2) return [...anios].some(a => Math.abs(a) % 100 === +t);
+  return false;
 }
 
 function analizarBusqueda(texto) {
@@ -76,34 +112,41 @@ function analizarBusqueda(texto) {
     if (TALLA[t]) { tallas.push(TALLA[t]); continue; }
     if (VACIAS.has(t) || t === "manga") continue;
     if (t === "corta" || t === "cortas") { corta = true; continue; }
-    terminos.push([t, ...(SINON[t] || [])]);
+    if (COLOR[t]) { terminos.push({ color: COLOR[t] }); continue; }
+    terminos.push({ t, op: [t, ...(SINON[t] || [])] });
   }
   return { tallas, terminos, corta };
-}
-
-function textoDe(p) {
-  const fuerte = norm([p.nombre, p.equipo, p.temporada, p.kit, p.subcategoria, p.retro ? "retro" : "",
-    p.genero === "Niño" ? "nino" : p.genero === "Mujer" ? "mujer" : ""].join(" "));
-  const debil = norm([p.liga, p.marca, p.material, p.descripcion, p.categoria === "basket" ? "basket" : ""].join(" "));
-  return { fuerte: fuerte.split(" "), debil: debil.split(" ") };
 }
 
 function puntaje(p, b) {
   if (b.corta && /manga larga/i.test(p.nombre || "")) return 0;
   if (b.tallas.length && !b.tallas.some(t => tallasDisponibles(p).includes(t))) return 0;
-  const { fuerte, debil } = textoDe(p);
+  const nombre = norm(p.nombre).split(" ");
+  const resto = norm([p.equipo, p.subcategoria, p.retro ? "retro" : "",
+    p.genero === "Niño" ? "nino" : p.genero === "Mujer" ? "mujer" : ""].join(" ")).split(" ");
+  const colores = (p.colores || []).map(norm);
+  const anios = aniosDe(p);
   let total = 1;
-  for (const opciones of b.terminos) {
+  for (const x of b.terminos) {
+    if (x.color) {
+      const i = colores.indexOf(x.color);
+      if (i < 0) return 0;
+      total += i === 0 ? 4 : 2;
+      continue;
+    }
+    if (/^\d+$/.test(x.t)) {
+      if (!anioCoincide(x.t, anios, nombre)) return 0;
+      total += 4;
+      continue;
+    }
     let mejor = 0;
-    for (const o of opciones) {
-      const exacta = fuerte.includes(o);
-      if (exacta) { mejor = Math.max(mejor, 4); break; }
-      if (fuerte.some(w => palabraCoincide(o, w))) mejor = Math.max(mejor, 3);
-      else if (debil.some(w => palabraCoincide(o, w, false))) mejor = Math.max(mejor, 1);
+    for (const o of x.op) {
+      if (nombre.includes(o) || resto.includes(o)) { mejor = 5; break; }
+      if (nombre.some(w => palabraCoincide(o, w))) mejor = Math.max(mejor, 4);
+      else if (resto.some(w => palabraCoincide(o, w))) mejor = Math.max(mejor, 3);
     }
     if (!mejor) return 0;
     total += mejor;
-    if (mejor === 1) total -= 100;
   }
   return total;
 }
@@ -162,11 +205,11 @@ function cardHTML(p) {
     </article>`;
 }
 
-function grupo(lbl, key, valores, abierto) {
+function grupo(lbl, key, valores, abierto, chips) {
   if (valores.length <= 2) return "";
   const opts = valores.map(v =>
-    `<span class="opt" data-f="${key}" data-v="${v}">${v}</span>`).join("");
-  return `<div class="acc${abierto ? " open" : ""}" data-grp="${key}">
+    `<span class="opt${key === "color" && v !== "Todos" ? " opt--color" : ""}" data-f="${key}" data-v="${v}">${key === "color" && v !== "Todos" ? `<i class="pinta pinta--${norm(v)}"></i>` : ""}${v}</span>`).join("");
+  return `<div class="acc${abierto ? " open" : ""}${chips ? " acc--chips" : ""}" data-grp="${key}">
       <button class="acc__h" type="button"><span>${lbl}</span><span class="arr">▾</span></button>
       <div class="acc__b">${opts}</div></div>`;
 }
@@ -178,6 +221,12 @@ function buildPanel() {
   const uniq = (k, todo) => [todo, ...[...new Set(d.map(p => p[k]).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b)))];
   const tallas = ["Todas", ...[...new Set(d.flatMap(p => tallasDisponibles(p)))]
     .sort((a, b) => ["S", "M", "L", "XL", "2XL", "3XL"].indexOf(a) - ["S", "M", "L", "XL", "2XL", "3XL"].indexOf(b))];
+  const ORDEN_COLOR = ["Blanco", "Negro", "Rojo", "Azul", "Celeste", "Verde", "Amarillo", "Dorado", "Naranja", "Rosa", "Morado", "Gris", "Beige"];
+  const hay = new Set(d.flatMap(p => p.colores || []));
+  const colores = ["Todos", ...ORDEN_COLOR.filter(c => hay.has(c))];
+  const inicio = t => +(String(t).match(/\d{4}/) || [0])[0];
+  const temporadas = ["Todas", ...[...new Set(d.map(p => p.temporada).filter(Boolean))]
+    .sort((a, b) => inicio(b) - inicio(a) || String(b).localeCompare(String(a)))];
   cont.innerHTML = `
     <div class="filtros-fila">
       <button class="filtros-btn" type="button" id="filtrosBtn">
@@ -193,9 +242,10 @@ function buildPanel() {
       ${grupo("Versión", "sub", uniq("subcategoria", "Todas"), true)}
       ${grupo("Liga", "liga", uniq("liga", "Todas"), false)}
       ${grupo("Equipo", "equipo", uniq("equipo", "Todos"), false)}
-      ${grupo("Temporada", "temporada", uniq("temporada", "Todas"), false)}
+      ${grupo("Color", "color", colores, false, true)}
+      ${grupo("Temporada", "temporada", temporadas, false, true)}
       ${grupo("Marca", "marca", uniq("marca", "Todas"), false)}
-      ${grupo("Talla", "talla", tallas, false)}
+      ${grupo("Talla", "talla", tallas, false, true)}
       <div class="acc" data-grp="orden">
         <button class="acc__h" type="button"><span>Orden</span><span class="arr">▾</span></button>
         <div class="acc__b">
@@ -238,7 +288,7 @@ function anotarBusqueda() {
 }
 
 function activos() {
-  return (f.sub !== "Todas") + (f.liga !== "Todas") + (f.equipo !== "Todos") +
+  return (f.sub !== "Todas") + (f.liga !== "Todas") + (f.equipo !== "Todos") + (f.color !== "Todos") +
          (f.temporada !== "Todas") + (f.marca !== "Todas") + (f.talla !== "Todas") + (f.orden !== "rel");
 }
 
@@ -261,15 +311,15 @@ function render() {
     (f.equipo === "Todos" || p.equipo === f.equipo) &&
     (f.temporada === "Todas" || p.temporada === f.temporada) &&
     (f.marca === "Todas" || p.marca === f.marca) &&
-    (f.talla === "Todas" || tallasDisponibles(p).includes(f.talla)));
+    (f.talla === "Todas" || tallasDisponibles(p).includes(f.talla)) &&
+    (f.color === "Todos" || (p.colores || []).includes(f.color)));
 
   const b = analizarBusqueda(q);
   const buscando = b.terminos.length || b.tallas.length || b.corta;
   let lista2 = lista;
   if (buscando) {
     const pts = new Map(lista.map(p => [p, puntaje(p, b)]));
-    const fuertes = lista.filter(p => pts.get(p) > 0);
-    lista2 = fuertes.length ? fuertes : lista.filter(p => pts.get(p) !== 0);
+    lista2 = lista.filter(p => pts.get(p) > 0);
     if (f.orden === "rel") lista2.sort((x, y) => pts.get(y) - pts.get(x) || stockTotal(y) - stockTotal(x));
   }
   lista = lista2;
@@ -330,7 +380,7 @@ document.addEventListener("click", e => {
   const opt = e.target.closest("#filtrosPanel .opt");
   if (opt) {
     f[opt.dataset.f] = opt.dataset.v;
-    const NOMBRE_F = { sub: "versión", liga: "liga", equipo: "equipo", temporada: "temporada", marca: "marca", talla: "talla", orden: "orden" };
+    const NOMBRE_F = { sub: "versión", liga: "liga", equipo: "equipo", temporada: "temporada", marca: "marca", talla: "talla", color: "color", orden: "orden" };
     track("filtro", { categoria: CAT, campo: opt.dataset.f, campoTxt: NOMBRE_F[opt.dataset.f] || opt.dataset.f, valor: opt.dataset.v });
     render();
     return;
