@@ -1752,3 +1752,13 @@ label, .field label { color: var(--ink-soft); }
 }
 
 .hdr .nav .nav-buscar { display: none; }
+
+.sec__head .filtros--head { flex: 1 1 420px; min-width: 0; max-width: 640px; margin: 0 0 4px auto; }
+.buscador input { width: 100%; }
+.sec__head .filtros--head .buscador { max-width: none; }
+.sec__head .filtros--head .buscar-res { position: absolute; top: calc(100% + 8px); left: 2px; margin: 0; white-space: nowrap; }
+.sec__head:has(.filtros--head) { position: relative; z-index: 20; }
+@media (max-width: 720px) {
+  .sec__head .filtros--head { flex-basis: 100%; max-width: none; margin: 4px 0 0; order: 3; }
+  .sec__head .filtros--head .buscar-res { position: static; margin-top: 10px; white-space: normal; }
+}
