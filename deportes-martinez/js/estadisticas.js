@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=81";
+import { firebaseConfig } from "./config.js?v=82";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -186,6 +186,8 @@ export function paso(ev) {
       case "filtros_abrir": return "Abrió los filtros";
       case "filtro": return `Filtró por ${esc(ev.campoTxt || ev.campo)}: <b>${esc(ev.valor)}</b>`;
       case "filtro_sin_resultado": return "Con esos filtros no le salió nada";
+      case "busqueda": return `Buscó en la tienda: “${esc(ev.texto)}”${ev.resultados ? ` (le salieron ${ev.resultados})` : " (no encontró nada)"}`;
+      case "busqueda_sin_resultado": return "";
       case "asesor_abrir": return "Abrió el asistente";
       case "asesor_cerrar": return "Cerró el asistente";
       case "asesor": return `Le preguntó al asistente: “${esc(ev.pregunta)}”${ev.resultados ? ` (le mostró ${ev.resultados})` : " (no encontró nada)"}`;
