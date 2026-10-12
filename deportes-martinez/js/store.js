@@ -1,9 +1,9 @@
-import { db, MODO } from "./db.js?v=84";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=84";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=84";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=84";
-import { track } from "./track.js?v=84";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=84";
+import { db, MODO } from "./db.js?v=85";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=85";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=85";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=85";
+import { track } from "./track.js?v=85";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=85";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -48,7 +48,7 @@ const SINON = {
   negro: ["negra", "negro"], roja: ["roja", "rojo", "rojas"], rojo: ["roja", "rojo"], verde: ["verde"],
   rosa: ["rosa"], rojiblanca: ["chivas", "rojiblanca"], rojiblancas: ["chivas"], azul: ["azul"], amarilla: ["amarilla", "amarillo"], dorada: ["dorada", "dorado", "oro"],
   nino: ["nino"], ninos: ["nino"], infantil: ["nino"], kids: ["nino"], dama: ["mujer"], mujeres: ["mujer"],
-  cr7: ["cristiano", "ronaldo"], portero: ["portero"], arquero: ["portero"], basquet: ["basket"], basketball: ["basket"]
+  cr7: ["cristiano", "ronaldo"], addidas: ["adidas"], adiddas: ["adidas"], naik: ["nike"], jordan: ["jordan"], portero: ["portero"], arquero: ["portero"], basquet: ["basket"], basketball: ["basket"]
 };
 
 function lev(a, b) {
@@ -122,7 +122,7 @@ function puntaje(p, b) {
   if (b.corta && /manga larga/i.test(p.nombre || "")) return 0;
   if (b.tallas.length && !b.tallas.some(t => tallasDisponibles(p).includes(t))) return 0;
   const nombre = norm(p.nombre).split(" ");
-  const resto = norm([p.equipo, p.subcategoria, p.retro ? "retro" : "",
+  const resto = norm([p.equipo, p.marca, p.subcategoria, p.retro ? "retro" : "",
     p.genero === "Niño" ? "nino" : p.genero === "Mujer" ? "mujer" : ""].join(" ")).split(" ");
   const colores = (p.colores || []).map(norm);
   const anios = aniosDe(p);
