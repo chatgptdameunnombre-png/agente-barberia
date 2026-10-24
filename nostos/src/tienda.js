@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20261023194439';
+import { RELIQUIAS } from './reliquias.js?v=20261024113013';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -69,7 +69,13 @@ const BASICOS = [
     inutil: j => j.vida >= j.vidaMax,
     aplicar: j => { j.vida = j.vidaMax; } },
   { id: 'obolo', nombre: 'OBOLO DE CARONTE', precio: 150, hoja: 'reliquias', celda: 11, respaldo: 4,
-    instantaneo: true, desc: 'Pagas al barquero y la grieta al Otro Lado se abre ya, en el centro del mapa',
+    instantaneo: true,
+    get desc() {
+      return this.regreso
+        ? 'Pagas al barquero y se abre ya la salida de vuelta al mundo normal, en el centro del mapa'
+        : 'Pagas al barquero y la grieta al Otro Lado se abre ya, en el centro del mapa';
+    },
+    regreso: false,
     inutil: j => !j.paseLibre,
     aplicar: () => {} },
   { id: 'frasco', nombre: 'FRASCO DE AMBROSIA', precio: 60, celda: 8, respaldo: 7, delSuelo: 7,
