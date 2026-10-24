@@ -1,4 +1,4 @@
-import { CELDA } from './mapa.js?v=20261024115620';
+import { CELDA } from './mapa.js?v=20261024123824';
 
 const COLORES = {
   '#': '#8a7f66',
@@ -33,8 +33,9 @@ export class Minimapa {
         const s = this.nivel.rejilla[z][cx];
         const px = this.margenX + cx * e;
         const pz = this.margenZ + z * e;
-        if (COLORES[s]) {
-          x.fillStyle = COLORES[s];
+        const colores = this.nivel.colores || COLORES;
+        if (colores[s]) {
+          x.fillStyle = colores[s];
           x.fillRect(px, pz, Math.ceil(e), Math.ceil(e));
         } else {
           x.fillStyle = 'rgba(45,60,80,.55)';

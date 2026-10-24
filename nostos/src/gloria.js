@@ -35,6 +35,11 @@ export const OBJETOS = [
     desc: 'Empiezas con la punteria del cazador' }
 ];
 
+export const VIAJE = [
+  { id: 'brujula', insignia: 9, nombre: 'BRUJULA DE ATENEA', precio: 1500, permanente: true,
+    desc: 'Eliges en que mapa juegas con el boton MAPA del menu. Sin ella, el mapa sale al azar' }
+];
+
 export const LIMITE_OBJETOS = 2;
 
 export const ESTILOS = [
@@ -53,7 +58,7 @@ export const ESTILOS = [
   { id: 'miNada', grupo: 'mira', valor: 'nada', nombre: 'SIN MIRA', precio: 200, muestra: '#4a3418' }
 ];
 
-export const TODO = [...MODOS, ...MEJORAS_MERCADER, ...OBJETOS, ...ESTILOS];
+export const TODO = [...MODOS, ...MEJORAS_MERCADER, ...OBJETOS, ...VIAJE, ...ESTILOS];
 const LLAVE = 'nostos.gloria';
 
 export function estado() {

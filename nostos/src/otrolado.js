@@ -1,11 +1,21 @@
 import * as THREE from 'three';
 
-const NORMAL = {
+export const NORMAL = {
   fondo: 0x0a0705,
   niebla: { color: 0x120c08, cerca: 18, lejos: 95 },
   ambiente: { color: 0x8a7658, fuerza: 2.4 },
   antorcha: { color: 0xffc078, fuerza: 62 },
   cenit: { color: 0xbfd0e4, fuerza: 0.75 },
+  tinteNivel: 0xffffff,
+  tinteEnemigo: 0xffffff
+};
+
+export const NORMAL_CUEVA = {
+  fondo: 0x050403,
+  niebla: { color: 0x0b0806, cerca: 10, lejos: 72 },
+  ambiente: { color: 0x7a6650, fuerza: 1.75 },
+  antorcha: { color: 0xffb066, fuerza: 58 },
+  cenit: { color: 0x8a96a6, fuerza: 0.22 },
   tinteNivel: 0xffffff,
   tinteEnemigo: 0xffffff
 };
@@ -27,6 +37,8 @@ export class OtroLado {
     this.antorcha = cfg.antorcha;
     this.ambiente = cfg.ambiente;
     this.cenit = cfg.cenit;
+    this.normal = cfg.normal || NORMAL;
+    this.baseAntorcha = this.normal.antorcha.fuerza;
     this.dentro = false;
     this.ofrecida = false;
     this.ceniza = null;
@@ -85,7 +97,7 @@ export class OtroLado {
 
   salir() {
     this.dentro = false;
-    this._pintar(NORMAL);
+    this._pintar(this.normal);
     this._ceniza(false);
   }
 

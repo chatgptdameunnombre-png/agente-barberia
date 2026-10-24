@@ -168,7 +168,7 @@
                               border:1px solid #6b4a22; color:#e8c14a; font-style:normal;
                               font-size:13px; letter-spacing:2px; }
   #panel .tarjeta .precio2 { color:#e8c14a; font-size:18px; white-space:nowrap; align-self:flex-start; }
-  body.enJuego #verGloria { display:none; }
+  body.enJuego #verGloria, body.enJuego #verMapa, body.enJuego #mapaActual { display:none; }
   #panel .cerrar { display:block; margin:26px auto 0; }
   #panel .opciones { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:8px; }
   #panel .opcion { padding:10px 18px; border:2px solid #4a3418; background:rgba(0,0,0,.35);
@@ -354,12 +354,14 @@
     <h1>NOSTOS</h1>
     <h2>EL REGRESO</h2>
     <p>CLIC PARA EMPEZAR</p>
+    <p class="marca" id="mapaActual"></p>
     <p class="marca" id="marca"></p>
     <div id="botonera">
       <button class="boton" id="seguir" hidden>SEGUIR</button>
       <button class="boton" id="verControles">VER BOTONES</button>
       <button class="boton" id="verObjetos">OBJETOS</button>
       <button class="boton" id="verGloria">GLORIA</button>
+      <button class="boton" id="verMapa" hidden>MAPA</button>
       <button class="boton" id="verComo">COMO JUGAR</button>
       <button class="boton" id="verPersonaje">PERSONAJE</button>
       <button class="boton" id="verSonido">SONIDO</button>
@@ -374,7 +376,7 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20261024115620"></script>
+  <script type="module" src="./src/main.js?v=20261024123824"></script>
   <script>
     setTimeout(function () {
       if (window.__nostosListo) return;

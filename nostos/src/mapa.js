@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { banco } from './texturas.js?v=20261024115620';
+import { banco } from './texturas.js?v=20261024123824';
 
 export const CELDA = 4;
 export const ALTO = 10;
@@ -33,14 +33,46 @@ export const NIVEL_PRUEBA = [
   '###################################'
 ];
 
+export const NIVEL_CUEVA = [
+  '####################################',
+  '####################################',
+  '##h.....a.####RR#####RR###a.....k###',
+  '##..E.........##.....##.......E..###',
+  '##.....s......#...E...#..........R##',
+  '##o....C...........................#',
+  '###.........##...........##....q..##',
+  '####...#######...........######..###',
+  '#####...####....TT.TT.....###...####',
+  '###......##...TT.....TT....##.....##',
+  '##..E.........T..o...vT.........E.##',
+  'R#......C.....T.......T.....C.....##',
+  '##............T.......T...........R#',
+  '##.....r......T.......T......m....##',
+  '###...........TT..q..TT.........####',
+  '####...###......TT.TT.....###...####',
+  '####...######.............####..####',
+  '###......####....s...s....###....###',
+  '##..E.......##...........##....E..##',
+  '##.......C....##.......##.....C...##',
+  '##k....................b.........h##',
+  '##...a.........b..@..........a....##',
+  '###R#####.......##p##........#####R#',
+  '####################################',
+  '####################################'
+];
+
 const SOLIDOS = new Set(['#', 'C', 'T', 'R', 'F']);
 
-const MATERIAL_POR_SIGNO = {
-  '#': 'marmol',
-  'C': 'columna',
-  'T': 'terracota',
-  'R': 'roca',
-  'F': 'piedra'
+export const ESTILOS_NIVEL = {
+  palacio: {
+    materiales: { '#': 'marmol', 'C': 'columna', 'T': 'terracota', 'R': 'roca', 'F': 'piedra' },
+    piso: 'mosaico', techo: 'roca'
+  },
+  cueva: {
+    materiales: { '#': 'roca', 'C': 'pilar', 'T': 'cerca', 'R': 'musgo', 'F': 'roca' },
+    piso: 'tierra', techo: 'techo',
+    colores: { '#': '#6e5a46', 'R': '#4e6a3a', 'C': '#b89c74', 'T': '#8a5a2a', 'F': '#6e5a46' }
+  }
 };
 
 export function esSolido(rejilla, cx, cz) {
@@ -50,13 +82,14 @@ export function esSolido(rejilla, cx, cz) {
   return SOLIDOS.has(fila[cx]);
 }
 
-export function construir(rejilla, texturas) {
+export function construir(rejilla, texturas, estilo = ESTILOS_NIVEL.palacio) {
   const tex = texturas || banco();
+  const MATERIAL_POR_SIGNO = estilo.materiales;
   const grupo = new THREE.Group();
   const alto = rejilla.length;
   const ancho = rejilla[0].length;
   const porMaterial = {};
-  const spawns = { jugador: null, enemigos: [], items: [] };
+  const spawns = { jugador: null, enemigos: [], items: [], decor: [] };
 
   for (let z = 0; z < alto; z++) {
     for (let x = 0; x < ancho; x++) {
@@ -79,6 +112,7 @@ export function construir(rejilla, texturas) {
       if (s === '@') spawns.jugador = new THREE.Vector3(mundoX, 0, mundoZ);
       if (s === 'E') spawns.enemigos.push(new THREE.Vector3(mundoX, 0, mundoZ));
       if (s === '+') spawns.items.push(new THREE.Vector3(mundoX, 0, mundoZ));
+      if (s >= 'a' && s <= 'z') spawns.decor.push({ signo: s, x, z, pos: new THREE.Vector3(mundoX, 0, mundoZ) });
     }
   }
 
@@ -94,7 +128,7 @@ export function construir(rejilla, texturas) {
   const anchoMundo = ancho * CELDA;
   const altoMundo = alto * CELDA;
 
-  const piso = tex.mosaico.clone();
+  const piso = tex[estilo.piso].clone();
   piso.needsUpdate = true;
   piso.repeat.set(ancho, alto);
   const mallaPiso = new THREE.Mesh(
@@ -106,7 +140,7 @@ export function construir(rejilla, texturas) {
   mallaPiso.userData.piso = true;
   grupo.add(mallaPiso);
 
-  const techo = tex.roca.clone();
+  const techo = tex[estilo.techo].clone();
   techo.needsUpdate = true;
   techo.repeat.set(ancho, alto);
   const mallaTecho = new THREE.Mesh(
@@ -118,16 +152,17 @@ export function construir(rejilla, texturas) {
   mallaTecho.userData.techo = true;
   grupo.add(mallaTecho);
 
-  const nivel = { grupo, spawns, rejilla, ancho, alto, tex };
+  const nivel = { grupo, spawns, rejilla, ancho, alto, tex, estilo, colores: estilo.colores || null };
   nivel.rehacer = () => rehacer(nivel);
   return nivel;
 }
 
 function rehacer(nivel) {
   const { grupo, rejilla, ancho, alto, tex } = nivel;
+  const MATERIAL_POR_SIGNO = nivel.estilo.materiales;
   for (let i = grupo.children.length - 1; i >= 0; i--) {
     const hijo = grupo.children[i];
-    if (!hijo.userData.piso && !hijo.userData.techo) {
+    if (!hijo.userData.piso && !hijo.userData.techo && !hijo.userData.decor) {
       grupo.remove(hijo);
       hijo.geometry.dispose();
     }
