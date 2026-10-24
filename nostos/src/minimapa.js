@@ -1,4 +1,4 @@
-import { CELDA } from './mapa.js?v=20261024131409';
+import { CELDA } from './mapa.js?v=20261024133134';
 
 const COLORES = {
   '#': '#8a7f66',

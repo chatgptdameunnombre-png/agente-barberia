@@ -1,25 +1,25 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, NIVEL_CUEVA, ESTILOS_NIVEL, construir, CELDA, esSolido } from './mapa.js?v=20261024131409';
-import { Jugador } from './jugador.js?v=20261024131409';
-import { Enemigo, TIPOS } from './enemigos.js?v=20261024131409';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, Billboard } from './sprites.js?v=20261024131409';
-import { Objeto, CATALOGO } from './objetos.js?v=20261024131409';
-import { Rondas } from './rondas.js?v=20261024131409';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20261024131409';
-import { RELIQUIAS } from './reliquias.js?v=20261024131409';
-import { leer, guardar, aplicar } from './apariencia.js?v=20261024131409';
-import { MODOS, MEJORAS_MERCADER, VIAJE, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, TODO_GRATIS, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo, tiene as tieneGloria } from './gloria.js?v=20261024131409';
-import { Minimapa, Marcas } from './minimapa.js?v=20261024131409';
-import { Flujo } from './flujo.js?v=20261024131409';
-import { Portales, trazar } from './portales.js?v=20261024131409';
-import { romper } from './mapa.js?v=20261024131409';
-import { Audio } from './audio.js?v=20261024131409';
-import { OtroLado, NORMAL_CUEVA } from './otrolado.js?v=20261024131409';
-import { Grieta } from './grieta.js?v=20261024131409';
-import { Director } from './director.js?v=20261024131409';
-import { Cerco } from './cerco.js?v=20261024131409';
-import { siluetaCiclope, banco } from './texturas.js?v=20261024131409';
-import { Misiones, ARCOS } from './misiones.js?v=20261024131409';
+import { NIVEL_PRUEBA, NIVEL_CUEVA, ESTILOS_NIVEL, construir, CELDA, esSolido } from './mapa.js?v=20261024133134';
+import { Jugador } from './jugador.js?v=20261024133134';
+import { Enemigo, TIPOS } from './enemigos.js?v=20261024133134';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, Billboard } from './sprites.js?v=20261024133134';
+import { Objeto, CATALOGO } from './objetos.js?v=20261024133134';
+import { Rondas } from './rondas.js?v=20261024133134';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20261024133134';
+import { RELIQUIAS } from './reliquias.js?v=20261024133134';
+import { leer, guardar, aplicar } from './apariencia.js?v=20261024133134';
+import { MODOS, MEJORAS_MERCADER, VIAJE, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, TODO_GRATIS, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo, tiene as tieneGloria } from './gloria.js?v=20261024133134';
+import { Minimapa, Marcas } from './minimapa.js?v=20261024133134';
+import { Flujo } from './flujo.js?v=20261024133134';
+import { Portales, trazar } from './portales.js?v=20261024133134';
+import { romper } from './mapa.js?v=20261024133134';
+import { Audio } from './audio.js?v=20261024133134';
+import { OtroLado, NORMAL_CUEVA } from './otrolado.js?v=20261024133134';
+import { Grieta } from './grieta.js?v=20261024133134';
+import { Director } from './director.js?v=20261024133134';
+import { Cerco } from './cerco.js?v=20261024133134';
+import { siluetaCiclope, banco } from './texturas.js?v=20261024133134';
+import { Misiones, ARCOS } from './misiones.js?v=20261024133134';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -136,7 +136,12 @@ function mapaPedido() {
 function elegirMapa() {
   const pedido = tieneGloria('brujula') ? mapaPedido() : 'azar';
   if (MAPAS[pedido]) return pedido;
-  return Math.random() < 0.5 ? 'palacio' : 'cueva';
+  let bolsa = [];
+  try { bolsa = JSON.parse(localStorage.getItem('nostos.bolsaMapas') || '[]').filter(m => MAPAS[m]); } catch (e) {}
+  if (!bolsa.length) bolsa = Math.random() < 0.5 ? ['palacio', 'cueva'] : ['cueva', 'palacio'];
+  const sale = bolsa.shift();
+  try { localStorage.setItem('nostos.bolsaMapas', JSON.stringify(bolsa)); } catch (e) {}
+  return sale;
 }
 
 const MAPA = elegirMapa();
@@ -157,21 +162,21 @@ function recortarAlto(textura, desde, hasta) {
 }
 
 const ARCOS_HOJA = [
-  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20261024131409'],
-  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20261024131409'],
-  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20261024131409'],
-  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20261024131409'],
-  ['arcoSable', './arte/crudo/arco-sable.webp?v=20261024131409'],
-  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20261024131409']
+  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20261024133134'],
+  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20261024133134'],
+  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20261024133134'],
+  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20261024133134'],
+  ['arcoSable', './arte/crudo/arco-sable.webp?v=20261024133134'],
+  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20261024133134']
 ];
 
 const CARAS_HOJA = [
-  ['carasFontanero', './arte/crudo/caras-fontanero.webp?v=20261024131409'],
-  ['carasSierra', './arte/crudo/caras-sierra.webp?v=20261024131409'],
-  ['carasPortal', './arte/crudo/caras-portal.webp?v=20261024131409'],
-  ['carasFantasma', './arte/crudo/caras-fantasma.webp?v=20261024131409'],
-  ['carasSable', './arte/crudo/caras-sable.webp?v=20261024131409'],
-  ['carasAbismo', './arte/crudo/caras-abismo.webp?v=20261024131409']
+  ['carasFontanero', './arte/crudo/caras-fontanero.webp?v=20261024133134'],
+  ['carasSierra', './arte/crudo/caras-sierra.webp?v=20261024133134'],
+  ['carasPortal', './arte/crudo/caras-portal.webp?v=20261024133134'],
+  ['carasFantasma', './arte/crudo/caras-fantasma.webp?v=20261024133134'],
+  ['carasSable', './arte/crudo/caras-sable.webp?v=20261024133134'],
+  ['carasAbismo', './arte/crudo/caras-abismo.webp?v=20261024133134']
 ];
 
 function cargarArcos() {
@@ -210,46 +215,46 @@ function cargarConBarra(ruta) {
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas, cuchilloImg, tajoImg, vueloImg, kTajoImg, cicRayo, cicLanza, cicCuchillo, cicFuego, cicHacha, cicBomba, fichasImg,
     polIdle, polAtk, polDie, bombaMano, bombaPeg, cuevaTex, cuevaDecor] = await Promise.all([
-    cargarConBarra('./arte/crudo/ciclope.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/ciclope-ataca.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/ciclope-muere.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/arco.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/texturas.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/items.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/tienda.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/pretendiente.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/pretendiente-ataca.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/pretendiente-muere.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/cuerno.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/mercader.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/caras.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/guante.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/objetos2.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/hilo.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/jabalina.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/hacha.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/pico.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/mano.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/fuego.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/insignias.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/cuchillo.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/hacha-tajo.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/hacha-vuelo.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/cuchillo-tajo.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/ciclope-rayo.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/ciclope-lanza.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/ciclope-cuchillo.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/ciclope-fuego.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/ciclope-hacha.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/ciclope-bomba.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/fichas.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/polifemo.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/polifemo-ataca.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/polifemo-muere.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/bomba.webp?v=20261024131409'),
-    cargarConBarra('./arte/crudo/bomba-pegada.webp?v=20261024131409'),
-    enCueva ? cargarConBarra('./arte/crudo/cueva-texturas.webp?v=20261024131409') : null,
-    enCueva ? cargarConBarra('./arte/crudo/cueva-decoracion.webp?v=20261024131409') : null
+    cargarConBarra('./arte/crudo/ciclope.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/ciclope-ataca.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/ciclope-muere.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/arco.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/texturas.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/items.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/tienda.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/pretendiente.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/pretendiente-ataca.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/pretendiente-muere.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/cuerno.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/mercader.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/caras.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/guante.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/objetos2.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/hilo.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/jabalina.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/hacha.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/pico.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/mano.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/fuego.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/insignias.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/cuchillo.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/hacha-tajo.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/hacha-vuelo.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/cuchillo-tajo.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/ciclope-rayo.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/ciclope-lanza.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/ciclope-cuchillo.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/ciclope-fuego.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/ciclope-hacha.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/ciclope-bomba.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/fichas.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/polifemo.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/polifemo-ataca.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/polifemo-muere.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/bomba.webp?v=20261024133134'),
+    cargarConBarra('./arte/crudo/bomba-pegada.webp?v=20261024133134'),
+    enCueva ? cargarConBarra('./arte/crudo/cueva-texturas.webp?v=20261024133134') : null,
+    enCueva ? cargarConBarra('./arte/crudo/cueva-decoracion.webp?v=20261024133134') : null
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
