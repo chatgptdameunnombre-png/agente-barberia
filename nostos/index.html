@@ -186,6 +186,8 @@
                   letter-spacing:5px; margin-bottom:20px; }
   @keyframes latir { 50% { opacity:.25; } }
   #menu.oculto { display:none; }
+  body.muerto #botonera .boton:not(#seguir):not(#alMenu) { display:none; }
+  body.muerto #menu p:first-of-type { animation:none; }
 
   #jefe { position:absolute; z-index:6; left:50%; top:22px; width:min(620px,62vw);
           transform:translateX(-50%); display:none; text-align:center; }
@@ -352,6 +354,7 @@
     <p>CLIC PARA EMPEZAR</p>
     <p class="marca" id="marca"></p>
     <div id="botonera">
+      <button class="boton" id="seguir" hidden>SEGUIR</button>
       <button class="boton" id="verControles">VER BOTONES</button>
       <button class="boton" id="verObjetos">OBJETOS</button>
       <button class="boton" id="verGloria">GLORIA</button>
@@ -369,7 +372,7 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20261024113013"></script>
+  <script type="module" src="./src/main.js?v=20261024113719"></script>
   <script>
     setTimeout(function () {
       if (window.__nostosListo) return;

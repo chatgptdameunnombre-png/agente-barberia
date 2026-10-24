@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20261024113013';
+import { RELIQUIAS } from './reliquias.js?v=20261024113719';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,

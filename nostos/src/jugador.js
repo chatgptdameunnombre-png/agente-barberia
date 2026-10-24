@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20261024113013';
+import { CELDA, esSolido } from './mapa.js?v=20261024113719';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -177,7 +177,7 @@ export class Jugador {
   }
 
   _entrar() {
-    if (this.activo) return;
+    if (this.activo || this.bloqueado) return;
     try {
       const intento = this.lienzo.requestPointerLock();
       if (intento && intento.catch) intento.catch(() => {});
