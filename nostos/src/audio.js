@@ -6,13 +6,21 @@ const MUESTRAS = ['carne', 'piedra', 'garrote', 'muereEnemigo', 'dano', 'tajo', 
   'recoger', 'curar', 'vacio', 'fallo', 'ronda', 'portalAzul', 'portalNaranja', 'cruzar',
   'rayo', 'muerte'];
 
+function leerLlave(llave) {
+  try { return localStorage.getItem(llave) === '1'; } catch (e) { return false; }
+}
+
+function guardarLlave(llave, valor) {
+  try { localStorage.setItem(llave, valor ? '1' : '0'); } catch (e) {}
+}
+
 export class Audio {
   constructor() {
     this.ctx = null;
     this.listo = false;
-    this.silencio = localStorage.getItem('nostos.mudo') === '1';
-    this.silencioMusica = localStorage.getItem('nostos.mudoMusica') === '1';
-    this.silencioEfectos = localStorage.getItem('nostos.mudoEfectos') === '1';
+    this.silencio = leerLlave('nostos.mudo');
+    this.silencioMusica = leerLlave('nostos.mudoMusica');
+    this.silencioEfectos = leerLlave('nostos.mudoEfectos');
     this.volumen = 0.75;
     this.oyente = { x: 0, z: 0, yaw: 0 };
     this.musicaViva = false;
@@ -54,7 +62,8 @@ export class Audio {
 
   mudoMusica(valor) {
     this.silencioMusica = valor === undefined ? !this.silencioMusica : valor;
-    localStorage.setItem('nostos.mudoMusica', this.silencioMusica ? '1' : '0');
+    guardarLlave('nostos.mudoMusica', this.silencioMusica);
+    this.objetivoMusica = null;
     if (this.canalMusica) {
       this.canalMusica.gain.setTargetAtTime(
         this.silencioMusica ? 0 : 0.34, this.ctx.currentTime, 0.3);
@@ -64,7 +73,7 @@ export class Audio {
 
   mudoEfectos(valor) {
     this.silencioEfectos = valor === undefined ? !this.silencioEfectos : valor;
-    localStorage.setItem('nostos.mudoEfectos', this.silencioEfectos ? '1' : '0');
+    guardarLlave('nostos.mudoEfectos', this.silencioEfectos);
     if (this.canalEfectos) {
       this.canalEfectos.gain.setTargetAtTime(
         this.silencioEfectos ? 0 : 0.55, this.ctx.currentTime, 0.1);
@@ -147,7 +156,7 @@ export class Audio {
     const mia = ++this.opMusica;
     this.cambiando = true;
     if (this.relojCambio) clearTimeout(this.relojCambio);
-    if (this.fuentePista) this.canalMusica.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3);
+    if (this.fuentePista) { this.objetivoMusica = null; this.canalMusica.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3); }
     this.relojCambio = setTimeout(() => {
       if (mia !== this.opMusica) return;
       this.cambiando = false;
@@ -174,7 +183,7 @@ export class Audio {
 
   mudo(valor) {
     this.silencio = valor === undefined ? !this.silencio : valor;
-    localStorage.setItem('nostos.mudo', this.silencio ? '1' : '0');
+    guardarLlave('nostos.mudo', this.silencio);
     if (this.maestro) {
       this.maestro.gain.setTargetAtTime(this.silencio ? 0 : this.volumen, this.ctx.currentTime, 0.05);
     }
@@ -270,15 +279,17 @@ export class Audio {
     this.intensidad = intensidad;
     if (!this.musicaViva) this._arrancarMusica();
     const t = this.ctx.currentTime;
+    const conPista = !!(this.pistas && this.pistaActual);
+    const base = conPista ? 0.34 : 0.06;
+    const rango = conPista ? 0.34 : 0.16;
+    const objetivo = this.silencioMusica ? -1 : base + Math.min(rango, intensidad * (conPista ? 0.05 : 0.02));
+    if (objetivo === this.objetivoMusica) return;
+    this.objetivoMusica = objetivo;
     if (this.silencioMusica) {
       this.canalMusica.gain.setTargetAtTime(0, t, 0.3);
       return;
     }
-    const conPista = !!(this.pistas && this.pistaActual);
-    const base = conPista ? 0.34 : 0.06;
-    const rango = conPista ? 0.34 : 0.16;
-    this.canalMusica.gain.setTargetAtTime(
-      base + Math.min(rango, intensidad * (conPista ? 0.05 : 0.02)), t, 1.5);
+    this.canalMusica.gain.setTargetAtTime(objetivo, t, 1.5);
     if (this.filtroDrone) {
       this.filtroDrone.frequency.setTargetAtTime(180 + Math.min(500, intensidad * 60), t, 2);
     }
@@ -288,6 +299,7 @@ export class Audio {
     if (!this.listo) return;
     if (this.relojCambio) { clearTimeout(this.relojCambio); this.cambiando = false; }
     this.opMusica = (this.opMusica || 0) + 1;
+    this.objetivoMusica = null;
     this.canalMusica.gain.setTargetAtTime(0, this.ctx.currentTime, lento ? 2.4 : 0.8);
   }
 

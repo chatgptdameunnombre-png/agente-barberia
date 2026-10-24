@@ -1,9 +1,26 @@
 import * as THREE from 'three';
-import { CELDA, ALTO, esSolido } from './mapa.js?v=20260908180406';
+import { CELDA, ALTO, esSolido } from './mapa.js?v=20261023185214';
 
 const ANCHO_PORTAL = 3.7;
 const ALTO_PORTAL = 5.5;
 const RADIO_CRUCE = 2.1;
+const RADIO_VISTA = Math.hypot(ANCHO_PORTAL, ALTO_PORTAL) / 2;
+
+const inversa = new THREE.Matrix4();
+const paso = new THREE.Matrix4();
+const media = new THREE.Matrix4().makeRotationY(Math.PI);
+const giro = new THREE.Matrix3();
+const virtual = new THREE.Matrix4();
+const planoRecorte = new THREE.Plane();
+const cuartoQ = new THREE.Vector4();
+const cuartoV = new THREE.Vector4();
+const inversaVirtual = new THREE.Matrix4();
+const puntoA = new THREE.Vector3();
+const puntoB = new THREE.Vector3();
+const luzGuardada = new THREE.Vector3();
+const encuadre = new THREE.Frustum();
+const proyeccion = new THREE.Matrix4();
+const esfera = new THREE.Sphere();
 
 export function trazar(nivel, origen, dir, alcance = 90) {
   let mapX = Math.floor(origen.x / CELDA);
@@ -191,12 +208,9 @@ export class Portales {
   }
 
   _matrizVirtual(desde, hacia, camara) {
-    const m = new THREE.Matrix4();
-    m.copy(hacia.malla.matrixWorld);
-    m.multiply(new THREE.Matrix4().makeRotationY(Math.PI));
-    m.multiply(new THREE.Matrix4().copy(desde.malla.matrixWorld).invert());
-    m.multiply(camara.matrixWorld);
-    return m;
+    return virtual.copy(hacia.malla.matrixWorld).multiply(media)
+      .multiply(inversaVirtual.copy(desde.malla.matrixWorld).invert())
+      .multiply(camara.matrixWorld);
   }
 
   _huecoLibre(otro, jugador) {
@@ -277,24 +291,18 @@ export class Portales {
     if (!this.listos) return false;
     for (const desde of [this.azul, this.naranja]) {
       const hacia = desde.destino;
-      const inv = new THREE.Matrix4().copy(desde.malla.matrixWorld).invert();
-      const a = anterior.clone().applyMatrix4(inv);
-      const b = actual.clone().applyMatrix4(inv);
+      const inv = inversa.copy(desde.malla.matrixWorld).invert();
+      const a = puntoA.copy(anterior).applyMatrix4(inv);
+      const b = puntoB.copy(actual).applyMatrix4(inv);
       if (a.z <= 0 || b.z > 0) continue;
       const t = a.z / (a.z - b.z);
       const x = a.x + (b.x - a.x) * t;
       const y = a.y + (b.y - a.y) * t;
       if (Math.abs(x) > ANCHO_PORTAL * 0.45 || Math.abs(y) > ALTO_PORTAL * 0.45) continue;
 
-      const m = new THREE.Matrix4()
-        .copy(hacia.malla.matrixWorld)
-        .multiply(new THREE.Matrix4().makeRotationY(Math.PI))
-        .multiply(inv);
+      const m = paso.copy(hacia.malla.matrixWorld).multiply(media).multiply(inv);
       actual.applyMatrix4(m);
-      if (velocidad) {
-        const giro = new THREE.Matrix3().setFromMatrix4(m);
-        velocidad.applyMatrix3(giro);
-      }
+      if (velocidad) velocidad.applyMatrix3(giro.setFromMatrix4(m));
       return true;
     }
     return false;
@@ -311,18 +319,16 @@ export class Portales {
   }
 
   _recortar(cam, portal) {
-    const normal = portal.normal.clone();
-    const punto = portal.malla.position.clone();
-    const plano = new THREE.Plane().setFromNormalAndCoplanarPoint(normal, punto);
+    const plano = planoRecorte.setFromNormalAndCoplanarPoint(portal.normal, portal.malla.position);
     plano.applyMatrix4(cam.matrixWorldInverse);
     if (plano.constant > 0) return;
-    const q = new THREE.Vector4(
+    const q = cuartoQ.set(
       (Math.sign(plano.normal.x) + cam.projectionMatrix.elements[8]) / cam.projectionMatrix.elements[0],
       (Math.sign(plano.normal.y) + cam.projectionMatrix.elements[9]) / cam.projectionMatrix.elements[5],
       -1,
       (1 + cam.projectionMatrix.elements[10]) / cam.projectionMatrix.elements[14]
     );
-    const v = new THREE.Vector4(plano.normal.x, plano.normal.y, plano.normal.z, plano.constant);
+    const v = cuartoV.set(plano.normal.x, plano.normal.y, plano.normal.z, plano.constant);
     const c = v.multiplyScalar(2 / v.dot(q));
     const e = cam.projectionMatrix.elements;
     e[2] = c.x;
@@ -334,8 +340,13 @@ export class Portales {
   pintarVistas(camara) {
     if (!this.listos) return;
     const objetivoPrevio = this.renderizador.getRenderTarget();
-    const luzPrevia = this.antorcha ? this.antorcha.position.clone() : null;
+    const luzPrevia = this.antorcha ? luzGuardada.copy(this.antorcha.position) : null;
+    camara.updateMatrixWorld();
+    encuadre.setFromProjectionMatrix(proyeccion.multiplyMatrices(camara.projectionMatrix, camara.matrixWorldInverse));
     for (const [desde, hacia] of [[this.azul, this.naranja], [this.naranja, this.azul]]) {
+      desde.malla.getWorldPosition(esfera.center);
+      esfera.radius = RADIO_VISTA;
+      if (!encuadre.intersectsSphere(esfera)) continue;
       const m = this._matrizVirtual(desde, hacia, camara);
       const cam = this.camaraVirtual;
       m.decompose(cam.position, cam.quaternion, cam.scale);

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20260908180406';
-import { CELDA, esSolido } from './mapa.js?v=20260908180406';
+import { Billboard } from './sprites.js?v=20261023185214';
+import { CELDA, esSolido } from './mapa.js?v=20261023185214';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -100,6 +100,11 @@ export class Enemigo {
     return true;
   }
 
+  liberar() {
+    if (this.fantasma) this.fantasma.material.dispose();
+    this.sprite.liberar();
+  }
+
   verFantasma(si) {
     if (si && !this.fantasma) {
       const m = new THREE.MeshBasicMaterial({
@@ -115,6 +120,7 @@ export class Enemigo {
     const ver = !!si && this.vivo;
     this.fantasma.visible = ver;
     if (!ver) return;
+    if (this.fantasma.geometry !== this.sprite.malla.geometry) this.fantasma.geometry = this.sprite.malla.geometry;
     if (this.fantasma.material.map !== this.sprite.material.map) {
       this.fantasma.material.map = this.sprite.material.map;
       this.fantasma.material.needsUpdate = true;
@@ -125,7 +131,7 @@ export class Enemigo {
 
   actualizar(dt, jugador, camara) {
     this.reloj += dt;
-    if (this.paralizado > 0) {
+    if (this.paralizado > 0 && this.vivo) {
       this.paralizado -= dt;
       this.sprite.material.color.setHex(0x7f8f9f);
       this.sprite.encarar(camara, this.rumbo);

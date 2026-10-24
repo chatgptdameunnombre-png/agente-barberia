@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20260908180406';
+import { CELDA, esSolido } from './mapa.js?v=20261023185214';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -95,6 +95,8 @@ export class Jugador {
       }
     });
 
+    addEventListener('blur', () => this.soltarTodo());
+
     document.addEventListener('pointerlockchange', () => {
       const preso = document.pointerLockElement === this.lienzo;
       if (preso) { clearTimeout(this._espera); this.libre = false; this._activar(true); }
@@ -176,11 +178,6 @@ export class Jugador {
 
   _entrar() {
     if (this.activo) return;
-    if (('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
-      this.libre = true;
-      this._activar(true);
-      return;
-    }
     try {
       const intento = this.lienzo.requestPointerLock();
       if (intento && intento.catch) intento.catch(() => {});
@@ -198,7 +195,20 @@ export class Jugador {
     if (v) this.empezado = true;
     document.body.classList.toggle('jugando', v);
     document.getElementById('menu').classList.toggle('oculto', v);
+    if (!v) this.soltarTodo();
     if (!v && this.alPausar) this.alPausar();
+  }
+
+  soltarTodo() {
+    this.teclas = {};
+    this.tensando = false;
+    this.tension = 0;
+    this.cargandoRayo = false;
+    this.cargaRayo = 0;
+    if (this.marcando) {
+      this.marcando = false;
+      if (this.alSoltarMarcas) this.alSoltarMarcas();
+    }
   }
 
   _soltarRayo() {

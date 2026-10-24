@@ -37,6 +37,11 @@ export class Billboard {
     this.malla.geometry = new THREE.PlaneGeometry(ancho, this.alto);
   }
 
+  liberar() {
+    this.malla.geometry.dispose();
+    this.material.dispose();
+  }
+
   encarar(camara, rumbo) {
     const dx = camara.position.x - this.grupo.position.x;
     const dz = camara.position.z - this.grupo.position.z;
@@ -334,22 +339,6 @@ export function recorteSuperior(textura, fraccion = 0.45) {
     salida = dst;
   }
   const t = new THREE.CanvasTexture(salida);
-  t.magFilter = THREE.NearestFilter;
-  t.minFilter = THREE.NearestFilter;
-  t.colorSpace = THREE.SRGBColorSpace;
-  return t;
-}
-
-export function recorteInferior(textura, fraccion = 0.55) {
-  const im = textura.image;
-  const desde = Math.round(im.height * (1 - fraccion));
-  const c = document.createElement('canvas');
-  c.width = im.width;
-  c.height = im.height - desde;
-  const x = c.getContext('2d', { willReadFrequently: true });
-  x.imageSmoothingEnabled = false;
-  x.drawImage(im, 0, desde, im.width, c.height, 0, 0, im.width, c.height);
-  const t = new THREE.CanvasTexture(c);
   t.magFilter = THREE.NearestFilter;
   t.minFilter = THREE.NearestFilter;
   t.colorSpace = THREE.SRGBColorSpace;

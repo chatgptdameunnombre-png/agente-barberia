@@ -1,27 +1,25 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20260908180406';
-import { Jugador } from './jugador.js?v=20260908180406';
-import { Enemigo, TIPOS } from './enemigos.js?v=20260908180406';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, recorteInferior, Billboard } from './sprites.js?v=20260908180406';
-import { Objeto, CATALOGO } from './objetos.js?v=20260908180406';
-import { Rondas } from './rondas.js?v=20260908180406';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20260908180406';
-import { RELIQUIAS, porReliquia } from './reliquias.js?v=20260908180406';
-import { TINTES, COLORES, MIRAS, leer, guardar, aplicar } from './apariencia.js?v=20260908180406';
-import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, TODO_GRATIS, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo, tiene as tieneGloria } from './gloria.js?v=20260908180406';
-import { Minimapa, Marcas } from './minimapa.js?v=20260908180406';
-import { Flujo } from './flujo.js?v=20260908180406';
-import { Portales, trazar } from './portales.js?v=20260908180406';
-import { romper } from './mapa.js?v=20260908180406';
-import { Audio } from './audio.js?v=20260908180406';
-import { OtroLado } from './otrolado.js?v=20260908180406';
-import { Grieta } from './grieta.js?v=20260908180406';
-import { Director } from './director.js?v=20260908180406';
-import { Cerco } from './cerco.js?v=20260908180406';
-import { esTactil, esTelefono, Tactil } from './tactil.js?v=20260908180406';
-import { TIPOS as T } from './enemigos.js?v=20260908180406';
-import { siluetaCiclope } from './texturas.js?v=20260908180406';
-import { Misiones, ARCOS } from './misiones.js?v=20260908180406';
+import { NIVEL_PRUEBA, construir, CELDA } from './mapa.js?v=20261023185214';
+import { Jugador } from './jugador.js?v=20261023185214';
+import { Enemigo, TIPOS } from './enemigos.js?v=20261023185214';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, Billboard } from './sprites.js?v=20261023185214';
+import { Objeto, CATALOGO } from './objetos.js?v=20261023185214';
+import { Rondas } from './rondas.js?v=20261023185214';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20261023185214';
+import { RELIQUIAS } from './reliquias.js?v=20261023185214';
+import { leer, guardar, aplicar } from './apariencia.js?v=20261023185214';
+import { MODOS, MEJORAS_MERCADER, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, TODO_GRATIS, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo, tiene as tieneGloria } from './gloria.js?v=20261023185214';
+import { Minimapa, Marcas } from './minimapa.js?v=20261023185214';
+import { Flujo } from './flujo.js?v=20261023185214';
+import { Portales, trazar } from './portales.js?v=20261023185214';
+import { romper } from './mapa.js?v=20261023185214';
+import { Audio } from './audio.js?v=20261023185214';
+import { OtroLado } from './otrolado.js?v=20261023185214';
+import { Grieta } from './grieta.js?v=20261023185214';
+import { Director } from './director.js?v=20261023185214';
+import { Cerco } from './cerco.js?v=20261023185214';
+import { siluetaCiclope } from './texturas.js?v=20261023185214';
+import { Misiones, ARCOS } from './misiones.js?v=20261023185214';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -70,11 +68,6 @@ Object.assign(arma.style, {
 document.getElementById('capa').appendChild(arma);
 aplicar(estiloValido(), arma);
 
-if (('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
-  const p = document.querySelector('#menu p');
-  if (p) p.textContent = 'TOCA PARA EMPEZAR';
-}
-
 const recursos = { arco: [], items: [], tienda: [], cuerno: [], guante: [], reliquias: [], hilo: [], jabalina: [], hacha: [], tajo: [], vuelo: [], kTajo: [], cuchillo: [], pico: [], mano: [], fuego: [], insignias: [], mercader: null, ciclope: null, pretendiente: null };
 
 function marcadorArco(tension) {
@@ -108,7 +101,6 @@ let imagenesBomba = [];
 let jabalinaReloj = 0;
 let bombaReloj = 0;
 let jabalinaCuadro = 1;
-let imagenesHacha = [];
 let imagenManoVacia = null;
 let imagenesCuchillo = [];
 let imagenesTajo = [];
@@ -121,8 +113,6 @@ let empuje = 0;
 let cuchilloCuadro = 0;
 let imagenesPico = [];
 let imagenesMano = [];
-let hachaReloj = 0;
-let hachaCuadro = 0;
 let cuernoReloj = 0;
 let cuernoCuadro = 1;
 let guanteReloj = 0;
@@ -131,21 +121,21 @@ let destelloGuante = 0;
 let texturasNivel = null;
 
 const ARCOS_HOJA = [
-  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20260908180406'],
-  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20260908180406'],
-  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20260908180406'],
-  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20260908180406'],
-  ['arcoSable', './arte/crudo/arco-sable.webp?v=20260908180406'],
-  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20260908180406']
+  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20261023185214'],
+  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20261023185214'],
+  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20261023185214'],
+  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20261023185214'],
+  ['arcoSable', './arte/crudo/arco-sable.webp?v=20261023185214'],
+  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20261023185214']
 ];
 
 const CARAS_HOJA = [
-  ['carasFontanero', './arte/crudo/caras-fontanero.webp?v=20260908180406'],
-  ['carasSierra', './arte/crudo/caras-sierra.webp?v=20260908180406'],
-  ['carasPortal', './arte/crudo/caras-portal.webp?v=20260908180406'],
-  ['carasFantasma', './arte/crudo/caras-fantasma.webp?v=20260908180406'],
-  ['carasSable', './arte/crudo/caras-sable.webp?v=20260908180406'],
-  ['carasAbismo', './arte/crudo/caras-abismo.webp?v=20260908180406']
+  ['carasFontanero', './arte/crudo/caras-fontanero.webp?v=20261023185214'],
+  ['carasSierra', './arte/crudo/caras-sierra.webp?v=20261023185214'],
+  ['carasPortal', './arte/crudo/caras-portal.webp?v=20261023185214'],
+  ['carasFantasma', './arte/crudo/caras-fantasma.webp?v=20261023185214'],
+  ['carasSable', './arte/crudo/caras-sable.webp?v=20261023185214'],
+  ['carasAbismo', './arte/crudo/caras-abismo.webp?v=20261023185214']
 ];
 
 function cargarArcos() {
@@ -165,47 +155,62 @@ function cargarArcos() {
   }
 }
 
+const elCargaBarra = document.getElementById('cargaBarra');
+const elCargaTexto = document.getElementById('cargaTexto');
+const TOTAL_CARGA = 38;
+let cargadas = 0;
+
+function cargarConBarra(ruta) {
+  return cargarImagen(ruta).then(img => {
+    cargadas++;
+    const pct = Math.round(cargadas / TOTAL_CARGA * 100);
+    elCargaBarra.style.width = pct + '%';
+    elCargaTexto.textContent = 'CARGANDO ' + pct + ' %';
+    return img;
+  });
+}
+
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas, cuchilloImg, tajoImg, vueloImg, kTajoImg, cicRayo, cicLanza, cicCuchillo, cicFuego, cicHacha, cicBomba, fichasImg,
     polIdle, polAtk, polDie, bombaMano, bombaPeg] = await Promise.all([
-    cargarImagen('./arte/crudo/ciclope.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/ciclope-ataca.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/ciclope-muere.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/arco.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/texturas.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/items.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/tienda.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/pretendiente.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/pretendiente-ataca.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/pretendiente-muere.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/cuerno.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/mercader.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/caras.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/guante.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/objetos2.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/hilo.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/jabalina.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/hacha.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/pico.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/mano.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/fuego.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/insignias.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/cuchillo.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/hacha-tajo.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/hacha-vuelo.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/cuchillo-tajo.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/ciclope-rayo.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/ciclope-lanza.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/ciclope-cuchillo.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/ciclope-fuego.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/ciclope-hacha.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/ciclope-bomba.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/fichas.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/polifemo.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/polifemo-ataca.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/polifemo-muere.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/bomba.webp?v=20260908180406'),
-    cargarImagen('./arte/crudo/bomba-pegada.webp?v=20260908180406')
+    cargarConBarra('./arte/crudo/ciclope.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/ciclope-ataca.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/ciclope-muere.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/arco.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/texturas.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/items.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/tienda.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/pretendiente.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/pretendiente-ataca.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/pretendiente-muere.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/cuerno.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/mercader.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/caras.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/guante.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/objetos2.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/hilo.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/jabalina.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/hacha.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/pico.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/mano.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/fuego.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/insignias.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/cuchillo.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/hacha-tajo.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/hacha-vuelo.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/cuchillo-tajo.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/ciclope-rayo.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/ciclope-lanza.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/ciclope-cuchillo.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/ciclope-fuego.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/ciclope-hacha.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/ciclope-bomba.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/fichas.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/polifemo.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/polifemo-ataca.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/polifemo-muere.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/bomba.webp?v=20261023185214'),
+    cargarConBarra('./arte/crudo/bomba-pegada.webp?v=20261023185214')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -281,7 +286,7 @@ async function cargarArte() {
     recursos.vuelo = cortarTira(vueloImg, 4, { ajustar: true, altoComun: true });
     imagenesVuelo = recursos.vuelo.map(t => t.image.toDataURL());
     imagenManoVacia = imagenesVuelo[1];
-    recursos.hachaVuelo = recorteSuperior(recursos.vuelo[2], 0.5);
+    if (!hachaImg) recursos.hachaVuelo = recorteSuperior(recursos.vuelo[2], 0.5);
   }
   if (tajoImg) {
     recursos.tajo = cortarTira(tajoImg, 4, { ajustar: true, altoComun: true });
@@ -289,9 +294,7 @@ async function cargarArte() {
   }
   if (hachaImg) {
     recursos.hacha = cortarTira(hachaImg, 4, { ajustar: true, altoComun: true });
-    imagenesHacha = recursos.hacha.map(t => t.image.toDataURL());
     recursos.hachaVuelo = recorteSuperior(recursos.hacha[2], 0.42);
-
   }
   if (picoImg) {
     recursos.pico = cortarTira(picoImg, 4, { ajustar: true, altoComun: true });
@@ -359,7 +362,6 @@ let quemando = 0;
 const director = new Director();
 let grieta = null;
 let misiones = null;
-let dentroDesde = null;
 const RONDAS_GRIETA = [3, 13];
 const CICLO_REGRESO = 4;
 const abreGrieta = n => RONDAS_GRIETA.includes(n) ||
@@ -463,6 +465,7 @@ function limpiarCadaveres() {
   for (let i = enemigos.length - 1; i >= 0; i--) {
     if (enemigos[i].vivo) continue;
     escena.remove(enemigos[i].malla);
+    enemigos[i].liberar();
     enemigos.splice(i, 1);
     n++;
   }
@@ -472,13 +475,11 @@ function limpiarCadaveres() {
 function cerrarRonda(n) {
   if (cerco.activo) { cerco.apagar(); avisar('EL FUEGO SE APAGA'); }
   if (n % 3 === 0) limpiarCadaveres();
-  const m = otroLado.multiplicadores;
   soltarObjetos(otroLado.dentro ? n + 3 : n);
   director.terminaRonda(jugador, rondas.ultimoPerfil ? rondas.ultimoPerfil.cuantos : 3);
   if (misiones) misiones.rondaDentro(otroLado.dentro);
-  if (modoActivo('otroladoFijo')) {
-    /* el mundo rojo es permanente: no hay grieta */
-  } else if (abreGrieta(n)) {
+  if (modoActivo('otroladoFijo')) return;
+  if (abreGrieta(n)) {
     abrirGrieta(otroLado.dentro ? 'salir' : 'entrar');
   } else if (grieta && grieta.abierta) {
     verGrieta(true, grieta.modo, true);
@@ -486,8 +487,8 @@ function cerrarRonda(n) {
   }
 }
 
-function nacer(pos, cfg, indice) {
-  const tipo = elegirTipo(indice === undefined ? contadorNacidos++ : indice);
+function nacer(pos, cfg, indice, tipoFijo) {
+  const tipo = tipoFijo || elegirTipo(indice === undefined ? contadorNacidos++ : indice);
   const m = otroLado.multiplicadores;
   const ajustado = {
     ...cfg,
@@ -520,6 +521,8 @@ function nacer(pos, cfg, indice) {
 }
 
 const jabalinas = [];
+const tmpPrevia = new THREE.Vector3();
+const tmpMira = new THREE.Vector3();
 const geoJabalina = new THREE.CylinderGeometry(0.11, 0.11, 3.2, 5);
 geoJabalina.rotateX(Math.PI / 2);
 const matJabalina = new THREE.MeshBasicMaterial({ color: 0xb87333 });
@@ -546,10 +549,10 @@ function moverJabalinas(dt) {
   for (let i = jabalinas.length - 1; i >= 0; i--) {
     const j = jabalinas[i];
     j.edad += dt;
-    const previa = j.malla.position.clone();
+    const previa = tmpPrevia.copy(j.malla.position);
     j.malla.position.addScaledVector(j.vel, dt);
     if (portales) portales.atravesar(previa, j.malla.position, j.vel);
-    j.malla.lookAt(j.malla.position.clone().add(j.vel));
+    j.malla.lookAt(tmpMira.copy(j.malla.position).add(j.vel));
     let fuera = j.edad > 3.5 || j.malla.position.y < 0.2;
     if (!fuera) {
       const cx = Math.floor(j.malla.position.x / CELDA);
@@ -762,12 +765,10 @@ function cruzarGrieta() {
   sacudida = 1.2;
   if (modo === 'entrar') {
     otroLado.entrar();
-    dentroDesde = rondas.numero;
     destello('#c0304a', 0.7, 500);
-    anunciar('EL OTRO LADO', 'TRIPLE ORO — NO HAY SALIDA EN 3 RONDAS');
+    anunciar('EL OTRO LADO', 'TRIPLE ORO — LA SALIDA SE ABRE CADA 4 RONDAS');
   } else {
     otroLado.salir();
-    dentroDesde = null;
     destello('#7fd4ff', 0.6, 450);
     anunciar('VOLVISTE A ITACA', 'EL MUNDO SE ACOMODA');
   }
@@ -790,14 +791,17 @@ function avisar(texto) {
 }
 
 function limpiarMundo() {
-  for (const e of enemigos) escena.remove(e.malla);
+  for (const e of enemigos) { escena.remove(e.malla); e.liberar(); }
   enemigos.length = 0;
-  for (const o of objetos) escena.remove(o.malla);
+  for (const o of objetos) { escena.remove(o.malla); o.sprite.liberar(); }
   objetos.length = 0;
   for (const f of flechas) escena.remove(f.malla);
   flechas.length = 0;
   for (const j of jabalinas) escena.remove(j.malla);
   jabalinas.length = 0;
+  for (const b of bombas) quitarBomba(b);
+  bombas.length = 0;
+  tiron = null;
   if (hachaVuelo) { hachaVuelo.malla.visible = false; hachaVuelo = null; }
   jugador.hachaFuera = false;
   contadorNacidos = 0;
@@ -850,7 +854,13 @@ function estallarBomba(b) {
   destello('#ff8a1f', 0.6, 260);
   sacudida = Math.max(sacudida, 1.2);
   avisar(tocados ? 'ESTALLA: ' + tocados : 'ESTALLA EN VANO');
+  quitarBomba(b);
+}
+
+function quitarBomba(b) {
   escena.remove(b.malla);
+  if (b.sprite) b.sprite.liberar();
+  else b.malla.material.dispose();
 }
 
 function moverBombas(dt) {
@@ -885,7 +895,7 @@ function moverBombas(dt) {
       }
     } else {
       b.vel.y -= 20 * dt;
-      const previa = b.malla.position.clone();
+      const previa = tmpPrevia.copy(b.malla.position);
       b.malla.position.addScaledVector(b.vel, dt);
       if (portales) portales.atravesar(previa, b.malla.position, b.vel);
       for (const e of enemigos) {
@@ -1238,7 +1248,7 @@ function mandoJefe(dt) {
     for (let i = 0; i < 4; i++) {
       const a = (i / 4) * Math.PI * 2;
       const p = new THREE.Vector3(j.pos.x + Math.cos(a) * 7, 0, j.pos.z + Math.sin(a) * 7);
-      nacer(p, cria, 0);
+      nacer(p, cria, 0, TIPOS.ciclope);
     }
   }
 
@@ -1425,7 +1435,7 @@ function moverHacha(dt) {
       h.malla.position.set(nx, camara.position.y, nz);
     }
   } else {
-    const hacia = new THREE.Vector3(
+    const hacia = tmpMira.set(
       camara.position.x - h.malla.position.x,
       camara.position.y - h.malla.position.y,
       camara.position.z - h.malla.position.z
@@ -1487,7 +1497,7 @@ let relojFuria = 0;
 function furia() { return relojFuria > 0 ? 2 : 1; }
 
 const efectos = { espejo: 0, vellocino: 0, ojo: 0 };
-let dracma = false;
+let restoVellocino = 0;
 
 function usarReliquia(id) {
   if (id === 'manzana') {
@@ -1535,10 +1545,6 @@ function usarReliquia(id) {
   } else if (id === 'ojo') {
     efectos.ojo = 20;
     avisar('VES A TRAVES DE LOS MUROS');
-  } else if (id === 'dracma') {
-    if (dracma) return false;
-    dracma = true;
-    avisar('CARONTE TE ESPERA');
   } else return null;
   audio.sonar('recoger');
   return true;
@@ -1700,7 +1706,7 @@ function panelPersonaje() {
 
   abrirPanel(`<h3>PERSONAJE</h3>
     <span class="bolsa">MEJOR RONDA ${r.ronda || 0} · ${r.bajas || 0} BAJAS · ${r.gloria || 0} DE GLORIA GANADA</span>
-    <h4>ARCOS — el de fontanero ya es tuyo; los demas se ganan jugando</h4>
+    <h4>ARCOS — se ganan jugando</h4>
     <table>${filas}</table>
     <h4>LO QUE LLEVAS HECHO</h4>
     <table>
@@ -1772,32 +1778,6 @@ function descripcionSuelo(o) {
   if (t === 'flechas') return 'Suma ' + o.valor + ' flechas';
   if (t === 'guarda') return 'Se guarda en el inventario';
   return 'Suma ' + o.valor + ' de oro';
-}
-
-let estilo = leer();
-
-function panelEstilo() {
-  const grupo = (titulo, lista, clave, extra) => `<h4>${titulo}</h4><div class="opciones" data-clave="${clave}">` +
-    lista.map(o => `<div class="opcion${estilo[clave] === o.id ? ' puesta' : ''}" data-id="${o.id}">` +
-      (extra ? `<span class="muestra" style="background:${extra(o)}"></span>` : '') +
-      `${o.nombre}</div>`).join('') + '</div>';
-
-  abrirPanel(`<h3>APARIENCIA</h3>
-    ${grupo('COLOR DEL ARMA', TINTES, 'tinte', o => o.muestra)}
-    ${grupo('COLOR DEL TABLERO', COLORES, 'color', o => o.valor)}
-    ${grupo('MIRA', MIRAS, 'mira', null)}`);
-
-  hoja.querySelectorAll('.opciones').forEach(caja => {
-    caja.addEventListener('click', ev => {
-      const op = ev.target.closest('.opcion');
-      if (!op) return;
-      estilo[caja.dataset.clave] = op.dataset.id;
-      guardar(estilo);
-      aplicar(estilo, arma);
-      caja.querySelectorAll('.opcion').forEach(o => o.classList.toggle('puesta', o === op));
-      audio.sonar('recoger');
-    });
-  });
 }
 
 function panelGloria() {
@@ -1935,12 +1915,11 @@ function panelComo() {
 
     ${seccion('RELIQUIAS DEL INVENTARIO')}
     <div class="tarjetas">
-      ${carta(dib('reliquias', 0), 'MANZANA DE LA DISCORDIA', 'Los enemigos se atacan entre ellos 12 segundos y se pegan el doble.', '1 2 3 4')}
+      ${carta(dib('reliquias', 0), 'MANZANA DE LA DISCORDIA', 'Los enemigos se atacan entre ellos 14 segundos y se pegan el doble.', '1 2 3 4')}
       ${carta(dib('reliquias', 6), 'ESPEJO DE PERSEO', 'Las lanzas rebotan y matan al que las tiro.', '1 2 3 4')}
       ${carta(dib('reliquias', 7), 'VELLOCINO DE ORO', 'Recuperas vida durante 15 segundos.', '1 2 3 4')}
       ${carta(dib('reliquias', 8), 'SANDALIAS ALADAS', 'Un impulso para salir de un cerco.', '1 2 3 4')}
       ${carta(dib('reliquias', 9), 'OJO DE LAS GREAS', 'Ves a todos a traves de los muros 20 segundos.', '1 2 3 4')}
-      ${carta(dib('reliquias', 11), 'DRACMA DE CARONTE', 'Si mueres, revives una vez con media vida.', '1 2 3 4')}
     </div>
 
     ${seccion('LO QUE HAY QUE SABER')}
@@ -1962,10 +1941,10 @@ function panelComo() {
     principal en modos, armas de inicio y apariencia.</div>
 
     <div class="nota"><b>LA GRIETA</b>
-    Cada 3 rondas se abre un <b>portal morado en el centro del mapa</b> (sale marcado en
+    Al terminar la ronda 3 y la 13 se abre un <b>portal morado en el centro del mapa</b> (sale marcado en
     el minimapa). Metete en el para cruzar al Otro Lado: el mismo palacio en rojo,
     enemigos con casi el doble de vida pero <b>triple oro</b>.
-    <b>Una vez dentro no puedes salir hasta que pasen 3 rondas</b>: entonces se abre un
+    <b>Una vez dentro solo puedes salir cada 4 rondas</b>: entonces se abre un
     portal azul en el mismo centro y ese te regresa.</div>
 
     <div class="nota"><b>CONSEJOS</b>
@@ -1998,7 +1977,7 @@ function pausar() {
   document.body.classList.add('enJuego');
   menu.querySelector('h1').textContent = 'PAUSA';
   menu.querySelector('h2').textContent = 'RONDA ' + (rondas ? rondas.numero : 1);
-  menu.querySelector('p').textContent = esTactil() ? 'TOCA PARA CONTINUAR' : 'CLIC PARA CONTINUAR';
+  menu.querySelector('p').textContent = 'CLIC PARA CONTINUAR';
   btnMenu.hidden = false;
   if (audio.ctx) audio.callarMusica();
 }
@@ -2015,6 +1994,7 @@ function ganar() {
   ganado = true;
   if (misiones) misiones.sumar('victorias', 1);
   jefeActual = null;
+  elJefe._ver = false;
   elJefe.classList.remove('ver');
   audio.rotarPista();
   const datos = { ronda: rondas.numero, bajas: jugador.bajas, oro: jugador.oro, gano: true };
@@ -2052,6 +2032,7 @@ function derrumbe() {
   document.body.classList.add('cayendo');
   camaraCae = 0;
   latidosFinales();
+  arma._forma = null;
   arma.style.transform = 'translateX(-50%) translateY(70vh) rotate(24deg)';
   arma.style.opacity = '0';
   for (const el of document.querySelectorAll('#capa > *')) {
@@ -2067,6 +2048,7 @@ function limpiarDerrumbe() {
   document.body.classList.remove('cayendo');
   camaraCae = -1;
   arma.style.transition = '';
+  arma._forma = null;
   arma.style.transform = 'translateX(-50%)';
   arma.style.opacity = '';
   for (const el of document.querySelectorAll('#capa > *')) {
@@ -2149,7 +2131,7 @@ function reiniciar() {
   jugador.vidaMax = 100;
   jugador.armadura = 0;
   jugador.armaduraMax = 100;
-  jugador.flechasMax = 60;
+  jugador.flechasMax = 80;
   jugador.oro = 0;
   jugador.doble = false;
   jugador.pistola = false;
@@ -2170,26 +2152,25 @@ function reiniciar() {
   jugador.mult = { tension: 1, dano: 1, velocidad: 1, velFlecha: 1 };
   jugador.inventario.length = 0;
   relojFuria = 0;
-  dracma = false;
   for (const k in efectos) efectos[k] = 0;
   limpiarMundo();
   portales.limpiar();
   rondas.reiniciar();
   tienda.reiniciar();
   director.reiniciar();
-  dentroDesde = null;
   cerrarGrieta();
   quemando = 0;
   if (cerco) cerco.apagar();
   ganado = false;
   jefeActual = null;
+  elJefe._ver = false;
   elJefe.classList.remove('ver');
   audio.rotarPista();
   if (otroLado.dentro) otroLado.salir();
   aplicarModos();
   menu.querySelector('h1').textContent = 'NOSTOS';
   menu.querySelector('h2').textContent = 'EL REGRESO';
-  menu.querySelector('p').textContent = esTactil() ? 'TOCA PARA EMPEZAR' : 'CLIC PARA EMPEZAR';
+  menu.querySelector('p').textContent = 'CLIC PARA EMPEZAR';
   document.body.classList.remove('enJuego');
 }
 
@@ -2198,11 +2179,12 @@ lienzo.addEventListener('click', e => {
   if (!muerto && jugador && jugador.empezado && !jugador.activo) {
     menu.querySelector('h1').textContent = 'NOSTOS';
     menu.querySelector('h2').textContent = 'EL REGRESO';
-    menu.querySelector('p').textContent = esTactil() ? 'TOCA PARA EMPEZAR' : 'CLIC PARA EMPEZAR';
+    menu.querySelector('p').textContent = 'CLIC PARA EMPEZAR';
   }
 }, true);
 
 lienzo.addEventListener('click', () => {
+  if (!jugador) return;
   audio.arrancar();
   if (muerto) { reiniciar(); return; }
   if (camaraCae >= 0) limpiarDerrumbe();
@@ -2223,13 +2205,13 @@ function moverFlechas(dt) {
     const f = flechas[i];
     f.edad += dt;
     f.vel.y -= 11 * dt;
-    const previa = f.malla.position.clone();
+    const previa = tmpPrevia.copy(f.malla.position);
     f.malla.position.addScaledVector(f.vel, dt);
     if (portales && portales.atravesar(previa, f.malla.position, f.vel)) {
       f.saltos = (f.saltos || 0) + 1;
       if (f.saltos > 6) { escena.remove(f.malla); flechas.splice(i, 1); continue; }
     }
-    f.malla.lookAt(f.malla.position.clone().add(f.vel));
+    f.malla.lookAt(tmpMira.copy(f.malla.position).add(f.vel));
 
     let fuera = f.edad > 4 || f.malla.position.y < 0.1 || f.malla.position.y > 12;
     if (!fuera) {
@@ -2254,7 +2236,7 @@ function moverFlechas(dt) {
       }
     }
     if (fuera) {
-      if (!f.chocada && f.edad < 3.9) audio.sonar('piedra', f.malla.position);
+      if (f.edad < 3.9) audio.sonar('piedra', f.malla.position);
       escena.remove(f.malla);
       flechas.splice(i, 1);
     }
@@ -2263,7 +2245,6 @@ function moverFlechas(dt) {
 
 const elVida = document.getElementById('vida');
 const elAgonia = document.getElementById('agonia');
-const elOcaso = document.getElementById('ocaso');
 const elFlechas = document.getElementById('flechas');
 const elBajas = document.getElementById('bajas');
 const elCara = document.getElementById('cara');
@@ -2279,12 +2260,12 @@ const marcas = new Marcas(document.getElementById('marcas'));
 
 const elDescanso = document.getElementById('descanso');
 function pintarDescanso() {
-  const enPausa = rondas && rondas.estado === 'descanso' && jugador && jugador.activo;
-  elDescanso.classList.toggle('ver', !!enPausa);
+  const enPausa = !!(rondas && rondas.estado === 'descanso' && jugador && jugador.activo);
+  if (elDescanso._ver !== enPausa) { elDescanso._ver = enPausa; elDescanso.classList.toggle('ver', enPausa); }
   if (!enPausa) return;
-  if (tienda.abierta) { elDescanso.innerHTML = 'EL RELOJ SE DETIENE MIENTRAS COMERCIAS'; return; }
+  if (tienda.abierta) { ponerHtml(elDescanso, 'EL RELOJ SE DETIENE MIENTRAS COMERCIAS'); return; }
   const seg = Math.ceil(rondas.restante);
-  elDescanso.innerHTML = 'SIGUIENTE RONDA EN<b>' + seg + '</b>' + (seg === 1 ? 'SEGUNDO' : 'SEGUNDOS');
+  ponerHtml(elDescanso, 'SIGUIENTE RONDA EN<b>' + seg + '</b>' + (seg === 1 ? 'SEGUNDO' : 'SEGUNDOS'));
 }
 
 const AGONIA_DESDE = 0.5;
@@ -2308,25 +2289,38 @@ function pintarAgonia(salud) {
   if (!elAgonia.classList.contains('viva')) elAgonia.classList.add('viva');
 }
 
+function poner(el, valor) {
+  const texto = String(valor);
+  if (el._texto !== texto) { el._texto = texto; el.textContent = texto; }
+}
+
+function ponerHtml(el, html) {
+  if (el._html !== html) { el._html = html; el.innerHTML = html; }
+}
+
 function pintarHud() {
-  elVida.textContent = jugador.vida;
-  elFlechas.textContent = jugador.flechas;
-  elBajas.textContent = jugador.bajas;
-  elOro.textContent = jugador.oro;
-  elArmadura.textContent = Math.round(jugador.armadura);
+  poner(elVida, Math.round(jugador.vida));
+  poner(elFlechas, jugador.flechas);
+  poner(elBajas, jugador.bajas);
+  poner(elOro, jugador.oro);
+  poner(elArmadura, Math.round(jugador.armadura));
   pintarEfectos();
-  cajaRayo.classList.toggle('ver', jugador.guante);
-  if (jugador.guante) elRayo.textContent = Math.round(jugador.rayo);
-  elCuchillos.textContent = jugador.cuchillos;
-  elRonda.textContent = rondas ? rondas.numero : 0;
+  if (cajaRayo._ver !== jugador.guante) { cajaRayo._ver = jugador.guante; cajaRayo.classList.toggle('ver', jugador.guante); }
+  if (jugador.guante) poner(elRayo, Math.round(jugador.rayo));
+  poner(elCuchillos, jugador.cuchillos);
+  poner(elRonda, rondas ? rondas.numero : 0);
   pintarDescanso();
   if (jefeActual && jefeActual.vivo) {
-    elJefe.classList.add('ver');
-    rellenoJefe.style.width = Math.max(0, (jefeActual.vida / jefeActual.vidaMax) * 100) + '%';
-  } else if (elJefe.classList.contains('ver')) {
-    elJefe.classList.remove('ver');
+    if (!elJefe._ver) { elJefe._ver = true; elJefe.classList.add('ver'); }
+    const ancho = Math.max(0, Math.round((jefeActual.vida / jefeActual.vidaMax) * 1000) / 10) + '%';
+    if (rellenoJefe._ancho !== ancho) { rellenoJefe._ancho = ancho; rellenoJefe.style.width = ancho; }
+  } else if (elJefe._ver) {
+    elJefe._ver = false;
+  elJefe.classList.remove('ver');
   }
-  elVivos.textContent = enemigos.filter(e => e.vivo).length;
+  let vivos = 0;
+  for (const e of enemigos) if (e.vivo) vivos++;
+  poner(elVivos, vivos);
   pintarRanuras();
   const salud = jugador.vida / jugador.vidaMax;
   pintarAgonia(salud);
@@ -2408,10 +2402,7 @@ function pintarHud() {
 }
 
 const elEfectos = document.getElementById('efectos');
-const NOMBRE_EFECTO = {
-  espejo: 'ESPEJO', vellocino: 'VELLOCINO', ojo: 'OJO',
-  furia: 'FURIA', invisible: 'INVISIBLE'
-};
+const NOMBRE_EFECTO = { espejo: 'ESPEJO', vellocino: 'VELLOCINO', ojo: 'OJO' };
 
 function pintarEfectos() {
   const vivos = [];
@@ -2420,12 +2411,12 @@ function pintarEfectos() {
   }
   if (relojFuria > 0) vivos.push(['FURIA', relojFuria]);
   if (!vivos.length) {
-    if (elEfectos.childElementCount) elEfectos.innerHTML = '';
+    ponerHtml(elEfectos, '');
     return;
   }
-  elEfectos.innerHTML = vivos
+  ponerHtml(elEfectos, vivos
     .map(([n, t]) => `<div class="efecto"><b>${n}</b><u>${Math.ceil(t)}</u></div>`)
-    .join('');
+    .join(''));
 }
 
 const elRanuras = document.getElementById('ranuras');
@@ -2505,7 +2496,6 @@ function paso(dt) {
     moverTiron(dt);
     actualizarMarcas();
     moverAnillos();
-    if (hachaReloj > 0) hachaReloj -= dt;
     if (vueloReloj > 0) vueloReloj -= dt;
     if (cuchilloReloj > 0) {
       cuchilloReloj -= dt;
@@ -2530,6 +2520,7 @@ function paso(dt) {
         audio.sonar('recoger');
         avisar(objetos[i].tipo.aviso);
         escena.remove(objetos[i].malla);
+        objetos[i].sprite.liberar();
         objetos.splice(i, 1);
       }
     }
@@ -2566,7 +2557,12 @@ function paso(dt) {
     }
     for (const k in efectos) if (efectos[k] > 0) efectos[k] -= dt;
     if (efectos.vellocino > 0) {
-      jugador.vida = Math.min(jugador.vidaMax, jugador.vida + dt * 7);
+      restoVellocino += dt * 7;
+      const sube = Math.floor(restoVellocino);
+      if (sube) {
+        restoVellocino -= sube;
+        jugador.vida = Math.min(jugador.vidaMax, jugador.vida + sube);
+      }
     }
     audio.oir(jugador.pos, jugador.yaw);
     if (jugador.tensando && !tensabaAntes) { audio.sonar('tensar'); avisoTenso = false; }
@@ -2623,10 +2619,11 @@ function paso(dt) {
   const balanceo = Math.sin(jugador.balanceo * 0.5) * 8;
   const golpe = Math.sin(empuje * Math.PI) ;
   if (camaraCae < 0) {
-    arma.style.transform =
-      `translateX(calc(-50% + ${balanceo * 1.5}px)) ` +
-      `translateY(calc(${Math.abs(balanceo) * 1.1}px - ${jugador.tension * 8}vh - ${golpe * 9}vh)) ` +
-      `scale(${1 + golpe * 0.22})`;
+    const forma =
+      `translateX(calc(-50% + ${(balanceo * 1.5).toFixed(1)}px)) ` +
+      `translateY(calc(${(Math.abs(balanceo) * 1.1).toFixed(1)}px - ${(jugador.tension * 8).toFixed(2)}vh - ${(golpe * 9).toFixed(2)}vh)) ` +
+      `scale(${(1 + golpe * 0.22).toFixed(3)})`;
+    if (arma._forma !== forma) { arma._forma = forma; arma.style.transform = forma; }
   }
 
   if (portales) portales.pintarVistas(camara);
@@ -2748,36 +2745,17 @@ cargarArte().then(() => {
   orbitar(0);
   aplicarModos();
 
-  if (esTelefono()) {
+  if (!matchMedia('(any-pointer: fine)').matches) {
     document.body.classList.add('telefono');
     document.getElementById('entrarIgual').addEventListener('click', () => {
       document.body.classList.remove('telefono');
     });
   }
 
-  if (esTactil()) {
-    new Tactil(jugador, {
-      empezar: () => {
-        if (muerto) { reiniciar(); return; }
-        if (!partidaEmpezada) { partidaEmpezada = true; aplicarModos(); }
-        jugador.libre = true;
-        jugador._activar(true);
-      },
-      lanzar: () => jugador.alLanzarHacha && jugador.alLanzarHacha(),
-      cambiar: () => {
-        if (!jugador.hacha) { avisar('NO TIENES HACHA'); return; }
-        jugador.mano = jugador.mano === 'hacha' ? 'cuchillo' : 'hacha';
-        if (jugador.alCambiar) jugador.alCambiar(jugador.mano);
-      },
-      tienda: () => jugador.alComerciar && jugador.alComerciar(),
-      grieta: () => {
-        avisar(grieta && grieta.abierta
-          ? 'LA GRIETA ESTA EN EL CENTRO DEL MAPA'
-          : 'LA GRIETA ESTA CERRADA');
-      }
-    });
-  }
-
+  window.__nostosListo = true;
+  const carga = document.getElementById('carga');
+  carga.classList.add('fuera');
+  setTimeout(() => carga.remove(), 700);
   window.__juego = { jugador, enemigos, objetos, escena, camara, nivel, flechas, rondas, tienda, portales, audio, otroLado, director, cerco, paso, grieta, abrirGrieta, efectos, gloriaDe, renderer, THREE, usarConsumible, bombas, misiones, marcarBaja, columnazo, abreGrieta };
   bucle();
 });

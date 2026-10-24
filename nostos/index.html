@@ -247,45 +247,6 @@
                     font-family:inherit; font-size:12px; letter-spacing:4px; cursor:pointer; }
   #tienda .seguir:hover { background:#6b4a22; }
 
-  #tactil { position:fixed; inset:0; z-index:8; pointer-events:none; display:none; }
-  body.tactil.jugando #tactil { display:block; }
-  #palanca { position:absolute; left:8px; bottom:8px; width:150px; height:150px;
-             pointer-events:auto; touch-action:none; }
-  #palanca .base { position:absolute; inset:16px; border:3px solid rgba(107,74,34,.85);
-                   border-radius:50%; background:rgba(20,13,8,.45); }
-  #palanca .pomo { position:absolute; left:50%; top:50%; width:48px; height:48px;
-                   margin:-24px 0 0 -24px; border-radius:50%;
-                   background:rgba(232,193,74,.55); border:3px solid #6b4a22; }
-  #botones { position:absolute; right:8px; bottom:8px; width:154px;
-             display:grid; grid-template-columns:repeat(2,1fr); gap:8px;
-             justify-items:end; pointer-events:auto; }
-  #botones .grande { grid-column:1 / -1; justify-self:end; }
-  .tb { width:70px; height:70px; border-radius:50%; border:3px solid #6b4a22;
-        background:rgba(20,13,8,.7); color:#f2e2b0; font-family:inherit;
-        font-size:14px; letter-spacing:2px; touch-action:none; }
-  .tb.grande { width:94px; height:94px; font-size:14px; border-color:#e8c14a;
-               background:rgba(74,52,24,.75); }
-  .tb:active { background:#6b4a22; }
-
-  body.tactil #ranuras { bottom:auto; top:150px; right:8px; }
-  body.tactil #cVida { left:96px; bottom:362px; }
-  body.tactil #cVida b { font-size:44px; }
-  body.tactil #cara { bottom:366px; width:56px; height:56px; }
-  body.tactil #cArmadura { left:96px; bottom:426px; }
-  body.tactil #cFlechas { right:8px; bottom:362px; }
-  body.tactil #cFlechas b { font-size:44px; }
-  body.tactil #cCuchillos { right:8px; bottom:428px; }
-  body.tactil .caja .marca { display:none; }
-  body.tactil #mapa { width:132px; height:96px; left:8px; top:8px; }
-  body.tactil #cRonda, body.tactil #cVivos, body.tactil #cOro, body.tactil #cBajas { right:8px; }
-  body.tactil #cRonda { top:8px; }
-  body.tactil #cVivos { top:56px; }
-  body.tactil #cOro { top:104px; }
-  body.tactil #cBajas { display:none; }
-  body.tactil #cRayo { left:96px; bottom:490px; }
-  body.tactil #efectos { top:auto; bottom:264px; }
-  body.tactil .efecto u { font-size:24px; }
-
   @media (max-width:520px) {
     #botonera { flex-direction:column; gap:10px; width:min(280px,80vw); }
     .boton { width:100%; }
@@ -310,6 +271,21 @@
   #soloEscritorio .link { margin-top:26px; font-size:14px; }
   #soloEscritorio .boton { margin-top:22px; }
 
+  #carga { position:fixed; inset:0; z-index:45; display:flex; flex-direction:column;
+           align-items:center; justify-content:center; background:radial-gradient(#1a0f08,#050302);
+           color:#f2e2b0; text-align:center; transition:opacity .6s; }
+  #carga.fuera { opacity:0; pointer-events:none; }
+  #carga h1 { font-family:"Cinzel Decorative","Times New Roman",serif; font-weight:900;
+              font-size:min(13vw,150px); letter-spacing:.6vw; color:#e8c14a; line-height:1;
+              text-shadow:0 0 46px #a3450d, 0 0 14px #ffb15e, 5px 5px 0 #000; }
+  #carga .tubo { width:min(420px,70vw); height:14px; margin-top:6vh; border:2px solid #6b4a22;
+                 background:rgba(0,0,0,.6); }
+  #carga .tubo i { display:block; height:100%; width:0; background:linear-gradient(#e8c14a,#8a6a2a);
+                   transition:width .2s; }
+  #carga p { margin-top:16px; font-size:13px; letter-spacing:5px; color:#c9b48a; }
+  #carga .boton { margin-top:22px; display:none; }
+  #carga.error .boton { display:inline-block; }
+  #carga.error .tubo { display:none; }
   #dano { position:fixed; inset:0; background:#8b0000; opacity:0; pointer-events:none; transition:opacity .28s; }
   #agonia { position:fixed; inset:0; opacity:0; pointer-events:none; z-index:6;
     background:radial-gradient(ellipse 74% 68% at 50% 50%, transparent 42%, rgba(150,0,0,.42) 74%, rgba(96,0,0,.92) 100%); }
@@ -317,7 +293,7 @@
   @keyframes latido { 0%,100% { opacity:var(--min,.35); } 50% { opacity:var(--max,.72); } }
   #lienzo { transition:filter 1.6s ease-in; }
   body.cayendo #lienzo { filter:saturate(.15) brightness(.22); }
-  body.cayendo #arma, body.cayendo #capa > div:not(#agonia) { transition:transform 1.15s cubic-bezier(.4,0,.7,1), opacity .55s ease-in; }
+  body.cayendo #capa > div:not(#agonia) { transition:transform 1.15s cubic-bezier(.4,0,.7,1), opacity .55s ease-in; }
   body.cayendo #capa { opacity:0; transition:opacity .55s ease-in; }
   #ocaso { position:fixed; inset:0; background:#000; opacity:0; pointer-events:none; z-index:7;
     transition:opacity 1.7s ease-in; }
@@ -355,14 +331,18 @@
   <div id="ocaso"></div>
   <div id="dano"></div>
   <div id="diag"></div>
+  <div id="carga">
+    <h1>NOSTOS</h1>
+    <div class="tubo"><i id="cargaBarra"></i></div>
+    <p id="cargaTexto">CARGANDO 0 %</p>
+    <button class="boton" onclick="location.reload()">VOLVER A INTENTAR</button>
+  </div>
   <div id="soloEscritorio">
     <div class="hoja">
       <h1>NOSTOS</h1>
-      <p class="grande">Este juego es para <b>computadora</b> o <b>tablet</b>.</p>
-      <p>La pantalla de un telefono se queda corta: no caben el tablero, el
-      minimapa ni los controles sin taparse entre ellos, y apuntar con el dedo en
-      un espacio tan chico no se siente bien.</p>
-      <p class="link">Abrelo en tu compu o en tu iPad:<br><b>tuagentedeia.com/nostos</b></p>
+      <p class="grande">Este juego se juega con <b>teclado</b> y <b>raton</b>.</p>
+      <p>Abrelo en una computadora para moverte con WASD y apuntar con el raton.</p>
+      <p class="link">Abrelo en tu compu:<br><b>tuagentedeia.com/nostos</b></p>
       <button class="boton" id="entrarIgual">ENTRAR DE TODOS MODOS</button>
     </div>
   </div>
@@ -389,6 +369,15 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20260908180406"></script>
+  <script type="module" src="./src/main.js?v=20261023185214"></script>
+  <script>
+    setTimeout(function () {
+      if (window.__nostosListo) return;
+      var c = document.getElementById('carga');
+      if (!c || document.getElementById('cargaBarra').style.width) return;
+      c.classList.add('error');
+      document.getElementById('cargaTexto').textContent = 'NO SE PUDO CARGAR. REVISA TU CONEXION';
+    }, 20000);
+  </script>
 </body>
 </html>
