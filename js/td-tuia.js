@@ -138,7 +138,17 @@
 
     if (suelta) { tpx = PASEO.legales[0]; tpy = PASEO.legales[1]; px0 = tpx; py0 = tpy; }
 
-    function chica() { return window.innerWidth < 900; }
+    function chica() {
+      var W = window.innerWidth;
+      return W < 900 || (W < 1200 && window.matchMedia('(pointer:coarse)').matches);
+    }
+
+    function techo() {
+      var n = document.getElementById('site-nav');
+      if (!n || n.classList.contains('nav-hidden')) return 14;
+      var b = n.getBoundingClientRect().bottom;
+      return b > 0 ? b + 10 : 14;
+    }
 
     function columna() {
       var c = document.querySelector('#contacto .ctn') || document.querySelector('.ctn') ||
@@ -265,8 +275,14 @@
       var hx = 0, hy = 0;
       if (!suelta) {
         var r = titulo.getBoundingClientRect();
-        hx = Math.min(r.right - ttam * 0.34, W - ttam - 12);
-        hy = Math.max(r.top - ttam * 0.60, 12);
+        var bd = hero.querySelector('.badge');
+        if (W < 600 && bd) {
+          hx = (W - ttam) / 2;
+          hy = Math.max(bd.getBoundingClientRect().top - ttam - 18, 12);
+        } else {
+          hx = Math.min(r.right - ttam * 0.34, W - ttam - 12);
+          hy = Math.max(r.top - ttam * 0.60, 12);
+        }
       }
 
       var ax, ay;
@@ -303,18 +319,20 @@
       ojos.style.transform = 'translate(' + (dx * 4.6).toFixed(2) + 'px,' + (dy * 3.5).toFixed(2) + 'px)';
     }
 
+    var gx0 = 0, gy0 = 0;
     function colocaGlobo() {
+      gx0 = rx; gy0 = ry;
       var W = window.innerWidth, H = window.innerHeight, cx = rx + tam / 2;
       globo.style.right = 'auto';
       var col = columna();
       globo.style.maxWidth = chica() ? Math.min(300, W - 28) + 'px'
         : Math.max(210, Math.min(320, W - col.d - 32)) + 'px';
       var bw = globo.offsetWidth || 260, bh = globo.offsetHeight || 96;
-      var arriba, top;
-      if (chica()) { arriba = true; top = Math.max(14, ry - bh - 14); }
+      var arriba, top, t0 = techo();
+      if (chica()) { arriba = true; top = Math.max(t0, ry - bh - 14); }
       else {
         arriba = false; top = ry + tam + 14;
-        if (top + bh > H - 14) { arriba = true; top = Math.max(14, ry - bh - 14); }
+        if (top + bh > H - 14) { arriba = true; top = Math.max(t0, ry - bh - 14); }
       }
       /* Si el hueco de la derecha no alcanza para el globo, se pega a la
          orilla de la pantalla: asi tapa lo menos posible de la columna de
@@ -323,7 +341,7 @@
       if (!chica() && (W - col.d) < bw + 20) left = W - bw - 14;
       else left = Math.max(14, Math.min(W - bw - 14, cx - bw / 2));
       globo.style.left = left + 'px';
-      globo.style.top = Math.max(14, Math.min(H - bh - 14, top)) + 'px';
+      globo.style.top = Math.max(t0, Math.min(H - bh - 14, top)) + 'px';
       globo.classList.toggle('abajo', arriba);
       globo.style.setProperty('--px', Math.max(16, Math.min(bw - 16, cx - left)) + 'px');
     }
@@ -369,7 +387,7 @@
       cont.style.width = tam.toFixed(1) + 'px';
       cont.style.height = tam.toFixed(1) + 'px';
       mirar();
-      if (!globo.classList.contains('on')) colocaGlobo();
+      if (!globo.classList.contains('on') || Math.abs(rx - gx0) + Math.abs(ry - gy0) > 60) colocaGlobo();
       requestAnimationFrame(paso);
     }
 
