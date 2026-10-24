@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261023185214';
-import { CELDA, esSolido } from './mapa.js?v=20261023185214';
+import { Billboard } from './sprites.js?v=20261023194439';
+import { CELDA, esSolido } from './mapa.js?v=20261023194439';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -9,17 +9,17 @@ export const TIPOS = {
   ciclope: {
     id: 'ciclope', nombre: 'CICLOPE', arte: 'ciclope',
     alto: 5.8, vida: 1, velocidad: 1, dano: 1,
-    rango: 4.2, distancia: false, recarga: 0
+    rango: 4.2, distancia: false, recarga: 0, hueco: 1.3
   },
   jefe: {
     id: 'jefe', nombre: 'POLIFEMO', arte: 'polifemo',
     alto: 9.2, vida: 14, velocidad: 0.72, dano: 2.4,
-    rango: 7.5, distancia: false, recarga: 0
+    rango: 7.5, distancia: false, recarga: 0, hueco: 2.6
   },
   pretendiente: {
     id: 'pretendiente', nombre: 'PRETENDIENTE', arte: 'pretendiente',
     alto: 4.3, vida: 0.55, velocidad: 1.45, dano: 0.75,
-    rango: 26, distancia: true, recarga: 2.4
+    rango: 26, distancia: true, recarga: 2.4, hueco: 1.0
   }
 };
 
@@ -82,6 +82,17 @@ export class Enemigo {
     const propia = this.marcaMuerte && this.recursos['muere' +
       this.marcaMuerte.charAt(0).toUpperCase() + this.marcaMuerte.slice(1)];
     return propia && propia.length ? propia : this.recursos.muere;
+  }
+
+  _veA(objetivo) {
+    const rej = this.nivel.rejilla;
+    const dx = objetivo.pos.x - this.pos.x, dz = objetivo.pos.z - this.pos.z;
+    const pasos = Math.ceil(Math.hypot(dx, dz) / (CELDA * 0.4));
+    for (let i = 1; i < pasos; i++) {
+      const x = this.pos.x + dx * i / pasos, z = this.pos.z + dz * i / pasos;
+      if (esSolido(rej, Math.floor(x / CELDA), Math.floor(z / CELDA))) return false;
+    }
+    return true;
   }
 
   _libre(nx, nz) {
@@ -196,7 +207,7 @@ export class Enemigo {
               this.presa.recibir(this.dano * 2.2);
             }
           } else if (this.tipo.distancia) {
-            if (this.alTirar) this.alTirar(this, this.dano);
+            if (this.alTirar && this._veA(jugador)) this.alTirar(this, this.dano);
           } else if (dist < this.rango + 1 && this.alGolpear) {
             this.alGolpear(this.dano);
           }
@@ -213,7 +224,7 @@ export class Enemigo {
 
     if (this.estado === 'persigue') {
       this.rumbo = Math.atan2(dx, dz);
-      if (dist < this.rango) {
+      if (dist < this.rango && (!this.tipo.distancia || this._veA(objetivo))) {
         this.estado = 'golpea';
         this.reloj = 0;
         this.cuadro = -1;

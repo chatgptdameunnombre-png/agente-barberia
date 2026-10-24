@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, ALTO, esSolido } from './mapa.js?v=20261023185214';
+import { CELDA, ALTO, esSolido } from './mapa.js?v=20261023194439';
 
 const ANCHO_PORTAL = 3.7;
 const ALTO_PORTAL = 5.5;

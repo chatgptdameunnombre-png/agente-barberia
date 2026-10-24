@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { banco } from './texturas.js?v=20261023185214';
+import { banco } from './texturas.js?v=20261023194439';
 
 export const CELDA = 4;
 export const ALTO = 10;
