@@ -25,12 +25,12 @@
     b.className = 'vc-ojo';
     b.setAttribute('aria-pressed', 'false');
     b.setAttribute('aria-label', 'Mostrar contraseña');
-    b.innerHTML = OJO;
+    b.innerHTML = TACHADO;
     b.addEventListener('mousedown', function (e) { e.preventDefault(); });
     b.addEventListener('click', function () {
       var ver = input.type === 'password';
       input.type = ver ? 'text' : 'password';
-      b.innerHTML = ver ? TACHADO : OJO;
+      b.innerHTML = ver ? OJO : TACHADO;
       b.setAttribute('aria-pressed', ver ? 'true' : 'false');
       b.setAttribute('aria-label', ver ? 'Ocultar contraseña' : 'Mostrar contraseña');
     });
