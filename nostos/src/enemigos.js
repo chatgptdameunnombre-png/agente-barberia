@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261024114855';
-import { CELDA, esSolido } from './mapa.js?v=20261024114855';
+import { Billboard } from './sprites.js?v=20261024115620';
+import { CELDA, esSolido } from './mapa.js?v=20261024115620';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
