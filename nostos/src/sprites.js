@@ -170,18 +170,50 @@ function recuadro(ctx, w, h) {
   return { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
 }
 
+function tramosPorHuecos(imagen, cuantos, fondo) {
+  const c = document.createElement('canvas');
+  c.width = imagen.width;
+  c.height = imagen.height;
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(imagen, 0, 0);
+  quitarFondo(ctx, c.width, c.height, fondo);
+  const datos = ctx.getImageData(0, 0, c.width, c.height).data;
+  const lleno = new Array(c.width).fill(0);
+  for (let y = 0; y < c.height; y++) {
+    for (let x = 0; x < c.width; x++) if (datos[(y * c.width + x) * 4 + 3] > 40) lleno[x]++;
+  }
+  let tramos = [];
+  let inicio = -1;
+  for (let x = 0; x <= c.width; x++) {
+    const hay = x < c.width && lleno[x] > 2;
+    if (hay && inicio < 0) inicio = x;
+    if (!hay && inicio >= 0) { tramos.push([inicio, x]); inicio = -1; }
+  }
+  while (tramos.length > cuantos) {
+    let mejor = 0;
+    for (let i = 1; i < tramos.length - 1; i++) {
+      if (tramos[i + 1][0] - tramos[i][1] < tramos[mejor + 1][0] - tramos[mejor][1]) mejor = i;
+    }
+    tramos.splice(mejor, 2, [tramos[mejor][0], tramos[mejor + 1][1]]);
+  }
+  return tramos.length === cuantos ? tramos : null;
+}
+
 export function cortarTira(imagen, cuantos, opciones = {}) {
-  const { ajustar = true, altoComun = true } = opciones;
+  const { ajustar = true, altoComun = true, porHuecos = false } = opciones;
   const fondo = colorFondo(imagen);
   const anchoCuadro = Math.floor(imagen.width / cuantos);
+  const tramos = porHuecos ? tramosPorHuecos(imagen, cuantos, fondo) : null;
   const crudos = [];
   for (let i = 0; i < cuantos; i++) {
+    const x0 = tramos ? Math.max(0, tramos[i][0] - 4) : i * anchoCuadro;
+    const ancho = tramos ? Math.min(imagen.width, tramos[i][1] + 4) - x0 : anchoCuadro;
     const c = document.createElement('canvas');
-    c.width = anchoCuadro;
+    c.width = ancho;
     c.height = imagen.height;
     const ctx = c.getContext('2d', { willReadFrequently: true });
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(imagen, i * anchoCuadro, 0, anchoCuadro, imagen.height, 0, 0, anchoCuadro, imagen.height);
+    ctx.drawImage(imagen, x0, 0, ancho, imagen.height, 0, 0, ancho, imagen.height);
     quitarFondo(ctx, c.width, c.height, fondo);
     crudos.push({ c, ctx, caja: ajustar ? recuadro(ctx, c.width, c.height) : null });
   }
@@ -221,6 +253,21 @@ export function cortarTira(imagen, cuantos, opciones = {}) {
     salida.push(t);
   }
   return salida;
+}
+
+export function espejar(textura) {
+  const origen = textura.image;
+  const c = document.createElement('canvas');
+  c.width = origen.width; c.height = origen.height;
+  const ctx = c.getContext('2d');
+  ctx.translate(c.width, 0);
+  ctx.scale(-1, 1);
+  ctx.drawImage(origen, 0, 0);
+  const t = new THREE.CanvasTexture(c);
+  t.magFilter = textura.magFilter;
+  t.minFilter = textura.minFilter;
+  t.colorSpace = textura.colorSpace;
+  return t;
 }
 
 export function cargarImagen(ruta) {

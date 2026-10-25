@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261024133134';
-import { CELDA, esSolido } from './mapa.js?v=20261024133134';
+import { Billboard } from './sprites.js?v=20261025160310';
+import { CELDA, esSolido } from './mapa.js?v=20261025160310';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -15,6 +15,11 @@ export const TIPOS = {
     id: 'jefe', nombre: 'POLIFEMO', arte: 'polifemo',
     alto: 9.2, vida: 14, velocidad: 0.72, dano: 2.4,
     rango: 7.5, distancia: false, recarga: 0, hueco: 2.6
+  },
+  lobo: {
+    id: 'lobo', nombre: 'LOBO DE CIRCE', arte: 'lobo',
+    alto: 3.6, vida: 0.5, velocidad: 1.75, dano: 0.6,
+    rango: 3.8, distancia: false, recarga: 0, hueco: 1.1, manada: true
   },
   pretendiente: {
     id: 'pretendiente', nombre: 'PRETENDIENTE', arte: 'pretendiente',
@@ -50,6 +55,7 @@ export class Enemigo {
     this.reloj = 0;
     this.rumbo = 0;
     this.paso = Math.random() * 10;
+    this.flanco = Math.random() * Math.PI * 2;
     this.cuadro = 0;
     this.alGolpear = null;
     this.alRugir = null;
@@ -230,7 +236,13 @@ export class Enemigo {
         this.cuadro = -1;
       } else {
         let ux = dx / dist, uz = dz / dist;
-        if (dist > 7 && this.flujo && !enfurecido) {
+        if (this.tipo.manada && !enfurecido && dist > 6 && dist < 26 && this._veA(objetivo)) {
+          const fx = objetivo.pos.x + Math.sin(this.flanco) * 6 - this.pos.x;
+          const fz = objetivo.pos.z + Math.cos(this.flanco) * 6 - this.pos.z;
+          const fd = Math.hypot(fx, fz);
+          if (fd > 1.5) { ux = fx / fd; uz = fz / fd; }
+          if (!this._libre(this.pos.x + ux * 2.5, this.pos.z + uz * 2.5)) { ux = dx / dist; uz = dz / dist; }
+        } else if (dist > 7 && this.flujo && !enfurecido) {
           const guia = this.flujo.rumbo(this.pos.x, this.pos.z);
           if (guia) { ux = guia.x; uz = guia.z; }
           if (this.portales) {
