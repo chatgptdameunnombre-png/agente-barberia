@@ -1,25 +1,25 @@
 import * as THREE from 'three';
-import { NIVEL_PRUEBA, NIVEL_CUEVA, ESTILOS_NIVEL, construir, CELDA, esSolido } from './mapa.js?v=20261025160310';
-import { Jugador } from './jugador.js?v=20261025160310';
-import { Enemigo, TIPOS } from './enemigos.js?v=20261025160310';
-import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, espejar, Billboard } from './sprites.js?v=20261025160310';
-import { Objeto, CATALOGO } from './objetos.js?v=20261025160310';
-import { Rondas } from './rondas.js?v=20261025160310';
-import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20261025160310';
-import { RELIQUIAS } from './reliquias.js?v=20261025160310';
-import { leer, guardar, aplicar } from './apariencia.js?v=20261025160310';
-import { MODOS, MEJORAS_MERCADER, VIAJE, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, TODO_GRATIS, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo, tiene as tieneGloria } from './gloria.js?v=20261025160310';
-import { Minimapa, Marcas } from './minimapa.js?v=20261025160310';
-import { Flujo } from './flujo.js?v=20261025160310';
-import { Portales, trazar } from './portales.js?v=20261025160310';
-import { romper } from './mapa.js?v=20261025160310';
-import { Audio } from './audio.js?v=20261025160310';
-import { OtroLado, NORMAL_CUEVA } from './otrolado.js?v=20261025160310';
-import { Grieta } from './grieta.js?v=20261025160310';
-import { Director } from './director.js?v=20261025160310';
-import { Cerco } from './cerco.js?v=20261025160310';
-import { siluetaCiclope, banco } from './texturas.js?v=20261025160310';
-import { Misiones, ARCOS } from './misiones.js?v=20261025160310';
+import { NIVEL_PRUEBA, NIVEL_CUEVA, NIVEL_CIRCE, NIVEL_BARCO, ESTILOS_NIVEL, construir, CELDA, esSolido } from './mapa.js?v=20261025162838';
+import { Jugador } from './jugador.js?v=20261025162838';
+import { Enemigo, TIPOS } from './enemigos.js?v=20261025162838';
+import { cortarTira, cortarRejilla, cargarImagen, recorteEntero, recorteSuperior, espejar, Billboard } from './sprites.js?v=20261025162838';
+import { Objeto, CATALOGO } from './objetos.js?v=20261025162838';
+import { Rondas } from './rondas.js?v=20261025162838';
+import { Tienda, porId, MEJORAS, CONSUMIBLES } from './tienda.js?v=20261025162838';
+import { RELIQUIAS } from './reliquias.js?v=20261025162838';
+import { leer, guardar, aplicar } from './apariencia.js?v=20261025162838';
+import { MODOS, MEJORAS_MERCADER, VIAJE, OBJETOS as OBJETOS_GLORIA, ESTILOS, LIMITE_OBJETOS, TODO as TODO_GLORIA, TODO_GRATIS, estado as estadoGloria, guardar as guardarGloria, activo as modoActivo, tiene as tieneGloria } from './gloria.js?v=20261025162838';
+import { Minimapa, Marcas } from './minimapa.js?v=20261025162838';
+import { Flujo } from './flujo.js?v=20261025162838';
+import { Portales, trazar } from './portales.js?v=20261025162838';
+import { romper } from './mapa.js?v=20261025162838';
+import { Audio } from './audio.js?v=20261025162838';
+import { OtroLado, NORMAL_CUEVA, NORMAL_CIRCE, NORMAL_BARCO } from './otrolado.js?v=20261025162838';
+import { Grieta } from './grieta.js?v=20261025162838';
+import { Director } from './director.js?v=20261025162838';
+import { Cerco } from './cerco.js?v=20261025162838';
+import { siluetaCiclope, banco } from './texturas.js?v=20261025162838';
+import { Misiones, ARCOS } from './misiones.js?v=20261025162838';
 
 const ESCALA_RETRO = 3.2;
 const lienzo = document.getElementById('lienzo');
@@ -119,11 +119,71 @@ let guanteReloj = 0;
 let destelloGuante = 0;
 
 let texturasNivel = null;
-let texturasCueva = null;
+let texturasMapa = null;
 
 const MAPAS = {
-  palacio: { nombre: 'EL PALACIO DE ITACA' },
-  cueva: { nombre: 'LA CUEVA DE POLIFEMO' }
+  palacio: { nombre: 'EL PALACIO DE ITACA', radio: 22 },
+  cueva: {
+    nombre: 'LA CUEVA DE POLIFEMO', rejilla: NIVEL_CUEVA, estilo: ESTILOS_NIVEL.cueva, normal: NORMAL_CUEVA, radio: 4.5,
+    texturas: './arte/crudo/cueva-texturas.webp?v=20261025162838', decoracion: './arte/crudo/cueva-decoracion.webp?v=20261025162838',
+    claves: ['roca', 'musgo', 'tierra', 'techo', 'pilar', 'cerca'],
+    recortes: { pilar: [0.12, 0.88], cerca: [0.02, 0.8] },
+    respaldo: b => ({ roca: b.roca, musgo: b.roca, tierra: b.piedra, techo: b.roca, pilar: b.columna, cerca: b.terracota }),
+    decor: {
+      a: { celda: 0, alto: 3.2, basico: true, altura: 4.6, pared: true, luz: 34 },
+      o: { celda: 1, alto: 2.9 },
+      q: { celda: 2, alto: 1.9 },
+      h: { celda: 3, alto: 1.9 },
+      k: { celda: 4, alto: 2.0 },
+      v: { celda: 5, alto: 3.0 },
+      b: { celda: 6, alto: 1.8 },
+      g: { celda: 7, alto: 2.4, basico: true, luz: 30 },
+      p: { celda: 8, alto: 7.5 },
+      s: { celda: 11, alto: 3.8 }
+    }
+  },
+  circe: {
+    nombre: 'LA ISLA DE CIRCE', rejilla: NIVEL_CIRCE, estilo: ESTILOS_NIVEL.circe, normal: NORMAL_CIRCE, radio: 5,
+    texturas: './arte/crudo/circe-texturas.webp?v=20261025162838', decoracion: './arte/crudo/circe-decoracion.webp?v=20261025162838',
+    claves: ['hiedra', 'flores', 'losas', 'pergola', 'columna', 'friso'],
+    recortes: { columna: [0, 0.86] },
+    respaldo: b => ({ hiedra: b.marmol, flores: b.marmol, losas: b.mosaico, pergola: b.roca, columna: b.columna, friso: b.terracota }),
+    decor: {
+      b: { celda: 0, alto: 3.0, basico: true, luz: 30, color: 0xb070ff },
+      f: { celda: 1, alto: 4.2 },
+      c: { celda: 2, alto: 2.8, basico: true, luz: 26, color: 0x70ff90 },
+      l: { celda: 3, alto: 4.0 },
+      m: { celda: 4, alto: 2.6 },
+      t: { celda: 5, alto: 3.6 },
+      v: { celda: 6, alto: 3.0 },
+      a: { celda: 7, alto: 3.2 },
+      w: { celda: 8, alto: 3.8 },
+      n: { celda: 9, alto: 1.8 },
+      g: { celda: 10, alto: 2.6 },
+      o: { celda: 11, alto: 4.4 }
+    }
+  },
+  barco: {
+    nombre: 'EL BARCO DE ODISEO', rejilla: NIVEL_BARCO, estilo: ESTILOS_NIVEL.barco, normal: NORMAL_BARCO, radio: 6,
+    texturas: './arte/crudo/barco-texturas.webp?v=20261025162838', decoracion: './arte/crudo/barco-decoracion.webp?v=20261025162838',
+    claves: ['casco', 'ojo', 'cubierta', 'cielo', 'mastil', 'vela'],
+    recortes: {},
+    respaldo: b => ({ casco: b.piedra, ojo: b.terracota, cubierta: b.piedra, cielo: b.roca, mastil: b.columna, vela: b.terracota }),
+    decor: {
+      l: { celda: 0, alto: 2.6, basico: true, altura: 5.2, pared: true, luz: 32, color: 0xffb060 },
+      b: { celda: 1, alto: 3.0 },
+      c: { celda: 2, alto: 1.6 },
+      a: { celda: 3, alto: 3.6 },
+      r: { celda: 4, alto: 3.4 },
+      k: { celda: 5, alto: 2.0 },
+      v: { celda: 6, alto: 2.8 },
+      n: { celda: 7, alto: 3.6 },
+      o: { celda: 8, alto: 2.2 },
+      s: { celda: 9, alto: 1.5 },
+      e: { celda: 10, alto: 2.6 },
+      f: { celda: 11, alto: 2.8, basico: true, luz: 30 }
+    }
+  }
 };
 const LLAVE_MAPA = 'nostos.mapa';
 
@@ -138,14 +198,20 @@ function elegirMapa() {
   if (MAPAS[pedido]) return pedido;
   let bolsa = [];
   try { bolsa = JSON.parse(localStorage.getItem('nostos.bolsaMapas') || '[]').filter(m => MAPAS[m]); } catch (e) {}
-  if (!bolsa.length) bolsa = Math.random() < 0.5 ? ['palacio', 'cueva'] : ['cueva', 'palacio'];
+  if (!bolsa.length) {
+    bolsa = Object.keys(MAPAS);
+    for (let i = bolsa.length - 1; i > 0; i--) {
+      const k = Math.floor(Math.random() * (i + 1));
+      [bolsa[i], bolsa[k]] = [bolsa[k], bolsa[i]];
+    }
+  }
   const sale = bolsa.shift();
   try { localStorage.setItem('nostos.bolsaMapas', JSON.stringify(bolsa)); } catch (e) {}
   return sale;
 }
 
 const MAPA = elegirMapa();
-const enCueva = MAPA === 'cueva';
+const cfgMapa = MAPAS[MAPA];
 
 function recortarAlto(textura, desde, hasta) {
   const origen = textura.image;
@@ -162,21 +228,21 @@ function recortarAlto(textura, desde, hasta) {
 }
 
 const ARCOS_HOJA = [
-  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20261025160310'],
-  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20261025160310'],
-  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20261025160310'],
-  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20261025160310'],
-  ['arcoSable', './arte/crudo/arco-sable.webp?v=20261025160310'],
-  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20261025160310']
+  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20261025162838'],
+  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20261025162838'],
+  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20261025162838'],
+  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20261025162838'],
+  ['arcoSable', './arte/crudo/arco-sable.webp?v=20261025162838'],
+  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20261025162838']
 ];
 
 const CARAS_HOJA = [
-  ['carasFontanero', './arte/crudo/caras-fontanero.webp?v=20261025160310'],
-  ['carasSierra', './arte/crudo/caras-sierra.webp?v=20261025160310'],
-  ['carasPortal', './arte/crudo/caras-portal.webp?v=20261025160310'],
-  ['carasFantasma', './arte/crudo/caras-fantasma.webp?v=20261025160310'],
-  ['carasSable', './arte/crudo/caras-sable.webp?v=20261025160310'],
-  ['carasAbismo', './arte/crudo/caras-abismo.webp?v=20261025160310']
+  ['carasFontanero', './arte/crudo/caras-fontanero.webp?v=20261025162838'],
+  ['carasSierra', './arte/crudo/caras-sierra.webp?v=20261025162838'],
+  ['carasPortal', './arte/crudo/caras-portal.webp?v=20261025162838'],
+  ['carasFantasma', './arte/crudo/caras-fantasma.webp?v=20261025162838'],
+  ['carasSable', './arte/crudo/caras-sable.webp?v=20261025162838'],
+  ['carasAbismo', './arte/crudo/caras-abismo.webp?v=20261025162838']
 ];
 
 function cargarArcos() {
@@ -214,50 +280,50 @@ function cargarConBarra(ruta) {
 
 async function cargarArte() {
   const [idle, atk, die, bow, muros, cosas, mercancia, pIdle, pAtk, pDie, horn, viejo, rostros, mano, reliquias, cordel, asta, hachaImg, picoImg, manoImg, fuegoImg, medallas, cuchilloImg, tajoImg, vueloImg, kTajoImg, cicRayo, cicLanza, cicCuchillo, cicFuego, cicHacha, cicBomba, fichasImg,
-    polIdle, polAtk, polDie, bombaMano, bombaPeg, cuevaTex, cuevaDecor, loboIdle, loboAtk, loboDie] = await Promise.all([
-    cargarConBarra('./arte/crudo/ciclope.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/ciclope-ataca.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/ciclope-muere.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/arco.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/texturas.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/items.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/tienda.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/pretendiente.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/pretendiente-ataca.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/pretendiente-muere.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/cuerno.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/mercader.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/caras.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/guante.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/objetos2.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/hilo.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/jabalina.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/hacha.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/pico.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/mano.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/fuego.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/insignias.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/cuchillo.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/hacha-tajo.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/hacha-vuelo.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/cuchillo-tajo.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/ciclope-rayo.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/ciclope-lanza.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/ciclope-cuchillo.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/ciclope-fuego.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/ciclope-hacha.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/ciclope-bomba.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/fichas.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/polifemo.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/polifemo-ataca.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/polifemo-muere.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/bomba.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/bomba-pegada.webp?v=20261025160310'),
-    enCueva ? cargarConBarra('./arte/crudo/cueva-texturas.webp?v=20261025160310') : null,
-    enCueva ? cargarConBarra('./arte/crudo/cueva-decoracion.webp?v=20261025160310') : null,
-    cargarConBarra('./arte/crudo/lobo.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/lobo-ataca.webp?v=20261025160310'),
-    cargarConBarra('./arte/crudo/lobo-muere.webp?v=20261025160310')
+    polIdle, polAtk, polDie, bombaMano, bombaPeg, mapaTex, mapaDecor, loboIdle, loboAtk, loboDie] = await Promise.all([
+    cargarConBarra('./arte/crudo/ciclope.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/ciclope-ataca.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/ciclope-muere.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/arco.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/texturas.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/items.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/tienda.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/pretendiente.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/pretendiente-ataca.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/pretendiente-muere.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/cuerno.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/mercader.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/caras.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/guante.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/objetos2.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/hilo.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/jabalina.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/hacha.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/pico.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/mano.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/fuego.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/insignias.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/cuchillo.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/hacha-tajo.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/hacha-vuelo.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/cuchillo-tajo.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/ciclope-rayo.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/ciclope-lanza.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/ciclope-cuchillo.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/ciclope-fuego.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/ciclope-hacha.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/ciclope-bomba.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/fichas.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/polifemo.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/polifemo-ataca.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/polifemo-muere.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/bomba.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/bomba-pegada.webp?v=20261025162838'),
+    cfgMapa.texturas ? cargarConBarra(cfgMapa.texturas) : null,
+    cfgMapa.decoracion ? cargarConBarra(cfgMapa.decoracion) : null,
+    cargarConBarra('./arte/crudo/lobo.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/lobo-ataca.webp?v=20261025162838'),
+    cargarConBarra('./arte/crudo/lobo-muere.webp?v=20261025162838')
   ]);
 
   const quieto = idle ? cortarTira(idle, 4) : [0, 1, 2, 3].map(siluetaCiclope);
@@ -404,20 +470,20 @@ async function cargarArte() {
   if (!kTajoImg) partes.push('cuchillo-tajo.png');
   if (!cosas) partes.push('items.png');
   if (!loboIdle) partes.push('lobo.png');
-  if (enCueva) {
-    const base = texturasNivel || banco();
-    if (cuevaTex) {
-      const c = cortarRejilla(cuevaTex, 3, 2, { margen: 0.03, salida: 128 });
-      texturasCueva = {
-        roca: c[0], musgo: c[1], tierra: c[2], techo: c[3],
-        pilar: recortarAlto(c[4], 0.12, 0.88), cerca: recortarAlto(c[5], 0.02, 0.8)
-      };
+  if (cfgMapa.texturas) {
+    if (mapaTex) {
+      const c = cortarRejilla(mapaTex, 3, 2, { margen: 0.03, salida: 128 });
+      texturasMapa = {};
+      cfgMapa.claves.forEach((clave, i) => {
+        const r = cfgMapa.recortes[clave];
+        texturasMapa[clave] = r ? recortarAlto(c[i], r[0], r[1]) : c[i];
+      });
     } else {
-      partes.push('cueva-texturas.png');
-      texturasCueva = { roca: base.roca, musgo: base.roca, tierra: base.piedra, techo: base.roca, pilar: base.columna, cerca: base.terracota };
+      partes.push(cfgMapa.texturas.split('/').pop());
+      texturasMapa = cfgMapa.respaldo(texturasNivel || banco());
     }
-    if (cuevaDecor) recursos.decor = cortarRejilla(cuevaDecor, 4, 3, { margen: 0.02, transparente: true });
-    else partes.push('cueva-decoracion.png');
+    if (mapaDecor) recursos.decor = cortarRejilla(mapaDecor, 4, 3, { margen: 0.02, transparente: true });
+    else partes.push(cfgMapa.decoracion.split('/').pop());
   }
   document.getElementById('diag').textContent =
     partes.length ? 'sin arte: ' + partes.join(' ') : '';
@@ -476,10 +542,26 @@ const audio = new Audio();
 let tensabaAntes = false;
 let avisoTenso = false;
 
+function lobosDe(n) {
+  return recursos.lobo && n >= 5 ? Math.min(5, 3 + Math.floor((n - 5) / 4)) : 0;
+}
+
+function oleadasDe(n, cfg) {
+  if (cfg.jefe || n < 2) return null;
+  const momentos = [0, 9 + Math.random() * 4, 18 + Math.random() * 5];
+  const lobos = lobosDe(n);
+  const olaLobos = momentos[Math.floor(Math.random() * 3)];
+  return Array.from({ length: cfg.cuantos }, (_, i) => {
+    if (i === 0) return 0;
+    if (i <= lobos) return olaLobos;
+    return momentos[Math.floor(Math.random() * 3)];
+  });
+}
+
 function elegirTipo(indice) {
   if (rondas.ultimoPerfil && rondas.ultimoPerfil.jefe && indice === 0) return TIPOS.jefe;
   const n = rondas.numero;
-  if (recursos.lobo && n >= 5 && indice >= 1 && indice <= Math.min(5, 3 + Math.floor((n - 5) / 4))) return TIPOS.lobo;
+  if (indice >= 1 && indice <= lobosDe(n)) return TIPOS.lobo;
   if (!recursos.pretendiente) return TIPOS.ciclope;
   if (n < 3) return TIPOS.ciclope;
   const cada = n >= 6 ? 2 : 3;
@@ -675,24 +757,12 @@ function moverJabalinas(dt) {
   }
 }
 
-const DECOR = {
-  a: { celda: 0, alto: 3.2, basico: true, altura: 4.6, pared: true, luz: 34 },
-  o: { celda: 1, alto: 2.9 },
-  q: { celda: 2, alto: 1.9 },
-  h: { celda: 3, alto: 1.9 },
-  k: { celda: 4, alto: 2.0 },
-  v: { celda: 5, alto: 3.0 },
-  b: { celda: 6, alto: 1.8 },
-  g: { celda: 7, alto: 2.4, basico: true, luz: 30 },
-  p: { celda: 8, alto: 7.5 },
-  s: { celda: 11, alto: 3.8 }
-};
 const decorados = [];
 
 function ponerDecor() {
   if (!recursos.decor || !recursos.decor.length) return;
   for (const d of nivel.spawns.decor) {
-    const tipo = DECOR[d.signo];
+    const tipo = cfgMapa.decor && cfgMapa.decor[d.signo];
     const t = tipo && recursos.decor[tipo.celda];
     if (!t) continue;
     const sprite = new Billboard([t], tipo.alto, tipo.alto, { basico: !!tipo.basico });
@@ -710,7 +780,7 @@ function ponerDecor() {
     nivel.grupo.add(sprite.grupo);
     let luz = null;
     if (tipo.luz) {
-      luz = new THREE.PointLight(0xff9a48, tipo.luz, 26, 1.6);
+      luz = new THREE.PointLight(tipo.color || 0xff9a48, tipo.luz, 26, 1.6);
       luz.position.copy(sprite.grupo.position);
       luz.position.y = (tipo.altura || tipo.alto) + 0.6;
       luz.userData.decor = true;
@@ -2105,7 +2175,9 @@ function panelMapa() {
   const opciones = [
     ['azar', 'AL AZAR', 'Cada partida te toca uno distinto'],
     ['palacio', 'EL PALACIO DE ITACA', 'Salas de marmol y frisos de guerreros'],
-    ['cueva', 'LA CUEVA DE POLIFEMO', 'Tuneles oscuros, antorchas y el corral del ciclope']
+    ['cueva', 'LA CUEVA DE POLIFEMO', 'Tuneles oscuros, antorchas y el corral del ciclope'],
+    ['circe', 'LA ISLA DE CIRCE', 'Jardin embrujado, hiedra, fuentes y fuego violeta'],
+    ['barco', 'EL BARCO DE ODISEO', 'Cubierta en plena tormenta, mastiles y faroles']
   ];
   abrirPanel(`<h3>MAPA</h3>
     <span class="bolsa">AHORA ESTAS EN ${MAPAS[MAPA].nombre}</span>
@@ -2668,7 +2740,7 @@ let anguloMenu = 0;
 
 function orbitar(dt) {
   anguloMenu += dt * 0.09;
-  const radio = enCueva ? 4.5 : 22;
+  const radio = cfgMapa.radio;
   camara.position.set(
     centro.x + Math.cos(anguloMenu) * radio,
     3.6 + Math.sin(anguloMenu * 1.7) * 0.5,
@@ -2849,8 +2921,8 @@ function bucle() {
 }
 
 cargarArte().then(() => {
-  nivel = enCueva
-    ? construir(NIVEL_CUEVA, texturasCueva, ESTILOS_NIVEL.cueva)
+  nivel = cfgMapa.rejilla
+    ? construir(cfgMapa.rejilla, texturasMapa, cfgMapa.estilo)
     : construir(NIVEL_PRUEBA, texturasNivel);
   ponerDecor();
   escena.add(nivel.grupo);
@@ -2919,6 +2991,11 @@ cargarArte().then(() => {
     anunciar,
     bloqueado: () => tienda.abierta,
     ajustar: p => director.ajustar(p),
+    oleadas: oleadasDe,
+    alOla: (cuantos, ultima) => {
+      audio.sonar('rugido');
+      avisar(ultima ? 'LLEGAN LOS ULTIMOS: ' + cuantos : 'LLEGAN MAS: ' + cuantos);
+    },
     alEmpezar: n => {
       tienda.nuevaRonda();
       if (!rondas.esRondaJefe(n)) audio.rotarPista();
@@ -2938,8 +3015,8 @@ cargarArte().then(() => {
     }
   });
   flujo = new Flujo(nivel);
-  otroLado = new OtroLado({ escena, nivel, antorcha, ambiente, cenit, normal: enCueva ? NORMAL_CUEVA : undefined });
-  if (enCueva) otroLado._pintar(otroLado.normal);
+  otroLado = new OtroLado({ escena, nivel, antorcha, ambiente, cenit, normal: cfgMapa.normal });
+  if (cfgMapa.normal) otroLado._pintar(otroLado.normal);
   grieta = new Grieta(escena, centroLibre());
   misiones = new Misiones(a => {
     anunciar('ARCO GANADO', a.nombre);

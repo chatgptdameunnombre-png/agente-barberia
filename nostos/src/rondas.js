@@ -10,6 +10,10 @@ export class Rondas {
     this.bloqueado = cfg.bloqueado || (() => false);
     this.ajustar = cfg.ajustar || (p => p);
     this.alEmpezar = cfg.alEmpezar || (() => {});
+    this.oleadas = cfg.oleadas || (() => null);
+    this.alOla = cfg.alOla || (() => {});
+    this.pendientes = [];
+    this.relojCombate = 0;
     this.numero = 0;
     this.estado = 'descanso';
     this.reloj = DESCANSO - PRIMERA_ESPERA;
@@ -52,21 +56,36 @@ export class Rondas {
     this.numero++;
     const cfg = this.ajustar(this.perfil(this.numero));
     this.ultimoPerfil = cfg;
-    const puntos = this.puntosLejanos(jugador, cfg.cuantos);
-    puntos.forEach((p, i) => {
-      const angulo = (i / puntos.length) * Math.PI * 2;
-      const pos = p.clone();
-      pos.x += Math.cos(angulo) * 2.2;
-      pos.z += Math.sin(angulo) * 2.2;
-      this.crear(pos, cfg, i);
-    });
+    const tiempos = this.oleadas(this.numero, cfg);
+    const ya = [];
+    this.pendientes = [];
+    this.relojCombate = 0;
+    for (let i = 0; i < cfg.cuantos; i++) {
+      const t = tiempos ? tiempos[i] : 0;
+      if (t > 0) this.pendientes.push({ i, cuando: t });
+      else ya.push(i);
+    }
+    this.soltarGrupo(ya, jugador, cfg);
     this.estado = 'combate';
     if (cfg.jefe) this.anunciar('POLIFEMO DESPIERTA', 'EL QUE TE COMIO A TUS HOMBRES');
     this.alEmpezar(this.numero, cfg);
     this.anunciar('RONDA ' + this.numero, cfg.cuantos + ' ENEMIGOS');
   }
 
+  soltarGrupo(indices, jugador, cfg) {
+    const puntos = this.puntosLejanos(jugador, indices.length);
+    indices.forEach((idx, k) => {
+      const angulo = (k / Math.max(1, indices.length)) * Math.PI * 2;
+      const pos = puntos[k].clone();
+      pos.x += Math.cos(angulo) * 2.2;
+      pos.z += Math.sin(angulo) * 2.2;
+      this.crear(pos, cfg, idx);
+    });
+  }
+
   reiniciar() {
+    this.pendientes = [];
+    this.relojCombate = 0;
     this.numero = 0;
     this.estado = 'descanso';
     this.reloj = DESCANSO - PRIMERA_ESPERA;
@@ -83,6 +102,20 @@ export class Rondas {
       return;
     }
     const quedan = enemigos.some(e => e.vivo);
+    if (this.pendientes.length) {
+      this.relojCombate += dt;
+      if (!quedan) {
+        const proximo = Math.min(...this.pendientes.map(p => p.cuando));
+        if (proximo - this.relojCombate > 1.5) this.relojCombate = proximo - 1.5;
+      }
+      const listos = this.pendientes.filter(p => p.cuando <= this.relojCombate);
+      if (listos.length) {
+        this.pendientes = this.pendientes.filter(p => p.cuando > this.relojCombate);
+        this.soltarGrupo(listos.map(p => p.i), jugador, this.ultimoPerfil);
+        this.alOla(listos.length, this.pendientes.length === 0);
+      }
+      return;
+    }
     if (!quedan) {
       this.estado = 'descanso';
       this.reloj = 0;

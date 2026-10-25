@@ -20,6 +20,26 @@ export const NORMAL_CUEVA = {
   tinteEnemigo: 0xffffff
 };
 
+export const NORMAL_CIRCE = {
+  fondo: 0x140c1e,
+  niebla: { color: 0x221632, cerca: 22, lejos: 105 },
+  ambiente: { color: 0xc0b0d0, fuerza: 2.3 },
+  antorcha: { color: 0xffe0b8, fuerza: 52 },
+  cenit: { color: 0xc8b0ff, fuerza: 0.8 },
+  tinteNivel: 0xffffff,
+  tinteEnemigo: 0xffffff
+};
+
+export const NORMAL_BARCO = {
+  fondo: 0x05080f,
+  niebla: { color: 0x0a1220, cerca: 14, lejos: 88 },
+  ambiente: { color: 0x7a90b0, fuerza: 1.7 },
+  antorcha: { color: 0xffc888, fuerza: 60 },
+  cenit: { color: 0x9fb4d8, fuerza: 0.55 },
+  tinteNivel: 0xffffff,
+  tinteEnemigo: 0xffffff
+};
+
 const CRUZADO = {
   fondo: 0x0d0206,
   niebla: { color: 0x2a0812, cerca: 6, lejos: 52 },

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { banco } from './texturas.js?v=20261025160310';
+import { banco } from './texturas.js?v=20261025162838';
 
 export const CELDA = 4;
 export const ALTO = 10;
@@ -56,6 +56,47 @@ export const NIVEL_CUEVA = [
   '################p###############'
 ];
 
+export const NIVEL_CIRCE = [
+  '################################',
+  '#b....m..t.#TTTTTTTT#.t..m....b#',
+  '#..........#...E..E.#..........#',
+  '#..E.......#........#.......E..#',
+  '#....RRR...##......##...RRR....#',
+  '#a...R....................R...a#',
+  '#....R...C...........C...R.....#',
+  '#....R......CC....CC.....R.....#',
+  '#.E.........C......C......E....#',
+  '#...........C...f..C...........#',
+  '#..a.....R..C......C..R.....a..#',
+  '#........R..C......C..R........#',
+  '#.E......R..CC....CC..R......E.#',
+  '#...........c..............l...#',
+  '#....RRR...##......##...RRR....#',
+  '#..v.......#........#.......v..#',
+  '#..........#..n..n..#..........#',
+  '#.o....w...TT......TT...w....o.#',
+  '#..E.........................E.#',
+  '#b.....g.....a.@..a.....g.....b#',
+  '################################'
+];
+
+export const NIVEL_BARCO = [
+  '####RR####RR####RR####RR####RR######',
+  '#l..k....b..............b.....l#####',
+  '#.E.............E..........E....####',
+  '#..s..s..s..s......s..s..s..s....###',
+  '#....FF.......TT.......FF.........##',
+  '#..........C..........C.......a...##',
+  '#r.@...v......................n....#',
+  '#r..........E..........C......f....#',
+  '#..........C..........C.......c...##',
+  '#....FF.......TT.......FF.........##',
+  '#..s..s..s..s......s..s..s..s....###',
+  '#.E.............E..........E....####',
+  '#l..v....b..............b.....l#####',
+  '####RR####RR####RR####RR####RR######'
+];
+
 const SOLIDOS = new Set(['#', 'C', 'T', 'R', 'F']);
 
 export const ESTILOS_NIVEL = {
@@ -67,6 +108,16 @@ export const ESTILOS_NIVEL = {
     materiales: { '#': 'roca', 'C': 'pilar', 'T': 'cerca', 'R': 'musgo', 'F': 'roca' },
     piso: 'tierra', techo: 'techo',
     colores: { '#': '#6e5a46', 'R': '#4e6a3a', 'C': '#b89c74', 'T': '#8a5a2a', 'F': '#6e5a46' }
+  },
+  circe: {
+    materiales: { '#': 'hiedra', 'C': 'columna', 'T': 'friso', 'R': 'flores', 'F': 'hiedra' },
+    piso: 'losas', techo: 'pergola',
+    colores: { '#': '#8a9a6a', 'R': '#9a6ab4', 'C': '#e8e2d0', 'T': '#5a3a7a', 'F': '#8a9a6a' }
+  },
+  barco: {
+    materiales: { '#': 'casco', 'C': 'mastil', 'T': 'vela', 'R': 'ojo', 'F': 'casco' },
+    piso: 'cubierta', techo: 'cielo',
+    colores: { '#': '#5a4632', 'R': '#c9a227', 'C': '#a07850', 'T': '#c84a3a', 'F': '#7a5a3a' }
   }
 };
 
