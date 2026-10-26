@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261025203439';
-import { CELDA, esSolido } from './mapa.js?v=20261025203439';
+import { Billboard } from './sprites.js?v=20261025214552';
+import { CELDA, esSolido } from './mapa.js?v=20261025214552';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -226,7 +226,16 @@ export class Enemigo {
           }
         }
       }
-      if (this.reloj > 0.18 * cuadros.length + (this.tipo.distancia ? this.tipo.recarga : 0.35)) {
+      if (this.tipo.manada && this.cuadro <= 1 && dist > 2.2) {
+        const avance = Math.min(dist - 2.2, this.velocidad * 1.3 * dt);
+        const nx = this.pos.x + dx / dist * avance, nz = this.pos.z + dz / dist * avance;
+        if (this._libre(nx, this.pos.z)) this.pos.x = nx;
+        if (this._libre(this.pos.x, nz)) this.pos.z = nz;
+        this.rumbo = Math.atan2(dx, dz);
+      }
+      const suelta = this.tipo.manada && dist > this.rango + 2.5 && (this.cuadro >= 1 || dist > this.rango + 5);
+      const espera = this.tipo.distancia ? this.tipo.recarga : this.tipo.manada ? 0.12 : 0.35;
+      if (suelta || this.reloj > 0.18 * cuadros.length + espera) {
         this.estado = 'persigue';
         this.sprite.fijarVistas(this.recursos.quieto);
         this.cuadro = 0;
@@ -243,7 +252,8 @@ export class Enemigo {
         this.cuadro = -1;
       } else {
         let ux = dx / dist, uz = dz / dist;
-        if (this.tipo.manada && !enfurecido && dist > 6 && dist < 26 && this._veA(objetivo)) {
+        if (this.sinFlanco > 0) this.sinFlanco -= dt;
+        if (this.tipo.manada && !(this.sinFlanco > 0) && !enfurecido && dist > 6 && dist < 26 && this._veA(objetivo)) {
           const fx = objetivo.pos.x + Math.sin(this.flanco) * 6 - this.pos.x;
           const fz = objetivo.pos.z + Math.cos(this.flanco) * 6 - this.pos.z;
           const fd = Math.hypot(fx, fz);
@@ -275,6 +285,7 @@ export class Enemigo {
         this.ultimoX = this.pos.x;
         this.ultimoZ = this.pos.z;
         this.atasco = avance < this.velocidad * dt * 0.25 ? this.atasco + dt : 0;
+        if (this.tipo.manada && this.atasco > 0.2) this.sinFlanco = 1.5;
         if (enfurecido) {
           this.atascoPresa = avance < this.velocidad * dt * 0.3 ? this.atascoPresa + dt : 0;
         }
