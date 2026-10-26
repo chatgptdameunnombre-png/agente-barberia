@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261025180412';
-import { CELDA, esSolido } from './mapa.js?v=20261025180412';
+import { Billboard } from './sprites.js?v=20261025185237';
+import { CELDA, esSolido } from './mapa.js?v=20261025185237';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -285,7 +285,13 @@ export class Enemigo {
             this.atasco = 0;
           }
         }
-        if (this.tipo.manada) {
+        if (this.tipo.manada && this.recursos.corre) {
+          this.paso += dt * 11;
+          const k = Math.floor(this.paso * 0.9) % 4;
+          if (this.sprite.vistas !== this.recursos.corre[k]) this.sprite.fijarVistas(this.recursos.corre[k]);
+          this.sprite.malla.position.y = this.baseY + Math.abs(Math.sin(this.paso)) * 0.18;
+          this.sprite.malla.rotation.z = 0;
+        } else if (this.tipo.manada) {
           this.paso += dt * 11;
           const salto = Math.abs(Math.sin(this.paso));
           this.sprite.malla.position.y = this.baseY + salto * 0.5;

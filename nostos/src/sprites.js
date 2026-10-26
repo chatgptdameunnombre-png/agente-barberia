@@ -196,6 +196,16 @@ function tramosPorHuecos(imagen, cuantos, fondo) {
     }
     tramos.splice(mejor, 2, [tramos[mejor][0], tramos[mejor + 1][1]]);
   }
+  while (tramos.length && tramos.length < cuantos) {
+    let ancho = 0, cual = 0;
+    tramos.forEach((t, i) => { if (t[1] - t[0] > ancho) { ancho = t[1] - t[0]; cual = i; } });
+    const [a, b] = tramos[cual];
+    let corte = a + Math.floor(ancho / 2), menor = Infinity;
+    for (let x = a + Math.floor(ancho * 0.25); x < b - Math.floor(ancho * 0.25); x++) {
+      if (lleno[x] < menor) { menor = lleno[x]; corte = x; }
+    }
+    tramos.splice(cual, 1, [a, corte], [corte, b]);
+  }
   return tramos.length === cuantos ? tramos : null;
 }
 
@@ -263,6 +273,22 @@ export function espejar(textura) {
   ctx.translate(c.width, 0);
   ctx.scale(-1, 1);
   ctx.drawImage(origen, 0, 0);
+  const t = new THREE.CanvasTexture(c);
+  t.magFilter = textura.magFilter;
+  t.minFilter = textura.minFilter;
+  t.colorSpace = textura.colorSpace;
+  return t;
+}
+
+export function encuadrar(textura, ancho, alto, altoDeseado) {
+  const origen = textura.image;
+  const escala = Math.min(altoDeseado / origen.height, ancho / origen.width);
+  const w = Math.round(origen.width * escala), h = Math.round(origen.height * escala);
+  const c = document.createElement('canvas');
+  c.width = ancho; c.height = alto;
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(origen, Math.round((ancho - w) / 2), alto - h, w, h);
   const t = new THREE.CanvasTexture(c);
   t.magFilter = textura.magFilter;
   t.minFilter = textura.minFilter;
