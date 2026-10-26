@@ -188,7 +188,12 @@
                   letter-spacing:5px; margin-bottom:20px; }
   @keyframes latir { 50% { opacity:.25; } }
   #menu.oculto { display:none; }
-  body.muerto #botonera .boton:not(#seguir):not(#alMenu) { display:none; }
+  body.muerto #botonera .boton:not(#seguir):not(#alMenu),
+  body.victoria #botonera .boton:not(#seguir):not(#alMenu) { display:none; }
+  body.victoria #menu { background:radial-gradient(ellipse at 50% 40%, rgba(120,80,10,.55), rgba(10,6,4,.8) 70%); }
+  body.victoria #menu h1 { color:#ffe27a; text-shadow:0 0 60px #e8a12a, 0 0 22px #ffd27a, 5px 5px 0 #000; }
+  body.victoria #menu p:first-of-type { animation:none; color:#ffe9a8; }
+  body.victoria #seguir { border-color:#e8c14a; background:rgba(120,90,30,.85); }
   body.muerto #menu p:first-of-type { animation:none; }
 
   #jefe { position:absolute; z-index:6; left:50%; top:22px; width:min(620px,62vw);
@@ -382,7 +387,7 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20261025214552"></script>
+  <script type="module" src="./src/main.js?v=20261025215935"></script>
   <script>
     setTimeout(function () {
       if (window.__nostosListo) return;

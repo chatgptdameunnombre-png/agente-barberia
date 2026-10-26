@@ -22,7 +22,11 @@ export class Rondas {
   }
 
   esRondaJefe(n) {
-    return n === 15;
+    return n % 15 === 0;
+  }
+
+  nivelDe(n) {
+    return Math.floor((n - 1) / 15);
   }
 
   vidaDe(n) {
@@ -30,13 +34,15 @@ export class Rondas {
   }
 
   perfil(n) {
+    const nivel = this.nivelDe(n);
     const base = {
-      vida: this.vidaDe(n),
-      velocidad: Math.min(6.6, 4 + n * 0.17),
-      dano: Math.min(21, 11 + Math.floor(n * 0.75))
+      vida: Math.round(this.vidaDe(n) * (1 + nivel * 0.45)),
+      velocidad: Math.min(6.6, 4 + n * 0.17) * (1 + nivel * 0.06),
+      dano: Math.round(Math.min(21, 11 + Math.floor(n * 0.75)) * (1 + nivel * 0.25)),
+      nivel
     };
-    if (this.esRondaJefe(n)) return { ...base, cuantos: 5, jefe: true };
-    return { ...base, cuantos: Math.min(16, 2 + Math.floor(n * 1.2)) };
+    if (this.esRondaJefe(n)) return { ...base, cuantos: 5 + nivel * 2, jefe: true };
+    return { ...base, cuantos: Math.min(16 + nivel * 2, 2 + Math.floor(n * 1.2)) };
   }
 
   puntosLejanos(jugador, cuantos) {
@@ -63,9 +69,14 @@ export class Rondas {
       this.crear(pos, cfg, i);
     });
     this.estado = 'combate';
-    if (cfg.jefe) this.anunciar('POLIFEMO DESPIERTA', 'EL QUE TE COMIO A TUS HOMBRES');
     this.alEmpezar(this.numero, cfg);
-    this.anunciar('RONDA ' + this.numero, cfg.cuantos + ' ENEMIGOS');
+    const nivel = cfg.nivel ? 'NIVEL ' + (cfg.nivel + 1) + ' · ' : '';
+    if (cfg.jefe) {
+      this.anunciar(cfg.nivel ? 'POLIFEMO VUELVE' : 'POLIFEMO DESPIERTA',
+        cfg.nivel ? nivel + 'MAS FUERTE QUE NUNCA' : 'EL QUE TE COMIO A TUS HOMBRES');
+    } else {
+      this.anunciar('RONDA ' + this.numero, nivel + cfg.cuantos + ' ENEMIGOS');
+    }
   }
 
   reiniciar() {
