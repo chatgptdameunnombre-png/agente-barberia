@@ -5,7 +5,7 @@ export const RELIQUIAS = [
     desc: 'Durante 12 segundos las lanzas rebotan y se les devuelven' },
   { id: 'vellocino',celda: 7, hoja: 'reliquias',  nombre: 'VELLOCINO DE ORO', precio: 120,
     desc: 'Recuperas vida poco a poco durante 15 segundos' },
-  { id: 'sandalias',celda: 8, hoja: 'reliquias',  nombre: 'SANDALIAS ALADAS', precio: 70,
+  { id: 'alas',     celda: 8, hoja: 'reliquias',  nombre: 'SANDALIAS ALADAS', precio: 70,
     desc: 'Un impulso instantaneo para salir de un cerco' },
   { id: 'ojo',      celda: 9, hoja: 'reliquias',  nombre: 'OJO DE LAS GREAS', precio: 85,
     desc: 'Ves a todos a traves de los muros 20 segundos' },

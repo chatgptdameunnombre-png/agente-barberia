@@ -1,9 +1,9 @@
-import { RELIQUIAS } from './reliquias.js?v=20261025215935';
+import { RELIQUIAS } from './reliquias.js?v=20261025221645';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
-    desc: 'Tensas el arco mucho mas rapido',
-    aplicar: j => { j.mult.tension *= 1.35; } },
+    desc: 'Tensas el arco 70% mas rapido y disparas el doble de seguido',
+    aplicar: j => { j.mult.tension *= 1.7; j.mult.recarga *= 0.5; } },
   { id: 'puntas', nombre: 'PUNTAS DE HIERRO', precio: 120, celda: 1, respaldo: 0,
     desc: '+35% de dano con cada flecha',
     aplicar: j => { j.mult.dano *= 1.35; } },
@@ -23,8 +23,8 @@ export const MEJORAS = [
     desc: 'Cada disparo suelta dos flechas',
     aplicar: j => { j.doble = true; } },
   { id: 'vista', nombre: 'OJO DE AGUILA', precio: 130, celda: 7, respaldo: 10,
-    desc: 'Las flechas vuelan mas rapido y lejos',
-    aplicar: j => { j.mult.velFlecha *= 1.4; } },
+    desc: 'Tus flechas llegan casi el doble de lejos y vuelan mas rapido',
+    aplicar: j => { j.mult.velFlecha *= 1.4; j.mult.alcance *= 1.75; } },
   { id: 'portales', nombre: 'CUERNO DE HERMES', precio: 200, celda: 12, respaldo: 10,
     desc: 'Abre puertas en la piedra. Clic derecho azul, Q naranja',
     aplicar: j => { j.pistola = true; j.guardar('portales', 1, true); } },

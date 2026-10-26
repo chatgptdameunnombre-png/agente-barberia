@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20261025215935';
+import { CELDA, esSolido } from './mapa.js?v=20261025221645';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -23,10 +23,10 @@ export class Jugador {
     this.armadura = 0;
     this.armaduraMax = 100;
     this.oro = 0;
-    this.flechas = 40;
-    this.flechasMax = 80;
+    this.flechas = 25;
+    this.flechasMax = 50;
     this.bajas = 0;
-    this.mult = { tension: 1, dano: 1, velocidad: 1, velFlecha: 1 };
+    this.mult = { tension: 1, dano: 1, velocidad: 1, velFlecha: 1, alcance: 1, recarga: 1 };
     this.doble = false;
     this.inventario = [];
     this.ranuras = 4;
@@ -242,7 +242,7 @@ export class Jugador {
     if (this.enfriamiento > 0 || this.flechas <= 0) { this.tension = 0; return; }
     const fuerza = Math.min(1, this.tension);
     this.flechas--;
-    this.enfriamiento = 0.35;
+    this.enfriamiento = 0.35 * this.mult.recarga;
     if (this.alDisparar) this.alDisparar(fuerza, this.direccion());
     this.tension = 0;
   }
