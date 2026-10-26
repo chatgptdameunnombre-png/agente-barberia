@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261025185237';
-import { CELDA, esSolido } from './mapa.js?v=20261025185237';
+import { Billboard } from './sprites.js?v=20261025203439';
+import { CELDA, esSolido } from './mapa.js?v=20261025203439';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -189,6 +189,12 @@ export class Enemigo {
       return;
     }
     if (this.estado === 'muerto') {
+      this.relojMuerto = (this.relojMuerto || 0) + dt;
+      if (this.relojMuerto > 1.2) {
+        const t = Math.min(1, (this.relojMuerto - 1.2) / 1.1);
+        this.sprite.malla.position.y = this.baseY - t * t * this.tipo.alto * 1.05;
+        if (t >= 1) this.desaparecido = true;
+      }
       this.sprite.encarar(camara, this.rumbo);
       return;
     }
