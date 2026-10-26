@@ -290,6 +290,11 @@
   #carga .boton { margin-top:22px; display:none; }
   #carga.error .boton { display:inline-block; }
   #carga.error .tubo { display:none; }
+  #furia { position:fixed; inset:0; pointer-events:none; z-index:3; opacity:0; transition:opacity .35s;
+    background:radial-gradient(ellipse 72% 66% at 50% 50%, transparent 38%, rgba(220,40,10,.3) 72%, rgba(130,0,0,.72) 100%); }
+  body.furia #furia { opacity:1; animation:furiaLatido .55s ease-in-out infinite; }
+  @keyframes furiaLatido { 0%,100% { opacity:.7; } 50% { opacity:1; } }
+  body.furia #lienzo { filter:saturate(1.8) contrast(1.18) brightness(1.06) hue-rotate(-10deg); }
   #dano { position:fixed; inset:0; background:#8b0000; opacity:0; pointer-events:none; transition:opacity .28s; }
   #agonia { position:fixed; inset:0; opacity:0; pointer-events:none; z-index:6;
     background:radial-gradient(ellipse 74% 68% at 50% 50%, transparent 42%, rgba(150,0,0,.42) 74%, rgba(96,0,0,.92) 100%); }
@@ -331,6 +336,7 @@
     <div id="ranuras"></div>
     <div id="jefe"><span>POLIFEMO</span><div class="barra"><div class="relleno"></div></div></div>
   </div>
+  <div id="furia"></div>
   <div id="agonia"></div>
   <div id="ocaso"></div>
   <div id="dano"></div>
@@ -376,7 +382,7 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20261025174115"></script>
+  <script type="module" src="./src/main.js?v=20261025180412"></script>
   <script>
     setTimeout(function () {
       if (window.__nostosListo) return;

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261025174115';
-import { CELDA, esSolido } from './mapa.js?v=20261025174115';
+import { Billboard } from './sprites.js?v=20261025180412';
+import { CELDA, esSolido } from './mapa.js?v=20261025180412';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -148,6 +148,7 @@ export class Enemigo {
 
   actualizar(dt, jugador, camara) {
     this.reloj += dt;
+    if (this.tipo.manada) this.sprite.malla.scale.y = 1;
     if (this.paralizado > 0 && this.vivo) {
       this.paralizado -= dt;
       this.sprite.material.color.setHex(0x7f8f9f);
@@ -284,9 +285,17 @@ export class Enemigo {
             this.atasco = 0;
           }
         }
-        this.paso += dt * 6.5;
-        this.sprite.malla.position.y = this.baseY + Math.abs(Math.sin(this.paso)) * 0.22;
-        this.sprite.malla.rotation.z = Math.sin(this.paso * 0.5) * 0.035;
+        if (this.tipo.manada) {
+          this.paso += dt * 11;
+          const salto = Math.abs(Math.sin(this.paso));
+          this.sprite.malla.position.y = this.baseY + salto * 0.5;
+          this.sprite.malla.scale.y = 0.94 + salto * 0.1;
+          this.sprite.malla.rotation.z = Math.sin(this.paso * 0.5) * 0.07;
+        } else {
+          this.paso += dt * 6.5;
+          this.sprite.malla.position.y = this.baseY + Math.abs(Math.sin(this.paso)) * 0.22;
+          this.sprite.malla.rotation.z = Math.sin(this.paso * 0.5) * 0.035;
+        }
       }
     }
 
