@@ -1,5 +1,6 @@
 import { db } from "./db.js?v=85";
 import { WHATSAPP_NUMERO, BORRAR_CUENTA_WEBHOOK } from "./config.js?v=85";
+const escC = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -139,20 +140,20 @@ async function pintarCompras(uid) {
         ? lineas.map(l => `<div class="mc-jersey">
             ${foto(l.id)}
             <div>
-              <b>${l.nombre || l.id}</b>
+              <b>${escC(l.nombre || l.id)}</b>
               <div class="mc-tags">
-                ${l.qty > 1 ? `<span class="mc-tag">${l.qty} piezas</span>` : ""}
-                ${l.talla ? `<span class="mc-tag">Talla ${l.talla}</span>` : ""}
-                ${l.perso ? `<span class="mc-tag mc-tag--oro">${l.perso}</span>` : ""}
+                ${l.qty > 1 ? `<span class="mc-tag">${Number(l.qty) || 1} piezas</span>` : ""}
+                ${l.talla ? `<span class="mc-tag">Talla ${escC(l.talla)}</span>` : ""}
+                ${l.perso ? `<span class="mc-tag mc-tag--oro">${escC(l.perso)}</span>` : ""}
               </div>
             </div>
           </div>`).join("")
-        : `<div class="mc-jersey"><div><b>${v.productos || ""}</b></div></div>`;
+        : `<div class="mc-jersey"><div><b>${escC(v.productos || "")}</b></div></div>`;
       const nota = notaDe(v);
       return `<article class="mc-card">
         <header class="mc-card__top">
           <span class="mc-estado" style="color:${e.color};border-color:${e.color}44;background:${e.color}14">${e.txt}</span>
-          <span class="mc-fecha">${cuando(v.fechaISO) || v.fecha || ""}</span>
+          <span class="mc-fecha">${escC(cuando(v.fechaISO) || v.fecha || "")}</span>
           ${v.prueba ? `<span class="mc-tag">prueba</span>` : ""}
         </header>
         ${jerseys}
@@ -160,8 +161,8 @@ async function pintarCompras(uid) {
         ${nota ? `<p class="mc-nota">${nota}</p>` : ""}
         <div class="mc-folio">
           <span class="mc-folio__k">Número de pedido</span>
-          <b class="mc-folio__v">${v.folio || v.id}</b>
-          <button class="mc-folio__cp" data-folio="${v.folio || v.id}">Copiar</button>
+          <b class="mc-folio__v">${escC(v.folio || v.id)}</b>
+          <button class="mc-folio__cp" data-folio="${escC(v.folio || v.id)}">Copiar</button>
         </div>
         <footer class="mc-card__pie">
           <span>${v.entrega === "domicilio" ? "Envío a domicilio" : "Recoges en tienda"}</span>

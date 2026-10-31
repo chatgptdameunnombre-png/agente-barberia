@@ -211,7 +211,7 @@
     var ints = {};
     visitas.forEach(function (v) {
       var s = v.form && v.form.interes;
-      if (!s) return;
+      if (!s || typeof s !== "string") return;
       s.split(",").forEach(function (x) { x = x.trim(); if (x) ints[x] = (ints[x] || 0) + 1; });
     });
     var ordI = Object.keys(ints).map(function (k) { return [k, ints[k]]; })
@@ -272,7 +272,7 @@
   function pintaMensajes() {
     var todos = [];
     visitas.forEach(function (v) {
-      (v.mensajes || []).forEach(function (m) {
+      (Array.isArray(v.mensajes) ? v.mensajes : []).filter(function (m) { return m && typeof m === "object"; }).forEach(function (m) {
         todos.push({
           sid: v.id,
           nombre: m.nombre || quien(v) || "Sin nombre",
@@ -589,6 +589,7 @@
 
   $("salir").onclick = function () {
     lsDel(K_RT); token = null;
+    location.reload();
     $("app").hidden = true;
     $("login").hidden = false;
   };
@@ -628,4 +629,6 @@
   function avisaListo() { pendientes.forEach(function (f) { try { f(); } catch (e) { } }); }
 
   refrescar().then(cargar).catch(function () { });
+  setInterval(function () { if (ls(K_RT)) refrescar().catch(function () { }); }, 45 * 60 * 1000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && ls(K_RT)) refrescar().catch(function () { }); });
 })();

@@ -586,19 +586,19 @@ function filaCliente(c) {
   const completo = Math.round((llenos.length / campos.length) * 100);
   return `<details class="st-visita">
     <summary class="st-visita__cab" style="grid-template-columns:1.2fr 1.4fr 130px 120px">
-      <span class="st-visita__quien">${c.nombre || "Sin nombre"}</span>
-      <span class="st-visita__tiempo" title="${c.email || c.uid}">${c.email || c.uid}</span>
-      <span class="st-visita__tiempo">${c.telefono || "sin teléfono"}</span>
+      <span class="st-visita__quien">${escHTML(c.nombre || "Sin nombre")}</span>
+      <span class="st-visita__tiempo" title="${escHTML(c.email || c.uid)}">${escHTML(c.email || c.uid)}</span>
+      <span class="st-visita__tiempo">${escHTML(c.telefono || "sin teléfono")}</span>
       <span class="st-tag st-tag--${completo === 100 ? "compro" : (completo >= 50 ? "carrito" : "paso")}">${completo}% de datos</span>
     </summary>
     <div class="st-visita__cuerpo">
-      ${llenos.map(([k, v]) => `<div><b>${k}:</b> ${v}</div>`).join("")}
+      ${llenos.map(([k, v]) => `<div><b>${k}:</b> ${escHTML(v)}</div>`).join("")}
       ${faltan.length ? `<div style="margin-top:8px;color:var(--muted)">Le falta llenar: ${faltan.join(", ")}</div>` : ""}
-      ${c.actualizado ? `<div style="margin-top:6px;color:var(--muted)">Última actualización: ${String(c.actualizado).replace("T", " ").slice(0, 16)}</div>` : ""}
+      ${c.actualizado ? `<div style="margin-top:6px;color:var(--muted)">Última actualización: ${escHTML(String(c.actualizado).replace("T", " ").slice(0, 16))}</div>` : ""}
       ${comprasDe(c.uid)}
       <div class="cliente-acciones">
-        <button class="btn btn--ghost" data-borrar-historial="${c.uid}" data-correo="${c.email || ""}">Borrar su historial de visitas</button>
-        <button class="btn btn--danger" data-borrar-cliente="${c.uid}" data-correo="${c.email || ""}">Borrar esta cuenta</button>
+        <button class="btn btn--ghost" data-borrar-historial="${escHTML(c.uid)}" data-correo="${escHTML(c.email || "")}">Borrar su historial de visitas</button>
+        <button class="btn btn--danger" data-borrar-cliente="${escHTML(c.uid)}" data-correo="${escHTML(c.email || "")}">Borrar esta cuenta</button>
       </div>
     </div>
   </details>`;
@@ -617,7 +617,7 @@ function comprasDe(uid) {
       const est = VT_ESTADO[v.estado] || VT_ESTADO.pagada;
       return `<div style="padding:3px 0">${vtCuando(v)} — ${vtMoney(v.total)}
         <span class="st-tag st-tag--${est.clase}" style="font-size:10px;padding:1px 7px">${est.etq}</span><br>
-        <span style="color:#8a8a92">${v.productos || ""}</span></div>`;
+        <span style="color:#8a8a92">${escHTML(v.productos || "")}</span></div>`;
     }).join("")}
   </div>`;
 }
@@ -719,9 +719,9 @@ const vtMoney = n => "$" + Number(n || 0).toLocaleString("es-MX");
 
 function vtCuando(v) {
   const iso = v.fechaISO;
-  if (!iso) return v.fecha || "";
+  if (!iso) return escHTML(v.fecha || "");
   const d = new Date(iso);
-  if (!d.getTime()) return v.fecha || "";
+  if (!d.getTime()) return escHTML(v.fecha || "");
   const h = d.getHours() % 12 || 12;
   const ampm = d.getHours() >= 12 ? "pm" : "am";
   const dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
@@ -738,7 +738,7 @@ function vtLineas(v) {
   try { lineas = JSON.parse(v.lineas || "[]"); } catch { lineas = []; }
   if (lineas.length) {
     return lineas.map(l => `<div class="vt-item">
-      <b>${l.qty}×</b> ${l.nombre || l.id}${l.talla ? ` · talla ${l.talla}` : ""}${l.perso ? ` · <span style="color:var(--accent)">${l.perso}</span>` : ""}
+      <b>${Number(l.qty) || 1}×</b> ${escHTML(l.nombre || l.id)}${l.talla ? ` · talla ${escHTML(l.talla)}` : ""}${l.perso ? ` · <span style="color:var(--accent)">${escHTML(l.perso)}</span>` : ""}
     </div>`).join("");
   }
   return `<div class="vt-item">${v.productos || "sin detalle"}</div>`;
@@ -757,7 +757,7 @@ function vtWhats(tel, v) {
 function vtFoto(l) {
   const p = productos.find(x => x.id === l.id);
   return p && p.imagen
-    ? `<img class="vt-foto" src="${p.imagen}" alt="">`
+    ? `<img class="vt-foto" src="${escHTML(p.imagen)}" alt="">`
     : `<div class="vt-foto vt-foto--vacia"></div>`;
 }
 
@@ -772,20 +772,20 @@ function vtFila(v) {
     ? lineas.map(l => `<div class="vt-jersey">
         ${vtFoto(l)}
         <div>
-          <b>${l.nombre || l.id}</b>
+          <b>${escHTML(l.nombre || l.id)}</b>
           <div class="vt-jersey__det">
-            ${l.qty > 1 ? `<span class="vt-pill">${l.qty} piezas</span>` : ""}
-            ${l.talla ? `<span class="vt-pill">Talla ${l.talla}</span>` : ""}
-            ${l.perso ? `<span class="vt-pill vt-pill--oro">${l.perso}</span>` : ""}
+            ${l.qty > 1 ? `<span class="vt-pill">${Number(l.qty) || 1} piezas</span>` : ""}
+            ${l.talla ? `<span class="vt-pill">Talla ${escHTML(l.talla)}</span>` : ""}
+            ${l.perso ? `<span class="vt-pill vt-pill--oro">${escHTML(l.perso)}</span>` : ""}
           </div>
         </div>
       </div>`).join("")
-    : `<div class="vt-jersey"><div><b>${v.productos || "sin detalle"}</b></div></div>`;
+    : `<div class="vt-jersey"><div><b>${escHTML(v.productos || "sin detalle")}</b></div></div>`;
 
   const dir = v.entrega === "domicilio"
     ? `<div class="vt-envio">
          <span class="vt-envio__k">Mandar a</span>
-         <span class="vt-envio__v">${v.direccion || "sin dirección"}</span>
+         <span class="vt-envio__v">${escHTML(v.direccion || "sin dirección")}</span>
          ${v.direccion ? `<button class="vt-copiar" data-copiar="${encodeURIComponent(v.direccion)}">Copiar</button>` : ""}
        </div>`
     : `<div class="vt-envio"><span class="vt-envio__k">Pasa a recogerlo</span></div>`;
@@ -800,27 +800,27 @@ function vtFila(v) {
     ${jerseys}
 
     <div class="vt-quien">
-      <b>${v.cliente || v.clienteEmail || "Sin nombre"}</b>${v.prueba ? ` <span class="vt-pill">prueba</span>` : ""}
-      ${v.telefono ? `<span class="vt-quien__tel">${v.telefono}</span>` : ""}
+      <b>${escHTML(v.cliente || v.clienteEmail || "Sin nombre")}</b>${v.prueba ? ` <span class="vt-pill">prueba</span>` : ""}
+      ${v.telefono ? `<span class="vt-quien__tel">${escHTML(v.telefono)}</span>` : ""}
     </div>
     ${dir}
     <div class="vt-folio">
       <span class="vt-folio__k">Pedido</span>
-      <b class="vt-folio__v">${v.folio || v.id}</b>
+      <b class="vt-folio__v">${escHTML(v.folio || v.id)}</b>
       <span class="vt-folio__m">pagó con ${v.metodo === "transferencia" ? "transferencia" : "tarjeta"}</span>
     </div>
 
     ${porCobrar ? `<div class="vt-acciones">
-      <button class="btn" data-vt-pagada="${v.id}">✓ Ya me pagó</button>
+      <button class="btn" data-vt-pagada="${escHTML(v.id)}">✓ Ya me pagó</button>
       ${vtWhats(v.telefono, v)}
-      <button class="btn btn--danger" data-vt-cancelar="${v.id}">No pagó · cancelar</button>
+      <button class="btn btn--danger" data-vt-cancelar="${escHTML(v.id)}">No pagó · cancelar</button>
     </div>` : ""}
     ${v.estado === "pagada" ? `<div class="vt-acciones">
-      <button class="btn" data-vt-entregada="${v.id}">${v.entrega === "domicilio" ? "✓ Ya lo mandé" : "✓ Ya lo recogió"}</button>
+      <button class="btn" data-vt-entregada="${escHTML(v.id)}">${v.entrega === "domicilio" ? "✓ Ya lo mandé" : "✓ Ya lo recogió"}</button>
       ${vtWhats(v.telefono, v)}
     </div>` : ""}
     ${v.estado === "entregada" || cancelada ? `<div class="vt-acciones">
-      ${v.estado === "entregada" ? `<button class="btn btn--ghost" data-vt-regresar="${v.id}">↩ Regresar a por entregar</button>` : ""}
+      ${v.estado === "entregada" ? `<button class="btn btn--ghost" data-vt-regresar="${escHTML(v.id)}">↩ Regresar a por entregar</button>` : ""}
       ${vtWhats(v.telefono, v)}
       <button class="btn btn--danger" data-vt-borrar="${v.id}">Borrar de la base</button>
     </div>` : ""}
@@ -1272,7 +1272,7 @@ function pintarSugerencias() {
   const tarjeta = s => `
     <article class="pd-card${s.atendida ? " pd-card--ok" : ""}">
       <div class="pd-card__top">
-        ${s.deporte ? `<span class="vt-pill">${DEPORTE_PIDEN[s.deporte] || s.deporte}</span>` : ""}
+        ${s.deporte ? `<span class="vt-pill">${escHTML(DEPORTE_PIDEN[s.deporte] || s.deporte)}</span>` : ""}
         <span class="pd-cuando">${cuandoFue(s.fecha)}</span>
         ${s.atendida ? `<span class="st-tag st-tag--compro">Ya la conseguiste</span>` : ""}
       </div>
@@ -1282,11 +1282,11 @@ function pintarSugerencias() {
         ${s.tel ? `<span class="pd-tel">${escHTML(s.tel)}</span>` : `<span class="pd-sintel">no dejó WhatsApp</span>`}
       </div>
       <div class="pd-acciones">
-        <button class="btn ${s.atendida ? "btn--ghost" : ""}" data-sug-ok="${s.id}" data-val="${s.atendida ? "0" : "1"}">
+        <button class="btn ${s.atendida ? "btn--ghost" : ""}" data-sug-ok="${escHTML(s.id)}" data-val="${s.atendida ? "0" : "1"}">
           ${s.atendida ? "Volver a pendiente" : "✓ Ya la conseguí"}
         </button>
         ${pidenWhats(s)}
-        <button class="btn btn--danger" data-sug-del="${s.id}">Borrar</button>
+        <button class="btn btn--danger" data-sug-del="${escHTML(s.id)}">Borrar</button>
       </div>
     </article>`;
 
@@ -1367,7 +1367,7 @@ document.addEventListener("click", async e => {
       /* recién marcada y con WhatsApp: se le recuerda avisarle, que es el punto */
       if (val && s?.tel) {
         const boton = $(`[data-sug-ok="${id}"]`)?.closest(".pd-card")?.querySelector('a[href*="wa.me"]');
-        if (boton) toast(`Listo. <b>Avísale a ${s.nombre || "quien lo pidió"}</b> con el botón de WhatsApp.`);
+        if (boton) toast(`Listo. <b>Avísale a ${escHTML(s.nombre || "quien lo pidió")}</b> con el botón de WhatsApp.`);
       }
     } catch { ok.disabled = false; toast("No se pudo guardar"); }
     return;

@@ -37,7 +37,7 @@ function cruzarConVentas(lista) {
 
 /* ---------------- helpers ---------------- */
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
-const esc = t => String(t ?? "").replace(/[<>&]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
+const esc = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 const money = n => "$" + Number(n || 0).toLocaleString("es-MX");
 
 function tiempo(seg) {
@@ -186,11 +186,11 @@ export function paso(ev) {
       case "filtros_abrir": return "Abrió los filtros";
       case "filtro": return `Filtró por ${esc(ev.campoTxt || ev.campo)}: <b>${esc(ev.valor)}</b>`;
       case "filtro_sin_resultado": return "Con esos filtros no le salió nada";
-      case "busqueda": return `Buscó en la tienda: “${esc(ev.texto)}”${ev.resultados ? ` (le salieron ${ev.resultados})` : " (no encontró nada)"}`;
+      case "busqueda": return `Buscó en la tienda: “${esc(ev.texto)}”${ev.resultados ? ` (le salieron ${esc(ev.resultados)})` : " (no encontró nada)"}`;
       case "busqueda_sin_resultado": return "";
       case "asesor_abrir": return "Abrió el asistente";
       case "asesor_cerrar": return "Cerró el asistente";
-      case "asesor": return `Le preguntó al asistente: “${esc(ev.pregunta)}”${ev.resultados ? ` (le mostró ${ev.resultados})` : " (no encontró nada)"}`;
+      case "asesor": return `Le preguntó al asistente: “${esc(ev.pregunta)}”${ev.resultados ? ` (le mostró ${esc(ev.resultados)})` : " (no encontró nada)"}`;
       case "checkout": case "va_a_pagar": case "comprar_directo": return "Se fue a pagar";
       case "transferencia": return "Vio los datos para transferir";
       case "transferencia_fin": return "Terminó la transferencia (seguramente mandó su comprobante)";
@@ -447,7 +447,7 @@ function visitas(list) {
         <span class="st-tag st-tag--${clase}">${etiqueta}</span>
       </summary>
       <div class="st-visita__cuerpo">
-        Llegó de <b>${esc(s.origen || "directo")}</b> · entró por <b>${esc(s.entrada || "index.html")}</b> · vio ${s.vistos || 0} jersey(s)
+        Llegó de <b>${esc(s.origen || "directo")}</b> · entró por <b>${esc(s.entrada || "index.html")}</b> · vio ${Number(s.vistos) || 0} jersey(s)
         ${(s.busquedas || []).length ? `<br>Buscó: ${(s.busquedas || []).map(esc).join(", ")}` : ""}
         <div class="st-visita__acciones">
           <button class="btn btn--ghost" data-ver="${s.id}">Ver qué hizo paso a paso</button>

@@ -263,7 +263,7 @@ let badge,title,body="",actions="";
 if(r.status==="fake"){
 badge=`<span class="badge bad">✕ No auténtica</span>`;
 title="Serie no registrada";
-body=`<p class="sub">El número <span class="mono">${r.serial}</span> no existe en el registro oficial de VÉRTICE. Esta pieza no es original.</p>`;
+body=`<p class="sub">El número <span class="mono">${String(r.serial).replace(/[<>&"']/g,c=>"&#"+c.charCodeAt(0)+";")}</span> no existe en el registro oficial de VÉRTICE. Esta pieza no es original.</p>`;
 el.innerHTML=`${badge}<h3 class="serif" style="font-size:32px;margin:10px 0 6px">${title}</h3>${body}`;
 el.classList.add("show");return;
 }

@@ -66,7 +66,7 @@ async function crearImplFirebase() {
     modo: "nube",
     onProducts(cb) {
       return onSnapshot(query(col, orderBy("nombre")), snap => {
-        cb(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        cb(snap.docs.map(d => ({ ...d.data(), id: d.id })));
       });
     },
     async addProduct(data) {
@@ -111,17 +111,17 @@ async function crearImplFirebase() {
     async getPerfil(uid) { const s = await getDoc(refCliente(uid)); return s.exists() ? s.data() : null; },
     async solicitarMayoreo(uid, data) { await setDoc(refSolic(uid), { ...data, estado: "pendiente", creado: new Date().toISOString() }, { merge: true }); },
     async getMiMayoreo(uid) { try { const s = await getDoc(refSolic(uid)); return s.exists() ? s.data() : null; } catch { return null; } },
-    async listarMayoreo() { const snap = await getDocs(colSolic); return snap.docs.map(d => ({ uid: d.id, ...d.data() })); },
+    async listarMayoreo() { const snap = await getDocs(colSolic); return snap.docs.map(d => ({ ...d.data(), uid: d.id })); },
     async resolverMayoreo(uid, aprobado) { await updateDoc(refSolic(uid), { estado: aprobado ? "aprobado" : "rechazado", resuelto: new Date().toISOString() }); },
     async listarSesiones() {
       const snap = await getDocs(colSes);
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      return snap.docs.map(d => ({ ...d.data(), id: d.id }))
         .sort((a, b) => String(b.inicio || "").localeCompare(String(a.inicio || "")));
     },
     async token() { return auth.currentUser ? auth.currentUser.getIdToken() : null; },
     async listarClientes() {
       const snap = await getDocs(collection(fdb, "clientes"));
-      return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+      return snap.docs.map(d => ({ ...d.data(), uid: d.id }));
     },
     async borrarCliente(uid) { await deleteDoc(refCliente(uid)); },
     async revalidar(email, pass) {
@@ -134,7 +134,7 @@ async function crearImplFirebase() {
        para no tener que crear un índice en Firestore. */
     async listarSugerencias() {
       const snap = await getDocs(collection(fdb, "sugerencias"));
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      return snap.docs.map(d => ({ ...d.data(), id: d.id }))
         .sort((a, b) => String(b.fecha || "").localeCompare(String(a.fecha || "")));
     },
     async marcarSugerencia(id, atendida) {
@@ -145,7 +145,7 @@ async function crearImplFirebase() {
     /* ---------- códigos de promoción ---------- */
     async listarPromos() {
       const snap = await getDocs(collection(fdb, "promos"));
-      return snap.docs.map(d => ({ codigo: d.id, ...d.data() }))
+      return snap.docs.map(d => ({ ...d.data(), codigo: d.id }))
         .sort((a, b) => String(b.creado || "").localeCompare(String(a.creado || "")));
     },
     async guardarPromo(codigo, datos) {
@@ -156,7 +156,7 @@ async function crearImplFirebase() {
     /* ---------- ventas ---------- */
     async listarVentas() {
       const snap = await getDocs(collection(fdb, "ventas"));
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      return snap.docs.map(d => ({ ...d.data(), id: d.id }))
         .sort((a, b) => String(b.fechaISO || b.fecha || "").localeCompare(String(a.fechaISO || a.fecha || "")));
     },
     /* las compras de una persona: se filtra por su uid (así lo exigen las reglas)
@@ -169,7 +169,7 @@ async function crearImplFirebase() {
     async misCompras(uid) {
       if (!uid) return [];
       const snap = await getDocs(query(collection(fdb, "ventas"), where("clienteUid", "==", uid)));
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      return snap.docs.map(d => ({ ...d.data(), id: d.id }))
         .sort((a, b) => String(b.fechaISO || "").localeCompare(String(a.fechaISO || "")));
     },
     async marcarVentaPagada(id) {

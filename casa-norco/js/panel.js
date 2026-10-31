@@ -1,4 +1,5 @@
 import { db } from "./db.js?v=21";
+const escHTML = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -46,10 +47,10 @@ async function cargarMayoreo() {
   const color = e => e === "aprobado" ? "#2e7d32" : (e === "rechazado" ? "#c62828" : "#b26a00");
   cont.innerHTML = list.map(s => `
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fff;border:1px solid #eee;border-radius:12px;padding:12px 14px;flex-wrap:wrap">
-      <div><b>${s.email || s.uid}</b> <span style="color:${color(s.estado)};font-weight:700">· ${s.estado}</span></div>
+      <div><b>${escHTML(s.email || s.uid)}</b> <span style="color:${color(s.estado)};font-weight:700">· ${escHTML(s.estado)}</span></div>
       <div style="display:flex;gap:8px">
-        ${s.estado !== "aprobado" ? `<button class="btn" data-aprobar="${s.uid}" style="width:auto;padding:7px 14px">Aprobar</button>` : ""}
-        ${s.estado !== "rechazado" ? `<button class="btn btn--ghost" data-rechazar="${s.uid}" style="width:auto;padding:7px 14px">Rechazar</button>` : ""}
+        ${s.estado !== "aprobado" ? `<button class="btn" data-aprobar="${escHTML(s.uid)}" style="width:auto;padding:7px 14px">Aprobar</button>` : ""}
+        ${s.estado !== "rechazado" ? `<button class="btn btn--ghost" data-rechazar="${escHTML(s.uid)}" style="width:auto;padding:7px 14px">Rechazar</button>` : ""}
       </div>
     </div>`).join("");
 }

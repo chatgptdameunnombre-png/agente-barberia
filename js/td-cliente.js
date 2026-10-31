@@ -763,4 +763,6 @@
   $("claveGuardar").onclick = guardaClave;
 
   refrescar().then(cargar).catch(function () { });
+  setInterval(function () { if (ls(K_RT)) refrescar().catch(function () { }); }, 45 * 60 * 1000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && ls(K_RT)) refrescar().catch(function () { }); });
 })();

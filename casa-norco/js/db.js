@@ -51,7 +51,7 @@ async function crearImplFirebase() {
     modo: "nube",
     onProducts(cb) {
       return onSnapshot(query(col, orderBy("nombre")), snap => {
-        cb(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        cb(snap.docs.map(d => ({ ...d.data(), id: d.id })));
       });
     },
     async addProduct(data) {
@@ -90,7 +90,7 @@ async function crearImplFirebase() {
     async getPerfil(uid) { const s = await getDoc(refCliente(uid)); return s.exists() ? s.data() : null; },
     async solicitarMayoreo(uid, data) { await setDoc(refSolic(uid), { ...data, estado: "pendiente", creado: new Date().toISOString() }, { merge: true }); },
     async getMiMayoreo(uid) { try { const s = await getDoc(refSolic(uid)); return s.exists() ? s.data() : null; } catch { return null; } },
-    async listarMayoreo() { const snap = await getDocs(colSolic); return snap.docs.map(d => ({ uid: d.id, ...d.data() })); },
+    async listarMayoreo() { const snap = await getDocs(colSolic); return snap.docs.map(d => ({ ...d.data(), uid: d.id })); },
     async resolverMayoreo(uid, aprobado) { await updateDoc(refSolic(uid), { estado: aprobado ? "aprobado" : "rechazado", resuelto: new Date().toISOString() }); },
     async seedIfEmpty() {
       const snap = await getDocs(col);

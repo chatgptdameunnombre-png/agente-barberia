@@ -31,19 +31,22 @@
     return { "Content-Type": "application/json", Authorization: "Bearer " + P.tok() };
   }
 
-  function listar(col) {
-    return fetch(P.FS + "/" + col + "?pageSize=300", { headers: cab() })
+  function listar(col, pagina, acum) {
+    acum = acum || [];
+    var url = P.FS + "/" + col + "?pageSize=300" + (pagina ? "&pageToken=" + encodeURIComponent(pagina) : "");
+    return fetch(url, { headers: cab() })
       .then(function (r) {
         if (r.status === 403) throw new Error("reglas");
         if (!r.ok) throw new Error("lectura " + r.status);
         return r.json();
       })
       .then(function (j) {
-        return ((j && j.documents) || []).map(function (d) {
+        ((j && j.documents) || []).forEach(function (d) {
           var o = P.plano(d.fields || {});
           o.id = d.name.split("/").pop();
-          return o;
+          acum.push(o);
         });
+        return j && j.nextPageToken ? listar(col, j.nextPageToken, acum) : acum;
       });
   }
   function crear(col, obj) {
@@ -893,7 +896,7 @@
       P.confirmar("Borrar a " + (c.negocio || "este cliente"),
         "Se borra su ficha. Sus pagos se quedan.", "Sí, borrar").then(function (ok) {
           if (!ok) return;
-          borrar("clientes", id).then(function () {
+          ligaPagos(id, "").then(function () { return borrar("clientes", id); }).then(function () {
             clientes = clientes.filter(function (x) { return x.id !== id; });
             cierraFicha();
             P.toast("Cliente borrado", "bien");
@@ -1040,9 +1043,9 @@
       var op = ed ? actualizar("clientes", c.id, obj) : crear("clientes", obj);
       op.then(function (d) {
         if (ed) {
-          var cambioUid = obj.uid && obj.uid !== c.uid;
+          var cambioUid = (obj.uid || "") !== (c.uid || "");
           for (var k in obj) c[k] = obj[k];
-          if (cambioUid) ligaPagos(c.id, obj.uid);
+          if (cambioUid) ligaPagos(c.id, obj.uid || "").catch(function () { });
         } else {
           obj.id = d.name.split("/").pop();
           obj.creado = new Date().toISOString();
@@ -1065,15 +1068,16 @@
     var mios = pagos.filter(function (p) {
       return p.clienteId === clienteId && p.clienteUid !== nuevoUid;
     });
-    if (!mios.length) return;
-    Promise.all(mios.map(function (p) {
+    if (!mios.length) return Promise.resolve();
+    return Promise.all(mios.map(function (p) {
       return actualizar("pagos", p.id, { clienteUid: nuevoUid }).then(function () {
         p.clienteUid = nuevoUid;
       });
     })).then(function () {
-      P.toast("Sus " + mios.length + " pagos ya se le ven en su cuenta", "bien");
-    }).catch(function () {
-      P.toast("No se pudieron ligar todos sus pagos", "mal");
+      P.toast(nuevoUid ? "Sus " + mios.length + " pagos ya se le ven en su cuenta" : "Ya no puede ver sus " + mios.length + " pagos", "bien");
+    }).catch(function (e) {
+      P.toast(nuevoUid ? "No se pudieron ligar todos sus pagos" : "No se le pudo quitar el acceso a sus pagos; intenta de nuevo", "mal");
+      throw e;
     });
   }
 
@@ -1403,7 +1407,7 @@
       pie += '<button class="lnk mal" data-borrapet="' + esc(x.id) + '">Borrar</button>';
 
       return '<article class="pet' + (x.atendida ? " ok" : "") + '"><div class="pet-top"><div>' +
-        '<div class="pet-neg">' + esc(x.negocio || "Sin nombre") + "</div>" +
+        '<div class="pet-neg">' + esc((clientes.filter(function (c) { return c.id === x.clienteId; })[0] || {}).negocio || ("Sin ficha: " + (x.negocio || "sin nombre"))) + "</div>" +
         '<span class="pet-tipo ' + claseTipo(x.tipo) + '">' + esc(x.tipo || "Petici\u00f3n") + "</span>" +
         (x.atendida ? ' <span class="tag ok">atendida</span>' : "") +
         '</div><span class="pet-cuando">' + esc(cuandoTxt(x.cuando)) + "</span></div>" +
