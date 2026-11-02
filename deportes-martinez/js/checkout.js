@@ -51,17 +51,32 @@ function enviarPago(payload, onError) {
   }).catch(() => { av.remove(); if (onError) onError(); });
 }
 
-export function iniciarTransferencia({ productos, entrega, total, promo, onError }) {
+export function iniciarTransferencia(args) {
+  const { productos, entrega, total, onError } = args;
+  if (!user) {
+    const a = aviso("Para pagar por transferencia entra a tu cuenta o crea una. Así apartamos tus jerseys a tu nombre por 48 horas.");
+    setTimeout(() => a.remove(), 6000);
+    abrirLogin("login", nuevo => {
+      const ahora = db.usuarioAhora?.();
+      user = ahora && ahora.uid ? ahora : nuevo;
+      perfil = null;
+      if (user) iniciarTransferencia(args);
+    });
+    return;
+  }
   pedirDatos(entrega, datos => mostrarClabe({ productos, entrega, total, ...datos }), onError);
 }
 
 /* Deja el pedido registrado como "por cobrar": aparta el stock y le avisa al dueño.
    Si el cliente nunca paga, el dueño lo cancela en el panel y el stock regresa. */
-function registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref }) {
+async function registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref }) {
+  const idToken = await db.token().catch(() => null);
+  if (!idToken) return null;
   return fetch(PEDIDO_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
     body: JSON.stringify({
       metodo: "transferencia",
+      idToken,
       ref,
       folio: ref,
       total,
@@ -96,8 +111,11 @@ async function mostrarClabe({ productos, entrega, total, cliente, telefono, dire
   }
   const ref = String(r.id || intento);
   const desc = 0;
-  const totalFinal = total - desc;
-  const resumen = (productos || []).map(p => `${p.qty}x ${p.title}${p.talla ? " (T " + p.talla + ")" : ""}`).join(", ");
+  const totalFinal = Number(r.total) > 0 ? Number(r.total) : total - desc;
+  const apartados = Array.isArray(r.lineas) && r.lineas.length
+    ? r.lineas.map(l => ({ qty: l.qty, title: l.nombre, talla: l.talla }))
+    : (productos || []);
+  const resumen = apartados.map(p => `${p.qty}x ${p.title}${p.talla ? " (T " + p.talla + ")" : ""}`).join(", ");
   const entregaTxt = entrega === "domicilio" ? `Entrega a domicilio: ${direccion || ""}` : "Recoge en tienda";
   const descTxt = desc ? `\nDescuento mayoreo -10%: -${money(desc)}` : "";
   track("transferencia", { ref, total: totalFinal, cliente: cliente || "" });
