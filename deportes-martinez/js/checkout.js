@@ -1,8 +1,8 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=87";
-import { abrirLogin } from "./auth.js?v=87";
-import { db } from "./db.js?v=87";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=87";
-import { track } from "./track.js?v=87";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=88";
+import { abrirLogin } from "./auth.js?v=88";
+import { db } from "./db.js?v=88";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=88";
+import { track } from "./track.js?v=88";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -117,7 +117,7 @@ async function mostrarClabe({ productos, entrega, total, cliente, telefono, dire
     setTimeout(() => err.remove(), 6000);
     return;
   }
-  const ref = String(r.id || intento);
+  const ref = String(r.id || intento).replace(/^TR-/, "");
   const desc = 0;
   const totalFinal = Number(r.total) > 0 ? Number(r.total) : total - desc;
   const apartados = Array.isArray(r.lineas) && r.lineas.length
@@ -139,8 +139,8 @@ async function mostrarClabe({ productos, entrega, total, cliente, telefono, dire
         <button id="trClose" style="background:none;border:none;color:#9a9aa2;font-size:24px;cursor:pointer;line-height:1">✕</button>
       </div>
       <p style="margin:0 0 16px;font-size:15.5px;color:#9a9aa2">${CLABE_TRANSFERENCIA
-        ? "Transfiere a esta cuenta y mándanos tu comprobante por WhatsApp. Apartamos tu jersey en cuanto confirmes el pago."
-        : "Manda tu pedido por WhatsApp y te pasamos los datos para transferir. Apartamos tu jersey en cuanto confirmes el pago."}</p>
+        ? "Ya te apartamos tu jersey por 48 horas. Transfiere a esta cuenta y mándanos tu comprobante por WhatsApp; si no recibimos el pago en ese tiempo, el jersey regresa a la tienda."
+        : "Ya te apartamos tu jersey por 48 horas. Manda tu pedido por WhatsApp y te pasamos los datos para transferir."}</p>
       <div style="background:#0e0e11;border:1px solid #2a2a32;border-radius:12px;padding:14px;margin-bottom:14px">
         ${CLABE_TRANSFERENCIA ? `
         <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Banco</span><b>${BANCO_TRANSFERENCIA}</b></div>
