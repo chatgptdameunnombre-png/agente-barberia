@@ -1,8 +1,8 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=86";
-import { abrirLogin } from "./auth.js?v=86";
-import { db } from "./db.js?v=86";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=86";
-import { track } from "./track.js?v=86";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=87";
+import { abrirLogin } from "./auth.js?v=87";
+import { db } from "./db.js?v=87";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=87";
+import { track } from "./track.js?v=87";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -71,7 +71,7 @@ export function iniciarTransferencia(args) {
    Si el cliente nunca paga, el dueño lo cancela en el panel y el stock regresa. */
 async function registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref }) {
   const idToken = await db.token().catch(() => null);
-  if (!idToken) return null;
+  if (!idToken) return { skip: "sin sesion" };
   return fetch(PEDIDO_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
     body: JSON.stringify({
@@ -91,7 +91,7 @@ async function registrarPedido({ productos, entrega, total, cliente, telefono, d
         correo: user?.email || ""
       }
     })
-  }).then(r => r.json()).catch(() => null);
+  }).then(r => r.ok ? r.json() : { skip: "servidor" }).catch(() => ({ skip: "red" }));
 }
 
 async function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion, invitado }) {
@@ -103,7 +103,15 @@ async function mostrarClabe({ productos, entrega, total, cliente, telefono, dire
   av.remove();
   mostrarClabe.enCurso = false;
   if (!r || r.venta !== true) {
-    const err = aviso("No pudimos registrar tu pedido. Revisa tu internet y vuelve a intentarlo. No se apartó nada.");
+    const motivo = (r && r.skip) || "";
+    const MOTIVOS = {
+      "red": "No nos pudimos conectar. Revisa tu internet y vuelve a intentarlo. No se apartó nada.",
+      "sin sesion": "Tu sesión se cerró. Vuelve a entrar a tu cuenta e inténtalo otra vez. No se apartó nada.",
+      "sin existencias": "Ya no hay existencias de lo que pediste en esa talla. No se apartó nada.",
+      "demasiados pedidos sin pagar": "Ya tienes 3 pedidos por transferencia sin pagar. Paga o espera a que venzan para hacer otro.",
+      "sin productos": "Tu carrito está vacío.",
+    };
+    const err = aviso(MOTIVOS[motivo] || `No pudimos registrar tu pedido. No se apartó nada. Escríbenos por WhatsApp al ${NEGOCIO.telefono} y te ayudamos.`);
     err.style.cursor = "pointer";
     err.onclick = () => err.remove();
     setTimeout(() => err.remove(), 6000);
