@@ -2,6 +2,7 @@
   var P = null, listo = false;
   var clientes = [], pagos = [], gastos = [], egresos = [], peticiones = [], prospectos = [], resenas = [], ingresos = [], verAtendidas = false;
   var cargado = { clientes: false, finanzas: false };
+  var privadoListo = false, privadoError = false;
   var USD = 17.5;
 
   var $ = function (id) { return document.getElementById(id); };
@@ -59,6 +60,25 @@
     return fetch(P.FS + "/" + col + "/" + id + "?" + m, {
       method: "PATCH", headers: cab(), body: JSON.stringify({ fields: campos(obj) })
     }).then(function (r) { if (!r.ok) throw new Error("guardado " + r.status); return r.json(); });
+  }
+  /* Las notas de cada cliente viven aparte (clientes_privado/{id}): el cliente puede
+     leer su ficha completa, así que lo privado no puede ir dentro de ella. */
+  function guardaPrivado(id, notas) {
+    if (!privadoListo) return Promise.resolve(false);
+    return actualizar("clientes_privado", id, { notas: notas || "" }).then(function () { return true; });
+  }
+  function quitaNotasDeFicha(id) {
+    return fetch(P.FS + "/clientes/" + id + "?updateMask.fieldPaths=notas", {
+      method: "PATCH", headers: cab(), body: JSON.stringify({ fields: {} })
+    }).then(function (r) { if (!r.ok) throw new Error("guardado " + r.status); });
+  }
+  function migraNotas() {
+    clientes.forEach(function (c) {
+      if (!c.notasEnFicha) return;
+      guardaPrivado(c.id, c.notas).then(function (ok) {
+        if (ok) return quitaNotasDeFicha(c.id).then(function () { c.notasEnFicha = false; });
+      }).catch(function () { });
+    });
   }
   function borrar(col, id) {
     return fetch(P.FS + "/" + col + "/" + id, { method: "DELETE", headers: cab() })
@@ -319,11 +339,21 @@
       listar("prospectos").catch(function () { return []; }),
       listar("egresos").catch(function () { return []; }),
       listar("resenas").catch(function () { return null; }),
-      listar("ingresos").catch(function () { return []; })])
+      listar("ingresos").catch(function () { return []; }),
+      listar("clientes_privado").catch(function (e) { return e.message === "reglas" ? null : "error"; })])
       .then(function (r) {
         clientes = r[0].sort(function (a, b) {
           return String(a.negocio || "").localeCompare(String(b.negocio || ""));
         });
+        privadoListo = Array.isArray(r[8]);
+        privadoError = r[8] === "error";
+        var priv = {};
+        (privadoListo ? r[8] : []).forEach(function (x) { priv[x.id] = x; });
+        clientes.forEach(function (c) {
+          c.notasEnFicha = !!c.notas;
+          if (priv[c.id] && priv[c.id].notas) c.notas = priv[c.id].notas;
+        });
+        if (privadoListo) migraNotas();
         pagos = r[1];
         gastos = r[2];
         peticiones = (r[3] || []).sort(function (a, b) {
@@ -897,6 +927,7 @@
         "Se borra su ficha. Sus pagos se quedan.", "Sí, borrar").then(function (ok) {
           if (!ok) return;
           ligaPagos(id, "").then(function () { return borrar("clientes", id); }).then(function () {
+            if (privadoListo) borrar("clientes_privado", id).catch(function () { });
             clientes = clientes.filter(function (x) { return x.id !== id; });
             cierraFicha();
             P.toast("Cliente borrado", "bien");
@@ -1024,7 +1055,6 @@
           });
           return d;
         })(),
-        notas: $("cfNotas").value.trim(),
         avisaA: $("cfAvisa").value,
         avisaNum: (function () {
           var d = $("cfAvisaNum").value.replace(/\D/g, "").slice(-10);
@@ -1040,8 +1070,17 @@
         estado: $("cfEst").value,
         foto: foto
       };
-      var op = ed ? actualizar("clientes", c.id, obj) : crear("clientes", obj);
+      var notas = $("cfNotas").value.trim();
+      if (!privadoListo && notas !== ((c && c.notas) || "")) { P.toast("Las notas privadas no están disponibles; recarga el panel antes de cambiarlas", "mal"); return; }
+      var op = (ed ? actualizar("clientes", c.id, obj) : crear("clientes", obj)).then(function (d) {
+        var id = ed ? c.id : d.name.split("/").pop();
+        return guardaPrivado(id, notas).then(function (ok) {
+          if (ok && ed && c.notasEnFicha) return quitaNotasDeFicha(id).then(function () { c.notasEnFicha = false; return d; });
+          return d;
+        });
+      });
       op.then(function (d) {
+        obj.notas = notas;
         if (ed) {
           var cambioUid = (obj.uid || "") !== (c.uid || "");
           for (var k in obj) c[k] = obj[k];
@@ -1178,8 +1217,14 @@
               periodicidad: "mensual", diaPago: 0, inicio: hoyMX().iso,
               estado: "activo", foto: "", avisaA: "negocio", uid: ""
             };
+            var notasPros = nuevo.notas;
+            if (notasPros && !privadoListo) { P.toast("Las notas privadas no están disponibles; recarga el panel antes de pasarlo a cliente", "mal"); return; }
+            delete nuevo.notas;
             crear("clientes", nuevo).then(function (d) {
               nuevo.id = d.name.split("/").pop();
+              nuevo.notas = notasPros;
+              return notasPros ? guardaPrivado(nuevo.id, notasPros).then(function (ok) { if (!ok) throw new Error("no se guardaron las notas"); }) : null;
+            }).then(function () {
               clientes.push(nuevo);
               return borrar("prospectos", x.id);
             }).then(function () {
