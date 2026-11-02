@@ -122,6 +122,8 @@
 </div>
 
 <script type="module">
+import { ponOjo } from "./js/clave-segura.js?v=86";
+ponOjo(document.getElementById("clave"));
 const WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-pago-ok";
 const PROJ = "deportes-martinez", KEY = "AIzaSyAp8rqvnOZ77R9pl_2vj1gipCJ0oAq2KHw";
 /* Todas las ventas de prueba se registran a nombre de esta cuenta.
@@ -130,7 +132,7 @@ const PROJ = "deportes-martinez", KEY = "AIzaSyAp8rqvnOZ77R9pl_2vj1gipCJ0oAq2KHw
    NO BORRAR esta cuenta: es la de pruebas del sistema.
    La contraseña la tiene Kiki (no va en el código). */
 const CLIENTE_PRUEBA = {
-  uid: "jzM9XVUz6qNXRcIyljtVKOCDPcH3",
+  uid: "dQeLzPIF7zVjl1kHXctoPIfzuBf1",
   correo: "cuentadeprueba@deportesmartinez.mx",
   nombre: "Cuenta de Prueba",
   telefono: "33 1111 1111",

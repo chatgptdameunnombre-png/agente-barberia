@@ -1,5 +1,6 @@
-import { db } from "./db.js?v=85";
-import { EDAD_MINIMA } from "./config.js?v=85";
+import { esperaRestante, anotaFallo, limpiaFallos, esFalloDeClave, textoEspera } from "./clave-segura.js?v=86";
+import { db } from "./db.js?v=86";
+import { EDAD_MINIMA } from "./config.js?v=86";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -157,23 +158,6 @@ function traducirError(err) {
   return "No se pudo completar. Intenta de nuevo.";
 }
 
-/* Límite amistoso: después de 5 intentos fallidos en este navegador se pide
-   esperar (1 min, luego 2, 4… hasta 15). Firebase además frena los abusos en su
-   servidor; esto solo evita que alguien pruebe contraseñas a mano sin parar. */
-const INTENTOS = "dm_intentos";
-const leeIntentos = () => { try { return JSON.parse(localStorage.getItem(INTENTOS) || "{}"); } catch { return {}; } };
-const guardaIntentos = v => { try { localStorage.setItem(INTENTOS, JSON.stringify(v)); } catch { } };
-function esperaRestante() {
-  const r = Math.ceil(((leeIntentos().hasta || 0) - Date.now()) / 1000);
-  return r > 0 ? r : 0;
-}
-function anotaFallo() {
-  const v = leeIntentos();
-  const n = (v.n || 0) + 1;
-  const hasta = n >= 5 ? Date.now() + Math.min(15, 2 ** (n - 5)) * 60000 : 0;
-  guardaIntentos({ n, hasta });
-}
-const textoEspera = s => s >= 60 ? `${Math.ceil(s / 60)} min` : `${s} s`;
 
 const OJO_ABIERTO = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const OJO_TACHADO = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.9 9.9 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
@@ -251,8 +235,8 @@ function openModal(mode, alEntrar) {
       if (años < EDAD_MINIMA) { q("#authErr").textContent = `Para crear tu cuenta necesitas tener ${EDAD_MINIMA} años o más.`; return; }
       if (años > 110) { q("#authErr").textContent = "Revisa el año de tu fecha de nacimiento."; return; }
     }
-    if (m === "login" && esperaRestante()) {
-      q("#authErr").textContent = `Por seguridad, espera ${textoEspera(esperaRestante())} antes de intentar otra vez.`;
+    if (m === "login" && esperaRestante(email)) {
+      q("#authErr").textContent = `Por seguridad, espera ${textoEspera(esperaRestante(email))} antes de intentar otra vez.`;
       return;
     }
     const btn = q("#authGo"); btn.disabled = true; const orig = btn.textContent; btn.textContent = "Un momento…";
@@ -260,7 +244,7 @@ function openModal(mode, alEntrar) {
       let cred = null;
       if (m === "login") {
         cred = await db.login(email, pass);
-        guardaIntentos({});
+        limpiaFallos(email);
       } else {
         cred = await db.registrar(email, pass);
         const uid = cred?.user?.uid;
@@ -276,8 +260,8 @@ function openModal(mode, alEntrar) {
       if (alEntrar) alEntrar(currentUser);
     } catch (err) {
       const c = err?.code || "";
-      if (m === "login" && (c.includes("invalid-credential") || c.includes("wrong-password") || c.includes("user-not-found"))) anotaFallo();
-      const resta = m === "login" ? esperaRestante() : 0;
+      if (m === "login" && esFalloDeClave(c)) anotaFallo(email, c);
+      const resta = m === "login" ? esperaRestante(email) : 0;
       q("#authErr").textContent = resta
         ? `Varios intentos sin éxito. Por seguridad, espera ${textoEspera(resta)} antes de intentar otra vez.`
         : traducirError(err);
@@ -295,7 +279,7 @@ else document.addEventListener("DOMContentLoaded", init);
 function aplicarUsuario(u) {
   currentUser = u;
   updateButton();
-  import("./track.js?v=85").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
+  import("./track.js?v=86").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
 }
 
 db.onAuth(u => aplicarUsuario(u));
