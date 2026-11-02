@@ -38,6 +38,10 @@ function injectStyles() {
   .authTab.on{background:linear-gradient(180deg,#f7d154,#c9911f);color:#1a1405}
   .authInp{width:100%;padding:12px 14px;border-radius:11px;border:1px solid #2a2a30;background:#0e0e11;color:#f4f4f5;font-size:16px;outline:none;box-sizing:border-box;margin-bottom:10px}
   .authInp:focus{border-color:var(--accent,#e8b923)}
+  .authClave{position:relative;margin-bottom:10px}
+  .authClave .authInp{margin-bottom:0;padding-right:50px}
+  .authOjo{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:none;border-radius:9px;background:transparent;color:#9a9aa2;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .authOjo:hover,.authOjo:focus-visible,.authOjo[aria-pressed="true"]{color:var(--accent,#e8b923);outline:none}
   .authGo{width:100%;background:linear-gradient(180deg,#f7d154,#c9911f);color:#1a1405;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.3px}
   .authGo:disabled{opacity:.6;cursor:default}
   .authErr{color:#ff6b6b;font-size:12.5px;min-height:16px;margin:2px 0 8px}
@@ -153,6 +157,27 @@ function traducirError(err) {
   return "No se pudo completar. Intenta de nuevo.";
 }
 
+/* Límite amistoso: después de 5 intentos fallidos en este navegador se pide
+   esperar (1 min, luego 2, 4… hasta 15). Firebase además frena los abusos en su
+   servidor; esto solo evita que alguien pruebe contraseñas a mano sin parar. */
+const INTENTOS = "dm_intentos";
+const leeIntentos = () => { try { return JSON.parse(localStorage.getItem(INTENTOS) || "{}"); } catch { return {}; } };
+const guardaIntentos = v => { try { localStorage.setItem(INTENTOS, JSON.stringify(v)); } catch { } };
+function esperaRestante() {
+  const r = Math.ceil(((leeIntentos().hasta || 0) - Date.now()) / 1000);
+  return r > 0 ? r : 0;
+}
+function anotaFallo() {
+  const v = leeIntentos();
+  const n = (v.n || 0) + 1;
+  const hasta = n >= 5 ? Date.now() + Math.min(15, 2 ** (n - 5)) * 60000 : 0;
+  guardaIntentos({ n, hasta });
+}
+const textoEspera = s => s >= 60 ? `${Math.ceil(s / 60)} min` : `${s} s`;
+
+const OJO_ABIERTO = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const OJO_TACHADO = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.9 9.9 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+
 function openModal(mode, alEntrar) {
   if (document.getElementById("authOv")) return;
   const ov = document.createElement("div");
@@ -170,8 +195,11 @@ function openModal(mode, alEntrar) {
       <p id="authSub" style="margin:-6px 0 14px;font-size:13px;color:#9a9aa2"></p>
       <input id="authEmail" class="authInp" type="email" placeholder="Correo" autocomplete="email"
              inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false">
-      <input id="authPass" class="authInp" type="password" placeholder="Contraseña" autocomplete="current-password"
-             autocapitalize="none" autocorrect="off" spellcheck="false">
+      <div class="authClave">
+        <input id="authPass" class="authInp" type="password" placeholder="Contraseña" autocomplete="current-password"
+               autocapitalize="none" autocorrect="off" spellcheck="false">
+        <button type="button" class="authOjo" id="authOjo" aria-pressed="false" aria-label="Mostrar contraseña">${OJO_TACHADO}</button>
+      </div>
       <div id="authNacBox" hidden>
         <label for="authNac" style="display:block;font-size:13px;color:#9a9aa2;margin:2px 0 6px">Tu fecha de nacimiento</label>
         <input id="authNac" class="authInp" type="date" autocomplete="bday">
@@ -184,6 +212,14 @@ function openModal(mode, alEntrar) {
   const q = s => ov.querySelector(s);
   const cerrar = () => ov.remove();
   q("#authX").onclick = cerrar;
+  q("#authOjo").addEventListener("mousedown", e => e.preventDefault());
+  q("#authOjo").onclick = () => {
+    const inp = q("#authPass"), ver = inp.type === "password";
+    inp.type = ver ? "text" : "password";
+    q("#authOjo").innerHTML = ver ? OJO_ABIERTO : OJO_TACHADO;
+    q("#authOjo").setAttribute("aria-pressed", ver ? "true" : "false");
+    q("#authOjo").setAttribute("aria-label", ver ? "Ocultar contraseña" : "Mostrar contraseña");
+  };
   ov.addEventListener("click", e => { if (e.target === ov) cerrar(); });
 
   let m = mode;
@@ -191,7 +227,7 @@ function openModal(mode, alEntrar) {
     m = nuevo;
     ov.querySelectorAll(".authTab").forEach(t => t.classList.toggle("on", t.dataset.m === m));
     q("#authErr").textContent = ""; q("#authMsg").textContent = "";
-    q("#authPass").style.display = "";
+    q("#authPass").parentNode.style.display = "";
     q("#authPass").setAttribute("autocomplete", m === "login" ? "current-password" : "new-password");
     q("#authNacBox").hidden = m !== "register";
     if (m === "login") { q("#authSub").textContent = "Entra para guardar tu dirección y comprar más rápido."; q("#authGo").textContent = "Entrar"; }
@@ -215,11 +251,16 @@ function openModal(mode, alEntrar) {
       if (años < EDAD_MINIMA) { q("#authErr").textContent = `Para crear tu cuenta necesitas tener ${EDAD_MINIMA} años o más.`; return; }
       if (años > 110) { q("#authErr").textContent = "Revisa el año de tu fecha de nacimiento."; return; }
     }
+    if (m === "login" && esperaRestante()) {
+      q("#authErr").textContent = `Por seguridad, espera ${textoEspera(esperaRestante())} antes de intentar otra vez.`;
+      return;
+    }
     const btn = q("#authGo"); btn.disabled = true; const orig = btn.textContent; btn.textContent = "Un momento…";
     try {
       let cred = null;
       if (m === "login") {
         cred = await db.login(email, pass);
+        guardaIntentos({});
       } else {
         cred = await db.registrar(email, pass);
         const uid = cred?.user?.uid;
@@ -234,7 +275,12 @@ function openModal(mode, alEntrar) {
       cerrar();
       if (alEntrar) alEntrar(currentUser);
     } catch (err) {
-      q("#authErr").textContent = traducirError(err);
+      const c = err?.code || "";
+      if (m === "login" && (c.includes("invalid-credential") || c.includes("wrong-password") || c.includes("user-not-found"))) anotaFallo();
+      const resta = m === "login" ? esperaRestante() : 0;
+      q("#authErr").textContent = resta
+        ? `Varios intentos sin éxito. Por seguridad, espera ${textoEspera(resta)} antes de intentar otra vez.`
+        : traducirError(err);
       btn.disabled = false; btn.textContent = orig;
     }
   };
