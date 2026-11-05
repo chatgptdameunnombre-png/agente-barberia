@@ -32,7 +32,6 @@ export const NEGOCIO = {
   mapa: "https://www.google.com/maps?q=20.546361,-103.467528",
   direccion: "",
   telefono: "33 2446 9055",
-  telefono2: "33 3389 5508",
   horario: "",
   instagram: "https://www.instagram.com/_deportes_martinez_/"
 };
