@@ -1,8 +1,6 @@
-import { db } from "./db.js?v=88";
-import { ponOjo, esperaRestante, anotaFallo, limpiaFallos, esFalloDeClave, textoEspera } from "./clave-segura.js?v=88";
+import { db } from "./db.js?v=86";
 
 const $ = s => document.querySelector(s);
-ponOjo($("#pass"));
 
 db.onAuth(user => {
   if (user) window.location.replace("panel.html");
@@ -11,18 +9,12 @@ db.onAuth(user => {
 $("#loginForm").addEventListener("submit", async e => {
   e.preventDefault();
   const btn = $("#loginBtn");
-  const correo = $("#email").value.trim().toLowerCase();
-  if (esperaRestante(correo)) { $("#loginErr").textContent = `Por seguridad, espera ${textoEspera(esperaRestante(correo))} antes de intentar otra vez.`; return; }
   btn.disabled = true; btn.textContent = "Entrando…"; $("#loginErr").textContent = "";
   try {
     await db.login($("#email").value, $("#pass").value);
-    limpiaFallos(correo);
     window.location.replace("panel.html");
   } catch (err) {
-    const c = err?.code || "";
-    if (esFalloDeClave(c)) anotaFallo(correo, c);
-    const resta = esperaRestante(correo);
-    $("#loginErr").textContent = resta ? `Varios intentos sin éxito. Por seguridad, espera ${textoEspera(resta)} antes de intentar otra vez.` : traducirError(err);
+    $("#loginErr").textContent = traducirError(err);
     btn.disabled = false; btn.textContent = "Entrar";
   }
 });
