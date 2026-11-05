@@ -1,8 +1,8 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=88";
-import { abrirLogin } from "./auth.js?v=88";
-import { db } from "./db.js?v=88";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=88";
-import { track } from "./track.js?v=88";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=86";
+import { abrirLogin } from "./auth.js?v=86";
+import { db } from "./db.js?v=86";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=86";
+import { track } from "./track.js?v=86";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -51,32 +51,17 @@ function enviarPago(payload, onError) {
   }).catch(() => { av.remove(); if (onError) onError(); });
 }
 
-export function iniciarTransferencia(args) {
-  const { productos, entrega, total, onError } = args;
-  if (!user) {
-    const a = aviso("Para pagar por transferencia entra a tu cuenta o crea una. Así apartamos tus jerseys a tu nombre por 48 horas.");
-    setTimeout(() => a.remove(), 6000);
-    abrirLogin("login", nuevo => {
-      const ahora = db.usuarioAhora?.();
-      user = ahora && ahora.uid ? ahora : nuevo;
-      perfil = null;
-      if (user) iniciarTransferencia(args);
-    });
-    return;
-  }
+export function iniciarTransferencia({ productos, entrega, total, promo, onError }) {
   pedirDatos(entrega, datos => mostrarClabe({ productos, entrega, total, ...datos }), onError);
 }
 
 /* Deja el pedido registrado como "por cobrar": aparta el stock y le avisa al dueño.
    Si el cliente nunca paga, el dueño lo cancela en el panel y el stock regresa. */
-async function registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref }) {
-  const idToken = await db.token().catch(() => null);
-  if (!idToken) return { skip: "sin sesion" };
+function registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref }) {
   return fetch(PEDIDO_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
     body: JSON.stringify({
       metodo: "transferencia",
-      idToken,
       ref,
       folio: ref,
       total,
@@ -91,7 +76,7 @@ async function registrarPedido({ productos, entrega, total, cliente, telefono, d
         correo: user?.email || ""
       }
     })
-  }).then(r => r.ok ? r.json() : { skip: "servidor" }).catch(() => ({ skip: "red" }));
+  }).then(r => r.json()).catch(() => null);
 }
 
 async function mostrarClabe({ productos, entrega, total, cliente, telefono, direccion, invitado }) {
@@ -103,27 +88,16 @@ async function mostrarClabe({ productos, entrega, total, cliente, telefono, dire
   av.remove();
   mostrarClabe.enCurso = false;
   if (!r || r.venta !== true) {
-    const motivo = (r && r.skip) || "";
-    const MOTIVOS = {
-      "red": "No nos pudimos conectar. Revisa tu internet y vuelve a intentarlo. No se apartó nada.",
-      "sin sesion": "Tu sesión se cerró. Vuelve a entrar a tu cuenta e inténtalo otra vez. No se apartó nada.",
-      "sin existencias": "Ya no hay existencias de lo que pediste en esa talla. No se apartó nada.",
-      "demasiados pedidos sin pagar": "Ya tienes 3 pedidos por transferencia sin pagar. Paga o espera a que venzan para hacer otro.",
-      "sin productos": "Tu carrito está vacío.",
-    };
-    const err = aviso(MOTIVOS[motivo] || `No pudimos registrar tu pedido. No se apartó nada. Escríbenos por WhatsApp al ${NEGOCIO.telefono} y te ayudamos.`);
+    const err = aviso("No pudimos registrar tu pedido. Revisa tu internet y vuelve a intentarlo. No se apartó nada.");
     err.style.cursor = "pointer";
     err.onclick = () => err.remove();
     setTimeout(() => err.remove(), 6000);
     return;
   }
-  const ref = String(r.id || intento).replace(/^TR-/, "");
+  const ref = String(r.id || intento);
   const desc = 0;
-  const totalFinal = Number(r.total) > 0 ? Number(r.total) : total - desc;
-  const apartados = Array.isArray(r.lineas) && r.lineas.length
-    ? r.lineas.map(l => ({ qty: l.qty, title: l.nombre, talla: l.talla }))
-    : (productos || []);
-  const resumen = apartados.map(p => `${p.qty}x ${p.title}${p.talla ? " (T " + p.talla + ")" : ""}`).join(", ");
+  const totalFinal = total - desc;
+  const resumen = (productos || []).map(p => `${p.qty}x ${p.title}${p.talla ? " (T " + p.talla + ")" : ""}`).join(", ");
   const entregaTxt = entrega === "domicilio" ? `Entrega a domicilio: ${direccion || ""}` : "Recoge en tienda";
   const descTxt = desc ? `\nDescuento mayoreo -10%: -${money(desc)}` : "";
   track("transferencia", { ref, total: totalFinal, cliente: cliente || "" });
@@ -139,8 +113,8 @@ async function mostrarClabe({ productos, entrega, total, cliente, telefono, dire
         <button id="trClose" style="background:none;border:none;color:#9a9aa2;font-size:24px;cursor:pointer;line-height:1">✕</button>
       </div>
       <p style="margin:0 0 16px;font-size:15.5px;color:#9a9aa2">${CLABE_TRANSFERENCIA
-        ? "Ya te apartamos tu jersey por 48 horas. Transfiere a esta cuenta y mándanos tu comprobante por WhatsApp; si no recibimos el pago en ese tiempo, el jersey regresa a la tienda."
-        : "Ya te apartamos tu jersey por 48 horas. Manda tu pedido por WhatsApp y te pasamos los datos para transferir."}</p>
+        ? "Transfiere a esta cuenta y mándanos tu comprobante por WhatsApp. Apartamos tu jersey en cuanto confirmes el pago."
+        : "Manda tu pedido por WhatsApp y te pasamos los datos para transferir. Apartamos tu jersey en cuanto confirmes el pago."}</p>
       <div style="background:#0e0e11;border:1px solid #2a2a32;border-radius:12px;padding:14px;margin-bottom:14px">
         ${CLABE_TRANSFERENCIA ? `
         <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Banco</span><b>${BANCO_TRANSFERENCIA}</b></div>
