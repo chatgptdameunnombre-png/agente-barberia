@@ -1,5 +1,5 @@
-import { NEGOCIO } from "./config.js?v=88";
-import { db } from "./db.js?v=88";
+import { NEGOCIO } from "./config.js?v=86";
+import { db } from "./db.js?v=86";
 
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
@@ -13,8 +13,8 @@ const ref = limpio(u.get("external_reference")) || limpio(u.get("ref"));
 const datos = ultimo && ultimo.ref === ref ? ultimo : null;
 
 const aprobado = estado === "approved";
-const pendienteMP = ["pending", "in_process"].includes(estado);
-const fallo = !aprobado && !pendienteMP;
+const enRevision = ["pending", "in_process"].includes(estado);
+const fallo = !aprobado && !enRevision;
 
 if (aprobado) { try { localStorage.removeItem("dm_cart"); } catch { } }
 
@@ -23,27 +23,9 @@ function rutaMapa() {
   return q ? `https://www.google.com/maps/dir/?api=1&destination=${q}` : NEGOCIO.mapa;
 }
 
-/* El link de regreso de Mercado Pago lo puede escribir cualquiera, así que la
-   página solo dice "recibimos tu pago" si la venta ya existe en la base. */
-let confirmado = false;
-let vuelta = 0;
-
-async function confirmar(user) {
-  const mia = ++vuelta;
-  if (!user || !user.uid || !ref || fallo) return;
-  for (let i = 0; i < 6 && !confirmado; i++) {
-    const ventas = await db.misCompras(user.uid).catch(() => []);
-    if (mia !== vuelta) return;
-    confirmado = ventas.some(v => (v.folio === ref || v.ref === ref) && ["pagada", "entregada"].includes(v.estado));
-    if (confirmado) { pintar(user); return; }
-    await new Promise(r => setTimeout(r, 3000));
-  }
-}
-
 function pintar(user) {
   const cont = $("#pedido");
   if (!cont) return;
-  const enRevision = !confirmado;
 
   if (!ref || fallo) {
     cont.innerHTML = `
@@ -71,7 +53,7 @@ function pintar(user) {
       <div class="pd-icono ${enRevision ? "pd-icono--espera" : ""}">${enRevision ? "⏳" : "✓"}</div>
       <h1 class="pd-titulo">${enRevision ? "Tu pago está en revisión" : "¡Listo, recibimos tu pago!"}</h1>
       <p class="pd-sub">${enRevision
-        ? (aprobado ? "Estamos confirmando tu pago con Mercado Pago. En cuanto se confirme, tu pedido aparece en tu cuenta y te escribimos por WhatsApp." : "Mercado Pago nos avisa en cuanto se acredite. Tu jersey ya está apartado.")
+        ? "Mercado Pago nos avisa en cuanto se acredite. Tu jersey ya está apartado."
         : tienda ? "Tu jersey ya está apartado. Te esperamos en la tienda." : "Ya estamos preparando tu envío."}</p>
 
       <div class="pd-folio">
@@ -110,4 +92,4 @@ function pintar(user) {
 }
 
 pintar(db.usuarioAhora?.() || null);
-db.onAuth(user => { confirmado = false; pintar(user); confirmar(user); });
+db.onAuth(user => pintar(user));
