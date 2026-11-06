@@ -6,7 +6,13 @@ function guardar(v) {
 
 /* Quien no quiera que se mida su visita lo puede desactivar desde los términos
    (legales.html): ahí vive el botón, el aviso de inicio solo confirma. */
-export function apagarMedicion() { guardar("no"); }
+export function apagarMedicion() {
+  guardar("no");
+  for (const k of ["dm_track_id", "dm_track_ses", "dm_track_pend"]) {
+    try { localStorage.removeItem(k); } catch { }
+    try { sessionStorage.removeItem(k); } catch { }
+  }
+}
 export function prenderMedicion() { guardar("si"); }
 
 export function permiteMedicion() {
@@ -23,7 +29,7 @@ function mostrar() {
   b.style.cssText = "position:fixed;left:16px;right:16px;bottom:92px;z-index:9998;background:#0f0f12;border:1px solid #26262e;border-radius:16px;padding:16px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;box-shadow:0 20px 50px rgba(0,0,0,.5);max-width:720px;margin:0 auto";
   b.innerHTML = `
     <p style="flex:1;min-width:240px;margin:0;font-size:13.5px;color:#c0c0c4;line-height:1.55">
-      Guardamos tu carrito y medimos de forma anónima qué jerseys se ven más. Si sigues navegando, estás de acuerdo. <a href="legales.html#datos" style="color:#e8b923;text-decoration:underline;white-space:nowrap">Cómo lo usamos</a>
+      Guardamos tu carrito y medimos de forma anónima qué jerseys se ven más. Si compras o entras a tu cuenta, tu nombre y tu pedido quedan ligados a tu visita. Si sigues navegando, estás de acuerdo. <a href="legales.html#datos" style="color:#e8b923;text-decoration:underline;white-space:nowrap">Cómo lo usamos</a>
     </p>
     <div style="display:flex;gap:8px">
       <button id="ckSi" style="background:#e8b923;border:none;color:#1a1405;border-radius:10px;padding:10px 22px;font-weight:700;font-size:13.5px;cursor:pointer">Entendido</button>
