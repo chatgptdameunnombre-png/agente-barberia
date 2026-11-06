@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=90";
-import { permiteMedicion } from "./cookies.js?v=90";
+import { firebaseConfig, usaFirebase } from "./config.js?v=91";
+import { permiteMedicion } from "./cookies.js?v=91";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
@@ -152,6 +152,7 @@ function activo() {
 }
 
 function tic() {
+  if (!permiteMedicion()) return;
   const ahora = Date.now();
   const delta = Math.round((ahora - ultimoTic) / 1000);
   ultimoTic = ahora;
@@ -214,6 +215,7 @@ async function enviar(keepalive = false) {
   const loteEventos = pendientes.slice(0, 60);
   try {
     const id = await identidad();
+    if (!permiteMedicion()) { enVuelo = false; return; }
     const campos = resumenSesion(id.uid);
     const write = {
       update: {
@@ -311,7 +313,7 @@ export function cerrarProducto() {
 }
 
 export function marcarProducto(id, campo) {
-  if (!ses) return;
+  if (!ses || !permiteMedicion()) return;
   if (!ses.productos[id]) ses.productos[id] = { nombre: "", vistas: 0, segundos: 0, carrito: false, comprado: false };
   ses.productos[id][campo] = true;
   sucio = true;
@@ -320,7 +322,7 @@ export function marcarProducto(id, campo) {
 }
 
 export function setCliente(uid, email) {
-  if (!ses) return;
+  if (!ses || !permiteMedicion()) return;
   const cambioDeCuenta = ses.clienteUid && uid && ses.clienteUid !== uid;
   const cerroSesion = ses.clienteUid && !uid;
   if (cambioDeCuenta || cerroSesion) {
@@ -410,3 +412,11 @@ window.addEventListener("pagehide", () => {
 });
 
 window.dmTrack = { track, trackProducto, cerrarProducto, marcarProducto, setCliente };
+
+window.addEventListener("dm-medicion-off", () => {
+  pendientes = [];
+  productoAbierto = null;
+  ident = null;
+  sucio = false;
+  if (ses) ses = { ...ses, busquedas: [], sinResultado: [], tallas: [], productos: {}, segundos: 0, nombreCliente: "", refPedido: "", clienteUid: "", clienteEmail: "" };
+});
