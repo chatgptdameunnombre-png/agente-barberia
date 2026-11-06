@@ -1,8 +1,8 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=90";
-import { abrirLogin } from "./auth.js?v=90";
-import { db } from "./db.js?v=90";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=90";
-import { track } from "./track.js?v=90";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=91";
+import { abrirLogin } from "./auth.js?v=91";
+import { db } from "./db.js?v=91";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=91";
+import { track } from "./track.js?v=91";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -53,6 +53,12 @@ function enviarPago(payload, onError) {
 
 export function iniciarTransferencia(args) {
   const { productos, entrega, total, onError } = args;
+  if (args.promo) {
+    const a = aviso("Los códigos de descuento solo aplican pagando con tarjeta. Quita el código o elige tarjeta.");
+    a.style.cursor = "pointer"; a.onclick = () => a.remove();
+    setTimeout(() => a.remove(), 6000);
+    return;
+  }
   if (!user) {
     const a = aviso("Para pagar por transferencia entra a tu cuenta o crea una. Así apartamos tus jerseys a tu nombre por 48 horas.");
     setTimeout(() => a.remove(), 6000);
