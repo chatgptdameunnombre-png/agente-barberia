@@ -1,10 +1,10 @@
-import { db, MODO } from "./db.js?v=89";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=89";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=89";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=89";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=89";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=89";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=89";
+import { db, MODO } from "./db.js?v=90";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=90";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=90";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=90";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=90";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=90";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=90";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -122,7 +122,7 @@ function render() {
         <h1 class="prod__name">${p.nombre}</h1>
         <div class="prod__price">${precioLinea} <span>MXN</span></div>
         <span class="stock stock--${st.cls}">${st.txt}</span>
-        <p class="prod__envio">🚚 Te llega en 72 horas después de que confirmes tu compra${p.personalizable === false ? "" : " (si lo pides con nombre y número, unos días más)"}</p>
+        <p class="prod__envio">🚚 Envío a todo México: se prepara en 1 a 2 días hábiles y llega en 2 a 5 días hábiles más${p.personalizable === false ? "" : " (si lo pides con nombre y número, unos días más)"}</p>
         ${tallasBloque}
         ${persoBloque}
         <div style="display:flex;gap:10px;margin-top:12px">
