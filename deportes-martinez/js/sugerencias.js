@@ -3,7 +3,7 @@
    Escribe directo a Firestore: la regla deja crear a cualquiera pero solo el
    dueño puede leer, y ahí mismo se valida el tope de 200 caracteres. */
 
-import { firebaseConfig } from "./config.js?v=89";
+import { firebaseConfig } from "./config.js?v=90";
 
 const PROJ = firebaseConfig.projectId;
 const KEY = firebaseConfig.apiKey;
@@ -115,6 +115,7 @@ export function tarjetaSugerenciaHTML(deporte) {
     <input class="sug__in" name="texto" maxlength="200" placeholder="${EJ}" required>
     <input class="sug__in" name="nombre" maxlength="60" placeholder="Tu nombre (opcional)">
     <input class="sug__in" name="tel" inputmode="tel" maxlength="20" placeholder="Tu WhatsApp (opcional, para avisarte)">
+    <p style="margin:10px 0 0;font-size:12.5px;color:#8a8a92;line-height:1.5">Usamos tus datos para conseguirte la playera y avisarte. <a href="legales.html#privacidad" target="_blank" rel="noopener" style="color:#e8b923">Aviso de privacidad</a></p>
     <button class="btn sug__btn" type="submit">Enviar</button>
     <p class="sug__msg" role="status"></p>
   </form>`;
