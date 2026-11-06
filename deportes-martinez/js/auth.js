@@ -1,6 +1,6 @@
-import { esperaRestante, anotaFallo, limpiaFallos, esFalloDeClave, textoEspera } from "./clave-segura.js?v=89";
-import { db } from "./db.js?v=89";
-import { EDAD_MINIMA } from "./config.js?v=89";
+import { esperaRestante, anotaFallo, limpiaFallos, esFalloDeClave, textoEspera } from "./clave-segura.js?v=90";
+import { db } from "./db.js?v=90";
+import { EDAD_MINIMA } from "./config.js?v=90";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -191,6 +191,7 @@ function openModal(mode, alEntrar) {
       <div class="authErr" id="authErr"></div>
       <div class="authMsg" id="authMsg"></div>
       <button class="authGo" id="authGo">Entrar</button>
+        <p style="margin:10px 0 0;font-size:12.5px;color:#8a8a92;line-height:1.5">Usamos tus datos para tu cuenta y tus pedidos. <a href="legales.html#privacidad" target="_blank" rel="noopener" style="color:#e8b923">Aviso de privacidad</a></p>
     </div>`;
   document.body.appendChild(ov);
   const q = s => ov.querySelector(s);
@@ -279,7 +280,7 @@ else document.addEventListener("DOMContentLoaded", init);
 function aplicarUsuario(u) {
   currentUser = u;
   updateButton();
-  import("./track.js?v=89").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
+  import("./track.js?v=90").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
 }
 
 db.onAuth(u => aplicarUsuario(u));
