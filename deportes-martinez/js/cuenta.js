@@ -1,5 +1,5 @@
-import { db } from "./db.js?v=89";
-import { WHATSAPP_NUMERO, BORRAR_CUENTA_WEBHOOK } from "./config.js?v=89";
+import { db } from "./db.js?v=90";
+import { WHATSAPP_NUMERO, BORRAR_CUENTA_WEBHOOK } from "./config.js?v=90";
 const escC = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
