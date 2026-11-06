@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=89";
-import { permiteMedicion } from "./cookies.js?v=89";
+import { firebaseConfig, usaFirebase } from "./config.js?v=90";
+import { permiteMedicion } from "./cookies.js?v=90";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
@@ -133,10 +133,12 @@ function cargarSesion() {
 }
 
 const guardarPendientes = () => {
+  if (!permiteMedicion()) return;
   try { localStorage.setItem(LS_PEND, JSON.stringify(pendientes.slice(-MAX_EVENTOS))); } catch { }
 };
 
 const guardarLocal = () => {
+  if (!permiteMedicion()) return;
   try {
     ses.ultimoUso = Date.now();
     localStorage.setItem(SS_SES, JSON.stringify(ses));
@@ -256,7 +258,7 @@ async function enviar(keepalive = false) {
 
 /* ============ API ============ */
 export function track(evento, datos = {}) {
-  if (!ses) return;
+  if (!ses || !permiteMedicion()) return;
   const e = { e: evento, t: new Date().toISOString(), pg: pagina(), ...datos };
   pendientes.push(e);
   if (pendientes.length > MAX_EVENTOS) pendientes = pendientes.slice(-MAX_EVENTOS);
@@ -289,7 +291,7 @@ export function track(evento, datos = {}) {
 
 /** Abre la ficha de un producto: cuenta UNA vista por sesión y arranca su cronómetro. */
 export function trackProducto(p) {
-  if (!ses || !p || !p.id) return;
+  if (!ses || !p || !p.id || !permiteMedicion()) return;
   const id = p.id;
   const prev = ses.productos[id] || { nombre: "", vistas: 0, segundos: 0, carrito: false, comprado: false };
   prev.vistas += 1;
