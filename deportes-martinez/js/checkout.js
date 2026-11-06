@@ -1,8 +1,8 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=89";
-import { abrirLogin } from "./auth.js?v=89";
-import { db } from "./db.js?v=89";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=89";
-import { track } from "./track.js?v=89";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=90";
+import { abrirLogin } from "./auth.js?v=90";
+import { db } from "./db.js?v=90";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=90";
+import { track } from "./track.js?v=90";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -307,6 +307,7 @@ function abrirModal(entrega, onConfirm, onCancel) {
         ${user ? `<label style="display:flex;align-items:center;gap:10px;font-size:15.5px;color:#d8d8de;cursor:pointer;margin-top:2px;line-height:1.4"><input type="checkbox" id="dGuardar" style="width:20px;height:20px;flex:0 0 auto;accent-color:#e8b923"> Guardar mis datos para la próxima compra</label>` : ""}
         <div id="dErr" style="color:#ff6b6b;font-size:15px;min-height:16px"></div>
         <button id="dGo" style="background:#e8b923;color:#1a1405;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:17px;cursor:pointer;letter-spacing:.3px">Continuar al pago</button>
+        <p style="margin:10px 0 0;font-size:12.5px;color:#8a8a92;line-height:1.5">Usamos tus datos para registrar, cobrar y entregar tu pedido. <a href="legales.html#privacidad" target="_blank" rel="noopener" style="color:#e8b923">Aviso de privacidad</a></p>
       </div>
     </div>`;
   document.body.appendChild(ov);
