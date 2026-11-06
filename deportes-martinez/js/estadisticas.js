@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=89";
+import { firebaseConfig } from "./config.js?v=90";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -450,8 +450,8 @@ function visitas(list) {
         Llegó de <b>${esc(s.origen || "directo")}</b> · entró por <b>${esc(s.entrada || "index.html")}</b> · vio ${Number(s.vistos) || 0} jersey(s)
         ${(s.busquedas || []).length ? `<br>Buscó: ${(s.busquedas || []).map(esc).join(", ")}` : ""}
         <div class="st-visita__acciones">
-          <button class="btn btn--ghost" data-ver="${s.id}">Ver qué hizo paso a paso</button>
-          <button class="btn btn--danger" data-borrar-visita="${s.id}">Borrar esta visita</button>
+          <button class="btn btn--ghost" data-ver="${esc(s.id)}">Ver qué hizo paso a paso</button>
+          <button class="btn btn--danger" data-borrar-visita="${esc(s.id)}">Borrar esta visita</button>
         </div>
       </div>
     </details>`;
