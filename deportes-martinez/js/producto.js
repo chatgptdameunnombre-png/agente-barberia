@@ -1,10 +1,10 @@
-import { db, MODO } from "./db.js?v=91";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=91";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=91";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=91";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=91";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=91";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=91";
+import { db, MODO } from "./db.js?v=92";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=92";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=92";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=92";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=92";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=92";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=92";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -57,8 +57,8 @@ function render() {
   if (!cont) return;
   const p = productos.find(x => x.id === id);
   if (!productos.length) { cont.innerHTML = `<p style="color:var(--muted)">Cargando…</p>`; return; }
-  if (!p) {
-    cont.innerHTML = `<div class="prod-404"><h2>Producto no encontrado</h2><a href="index.html" class="btn">← Volver a la tienda</a></div>`;
+  if (!p || p.oculto) {
+    cont.innerHTML = `<div class="prod-404"><h2>${p ? "Esta playera ya no está disponible" : "Producto no encontrado"}</h2><a href="index.html" class="btn">← Volver a la tienda</a></div>`;
     return;
   }
   const sized = tieneTallas(p);
@@ -184,7 +184,7 @@ function relacionados() {
   const cont = $("#relacionados");
   const p = productos.find(x => x.id === id);
   if (!cont || !p) return;
-  let rel = productos.filter(x => x.id !== p.id && x.categoria === p.categoria && stockTotal(x) > 0);
+  let rel = productos.filter(x => x.id !== p.id && !x.oculto && x.categoria === p.categoria && stockTotal(x) > 0);
   const punt = x => (x.equipo === p.equipo ? 4 : 0) + (x.liga === p.liga ? 2 : 0) + (x.subcategoria === p.subcategoria ? 1 : 0);
   rel.sort((a, b) => punt(b) - punt(a));
   rel = rel.slice(0, 12);
