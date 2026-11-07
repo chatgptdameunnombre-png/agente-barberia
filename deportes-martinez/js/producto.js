@@ -1,10 +1,10 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=95";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=95";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=95";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=95";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=95";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=95";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=95";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=96";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=96";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=96";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=96";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=96";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=96";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=96";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -41,7 +41,7 @@ fotosRapido(id).then(extra => {
   fotosCache = extra;
   render();
 });
-import("./db.js?v=95").then(({ db }) => db.onProducts(list => { guardarCatalogo(list); recibir(list); })).catch(() => {});
+import("./db.js?v=96").then(({ db }) => db.onProducts(list => { guardarCatalogo(list); recibir(list); })).catch(() => {});
 onMayoreo(() => render());
 
 function tallaBtn(t, on) {
@@ -124,12 +124,13 @@ function render() {
         <span class="stock stock--prox">Próximamente</span>
         <p class="prod__envio">Todavía no está a la venta. Dinos si la quieres y te avisamos en cuanto llegue.</p>
         <button class="add-btn add-btn--big" disabled style="width:100%;margin:12px 0 0">Próximamente</button>
-        <a href="${volver}#sugForm" class="btn" style="display:block;text-align:center;margin-top:10px">Avísame cuando llegue →</a>
+        <button type="button" class="btn" id="avisoAbrir" style="display:block;width:100%;text-align:center;margin-top:10px">Avísame cuando llegue →</button>
         ${p.descripcion ? `<p class="prod__desc">${p.descripcion}</p>` : ""}
         ${detallesBloque}
       </div>
     </div>`;
     document.title = `${p.nombre} — Deportes Martínez`;
+    document.getElementById("avisoAbrir")?.addEventListener("click", () => abrirAviso(p));
     if (!trackeado) {
       trackeado = true;
       track("ver_producto", { id: p.id, nombre: p.nombre, equipo: p.equipo || "", categoria: p.categoria || "" });
@@ -457,4 +458,39 @@ function ponerDatosParaGoogle(p, precio, stock) {
   tag.id = "ldProducto";
   tag.textContent = JSON.stringify(datos);
   document.head.appendChild(tag);
+}
+
+const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+async function abrirAviso(p) {
+  const { conectarFormulario } = await import("./sugerencias.js?v=96");
+  document.getElementById("avisoModal")?.remove();
+  const m = document.createElement("div");
+  m.className = "aviso-modal";
+  m.id = "avisoModal";
+  m.innerHTML = `
+    <div class="aviso-modal__caja" role="dialog" aria-modal="true" aria-labelledby="avisoT">
+      <button type="button" class="aviso-modal__x" aria-label="Cerrar">×</button>
+      <h2 class="aviso-modal__t" id="avisoT">Avísame cuando llegue</h2>
+      <p class="aviso-modal__p">Déjanos tu WhatsApp y te escribimos en cuanto llegue.</p>
+      <form class="sug" data-deporte="${escA(p.categoria || "")}" autocomplete="off">
+        <label class="sug__lb" for="avisoTexto">Jersey</label>
+        <input class="sug__in" id="avisoTexto" name="texto" maxlength="200" required value="${escA(("Avísame cuando llegue: " + p.nombre).slice(0, 200))}">
+        <label class="sug__lb" for="avisoNombre">Tu nombre <span>(opcional)</span></label>
+        <input class="sug__in" id="avisoNombre" name="nombre" maxlength="60" placeholder="Para saber quién lo pidió">
+        <label class="sug__lb" for="avisoTel">Tu WhatsApp</label>
+        <input class="sug__in" id="avisoTel" name="tel" inputmode="tel" maxlength="20" placeholder="33 1234 5678">
+        <p style="margin:10px 0 0;font-size:12.5px;color:#8a8a92;line-height:1.5">Usamos tus datos para conseguirte la playera y avisarte. <a href="legales.html#privacidad" target="_blank" rel="noopener" style="color:#e8b923">Aviso de privacidad</a></p>
+        <button class="btn sug__btn" type="submit">Avísame</button>
+        <p class="sug__msg" role="status"></p>
+      </form>
+    </div>`;
+  const cerrar = () => { m.remove(); document.removeEventListener("keydown", tecla); };
+  const tecla = e => { if (e.key === "Escape") cerrar(); };
+  m.addEventListener("click", e => { if (e.target === m || e.target.closest(".aviso-modal__x")) cerrar(); });
+  document.addEventListener("keydown", tecla);
+  document.body.appendChild(m);
+  conectarFormulario(m.querySelector("form"));
+  m.querySelector("#avisoNombre").focus();
+  track("aviso_llegue", { id: p.id, nombre: p.nombre });
 }
