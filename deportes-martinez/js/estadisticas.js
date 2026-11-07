@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=94";
+import { firebaseConfig } from "./config.js?v=95";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -344,7 +344,7 @@ function cubosAparatos(obj, total) {
 
 /* Tallas mencionadas en lo que le escriben al asistente ("tienen la del madrid en M?").
    Es distinto de las tallas que la gente elige con el dedo en el catalogo. */
-const TALLAS_TXT = ["3XL", "2XL", "XXXL", "XXL", "XL", "S", "M", "L"];
+const TALLAS_TXT = ["4XL", "3XL", "2XL", "XXXL", "XXL", "XL", "S", "M", "L"];
 
 function tallasDelAgente(busquedas) {
   const out = {};
