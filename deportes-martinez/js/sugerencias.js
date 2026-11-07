@@ -3,7 +3,7 @@
    Escribe directo a Firestore: la regla deja crear a cualquiera pero solo el
    dueño puede leer, y ahí mismo se valida el tope de 200 caracteres. */
 
-import { firebaseConfig } from "./config.js?v=91";
+import { firebaseConfig } from "./config.js?v=92";
 
 const PROJ = firebaseConfig.projectId;
 const KEY = firebaseConfig.apiKey;
@@ -103,11 +103,15 @@ export function tarjetaSugerenciaHTML(deporte) {
      faltar ese jersey en concreto. El texto tiene que decir cada cosa. */
   const AYUDA = {
     basket: "Todavía no tenemos jerseys de basketball. Dinos cuál buscas y lo tomamos en cuenta.",
-    americano: "Todavía no tenemos jerseys de futbol americano. Dinos cuál buscas y lo tomamos en cuenta."
+    americano: "Todavía no tenemos jerseys de futbol americano. Dinos cuál buscas y lo tomamos en cuenta.",
+    beisbol: "Todavía no tenemos jerseys de béisbol. Dinos cuál buscas y lo tomamos en cuenta.",
+    f1: "Todavía no tenemos playeras de Fórmula 1. Dinos cuál buscas y lo tomamos en cuenta."
   }[deporte] || "Ese no lo tenemos ahorita. Dinos cuál te gustaría y lo tomamos en cuenta para el próximo surtido.";
   const EJ = {
     basket: "Ej. jersey Lakers de Kobe",
-    americano: "Ej. playera Chiefs 2010"
+    americano: "Ej. playera Chiefs 2010",
+    beisbol: "Ej. jersey Dodgers de Ohtani",
+    f1: "Ej. playera Red Bull de Checo"
   }[deporte] || "Ej. jersey del Cruz Azul 2024";
   return `<form class="sug sug--chat" data-deporte="${deporte}" autocomplete="off">
     <b class="sug__t">¿Cuál jersey te gustaría que trajéramos?</b>
