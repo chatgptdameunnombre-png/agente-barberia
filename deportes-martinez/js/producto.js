@@ -1,19 +1,15 @@
-import { db, MODO } from "./db.js?v=94";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=94";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=94";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=94";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=94";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=94";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=94";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=95";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=95";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=95";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=95";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=95";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=95";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=95";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 const id = new URLSearchParams(location.search).get("id");
 
-const badge = document.createElement("div");
-badge.className = "mode-badge mode-badge--" + (MODO === "nube" ? "nube" : "demo");
-badge.textContent = MODO === "nube" ? "● En la nube (Firebase)" : "● Modo demo (local)";
-document.body.appendChild(badge);
 
 let productos = [];
 let fotosCache = null;
@@ -34,14 +30,18 @@ async function revisarPromoProd(codigo, subtotal) {
 let persoOn = false;
 let trackeado = false;
 
-db.onProducts(async list => {
+function recibir(list) {
   productos = list;
   setProductos(list);
-  if (fotosCache === null && list.some(x => x.id === id)) {
-    try { fotosCache = await db.getFotos(id); } catch { fotosCache = null; }
-  }
+  render();
+}
+queueMicrotask(() => catalogoRapido(recibir));
+fotosRapido(id).then(extra => {
+  if (extra === null) return;
+  fotosCache = extra;
   render();
 });
+import("./db.js?v=95").then(({ db }) => db.onProducts(list => { guardarCatalogo(list); recibir(list); })).catch(() => {});
 onMayoreo(() => render());
 
 function tallaBtn(t, on) {
@@ -71,7 +71,7 @@ function render() {
   const labelBuy = (sized && !tallaSel) ? "Elige tu talla" : (puede ? "Comprar" : "Agotado");
   const topeAdd = puede && enCarrito(p.id, sized ? tallaSel : null) >= stockActual;
 
-  const fotos = fotosCache?.length ? fotosCache : (p.imagenes?.length ? p.imagenes : (p.imagen ? [p.imagen] : []));
+  const fotos = fotosCache?.length ? [p.imagen, ...fotosCache].filter(Boolean) : (p.imagenes?.length ? p.imagenes : (p.imagen ? [p.imagen] : []));
   const NOMBRE_CAT = { futbol: "Futbol", basket: "Basketball", americano: "Americano", beisbol: "Béisbol", f1: "Fórmula 1" };
   const volver = `${p.categoria || "futbol"}.html`;
   const nombreCat = NOMBRE_CAT[p.categoria] || "Catálogo";
