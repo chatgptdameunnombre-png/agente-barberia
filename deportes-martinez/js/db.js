@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=98";
-import { PRODUCTOS_SEED } from "./seed.js?v=98";
+import { firebaseConfig, usaFirebase } from "./config.js?v=99";
+import { PRODUCTOS_SEED } from "./seed.js?v=99";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -71,7 +71,7 @@ async function crearImplFirebase() {
     },
     async addProduct(data) {
       const ref = data.id ? refProd(data.id) : doc(col);
-      const { principal, extra } = separarFotos({ ...data, id: ref.id });
+      const { principal, extra } = separarFotos({ oculto: false, ...data, id: ref.id });
       await setDoc(ref, principal);
       await escribirFotos(ref.id, extra);
     },
