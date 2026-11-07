@@ -1,10 +1,10 @@
-import { db, MODO } from "./db.js?v=92";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=92";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=92";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=92";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=92";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=92";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=92";
+import { db, MODO } from "./db.js?v=93";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=93";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=93";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=93";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=93";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=93";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=93";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -72,7 +72,7 @@ function render() {
   const topeAdd = puede && enCarrito(p.id, sized ? tallaSel : null) >= stockActual;
 
   const fotos = fotosCache?.length ? fotosCache : (p.imagenes?.length ? p.imagenes : (p.imagen ? [p.imagen] : []));
-  const NOMBRE_CAT = { futbol: "Futbol", basket: "Basketball", americano: "Americano" };
+  const NOMBRE_CAT = { futbol: "Futbol", basket: "Basketball", americano: "Americano", beisbol: "Béisbol", f1: "Fórmula 1" };
   const volver = `${p.categoria || "futbol"}.html`;
   const nombreCat = NOMBRE_CAT[p.categoria] || "Catálogo";
 
@@ -112,6 +112,30 @@ function render() {
     ? `<div style="margin:12px 0 4px;font-size:13px;color:#c9c9cf;font-weight:600">Talla${tallaSel ? ": " + tallaSel : ""}</div>
        <div style="display:flex;gap:8px;flex-wrap:wrap">${tallasDe(p).map(t => tallaBtn(t, t.talla === tallaSel)).join("")}</div>`
     : `<div style="margin:8px 0 2px;font-size:12.5px;color:#9a9aa2">Talla universal</div>`;
+
+  if (p.proximamente) {
+    cont.innerHTML = `
+    <a href="${volver}" class="volver">← ${nombreCat}</a>
+    <div class="prod">
+      <div class="prod__galeria">${galeria}</div>
+      <div class="prod__info">
+        <span class="prod__brand">${[p.equipo, p.temporada].filter(Boolean).join(" · ") || p.marca || ""}</span>
+        <h1 class="prod__name">${p.nombre}</h1>
+        <span class="stock stock--prox">Próximamente</span>
+        <p class="prod__envio">Todavía no está a la venta. Dinos si la quieres y te avisamos en cuanto llegue.</p>
+        <button class="add-btn add-btn--big" disabled style="width:100%;margin:12px 0 0">Próximamente</button>
+        <a href="${volver}#sugForm" class="btn" style="display:block;text-align:center;margin-top:10px">Avísame cuando llegue →</a>
+        ${p.descripcion ? `<p class="prod__desc">${p.descripcion}</p>` : ""}
+        ${detallesBloque}
+      </div>
+    </div>`;
+    document.title = `${p.nombre} — Deportes Martínez`;
+    if (!trackeado) {
+      trackeado = true;
+      track("ver_producto", { id: p.id, nombre: p.nombre, equipo: p.equipo || "", categoria: p.categoria || "" });
+    }
+    return;
+  }
 
   cont.innerHTML = `
     <a href="${volver}" class="volver">← ${nombreCat}</a>
@@ -184,7 +208,7 @@ function relacionados() {
   const cont = $("#relacionados");
   const p = productos.find(x => x.id === id);
   if (!cont || !p) return;
-  let rel = productos.filter(x => x.id !== p.id && !x.oculto && x.categoria === p.categoria && stockTotal(x) > 0);
+  let rel = productos.filter(x => x.id !== p.id && !x.oculto && !x.proximamente && x.categoria === p.categoria && stockTotal(x) > 0);
   const punt = x => (x.equipo === p.equipo ? 4 : 0) + (x.liga === p.liga ? 2 : 0) + (x.subcategoria === p.subcategoria ? 1 : 0);
   rel.sort((a, b) => punt(b) - punt(a));
   rel = rel.slice(0, 12);
