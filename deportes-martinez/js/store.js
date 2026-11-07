@@ -1,10 +1,10 @@
-import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=97";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=97";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=97";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=97";
-import { track } from "./track.js?v=97";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=97";
-import { ESCUDOS } from "./escudos.js?v=97";
+import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=98";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=98";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=98";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=98";
+import { track } from "./track.js?v=98";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=98";
+import { ESCUDOS } from "./escudos.js?v=98";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -161,7 +161,7 @@ function cardHTML(p) {
   const st = etiquetaStock(total);
   const sinStock = total <= 0;
   const sized = tieneTallas(p);
-  const precioTxt = (preciosVarian(p) ? "desde " : "") + precioHTML(precioDesde(p));
+  const precioTxt = (precioAntes(p) ? `<s class="precio-antes">${precioHTML(precioAntes(p))}</s> ` : "") + (preciosVarian(p) ? "desde " : "") + precioHTML(precioDesde(p));
   const boton = sinStock
     ? `<button class="add-btn" disabled>Agotado</button>`
     : sized
