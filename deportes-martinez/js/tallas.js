@@ -1,4 +1,4 @@
-export const TALLAS_ORDEN = ["S", "M", "L", "XL", "2XL", "3XL"];
+export const TALLAS_ORDEN = ["S", "M", "L", "XL", "2XL", "3XL", "4XL"];
 
 export function tieneTallas(p) {
   return !!(p && p.tallaTipo === "tallas" && Array.isArray(p.tallas) && p.tallas.length > 0);
