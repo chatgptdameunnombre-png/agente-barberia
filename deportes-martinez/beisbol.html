@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jerseys de béisbol — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
@@ -21,7 +22,7 @@
   <meta name="twitter:description" content="Todavía no tenemos jerseys de béisbol. Dinos cuál te gustaría que consiguiéramos.">
   <meta name="twitter:image" content="https://tuagentedeia.com/deportes-martinez/fotos/logo/logo-og.png">
   <link rel="icon" href="fotos/logo/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=94">
+  <link rel="stylesheet" href="css/styles.css?v=95">
 </head>
 <body>
   <header class="hdr">
@@ -60,16 +61,7 @@
 
 
       <h3 class="proxi-gal__t">Lo que viene en camino</h3>
-      <div class="proxi-gal">
-        <a class="proxi-card" href="producto.html?id=prox-yankees-gris">
-          <img src="fotos/proximamente/yankees-gris.webp?e=2" alt="New York Yankees · Gris" loading="lazy" width="900" height="900">
-          <figcaption><span>Próximamente · Ver detalles</span><b>New York Yankees · Gris</b></figcaption>
-        </a>
-        <a class="proxi-card" href="producto.html?id=prox-mexico-beisbol">
-          <img src="fotos/proximamente/mexico-beisbol.webp?e=2" alt="México béisbol · Negra calendario azteca" loading="lazy" width="900" height="900">
-          <figcaption><span>Próximamente · Ver detalles</span><b>México béisbol · Negra calendario azteca</b></figcaption>
-        </a>
-      </div>
+      <div class="grid grid--prox" data-proximos="beisbol"></div>
       <form class="sug" id="sugForm" data-deporte="beisbol" autocomplete="off">
         <label class="sug__lb" for="sugTexto">¿Cuál jersey te gustaría que trajéramos?</label>
         <input class="sug__in" id="sugTexto" name="texto" maxlength="200"
@@ -149,10 +141,11 @@
   </aside>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/sugerencias.js?v=94"></script>
-  <script type="module" src="js/carrito-pagina.js?v=94"></script>
-  <script type="module" src="js/asesor.js?v=94"></script>
-  <script type="module" src="js/auth.js?v=94"></script>
-  <script type="module" src="js/cookies.js?v=94"></script>
+  <script type="module" src="js/sugerencias.js?v=95"></script>
+  <script type="module" src="js/carrito-pagina.js?v=95"></script>
+  <script type="module" src="js/proximos.js?v=95"></script>
+  <script type="module" src="js/asesor.js?v=95"></script>
+  <script type="module" src="js/auth.js?v=95"></script>
+  <script type="module" src="js/cookies.js?v=95"></script>
 </body>
 </html>
