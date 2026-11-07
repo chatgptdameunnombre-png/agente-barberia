@@ -1,5 +1,4 @@
-import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=96";
-import { setProductos, initCart } from "./cart.js?v=96";
+import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=97";
+import { setProductos, initCart } from "./cart.js?v=97";
 catalogoRapido(list => setProductos(list));
-import("./db.js?v=96").then(({ db }) => db.onProducts(list => { guardarCatalogo(list); setProductos(list); })).catch(() => {});
 initCart();
