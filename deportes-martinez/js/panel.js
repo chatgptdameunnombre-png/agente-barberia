@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=92";
-import { pintarEstadisticas } from "./estadisticas.js?v=92";
-import "./panel-nav.js?v=92";
+import { db } from "./db.js?v=93";
+import { pintarEstadisticas } from "./estadisticas.js?v=93";
+import "./panel-nav.js?v=93";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -84,7 +84,8 @@ function render() {
       <div class="p-name">
         <b>${p.nombre}</b>
         <span>${[p.equipo, p.liga, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span>
-        ${p.retro || p.personalizable === false || p.oculto ? `<span class="p-tags">
+        ${p.retro || p.personalizable === false || p.oculto || p.proximamente ? `<span class="p-tags">
+          ${p.proximamente ? `<span class="p-tag p-tag--retro">PRÓXIMAMENTE</span>` : ""}
           ${p.oculto ? `<span class="p-tag p-tag--oculta">OCULTA EN LA TIENDA</span>` : ""}
           ${p.retro ? `<span class="p-tag p-tag--retro">RETRO</span>` : ""}
           ${p.personalizable === false ? `<span class="p-tag">SIN NOMBRE</span>` : ""}
