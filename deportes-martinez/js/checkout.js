@@ -1,10 +1,10 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=97";
-const authListo = import("./auth.js?v=97");
-const dbListo = import("./db.js?v=97").then(m => m.db);
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=98";
+const authListo = import("./auth.js?v=98");
+const dbListo = import("./db.js?v=98").then(m => m.db);
 const abrirLogin = (...a) => authListo.then(m => m.abrirLogin(...a));
 let db = null;
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=97";
-import { track } from "./track.js?v=97";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=98";
+import { track } from "./track.js?v=98";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
