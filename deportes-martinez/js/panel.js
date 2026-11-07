@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=94";
-import { pintarEstadisticas } from "./estadisticas.js?v=94";
-import "./panel-nav.js?v=94";
+import { db } from "./db.js?v=95";
+import { pintarEstadisticas } from "./estadisticas.js?v=95";
+import "./panel-nav.js?v=95";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -188,7 +188,7 @@ function poblarKits(seleccion = "") {
 poblarKits();
 
 /* ---------- tallas ---------- */
-const TALLAS = ["S", "M", "L", "XL", "2XL", "3XL"];
+const TALLAS = ["S", "M", "L", "XL", "2XL", "3XL", "4XL"];
 function aplicarTallaTipo(tipo) {
   const conTallas = tipo === "tallas";
   $("#bloqueTallas").hidden = !conTallas;
