@@ -1,8 +1,8 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=93";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=93";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=93";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=93";
-import { track, marcarProducto } from "./track.js?v=93";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=94";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=94";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=94";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=94";
+import { track, marcarProducto } from "./track.js?v=94";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -42,7 +42,7 @@ function precioDe(p, talla) {
 
 export function addCart(id, talla = null, perso = null) {
   const p = productos.find(x => x.id === id);
-  if (!p) return;
+  if (!p || p.oculto || p.proximamente) return;
   const sized = tieneTallas(p);
   const t = sized ? talla : null;
   if (sized && !t) return;
@@ -65,7 +65,7 @@ export function addCart(id, talla = null, perso = null) {
 function itemsCarrito() {
   return Object.entries(cart).map(([k, c]) => {
     const p = productos.find(x => x.id === c.id);
-    if (!p) return null;
+    if (!p || p.oculto || p.proximamente) return null;
     const t = tieneTallas(p) ? (c.talla || null) : null;
     const disp = dispDe(p, t);
     const qty = Math.min(c.qty, disp);
