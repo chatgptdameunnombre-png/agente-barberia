@@ -34,6 +34,11 @@ export function precioDesde(p) {
   return ps.length ? Math.min(...ps) : Number(p.precio || 0);
 }
 
+export function precioAntes(p) {
+  const a = Number(p.precioAntes) || 0;
+  return a > precioDesde(p) ? a : 0;
+}
+
 export function preciosVarian(p) {
   if (!tieneTallas(p)) return false;
   const set = new Set(tallasDe(p).map(t => (Number(t.precio) > 0 ? Number(t.precio) : Number(p.precio || 0))));
