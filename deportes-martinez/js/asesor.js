@@ -1,7 +1,7 @@
-import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=91";
-import { track } from "./track.js?v=91";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=91";
-import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=91";
+import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=92";
+import { track } from "./track.js?v=92";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=92";
+import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=92";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 const SID_KEY = "deportes-martinez_asesor_sid";
@@ -11,11 +11,11 @@ let productos = [];
 let alCargarProductos = null;
 function setProductos(list) {
   if (!list || !list.length) return;
-  productos = list;
+  productos = list.filter(p => !p.oculto);
   if (alCargarProductos) alCargarProductos();
 }
 
-import("./db.js?v=91").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
+import("./db.js?v=92").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
 
 function fsVal(v) {
   const t = Object.keys(v)[0];
@@ -229,7 +229,9 @@ function montar() {
      así solo sale cuando de verdad no había nada que ofrecerle. */
   const PISTAS = {
     basket: ["basket", "basquet", "básquet", "nba", "lakers", "celtics", "warriors", "bulls", "knicks", "heat", "curry", "lebron", "jordan", "doncic", "tatum"],
-    americano: ["americano", "nfl", "chiefs", "cowboys", "patriots", "steelers", "bills", "eagles", "49ers", "raiders", "packers", "brady", "mahomes"]
+    americano: ["americano", "nfl", "chiefs", "cowboys", "patriots", "steelers", "bills", "eagles", "49ers", "raiders", "packers", "brady", "mahomes"],
+    beisbol: ["beisbol", "mlb", "yankees", "dodgers", "ohtani", "red sox", "cubs", "mets", "astros", "padres", "naranjeros", "charros", "tomateros", "sultanes"],
+    f1: ["formula 1", "formula uno", " f1 ", "checo", "red bull", "ferrari", "mercedes", "mclaren", "cadillac", "verstappen", "hamilton", "alonso", "escuderia"]
   };
   function deporteQueNoHay(txt) {
     const t = " " + txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "") + " ";
