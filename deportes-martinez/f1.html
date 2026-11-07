@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jerseys de Fórmula 1 — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
@@ -21,7 +22,7 @@
   <meta name="twitter:description" content="Todavía no tenemos jerseys de Fórmula 1. Dinos cuál te gustaría que consiguiéramos.">
   <meta name="twitter:image" content="https://tuagentedeia.com/deportes-martinez/fotos/logo/logo-og.png">
   <link rel="icon" href="fotos/logo/favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=94">
+  <link rel="stylesheet" href="css/styles.css?v=95">
 </head>
 <body>
   <header class="hdr">
@@ -60,12 +61,7 @@
 
 
       <h3 class="proxi-gal__t">Lo que viene en camino</h3>
-      <div class="proxi-gal proxi-gal--uno">
-        <a class="proxi-card" href="producto.html?id=prox-cadillac-f1-checo">
-          <img src="fotos/proximamente/cadillac-f1-checo.webp?e=2" alt="Cadillac F1 · Polo Checo Pérez 11" loading="lazy" width="900" height="900">
-          <figcaption><span>Próximamente · Ver detalles</span><b>Cadillac F1 · Polo Checo Pérez 11</b></figcaption>
-        </a>
-      </div>
+      <div class="grid grid--prox" data-proximos="f1"></div>
       <form class="sug" id="sugForm" data-deporte="f1" autocomplete="off">
         <label class="sug__lb" for="sugTexto">¿Cuál jersey te gustaría que trajéramos?</label>
         <input class="sug__in" id="sugTexto" name="texto" maxlength="200"
@@ -145,10 +141,11 @@
   </aside>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/sugerencias.js?v=94"></script>
-  <script type="module" src="js/carrito-pagina.js?v=94"></script>
-  <script type="module" src="js/asesor.js?v=94"></script>
-  <script type="module" src="js/auth.js?v=94"></script>
-  <script type="module" src="js/cookies.js?v=94"></script>
+  <script type="module" src="js/sugerencias.js?v=95"></script>
+  <script type="module" src="js/carrito-pagina.js?v=95"></script>
+  <script type="module" src="js/proximos.js?v=95"></script>
+  <script type="module" src="js/asesor.js?v=95"></script>
+  <script type="module" src="js/auth.js?v=95"></script>
+  <script type="module" src="js/cookies.js?v=95"></script>
 </body>
 </html>
