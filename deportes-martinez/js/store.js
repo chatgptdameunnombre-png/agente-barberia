@@ -1,9 +1,10 @@
-import { db, MODO } from "./db.js?v=94";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=94";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=94";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=94";
-import { track } from "./track.js?v=94";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=94";
+import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=95";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=95";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=95";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=95";
+import { track } from "./track.js?v=95";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=95";
+import { ESCUDOS } from "./escudos.js?v=95";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -32,7 +33,7 @@ const VACIAS = new Set(["playera", "playeras", "jersey", "jerseys", "camiseta", 
   "quiero", "busco", "buscar", "tienes", "tienen", "tiene", "hay", "venden", "de", "del", "la", "el", "los", "las",
   "un", "una", "unos", "y", "con", "para", "en", "por", "que", "me", "mi", "talla", "tallas", "version", "equipo"]);
 const TALLA = { s: "S", ch: "S", chica: "S", m: "M", med: "M", mediana: "M", l: "L", g: "L", grande: "L",
-  xl: "XL", xxl: "2XL", "2xl": "2XL", xxxl: "3XL", "3xl": "3XL" };
+  xl: "XL", xxl: "2XL", "2xl": "2XL", xxxl: "3XL", "3xl": "3XL", xxxxl: "4XL", "4xl": "4XL" };
 const SINON = {
   barca: ["barcelona"], fcb: ["barcelona"], madrid: ["madrid"], merengue: ["madrid"], rm: ["madrid"],
   chivas: ["chivas", "guadalajara"], rebano: ["chivas"], guadalajara: ["chivas"], aguilas: ["america"],
@@ -151,13 +152,9 @@ function puntaje(p, b) {
   return total;
 }
 
-const badge = document.createElement("div");
-badge.className = "mode-badge mode-badge--" + (MODO === "nube" ? "nube" : "demo");
-badge.textContent = MODO === "nube" ? "● En la nube (Firebase)" : "● Modo demo (local)";
-document.body.appendChild(badge);
-
-if (MODO === "demo") await db.seedIfEmpty();
-db.onProducts(list => { productos = list.filter(p => !p.oculto && !p.proximamente); setProductos(list); render(); });
+function recibir(list) { productos = list.filter(p => !p.oculto && !p.proximamente); setProductos(list); render(); }
+queueMicrotask(() => catalogoRapido(recibir));
+import("./db.js?v=95").then(({ db }) => db.onProducts(list => { guardarCatalogo(list); recibir(list); })).catch(() => {});
 onMayoreo(() => render());
 
 function cardHTML(p) {
@@ -205,6 +202,37 @@ function cardHTML(p) {
     </article>`;
 }
 
+const ORDEN_LIGAS = ["Liga MX", "Selección Nacional", "LaLiga", "Premier League", "Serie A", "Bundesliga", "Ligue 1", "MLS"];
+const NOMBRE_LIGA = { "Selección Nacional": "Selecciones" };
+
+function escudoHTML(eq) {
+  const a = ESCUDOS[eq];
+  return a ? `<button type="button" class="liga-head__esc" data-escudo="${esc(eq)}" title="${esc(eq)}"><img src="fotos/escudos/${a}.webp" alt="${esc(eq)}" width="64" height="64" loading="lazy"></button>` : "";
+}
+
+function porLigas(lista) {
+  const grupos = new Map();
+  for (const p of lista) {
+    const l = p.liga || "Otros";
+    if (!grupos.has(l)) grupos.set(l, []);
+    grupos.get(l).push(p);
+  }
+  const pos = l => { const i = ORDEN_LIGAS.indexOf(l); return i < 0 ? ORDEN_LIGAS.length : i; };
+  const ligas = [...grupos.keys()].sort((a, b) => pos(a) - pos(b) || a.localeCompare(b));
+  return ligas.map(l => {
+    const ps = grupos.get(l).sort((a, b) => String(a.equipo || "").localeCompare(String(b.equipo || "")) || String(a.nombre || "").localeCompare(String(b.nombre || "")));
+    const equipos = [...new Set(ps.map(p => p.equipo).filter(e => ESCUDOS[e]))];
+    const mitad = Math.ceil(equipos.length / 2);
+    const izq = equipos.slice(0, mitad).map(escudoHTML).join("");
+    const der = equipos.slice(mitad).map(escudoHTML).join("");
+    return `<div class="liga-head reveal">
+        <div class="liga-head__lado liga-head__lado--izq">${izq}</div>
+        <h2 class="liga-head__t">${esc(NOMBRE_LIGA[l] || l)}</h2>
+        <div class="liga-head__lado">${der}</div>
+      </div>${ps.map(cardHTML).join("")}`;
+  }).join("");
+}
+
 function grupo(lbl, key, valores, abierto, chips) {
   if (valores.length <= 2) return "";
   const opts = valores.map(v =>
@@ -220,7 +248,7 @@ function buildPanel() {
   const d = base();
   const uniq = (k, todo) => [todo, ...[...new Set(d.map(p => p[k]).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b)))];
   const tallas = ["Todas", ...[...new Set(d.flatMap(p => tallasDisponibles(p)))]
-    .sort((a, b) => ["S", "M", "L", "XL", "2XL", "3XL"].indexOf(a) - ["S", "M", "L", "XL", "2XL", "3XL"].indexOf(b))];
+    .sort((a, b) => ["S", "M", "L", "XL", "2XL", "3XL", "4XL"].indexOf(a) - ["S", "M", "L", "XL", "2XL", "3XL", "4XL"].indexOf(b))];
   const ORDEN_COLOR = ["Blanco", "Negro", "Rojo", "Azul", "Celeste", "Verde", "Amarillo", "Dorado", "Naranja", "Rosa", "Morado", "Gris", "Beige"];
   const hay = new Set(d.flatMap(p => p.colores || []));
   const colores = ["Todos", ...ORDEN_COLOR.filter(c => hay.has(c))];
@@ -332,7 +360,7 @@ function render() {
   if (!productos.length) { gridEl.innerHTML = `<p style="color:var(--muted)">Cargando…</p>`; return; }
   const res = $("#buscarRes");
   if (res) res.textContent = buscando && lista.length ? `${lista.length} ${lista.length === 1 ? "jersey" : "jerseys"} para «${q.trim()}»` : "";
-  if (lista.length) gridEl.innerHTML = lista.map(cardHTML).join("");
+  if (lista.length) gridEl.innerHTML = (!buscando && f.orden === "rel" && f.equipo === "Todos") ? porLigas(lista) : lista.map(cardHTML).join("");
   else if (buscando) {
     gridEl.innerHTML = `<div class="buscar-vacio">
         <p class="buscar-vacio__t">No tenemos «${esc(q.trim())}» por ahora.</p>
@@ -377,6 +405,14 @@ document.addEventListener("click", e => {
   }
   const h = e.target.closest(".acc__h");
   if (h) { h.parentElement.classList.toggle("open"); return; }
+  const escudo = e.target.closest("[data-escudo]");
+  if (escudo) {
+    f.equipo = escudo.dataset.escudo;
+    track("filtro", { categoria: CAT, campo: "equipo", campoTxt: "equipo", valor: f.equipo });
+    render();
+    $("#catalogo")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
   const opt = e.target.closest("#filtrosPanel .opt");
   if (opt) {
     f[opt.dataset.f] = opt.dataset.v;
