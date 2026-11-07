@@ -1836,3 +1836,11 @@ a.proxi-card:hover { transform: translateY(-4px); border-color: var(--accent); }
 .aviso-modal__t { font-family: var(--display); font-size: 22px; margin: 0 30px 6px 0; color: var(--ink); }
 .aviso-modal__p { color: var(--ink-soft); font-size: 14.5px; margin: 0 0 14px; line-height: 1.55; }
 .aviso-modal .sug { padding: 0; border: 0; background: none; box-shadow: none; }
+.promo-abre__caja { text-align: center; padding: 34px 26px 28px; background: radial-gradient(80% 70% at 50% 0%, rgba(232,185,35,.16), transparent 70%), #0e0e12; }
+.promo-abre__eti { display: inline-block; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(232,185,35,.4); border-radius: 999px; padding: 6px 14px; margin-bottom: 16px; }
+.promo-abre__t { font-family: var(--display); font-size: clamp(26px, 6vw, 34px); line-height: 1.15; margin: 0 0 12px; color: var(--ink); }
+.promo-abre__t b { color: var(--accent); font-size: 1.35em; display: block; }
+.promo-abre__p { color: var(--ink-soft); font-size: 15.5px; line-height: 1.55; margin: 0 0 20px; }
+.promo-abre__btn { display: block; width: 100%; min-height: 50px; text-decoration: none; }
+.precio-antes { color: var(--muted); font-size: .72em; font-weight: 500; margin-right: 4px; text-decoration: line-through; opacity: .8; }
+.price .precio-antes, .prod__price .precio-antes, .ac-precio .precio-antes, .rel-precio .precio-antes { -webkit-text-fill-color: var(--muted); color: var(--muted); font-size: .68em; text-decoration: line-through; margin-right: 4px; }
