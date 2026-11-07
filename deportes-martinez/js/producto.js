@@ -1,10 +1,10 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=97";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=97";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=97";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=97";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock } from "./tallas.js?v=97";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=97";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=97";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=98";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=98";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=98";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=98";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=98";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=98";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=98";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -65,7 +65,7 @@ function render() {
   const precioActual = sized ? (tallaSel ? precioTalla(p, tallaSel) : precioDesde(p)) : Number(p.precio || 0);
   const st = etiquetaStock(stockActual);
   const puede = sized ? (!!tallaSel && stockDeTalla(p, tallaSel) > 0) : stockActual > 0;
-  const precioLinea = (sized && !tallaSel && preciosVarian(p)) ? "desde " + precioHTML(precioDesde(p)) : precioHTML(precioActual);
+  const precioLinea = (precioAntes(p) ? `<s class="precio-antes">${precioHTML(precioAntes(p))}</s> ` : "") + ((sized && !tallaSel && preciosVarian(p)) ? "desde " + precioHTML(precioDesde(p)) : precioHTML(precioActual));
   const labelAdd = (sized && !tallaSel) ? "Elige tu talla" : (puede ? (enCarrito(p.id, sized ? tallaSel : null) >= stockActual ? "Máximo" : "Agregar al carrito") : "Agotado");
   const labelBuy = (sized && !tallaSel) ? "Elige tu talla" : (puede ? "Comprar" : "Agotado");
   const topeAdd = puede && enCarrito(p.id, sized ? tallaSel : null) >= stockActual;
@@ -190,7 +190,7 @@ function render() {
 
 function cardRel(x) {
   /* el click en un relacionado se registra como ver_producto de la ficha destino */
-  const precio = preciosVarian(x) ? `desde ${money(precioDesde(x))}` : money(precioDesde(x));
+  const precio = (precioAntes(x) ? `<s class="precio-antes">${money(precioAntes(x))}</s> ` : "") + (preciosVarian(x) ? `desde ${money(precioDesde(x))}` : money(precioDesde(x)));
   const media = x.imagen
     ? `<img src="${x.imagen}" alt="${x.nombre}" loading="lazy" onerror="this.style.display='none'">`
     : `<span class="card__ph">📷</span>`;
@@ -260,7 +260,7 @@ function precioConDescuento() {
     el.innerHTML = `<s class="prod__price-antes">${money(base)}</s> ${money(base - desc)} <span>MXN</span>`;
   } else if (el.querySelector(".prod__price-antes")) {
     const sized = tieneTallas(p);
-    const linea = (sized && !tallaSel && preciosVarian(p)) ? "desde " + precioHTML(precioDesde(p)) : precioHTML(precioSel(p));
+    const linea = (precioAntes(p) ? `<s class="precio-antes">${precioHTML(precioAntes(p))}</s> ` : "") + ((sized && !tallaSel && preciosVarian(p)) ? "desde " + precioHTML(precioDesde(p)) : precioHTML(precioSel(p)));
     el.innerHTML = `${linea} <span>MXN</span>`;
   }
 }
@@ -462,7 +462,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=97");
+  const { conectarFormulario } = await import("./sugerencias.js?v=98");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
