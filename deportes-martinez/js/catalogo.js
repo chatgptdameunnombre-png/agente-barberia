@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=96";
+import { firebaseConfig } from "./config.js?v=97";
 
 const DOCS = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/`;
 const KEY = "dm_catalogo_v1";
@@ -25,22 +25,36 @@ function guardado() {
   try { const c = JSON.parse(localStorage.getItem(KEY) || "null"); return Array.isArray(c) && c.length ? c : null; } catch { return null; }
 }
 
+const KEY_T = "dm_catalogo_t";
+const VIGENCIA = 10 * 60 * 1000;
+let pedido = null;
+
+function fresco() {
+  try { return Date.now() - Number(localStorage.getItem(KEY_T) || 0) < VIGENCIA; } catch { return false; }
+}
+
+async function bajar() {
+  let lista = [], tok = "";
+  do {
+    const r = await fetch(`${DOCS}productos?key=${firebaseConfig.apiKey}&pageSize=300${tok ? "&pageToken=" + tok : ""}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    lista = lista.concat((d.documents || []).map(x => ({ ...campos(x.fields || {}), id: x.name.split("/").pop() })));
+    tok = d.nextPageToken || "";
+  } while (tok);
+  lista.sort((a, b) => (String(a.nombre) < String(b.nombre) ? -1 : String(a.nombre) > String(b.nombre) ? 1 : 0));
+  guardarCatalogo(lista);
+  return lista;
+}
+
 export async function catalogoRapido(cb) {
   const c = guardado();
   if (c) cb(c);
+  if (c && fresco()) return;
   try {
-    let lista = [], tok = "";
-    do {
-      const r = await fetch(`${DOCS}productos?key=${firebaseConfig.apiKey}&pageSize=300${tok ? "&pageToken=" + tok : ""}`);
-      if (!r.ok) return;
-      const d = await r.json();
-      lista = lista.concat((d.documents || []).map(x => ({ ...campos(x.fields || {}), id: x.name.split("/").pop() })));
-      tok = d.nextPageToken || "";
-    } while (tok);
-    lista.sort((a, b) => (String(a.nombre) < String(b.nombre) ? -1 : String(a.nombre) > String(b.nombre) ? 1 : 0));
-    const txt = JSON.stringify(lista);
-    try { if (txt.length < 1500000) localStorage.setItem(KEY, txt); } catch {}
-    if (!c || JSON.stringify(c) !== txt) cb(lista);
+    pedido = pedido || bajar();
+    const lista = await pedido;
+    if (lista && (!c || JSON.stringify(c) !== JSON.stringify(lista))) cb(lista);
   } catch {}
 }
 
@@ -54,5 +68,5 @@ export async function fotosRapido(id) {
 }
 
 export function guardarCatalogo(lista) {
-  try { const txt = JSON.stringify(lista); if (txt.length < 1500000) localStorage.setItem(KEY, txt); } catch {}
+  try { const txt = JSON.stringify(lista); if (txt.length < 1500000) { localStorage.setItem(KEY, txt); localStorage.setItem(KEY_T, String(Date.now())); } } catch {}
 }
