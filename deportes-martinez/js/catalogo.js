@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=98";
+import { firebaseConfig } from "./config.js?v=99";
 
 const DOCS = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/`;
 const KEY = "dm_catalogo_v1";
@@ -33,7 +33,19 @@ function fresco() {
   try { return Date.now() - Number(localStorage.getItem(KEY_T) || 0) < VIGENCIA; } catch { return false; }
 }
 
-async function bajar() {
+async function visibles() {
+  const r = await fetch(`${DOCS.slice(0, -1)}:runQuery?key=${firebaseConfig.apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ structuredQuery: { from: [{ collectionId: "productos" }], where: { fieldFilter: { field: { fieldPath: "oculto" }, op: "EQUAL", value: { booleanValue: false } } } } })
+  });
+  if (!r.ok) return null;
+  const d = await r.json();
+  const lista = (Array.isArray(d) ? d : []).filter(x => x.document).map(x => ({ ...campos(x.document.fields || {}), id: x.document.name.split("/").pop() }));
+  return lista.length ? lista : null;
+}
+
+async function todos() {
   let lista = [], tok = "";
   do {
     const r = await fetch(`${DOCS}productos?key=${firebaseConfig.apiKey}&pageSize=300${tok ? "&pageToken=" + tok : ""}`);
@@ -42,6 +54,14 @@ async function bajar() {
     lista = lista.concat((d.documents || []).map(x => ({ ...campos(x.fields || {}), id: x.name.split("/").pop() })));
     tok = d.nextPageToken || "";
   } while (tok);
+  return lista;
+}
+
+async function bajar() {
+  let lista = null;
+  try { lista = await visibles(); } catch {}
+  if (!lista) lista = await todos();
+  if (!lista) return null;
   lista.sort((a, b) => (String(a.nombre) < String(b.nombre) ? -1 : String(a.nombre) > String(b.nombre) ? 1 : 0));
   guardarCatalogo(lista);
   return lista;
