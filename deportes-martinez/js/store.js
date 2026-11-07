@@ -1,10 +1,10 @@
-import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=95";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=95";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=95";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=95";
-import { track } from "./track.js?v=95";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=95";
-import { ESCUDOS } from "./escudos.js?v=95";
+import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=96";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=96";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=96";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=96";
+import { track } from "./track.js?v=96";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=96";
+import { ESCUDOS } from "./escudos.js?v=96";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -154,7 +154,7 @@ function puntaje(p, b) {
 
 function recibir(list) { productos = list.filter(p => !p.oculto && !p.proximamente); setProductos(list); render(); }
 queueMicrotask(() => catalogoRapido(recibir));
-import("./db.js?v=95").then(({ db }) => db.onProducts(list => { guardarCatalogo(list); recibir(list); })).catch(() => {});
+import("./db.js?v=96").then(({ db }) => db.onProducts(list => { guardarCatalogo(list); recibir(list); })).catch(() => {});
 onMayoreo(() => render());
 
 function cardHTML(p) {
@@ -202,7 +202,7 @@ function cardHTML(p) {
     </article>`;
 }
 
-const ORDEN_LIGAS = ["Liga MX", "Selección Nacional", "LaLiga", "Premier League", "Serie A", "Bundesliga", "Ligue 1", "MLS"];
+const ORDEN_LIGAS = ["Liga MX", "Selección Nacional", "LaLiga", "Premier League", "Serie A", "Bundesliga", "Ligue 1", "MLS", "Edición especial"];
 const NOMBRE_LIGA = { "Selección Nacional": "Selecciones" };
 
 function escudoHTML(eq) {
