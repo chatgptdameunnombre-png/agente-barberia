@@ -109,6 +109,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-radius: 999px; font-size: 12px; font-weight: 700; display: grid; place-items: center; padding: 0 5px;
 }
 @media (max-width: 720px) { .nav { display: none; } .brand__sub { display: none; } }
+@media (max-width: 1380px) { .brand__sub { display: none; } }
 
 /* ============ HERO (video) ============ */
 .site-hero {
@@ -1609,6 +1610,10 @@ label, .field label { color: var(--ink-soft); }
   margin-top: 0; flex: 0 0 auto;
 }
 .p-name .p-tag--retro { color: #d9a441; border-color: #6b5220; }
+.p-name .p-tag--oculta { color: #c9c9cf; border-color: #55555e; background: #1c1c22; }
+.p-row--oculta .p-thumb, .p-row--oculta .p-name b { opacity: .45; }
+.vis-a { background: #0b0a07; border: 1px solid var(--line); color: #b9b9c0; }
+.vis-a:hover { border-color: var(--accent); color: var(--accent); }
 
 .p-actions button { font-size: 14px; padding: 11px 16px; border-radius: 10px; min-height: 44px; }
 /* ⚠️ acotada a escritorio: esta regla vive DESPUÉS del bloque de 760px y sin el
@@ -1645,6 +1650,7 @@ label, .field label { color: var(--ink-soft); }
 }
 .proxi__t { font-size: clamp(30px, 5vw, 42px); margin: 0 0 14px; letter-spacing: -.02em; }
 .proxi__p { color: var(--ink-soft); font-size: 17px; line-height: 1.7; margin: 0 auto 34px; max-width: 46ch; }
+.proxi--pie { margin: 70px auto 40px; padding-top: 50px; border-top: 1px solid var(--line); }
 .proxi__link { display: inline-block; margin-top: 26px; color: var(--accent); font-size: 15.5px; font-weight: 600; }
 
 .sug {
@@ -1678,6 +1684,16 @@ label, .field label { color: var(--ink-soft); }
   .proxi__p { font-size: 16px; margin-bottom: 26px; }
   .sug { padding: 20px 17px; border-radius: 15px; }
 }
+
+.proxi-gal__t { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 16px; font-family: var(--mono); font-weight: 600; }
+.proxi-gal { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 0 0 34px; }
+.proxi-gal--uno { grid-template-columns: minmax(0, 340px); justify-content: center; }
+.proxi-card { margin: 0; background: var(--bg-card); border: 1px solid #2a2410; border-radius: 16px; overflow: hidden; text-align: left; }
+.proxi-card img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; background: #0b0b0e; }
+.proxi-card figcaption { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
+.proxi-card figcaption span { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+.proxi-card figcaption b { font-size: 15px; line-height: 1.35; color: var(--ink); }
+@media (max-width: 480px) { .proxi-gal { grid-template-columns: 1fr; } }
 
 /* los deportes que aún no hay se ven presentes pero sin prometer catálogo */
 .cuadro--proxi { opacity: .72; }
