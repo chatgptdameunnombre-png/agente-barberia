@@ -1,7 +1,7 @@
-import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=96";
-import { track } from "./track.js?v=96";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=96";
-import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=96";
+import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=97";
+import { track } from "./track.js?v=97";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=97";
+import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=97";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 const SID_KEY = "deportes-martinez_asesor_sid";
@@ -15,7 +15,7 @@ function setProductos(list) {
   if (alCargarProductos) alCargarProductos();
 }
 
-import("./db.js?v=96").then(m => { m.db.onProducts(list => setProductos(list)); }).catch(() => {});
+import("./catalogo.js?v=97").then(m => m.catalogoRapido(list => setProductos(list))).catch(() => {});
 
 function fsVal(v) {
   const t = Object.keys(v)[0];
@@ -27,17 +27,6 @@ function fsVal(v) {
   return v[t];
 }
 function fsFields(f) { const o = {}; for (const k in f) o[k] = fsVal(f[k]); return o; }
-async function cargarProductosREST() {
-  try {
-    const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/productos?key=${firebaseConfig.apiKey}&pageSize=300`;
-    const r = await fetch(url);
-    if (!r.ok) return;
-    const d = await r.json();
-    const list = (d.documents || []).map(doc => ({ id: doc.name.split("/").pop(), ...fsFields(doc.fields || {}) }));
-    if (!productos.length) setProductos(list);
-  } catch {}
-}
-cargarProductosREST();
 
 function sessionId() {
   let s = localStorage.getItem(SID_KEY);
