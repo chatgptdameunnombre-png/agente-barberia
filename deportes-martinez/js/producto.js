@@ -1,10 +1,10 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=98";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=98";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=98";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=98";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=98";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=98";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=98";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=99";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=99";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=99";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=99";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=99";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=99";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=99";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -57,7 +57,7 @@ function render() {
   const p = productos.find(x => x.id === id);
   if (!productos.length) { cont.innerHTML = `<p style="color:var(--muted)">Cargando…</p>`; return; }
   if (!p || p.oculto) {
-    cont.innerHTML = `<div class="prod-404"><h2>${p ? "Esta playera ya no está disponible" : "Producto no encontrado"}</h2><a href="index.html" class="btn">← Volver a la tienda</a></div>`;
+    cont.innerHTML = `<div class="prod-404"><h2>Esta playera ya no está disponible</h2><a href="index.html" class="btn">← Volver a la tienda</a></div>`;
     return;
   }
   const sized = tieneTallas(p);
@@ -462,7 +462,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=98");
+  const { conectarFormulario } = await import("./sugerencias.js?v=99");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
