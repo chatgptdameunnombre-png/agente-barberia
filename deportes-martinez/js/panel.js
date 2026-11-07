@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=91";
-import { pintarEstadisticas } from "./estadisticas.js?v=91";
-import "./panel-nav.js?v=91";
+import { db } from "./db.js?v=92";
+import { pintarEstadisticas } from "./estadisticas.js?v=92";
+import "./panel-nav.js?v=92";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -47,7 +47,7 @@ function stockPill(s) {
   return `<span class="stock-pill" style="color:var(--ink)">${s}</span>`;
 }
 
-const ORDEN_DEPORTE = { futbol: 0, basket: 1, americano: 2 };
+const ORDEN_DEPORTE = { futbol: 0, basket: 1, americano: 2, beisbol: 3, f1: 4 };
 
 /* primero futbol, luego basketball, luego americano; dentro de cada uno por liga (A-Z) y nombre */
 function ordenar(lista) {
@@ -65,7 +65,7 @@ function render() {
   $("#stStock").textContent = productos.reduce((a, p) => a + Number(p.stock || 0), 0);
   $("#stOut").textContent = productos.filter(p => p.stock <= 0).length;
 
-  const DEPORTE_TXT = { futbol: "Futbol", basket: "Basketball", americano: "Americano" };
+  const DEPORTE_TXT = { futbol: "Futbol", basket: "Basketball", americano: "Americano", beisbol: "Béisbol", f1: "Fórmula 1" };
   const enOrden = ordenar(productos);
 
   const porDeporte = new Map();
@@ -79,12 +79,13 @@ function render() {
   }
 
   const fila = p => `
-    <div class="p-row">
+    <div class="p-row${p.oculto ? " p-row--oculta" : ""}">
       <img class="p-thumb" src="${p.imagen || ''}" alt="" onerror="this.style.visibility='hidden'">
       <div class="p-name">
         <b>${p.nombre}</b>
         <span>${[p.equipo, p.liga, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span>
-        ${p.retro || p.personalizable === false ? `<span class="p-tags">
+        ${p.retro || p.personalizable === false || p.oculto ? `<span class="p-tags">
+          ${p.oculto ? `<span class="p-tag p-tag--oculta">OCULTA EN LA TIENDA</span>` : ""}
           ${p.retro ? `<span class="p-tag p-tag--retro">RETRO</span>` : ""}
           ${p.personalizable === false ? `<span class="p-tag">SIN NOMBRE</span>` : ""}
         </span>` : ""}
@@ -93,6 +94,7 @@ function render() {
       <span class="hide-sm p-precio">${money(p.precio)}</span>
       <span>${stockPill(p.stock)}</span>
       <div class="p-actions">
+        <button class="vis-a" data-vis="${p.id}" title="${p.oculto ? "Mostrarla en la tienda" : "Ocultarla de la tienda sin borrarla"}">${p.oculto ? "Mostrar" : "Ocultar"}</button>
         <button class="edit-a" data-edit="${p.id}">Editar</button>
         <button class="del-a" data-del="${p.id}">Borrar</button>
       </div>
@@ -525,11 +527,27 @@ document.addEventListener("click", e => {
 document.addEventListener("click", e => {
   const rm = e.target.closest("[data-rmfoto]");
   if (rm) { fotosActuales.splice(Number(rm.dataset.rmfoto), 1); renderFotos(); return; }
+  const v = e.target.closest("[data-vis]");
+  if (v) { cambiarVisible(v.dataset.vis, v); return; }
   const t = e.target.closest("[data-edit],[data-del]");
   if (!t) return;
   if (t.dataset.edit) editar(t.dataset.edit);
   else if (t.dataset.del) borrar(t.dataset.del);
 });
+
+async function cambiarVisible(id, btn) {
+  const p = productos.find(x => x.id === id);
+  if (!p) return;
+  const ocultar = !p.oculto;
+  btn.disabled = true;
+  try {
+    await db.updateProduct(id, { oculto: ocultar });
+    toast(ocultar ? `<b>${p.nombre}</b> ya no sale en la tienda. Sigue guardada aquí.` : `<b>${p.nombre}</b> ya sale en la tienda.`);
+  } catch {
+    btn.disabled = false;
+    toast("No se pudo cambiar. Revisa tu conexión e intenta otra vez.");
+  }
+}
 
 function toast(html) {
   const t = document.createElement("div");
@@ -1241,7 +1259,7 @@ function cuandoFue(iso) {
   return d === 1 ? "ayer" : `hace ${d} días`;
 }
 
-const DEPORTE_PIDEN = { basket: "Basketball", americano: "Americano", futbol: "Futbol" };
+const DEPORTE_PIDEN = { basket: "Basketball", americano: "Americano", beisbol: "Béisbol", f1: "Fórmula 1", futbol: "Futbol" };
 
 /* El botón que hace que "Lo que piden" valga: avisarle a quien lo pidió.
    Si no dejó WhatsApp no sale — no tiene sentido un botón que no lleva a nada. */
