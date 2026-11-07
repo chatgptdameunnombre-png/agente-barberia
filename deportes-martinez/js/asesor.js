@@ -1,7 +1,7 @@
-import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=97";
-import { track } from "./track.js?v=97";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian } from "./tallas.js?v=97";
-import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=97";
+import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=98";
+import { track } from "./track.js?v=98";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, precioAntes } from "./tallas.js?v=98";
+import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=98";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 const SID_KEY = "deportes-martinez_asesor_sid";
@@ -15,7 +15,7 @@ function setProductos(list) {
   if (alCargarProductos) alCargarProductos();
 }
 
-import("./catalogo.js?v=97").then(m => m.catalogoRapido(list => setProductos(list))).catch(() => {});
+import("./catalogo.js?v=98").then(m => m.catalogoRapido(list => setProductos(list))).catch(() => {});
 
 function fsVal(v) {
   const t = Object.keys(v)[0];
@@ -150,7 +150,7 @@ function montar() {
       const total = stockTotal(p);
       const sinStock = total <= 0;
       const sized = tieneTallas(p);
-      const precioTxt = preciosVarian(p) ? `desde ${money(precioDesde(p))}` : money(precioDesde(p));
+      const precioTxt = (precioAntes(p) ? `<s class="precio-antes">${money(precioAntes(p))}</s> ` : "") + (preciosVarian(p) ? `desde ${money(precioDesde(p))}` : money(precioDesde(p)));
       const foto = p.imagen
         ? `<img src="${p.imagen}" alt="${p.nombre}" onerror="this.style.display='none'">`
         : `<div class="ac-ph">📷</div>`;
