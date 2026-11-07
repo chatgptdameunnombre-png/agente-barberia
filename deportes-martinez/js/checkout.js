@@ -1,8 +1,10 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=94";
-import { abrirLogin } from "./auth.js?v=94";
-import { db } from "./db.js?v=94";
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=94";
-import { track } from "./track.js?v=94";
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=95";
+const authListo = import("./auth.js?v=95");
+const dbListo = import("./db.js?v=95").then(m => m.db);
+const abrirLogin = (...a) => authListo.then(m => m.abrirLogin(...a));
+let db = null;
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=95";
+import { track } from "./track.js?v=95";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -20,10 +22,13 @@ const BANCO_TRANSFERENCIA = "Mercado Pago W";
 const BENEFICIARIO_TRANSFERENCIA = "Jose Daniel Martinez Velez";
 
 let user = null, perfil = null;
-db.onAuth(async u => {
-  user = u;
-  perfil = u ? await db.getPerfil(u.uid).catch(() => null) : null;
-});
+dbListo.then(d => {
+  db = d;
+  d.onAuth(async u => {
+    user = u;
+    perfil = u ? await d.getPerfil(u.uid).catch(() => null) : null;
+  });
+}).catch(() => {});
 
 export function iniciarPago({ items, productos, entrega, promo, onError }) {
   pedirDatos(entrega, datos => enviarPago({ items, productos, entrega, promo, ...datos }, onError), onError);
@@ -63,7 +68,7 @@ export function iniciarTransferencia(args) {
     const a = aviso("Para pagar por transferencia entra a tu cuenta o crea una. Así apartamos tus jerseys a tu nombre por 48 horas.");
     setTimeout(() => a.remove(), 6000);
     abrirLogin("login", nuevo => {
-      const ahora = db.usuarioAhora?.();
+      const ahora = db?.usuarioAhora?.();
       user = ahora && ahora.uid ? ahora : nuevo;
       perfil = null;
       if (user) iniciarTransferencia(args);
@@ -76,7 +81,7 @@ export function iniciarTransferencia(args) {
 /* Deja el pedido registrado como "por cobrar": aparta el stock y le avisa al dueño.
    Si el cliente nunca paga, el dueño lo cancela en el panel y el stock regresa. */
 async function registrarPedido({ productos, entrega, total, cliente, telefono, direccion, ref }) {
-  const idToken = await db.token().catch(() => null);
+  const idToken = await dbListo.then(d => d.token()).catch(() => null);
   if (!idToken) return { skip: "sin sesion" };
   return fetch(PEDIDO_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
@@ -221,7 +226,7 @@ function direccionDe(p) {
 }
 
 async function pedirDatos(entrega, onConfirm, onCancel) {
-  const u = user || db.usuarioAhora?.();
+  const u = user || db?.usuarioAhora?.();
   if (u && u.uid) {
     user = u;
     if (!perfil) perfil = await db.getPerfil(u.uid).catch(() => null);
@@ -238,7 +243,7 @@ async function pedirDatos(entrega, onConfirm, onCancel) {
       return;
     }
     abrirLogin("login", nuevo => {
-      const ahora = db.usuarioAhora?.();
+      const ahora = db?.usuarioAhora?.();
       user = ahora && ahora.uid ? ahora : nuevo;
       perfil = null;
       pedirDatos(entrega, onConfirm, onCancel);
