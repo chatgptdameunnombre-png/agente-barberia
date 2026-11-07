@@ -1,9 +1,9 @@
-import { db, MODO } from "./db.js?v=91";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=91";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=91";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=91";
-import { track } from "./track.js?v=91";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=91";
+import { db, MODO } from "./db.js?v=92";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=92";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles } from "./tallas.js?v=92";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=92";
+import { track } from "./track.js?v=92";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=92";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -157,7 +157,7 @@ badge.textContent = MODO === "nube" ? "● En la nube (Firebase)" : "● Modo de
 document.body.appendChild(badge);
 
 if (MODO === "demo") await db.seedIfEmpty();
-db.onProducts(list => { productos = list; setProductos(list); render(); });
+db.onProducts(list => { productos = list.filter(p => !p.oculto); setProductos(list); render(); });
 onMayoreo(() => render());
 
 function cardHTML(p) {
