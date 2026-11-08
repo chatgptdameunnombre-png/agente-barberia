@@ -1,10 +1,18 @@
-const HASTA = new Date("2026-12-08T00:00:00-06:00");
+import { promotorActual, promoVigente } from "./promotor.js?v=104";
+
 const KEY = "dm_promo_vista";
 
-function mostrar() {
+function mostrar(pr) {
   const m = document.createElement("div");
   m.className = "aviso-modal promo-abre";
-  m.innerHTML = `
+  m.innerHTML = pr ? `
+    <div class="aviso-modal__caja promo-abre__caja" role="dialog" aria-modal="true" aria-labelledby="promoT">
+      <button type="button" class="aviso-modal__x" aria-label="Cerrar">×</button>
+      <span class="promo-abre__eti">Gracias por entrar a Deportes Martínez</span>
+      <h2 class="promo-abre__t" id="promoT">Todos los jerseys a <b>$600</b></h2>
+      <p class="promo-abre__p">Como agradecimiento, tienes descuento con el código <b class="promo-abre__cod">${pr.codigo}</b>. Ya va aplicado en cada playera.</p>
+      <a class="btn promo-abre__btn" href="futbol.html">Ver jerseys →</a>
+    </div>` : `
     <div class="aviso-modal__caja promo-abre__caja" role="dialog" aria-modal="true" aria-labelledby="promoT">
       <button type="button" class="aviso-modal__x" aria-label="Cerrar">×</button>
       <span class="promo-abre__eti">Precio de apertura</span>
@@ -23,8 +31,10 @@ function mostrar() {
 }
 
 try {
-  if (Date.now() < HASTA.getTime() && !sessionStorage.getItem(KEY)) {
+  const pr = promotorActual();
+  const porLink = new URLSearchParams(location.search).has("p") && pr;
+  if (promoVigente() && (porLink || !sessionStorage.getItem(KEY))) {
     sessionStorage.setItem(KEY, "1");
-    setTimeout(mostrar, 900);
+    setTimeout(() => mostrar(porLink ? pr : null), 900);
   }
 } catch {}
