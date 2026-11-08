@@ -1829,6 +1829,7 @@ a.proxi-card:hover { transform: translateY(-4px); border-color: var(--accent); }
 .grid--prox { width: min(980px, calc(100vw - 32px)); grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .grid--prox:has(> :only-child) { width: min(480px, calc(100vw - 32px)); }
 .liga-head__esc { width: clamp(52px, 6.4vw, 84px); height: clamp(52px, 6.4vw, 84px); }
+.liga-head__esc img[src*="/juventus."] { background: #fff; border-radius: 50%; padding: 14%; box-sizing: border-box; }
 .aviso-modal { position: fixed; inset: 0; z-index: 9000; display: grid; place-items: center; padding: 16px; background: rgba(0,0,0,.72); backdrop-filter: blur(4px); }
 .aviso-modal[hidden] { display: none; }
 .aviso-modal__caja { position: relative; width: min(460px, 100%); max-height: calc(100vh - 32px); overflow: auto; background: #0e0e12; border: 1px solid rgba(232,185,35,.35); border-radius: 18px; padding: 26px 22px 22px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
