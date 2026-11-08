@@ -1,10 +1,10 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=102";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=102";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=102";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=102";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=102";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=102";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=102";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=103";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=103";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=103";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=103";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=103";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=103";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=103";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -462,7 +462,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=102");
+  const { conectarFormulario } = await import("./sugerencias.js?v=103");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
