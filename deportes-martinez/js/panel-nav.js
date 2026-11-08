@@ -10,7 +10,8 @@ const SECCIONES = {
   asistente: { sel: "#secAsistente", titulo: "Asistente" },
   piden: { sel: "#secPiden", titulo: "Lo que piden" },
   promos: { sel: "#secPromos", titulo: "Códigos de descuento" },
-  cuentas: { sel: "#secCuentas", titulo: "Cuentas de clientes" }
+  cuentas: { sel: "#secCuentas", titulo: "Cuentas de clientes" },
+  promotores: { sel: "#secPromotores", titulo: "Promotores" }
 };
 
 const LS_SEC = "dm_panel_sec";
