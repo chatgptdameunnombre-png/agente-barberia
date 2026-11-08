@@ -1,10 +1,10 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=101";
-const authListo = import("./auth.js?v=101");
-const dbListo = import("./db.js?v=101").then(m => m.db);
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=102";
+const authListo = import("./auth.js?v=102");
+const dbListo = import("./db.js?v=102").then(m => m.db);
 const abrirLogin = (...a) => authListo.then(m => m.abrirLogin(...a));
 let db = null;
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=101";
-import { track } from "./track.js?v=101";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=102";
+import { track } from "./track.js?v=102";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -20,6 +20,7 @@ function nuevoFolio() {
 const CLABE_TRANSFERENCIA = "722 969 07099512872 1";
 const BANCO_TRANSFERENCIA = "Mercado Pago W";
 const BENEFICIARIO_TRANSFERENCIA = "Jose Daniel Martinez Velez";
+const AVISO_WHATSAPP = false;
 
 let user = null, perfil = null;
 dbListo.then(d => {
@@ -150,7 +151,7 @@ async function mostrarClabe({ productos, entrega, total, cliente, telefono, dire
         <button id="trClose" style="background:none;border:none;color:#9a9aa2;font-size:24px;cursor:pointer;line-height:1">✕</button>
       </div>
       <p style="margin:0 0 16px;font-size:15.5px;color:#9a9aa2">${CLABE_TRANSFERENCIA
-        ? "Ya te apartamos tu jersey por 48 horas. Transfiere a esta cuenta y mándanos tu comprobante por WhatsApp; si no recibimos el pago en ese tiempo, el jersey regresa a la tienda."
+        ? `Cuando transfieras, mándanos tu comprobante por WhatsApp al <a href="https://wa.me/${WHATSAPP_NUMERO}" target="_blank" rel="noopener" style="color:#e8b923;font-weight:700;text-decoration:none">${NEGOCIO.telefono}</a>. Apartamos tu playera por 48 horas; si no recibimos el comprobante en ese tiempo, la liberamos.`
         : "Ya te apartamos tu jersey por 48 horas. Manda tu pedido por WhatsApp y te pasamos los datos para transferir."}</p>
       <div style="background:#0e0e11;border:1px solid #2a2a32;border-radius:12px;padding:14px;margin-bottom:14px">
         ${CLABE_TRANSFERENCIA ? `
@@ -164,6 +165,7 @@ async function mostrarClabe({ productos, entrega, total, cliente, telefono, dire
         <div style="display:flex;justify-content:space-between"><span style="color:#9a9aa2;font-size:15.5px">Número de pedido</span><b style="font-size:24px;letter-spacing:.06em">${ref}</b></div>
       </div>
       <a href="${waLink}" target="_blank" rel="noopener" style="display:block;text-align:center;background:linear-gradient(135deg,#e8b923,#f7d154);color:#1a1405;border-radius:12px;padding:14px;font-weight:800;font-size:17px;text-decoration:none">Enviar comprobante por WhatsApp</a>
+      ${AVISO_WHATSAPP ? `<div style="margin-top:14px;background:#0e0e11;border:1px solid #2a2a32;border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.55;color:#c9c9cf">💬 Te vamos a mandar un WhatsApp${telefono ? ` al <b style="color:#f4f4f5">${String(telefono).replace(/[^\d +()-]/g, "")}</b>` : ""} con todos los datos de tu pedido.<br>¿Dudas? Escríbenos al <a href="https://wa.me/${WHATSAPP_NUMERO}" target="_blank" rel="noopener" style="color:#e8b923;font-weight:700;text-decoration:none">${NEGOCIO.telefono}</a>.</div>` : ""}
       ${entrega === "domicilio" ? "" : `<a href="${rutaMapa()}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:10px;border:1px solid #2e2e38;color:#f4f4f5;border-radius:12px;padding:13px;font-weight:700;font-size:16px;text-decoration:none">📍 Cómo llegar a la tienda</a>`}
       <p style="margin:14px 0 0;font-size:15px;line-height:1.55;color:${invitado ? "#f7d154" : "#9a9aa2"}">${invitado
         ? `Guarda tu número de pedido <b>${ref}</b>: cópialo o tómale captura. Como compraste sin cuenta, no lo vas a poder ver después en la página.`
