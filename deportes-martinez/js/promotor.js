@@ -4,7 +4,7 @@ export const PROMO_HASTA = new Date("2026-12-08T00:00:00-06:00");
 
 export const limpiarSlug = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   .replace(/[^a-z0-9]+/g, "").slice(0, 30);
-export const codigoDe = slug => limpiarSlug(slug).toUpperCase() + "06";
+export const codigoDe = slug => limpiarSlug(slug).toUpperCase();
 
 function leer() {
   try {
@@ -36,9 +36,9 @@ export const promoVigente = () => Date.now() < PROMO_HASTA.getTime();
 
 export async function promotorPorCodigo(codigo) {
   const c = String(codigo || "").toUpperCase().replace(/\s+/g, "");
-  if (!/^[A-Z0-9]{2,30}06$/.test(c)) return null;
-  const { firebaseConfig } = await import("./config.js?v=104");
-  const slug = c.slice(0, -2).toLowerCase();
+  if (!/^[A-Z0-9]{3,30}$/.test(c)) return null;
+  const { firebaseConfig } = await import("./config.js?v=105");
+  const slug = c.toLowerCase();
   const r = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/promotores/${slug}?key=${firebaseConfig.apiKey}&mask.fieldPaths=activo`).catch(() => null);
   if (!r || !r.ok) return null;
   const d = await r.json().catch(() => null);
