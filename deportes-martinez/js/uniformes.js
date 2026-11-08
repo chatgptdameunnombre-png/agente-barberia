@@ -1,6 +1,6 @@
-import { db } from "./db.js?v=100";
-import { UNIFORMES_WEBHOOK, WHATSAPP_NUMERO } from "./config.js?v=100";
-import { track } from "./track.js?v=100";
+import { db } from "./db.js?v=101";
+import { UNIFORMES_WEBHOOK, WHATSAPP_NUMERO } from "./config.js?v=101";
+import { track } from "./track.js?v=101";
 
 const $ = s => document.querySelector(s);
 const form = $("#uniForm");
