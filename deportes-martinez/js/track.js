@@ -1,5 +1,6 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=103";
-import { permiteMedicion } from "./cookies.js?v=103";
+import { firebaseConfig, usaFirebase } from "./config.js?v=104";
+import { permiteMedicion } from "./cookies.js?v=104";
+import { promotorActual } from "./promotor.js?v=104";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
@@ -61,6 +62,7 @@ async function identidad() {
 }
 
 /* ============ sesión ============ */
+const promotorGuardado = () => promotorActual()?.slug || "";
 const nuevoId = () => "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const pagina = () => location.pathname.split("/").pop() || "index.html";
 
@@ -197,6 +199,7 @@ function resumenSesion(uid) {
     clienteEmail: ses.clienteEmail || "",
     nombreCliente: ses.nombreCliente || "",
     refPedido: ses.refPedido || "",
+    promotor: promotorGuardado(),
     vistos: prods.length,
     alCarrito: prods.filter(([, p]) => p.carrito).length,
     favorito: masVisto ? masVisto[1].nombre : "",
