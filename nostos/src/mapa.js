@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { banco } from './texturas.js?v=20261107190606';
+import { banco } from './texturas.js?v=20261108145613';
 
 export const CELDA = 4;
 export const ALTO = 10;
@@ -129,6 +129,8 @@ export function esSolido(rejilla, cx, cz) {
 }
 
 export function construir(rejilla, texturas, estilo = ESTILOS_NIVEL.palacio) {
+  const original = rejilla.slice();
+  rejilla = rejilla.slice();
   const tex = texturas || banco();
   const MATERIAL_POR_SIGNO = estilo.materiales;
   const grupo = new THREE.Group();
@@ -200,6 +202,12 @@ export function construir(rejilla, texturas, estilo = ESTILOS_NIVEL.palacio) {
 
   const nivel = { grupo, spawns, rejilla, ancho, alto, tex, estilo, colores: estilo.colores || null };
   nivel.rehacer = () => rehacer(nivel);
+  nivel.restaurar = () => {
+    if (rejilla.every((fila, z) => fila === original[z])) return false;
+    rejilla.splice(0, rejilla.length, ...original);
+    rehacer(nivel);
+    return true;
+  };
   return nivel;
 }
 
@@ -211,6 +219,8 @@ function rehacer(nivel) {
     if (!hijo.userData.piso && !hijo.userData.techo && !hijo.userData.decor) {
       grupo.remove(hijo);
       hijo.geometry.dispose();
+      if (hijo.material.map) hijo.material.map.dispose();
+      hijo.material.dispose();
     }
   }
   const porMaterial = {};
@@ -234,7 +244,9 @@ function rehacer(nivel) {
     const t = tex[clave].clone();
     t.needsUpdate = true;
     t.repeat.set(1, ALTO / CELDA);
-    grupo.add(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: t })));
+    const mat = new THREE.MeshLambertMaterial({ map: t });
+    if (nivel.tinte != null) mat.color.setHex(nivel.tinte);
+    grupo.add(new THREE.Mesh(geo, mat));
   }
 }
 

@@ -1,4 +1,4 @@
-import { RELIQUIAS } from './reliquias.js?v=20261107190606';
+import { RELIQUIAS } from './reliquias.js?v=20261108145613';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -57,7 +57,7 @@ export const CUCHILLOS = {
 
 const BASICOS = [
   { id: 'carcaj', nombre: 'CARCAJ DE FLECHAS', precio: 45, celda: 2, respaldo: 1,
-    instantaneo: true, desc: 'Te llena las flechas hasta el tope, no ocupa lugar',
+    instantaneo: true, libre: true, desc: 'Te llena las flechas hasta el tope. Siempre esta y no gasta tu compra de la ronda',
     inutil: j => j.flechas >= j.flechasMax,
     aplicar: j => { j.flechas = j.flechasMax; } },
   { id: 'odre', nombre: 'ODRE DE VINO', precio: 55, celda: 11, respaldo: 6,
@@ -203,13 +203,14 @@ export class Tienda {
     const cuantasArmas = Math.min(fijas.length, Math.random() < 0.5 ? 1 : 2);
     const mejoras = [...fijas.slice(0, cuantasArmas),
                      ...resto.slice(0, Math.max(1, 3 - cuantasArmas))];
-    const consumibles = nuevo(CONSUMIBLES.filter(c => c.id !== 'carcaj' || !sinArco))
+    const consumibles = nuevo(CONSUMIBLES.filter(c => c.id !== 'carcaj'))
       .slice(0, Math.max(1, this.cuantos - mejoras.length));
     this.oferta = revuelve([...mejoras, ...consumibles]);
     const faltanCuchillos = this.jugador.cuchillosMax - this.jugador.cuchillos;
     if (faltanCuchillos >= 4 && Math.random() < 0.45 && !this.oferta.some(o => o.id === 'cuchillos')) {
       this.oferta[this.oferta.length - 1] = CUCHILLOS;
     }
+    if (!sinArco) this.oferta.push(CONSUMIBLES.find(c => c.id === 'carcaj'));
     this.previa = this.oferta.map(o => o.id);
   }
 
@@ -243,14 +244,14 @@ export class Tienda {
       const ranura = this.ocupaRanura(art);
       const sinHueco = ranura ? !this.jugador.hayHueco(ranura) : false;
       const sobra = !!(art.inutil && art.inutil(this.jugador));
-      const puede = this.jugador.oro >= precio && !sinHueco && !sobra && !this.yaCompro;
+      const puede = this.jugador.oro >= precio && !sinHueco && !sobra && (!this.yaCompro || art.libre);
       const t = document.createElement('div');
       t.className = 'carta' + (puede ? ' listo' : ' pobre');
       t.innerHTML = `
         <div class="ico" style="background-image:${this._icono(art)}"></div>
         <b>${art.nombre}</b>
         <span>${art.desc}</span>
-        <em>${sobra ? 'NO TE HACE FALTA' : sinHueco ? 'SIN ESPACIO' : this.yaCompro ? 'YA COMPRASTE' : puede ? precio + ' ORO' : 'TE FALTAN ' + (precio - this.jugador.oro)}</em>`;
+        <em>${sobra ? 'NO TE HACE FALTA' : sinHueco ? 'SIN ESPACIO' : this.yaCompro && !art.libre ? 'YA COMPRASTE' : puede ? precio + ' ORO' : 'TE FALTAN ' + (precio - this.jugador.oro)}</em>`;
       t.addEventListener('click', () => this.comprar(art));
       this.rejilla.appendChild(t);
     });
@@ -268,7 +269,7 @@ export class Tienda {
   }
 
   comprar(art) {
-    if (this.yaCompro) return;
+    if (this.yaCompro && !art.libre) return;
     const precio = Math.round(art.precio * this.descuento);
     if (this.jugador.oro < precio) return;
 
@@ -293,6 +294,11 @@ export class Tienda {
     } else if (!this.jugador.guardar(art.id)) {
       this.jugador.oro += precio;
       if (this.alFallar) this.alFallar('INVENTARIO LLENO');
+      return;
+    }
+    if (art.libre) {
+      if (this.alComprar) this.alComprar(art);
+      this.pintar();
       return;
     }
     this.yaCompro = true;

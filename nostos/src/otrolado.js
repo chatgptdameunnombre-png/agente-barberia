@@ -81,6 +81,7 @@ export class OtroLado {
     this.baseAntorcha = p.antorcha.fuerza;
     this.cenit.color.setHex(p.cenit.color);
     this.cenit.intensity = p.cenit.fuerza;
+    this.nivel.tinte = p.tinteNivel;
     this.nivel.grupo.traverse(o => {
       if (o.material && o.material.color) o.material.color.setHex(p.tinteNivel);
     });

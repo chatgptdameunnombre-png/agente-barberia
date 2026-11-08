@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20261107190606';
+import { CELDA, esSolido } from './mapa.js?v=20261108145613';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -207,7 +207,7 @@ export class Jugador {
     this.cargaRayo = 0;
     if (this.marcando) {
       this.marcando = false;
-      if (this.alSoltarMarcas) this.alSoltarMarcas();
+      if (this.alCancelarMarcas) this.alCancelarMarcas();
     }
   }
 
@@ -222,10 +222,6 @@ export class Jugador {
 
   tajo() {
     if (!this.activo || this.enfriamientoTajo > 0 || !this.alTajo || this.hachaFuera) return;
-    if (this.mano === 'cuchillo' && this.cuchillos <= 0) {
-      if (this.alVacio) this.alVacio();
-      return;
-    }
     this.enfriamientoTajo = 0.55;
     this.tensando = false;
     this.tension = 0;
