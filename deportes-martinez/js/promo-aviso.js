@@ -1,4 +1,4 @@
-import { promotorActual, promoVigente } from "./promotor.js?v=104";
+import { promotorActual, promoVigente } from "./promotor.js?v=105";
 
 const KEY = "dm_promo_vista";
 
