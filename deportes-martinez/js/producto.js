@@ -1,10 +1,11 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=103";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=103";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=103";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=103";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=103";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=103";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=103";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=104";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=104";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=104";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=104";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=104";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=104";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=104";
+import { promotorActual, promoVigente, promotorPorCodigo } from "./promotor.js?v=104";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -67,7 +68,8 @@ function render() {
   const puede = sized ? (!!tallaSel && stockDeTalla(p, tallaSel) > 0) : stockActual > 0;
   const precioLinea = (precioAntes(p) ? `<s class="precio-antes">${precioHTML(precioAntes(p))}</s> ` : "") + ((sized && !tallaSel && preciosVarian(p)) ? "desde " + precioHTML(precioDesde(p)) : precioHTML(precioActual));
   const labelAdd = (sized && !tallaSel) ? "Elige tu talla" : (puede ? (enCarrito(p.id, sized ? tallaSel : null) >= stockActual ? "Máximo" : "Agregar al carrito") : "Agotado");
-  const labelBuy = (sized && !tallaSel) ? "Elige tu talla" : (puede ? "Comprar" : "Agotado");
+  const labelBuy = (sized && !tallaSel) ? "Elige tu talla" : (puede ? "Pagar " + money(totalPagar(p)) : "Agotado");
+  const pr = promoVigente() ? promotorActual() : null;
   const topeAdd = puede && enCarrito(p.id, sized ? tallaSel : null) >= stockActual;
 
   const fotos = fotosCache?.length ? [p.imagen, ...fotosCache].filter(Boolean) : (p.imagenes?.length ? p.imagenes : (p.imagen ? [p.imagen] : []));
@@ -149,21 +151,11 @@ function render() {
         <p class="prod__envio">🚚 Envío a todo México: se prepara en 1 a 2 días hábiles y llega en 2 a 5 días hábiles más${p.personalizable === false ? "" : " (si lo pides con nombre y número, unos días más)"}</p>
         ${tallasBloque}
         ${persoBloque}
-        <div style="display:flex;gap:10px;margin-top:12px">
-          <button class="add-btn add-btn--big" id="addBtn2" ${puede && !topeAdd ? "" : "disabled"} style="flex:1;margin:0">${labelAdd}</button>
-          <button class="add-btn add-btn--big" id="buyNow" ${puede ? "" : "disabled"} style="flex:1;margin:0;background:#e8b923;color:#1a1405">${labelBuy}</button>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button type="button" class="entrega-op" data-entrega="tienda" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">Recoger en tienda</button>
-          <button type="button" class="entrega-op" data-entrega="domicilio" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">🏠 A domicilio +${money(ENVIO_DOMICILIO)}</button>
-        </div>
-        <div style="margin-top:12px;font-size:12.5px;color:#9a9aa2">¿Cómo quieres pagar? <span style="color:#7a7a82">(al usar "Comprar")</span></div>
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <button type="button" class="pago-op" data-pago="tarjeta" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">💳 Tarjeta</button>
-          <button type="button" class="pago-op" data-pago="transferencia" style="flex:1;padding:11px;border-radius:12px;border:1px solid #2a2a32;background:#141418;color:#f4f4f5;font-size:13px;cursor:pointer">🏦 Transferencia</button>
-        </div>
+        <button class="add-btn add-btn--big pd-carrito" id="addBtn2" ${puede && !topeAdd ? "" : "disabled"}>${labelAdd}</button>
+        <button class="add-btn add-btn--big pd-pagar" id="buyNow" ${puede ? "" : "disabled"}>${labelBuy}</button>
         <div class="promo-caja" style="margin-top:12px;border:0;padding:0">
-          <button type="button" class="promo-abrir" id="pdPromoAbrir">¿Tienes un código de descuento?</button>
+          ${pr ? `<p class="promo-aviso promo-aviso--ok pd-promotor">Código <b>${pr.codigo}</b> · ✓ Descuento aplicado</p>` : ""}
+          <button type="button" class="promo-abrir" id="pdPromoAbrir">${pr ? "¿Tienes otro código?" : "¿Tienes un código de descuento?"}</button>
           <div class="promo-campo" id="pdPromoCampo" hidden>
             <input id="pdPromoInput" placeholder="Escríbelo aquí" autocapitalize="characters" autocomplete="off">
             <button type="button" id="pdPromoAplicar">Aplicar</button>
@@ -183,8 +175,7 @@ function render() {
     trackProducto(p);
     track("ver_producto", { id: p.id, nombre: p.nombre, equipo: p.equipo || "", categoria: p.categoria || "" });
   }
-  pintarEntrega();
-  pintarPago();
+  actualizarTotal();
   relacionados();
 }
 
@@ -224,6 +215,7 @@ function relacionados() {
 }
 
 function pintarEntrega() {
+  const pe = $("#pagoErr"); if (pe) pe.textContent = "";
   document.querySelectorAll(".entrega-op").forEach(b => {
     const on = b.dataset.entrega === entregaProd;
     b.style.borderColor = on ? "#e8b923" : "#2a2a32";
@@ -240,6 +232,12 @@ function pintarPago() {
     b.style.background = on ? "rgba(232,185,35,.14)" : "#141418";
     b.style.color = on ? "#e8b923" : "#f4f4f5";
   });
+}
+
+function totalPagar(p) {
+  const base = precioMay(precioSel(p)) + (persoOn ? PERSONALIZACION_PRECIO : 0);
+  const desc = promoProd ? Math.min(promoProd.descuento, base - 1) : 0;
+  return base - desc + (entregaProd === "domicilio" ? ENVIO_DOMICILIO : 0);
 }
 
 function precioSel(p) {
@@ -268,6 +266,10 @@ function precioConDescuento() {
 function actualizarTotal() {
   precioConDescuento();
   const p = productos.find(x => x.id === id);
+  const bn = $("#buyNow");
+  if (p && bn && !bn.disabled) bn.textContent = "Pagar " + money(totalPagar(p));
+  const mt = $("#pagoTotal");
+  if (p && mt) mt.textContent = money(totalPagar(p)) + (entregaProd === "domicilio" ? " con envío" : "");
   const el = $("#prodTotal");
   if (!p || !el) return;
   el.style.color = "#e8b923";
@@ -286,7 +288,7 @@ function actualizarTotal() {
 }
 
 function err(txt) {
-  const el = $("#prodTotal");
+  const el = $("#pagoErr") || $("#prodTotal");
   if (el) { el.style.color = "#ff6b6b"; el.textContent = txt; }
 }
 
@@ -319,6 +321,7 @@ function comprarDirecto() {
   if (persoOn && !pe) { err("Escribe el nombre o el número"); return; }
   const precio = precioSel(p) + (pe ? PERSONALIZACION_PRECIO : 0);
   const prodInfo = [{ id: p.id, qty: 1, title: p.nombre, talla: sized ? tallaSel : "", perso: pe }];
+  document.getElementById("pagoModal")?.remove();
   track("comprar_directo", { id: p.id, nombre: p.nombre, metodo: metodoPagoProd, promo: promoProd?.codigo || "" });
   const promo = promoProd?.codigo || "";
   if (metodoPagoProd === "transferencia") {
@@ -406,6 +409,11 @@ document.addEventListener("click", async e => {
         av.className = "promo-aviso promo-aviso--ok";
         av.innerHTML = `Se aplicó <b>${d.codigo}</b> — ${d.etiqueta}. <button type="button" id="pdPromoQuitar" class="promo-quitar">Quitar</button>`;
         track("promo_aplicada", { codigo: d.codigo, descuento: d.descuento, donde: "ficha" });
+      } else if (await promotorPorCodigo(cod)) {
+        promoProd = null;
+        track("promo_promotor", { codigo: cod, donde: "ficha" });
+        render();
+        return;
       } else {
         promoProd = null;
         av.className = "promo-aviso promo-aviso--mal";
@@ -420,7 +428,8 @@ document.addEventListener("click", async e => {
     actualizarTotal();
     return;
   }
-  if (e.target.closest("#buyNow")) comprarDirecto();
+  if (e.target.closest("#buyNow")) { abrirPago(); return; }
+  if (e.target.closest("#pagoSeguir")) { comprarDirecto(); return; }
 });
 document.addEventListener("cart:add", render);
 
@@ -462,7 +471,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=103");
+  const { conectarFormulario } = await import("./sugerencias.js?v=104");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
@@ -492,4 +501,43 @@ async function abrirAviso(p) {
   conectarFormulario(m.querySelector("form"));
   m.querySelector("#avisoNombre").focus();
   track("aviso_llegue", { id: p.id, nombre: p.nombre });
+}
+
+function abrirPago() {
+  const p = productos.find(x => x.id === id);
+  if (!p) return;
+  const sized = tieneTallas(p);
+  if (sized && !tallaSel) { err("Elige tu talla"); return; }
+  if (persoOn && !persoActual()) { err("Escribe el nombre o el número"); return; }
+  document.getElementById("pagoModal")?.remove();
+  const m = document.createElement("div");
+  m.className = "aviso-modal";
+  m.id = "pagoModal";
+  m.innerHTML = `
+    <div class="aviso-modal__caja pago-modal" role="dialog" aria-modal="true" aria-labelledby="pagoT">
+      <button type="button" class="aviso-modal__x" aria-label="Cerrar">×</button>
+      <h2 class="aviso-modal__t" id="pagoT">Pagar</h2>
+      <p class="aviso-modal__p">${escA(p.nombre)}${sized ? " · Talla " + escA(tallaSel) : ""}</p>
+      <div class="pago-modal__paso">1. ¿Dónde lo quieres recibir?</div>
+      <div class="pago-modal__ops">
+        <button type="button" class="entrega-op" data-entrega="tienda">Recoger en tienda</button>
+        <button type="button" class="entrega-op" data-entrega="domicilio">🏠 A domicilio +${money(ENVIO_DOMICILIO)}</button>
+      </div>
+      <div class="pago-modal__paso">2. ¿Cómo quieres pagar?</div>
+      <div class="pago-modal__ops">
+        <button type="button" class="pago-op" data-pago="tarjeta">💳 Tarjeta</button>
+        <button type="button" class="pago-op" data-pago="transferencia">🏦 Transferencia</button>
+      </div>
+      <div class="pago-modal__total">Total <b id="pagoTotal"></b></div>
+      <p class="pago-modal__err" id="pagoErr"></p>
+      <button type="button" class="add-btn add-btn--big pd-pagar" id="pagoSeguir">Continuar al pago</button>
+    </div>`;
+  const cerrar = () => { m.remove(); document.removeEventListener("keydown", tecla); };
+  const tecla = e => { if (e.key === "Escape") cerrar(); };
+  m.addEventListener("click", e => { if (e.target === m || e.target.closest(".aviso-modal__x")) cerrar(); });
+  document.addEventListener("keydown", tecla);
+  document.body.appendChild(m);
+  pintarEntrega();
+  pintarPago();
+  track("abrir_pago", { id: p.id, nombre: p.nombre });
 }
