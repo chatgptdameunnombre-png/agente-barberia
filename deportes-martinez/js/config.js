@@ -24,6 +24,7 @@ export const ASESOR_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-ase
 export const BORRAR_CUENTA_WEBHOOK = "https://n8n.srv1473142.hstgr.cloud/webhook/dm-borrar-cuenta";
 
 export const EDAD_MINIMA = 18;
+export const KIKI_EMAIL = "tuagentedeia.com@gmail.com";
 
 export const NEGOCIO = {
   nombre: "Deportes Martínez",
