@@ -1,4 +1,4 @@
-import { CELDA, esSolido } from './mapa.js?v=20261025221645';
+import { CELDA, esSolido } from './mapa.js?v=20261107190606';
 
 export class Flujo {
   constructor(nivel) {
