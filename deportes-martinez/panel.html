@@ -6,7 +6,7 @@
   <title>Panel del dueño — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=104">
+  <link rel="stylesheet" href="css/styles.css?v=105">
 </head>
 <body class="admin-body">
 
@@ -37,7 +37,7 @@
       <button class="pnav__item" data-sec="piden"><span class="pnav__ico">🙋</span>Lo que piden <span class="pnav__badge" id="pnavPiden" hidden>0</span></button>
       <button class="pnav__item" data-sec="promos"><span class="pnav__ico">🏷️</span>Códigos de descuento</button>
       <button class="pnav__item" data-sec="cuentas"><span class="pnav__ico">👥</span>Cuentas de clientes</button>
-      <a class="pnav__item" id="pnavPromotores" href="promotores.html" hidden><span class="pnav__ico">📣</span>Promotores</a>
+      <button class="pnav__item" data-sec="promotores" id="pnavPromotores" hidden><span class="pnav__ico">📣</span>Promotores</button>
       <div class="pnav__sep"></div>
       <button class="pnav__item pnav__item--accion" data-sec="agregar"><span class="pnav__ico">＋</span>Agregar jersey</button>
       <div class="pnav__pie">
@@ -102,6 +102,25 @@
           y el descuento se le aplica solo. Aquí ves cuántas veces se ha usado cada uno.
         </p>
         <div id="promosBody"><p class="st-vacio">Cargando…</p></div>
+      </section>
+
+      <section class="psec" id="secPromotores" hidden>
+        <div class="admin-head" style="margin-bottom:14px">
+          <h1>Promotores</h1>
+        </div>
+        <p style="color:var(--ink-soft);font-size:14px;max-width:66ch;margin-bottom:20px">
+          Crea un link para cada persona que promocione la tienda. Quien entre con su link ve el descuento con su código,
+          y aquí ves cuántas visitas y ventas te trajo. Solo tú ves esta sección.
+        </p>
+        <form id="prmForm" class="prm__form" autocomplete="off">
+          <label class="prm__campo"><span>Nombre</span><input class="input" id="prmNombre" maxlength="40" placeholder="Juan Pérez" required></label>
+          <label class="prm__campo"><span>Código que quieres</span><input class="input" id="prmCodigo" maxlength="20" placeholder="JUAN06" autocapitalize="characters" required></label>
+          <button class="btn" type="submit" id="prmCrear">Crear link</button>
+        </form>
+        <p class="prm__err" id="prmErr"></p>
+        <div id="prmNuevo"></div>
+        <div class="prm__cab"><h2 class="prm__t">Cómo van</h2><button class="btn btn--ghost" id="prmRecargar" type="button">Actualizar</button></div>
+        <div id="prmTabla"><p class="st-vacio">Cargando…</p></div>
       </section>
 
       <section class="psec" id="secCuentas" hidden>
@@ -285,6 +304,6 @@
   </div>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=104"></script>
+  <script type="module" src="js/panel.js?v=105"></script>
 </body>
 </html>
