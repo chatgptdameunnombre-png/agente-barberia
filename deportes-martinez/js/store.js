@@ -1,10 +1,10 @@
-import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=99";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=99";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=99";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=99";
-import { track } from "./track.js?v=99";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=99";
-import { ESCUDOS } from "./escudos.js?v=99";
+import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=100";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=100";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=100";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=100";
+import { track } from "./track.js?v=100";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=100";
+import { ESCUDOS } from "./escudos.js?v=100";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -201,7 +201,19 @@ function cardHTML(p) {
     </article>`;
 }
 
-const ORDEN_LIGAS = ["Liga MX", "Selección Nacional", "LaLiga", "Premier League", "Serie A", "Bundesliga", "Ligue 1", "MLS", "Edición especial"];
+const ORDEN_LIGAS = ["Selección Nacional", "Liga MX", "LaLiga", "Serie A", "Premier League", "Bundesliga", "Ligue 1", "MLS", "Edición especial"];
+const ORDEN_EQUIPOS = [
+  "Selección Mexicana", "Selección de España", "Selección de Argentina", "Selección de Inglaterra", "Selección de Noruega",
+  "Selección de Portugal", "Selección de Brasil", "Selección de Alemania",
+  "Chivas de Guadalajara", "Club América", "Atlas", "Cruz Azul", "Pumas UNAM", "Rayados de Monterrey", "Toluca", "Atlante",
+  "Real Madrid", "FC Barcelona"
+];
+const ORDEN_KIT = ["Local", "Visita", "Tercera", "Especial", "Entrenamiento"];
+const posEn = (arr, v) => { const i = arr.indexOf(v); return i < 0 ? arr.length : i; };
+const anio = p => parseInt(String(p.temporada || "").slice(0, 4), 10) || 0;
+const ordenEquipo = (a, b) => posEn(ORDEN_EQUIPOS, a.equipo) - posEn(ORDEN_EQUIPOS, b.equipo) || String(a.equipo || "").localeCompare(String(b.equipo || ""))
+  || (a.retro ? 1 : 0) - (b.retro ? 1 : 0) || anio(b) - anio(a) || posEn(ORDEN_KIT, a.kit) - posEn(ORDEN_KIT, b.kit)
+  || String(a.nombre || "").localeCompare(String(b.nombre || ""));
 const NOMBRE_LIGA = { "Selección Nacional": "Selecciones" };
 
 function escudoHTML(eq) {
@@ -219,7 +231,7 @@ function porLigas(lista) {
   const pos = l => { const i = ORDEN_LIGAS.indexOf(l); return i < 0 ? ORDEN_LIGAS.length : i; };
   const ligas = [...grupos.keys()].sort((a, b) => pos(a) - pos(b) || a.localeCompare(b));
   return ligas.map(l => {
-    const ps = grupos.get(l).sort((a, b) => String(a.equipo || "").localeCompare(String(b.equipo || "")) || String(a.nombre || "").localeCompare(String(b.nombre || "")));
+    const ps = grupos.get(l).sort(ordenEquipo);
     const equipos = [...new Set(ps.map(p => p.equipo).filter(e => ESCUDOS[e]))];
     const mitad = Math.ceil(equipos.length / 2);
     const izq = equipos.slice(0, mitad).map(escudoHTML).join("");
