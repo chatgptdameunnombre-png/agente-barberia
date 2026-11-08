@@ -1,10 +1,10 @@
-import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=102";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=102";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=102";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=102";
-import { track } from "./track.js?v=102";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=102";
-import { ESCUDOS } from "./escudos.js?v=102";
+import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=103";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=103";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=103";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=103";
+import { track } from "./track.js?v=103";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=103";
+import { ESCUDOS } from "./escudos.js?v=103";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -201,7 +201,7 @@ function cardHTML(p) {
     </article>`;
 }
 
-const ORDEN_LIGAS = ["Liga MX", "Selección Nacional", "LaLiga", "Serie A", "Premier League", "Bundesliga", "Ligue 1", "MLS", "Edición especial"];
+const ORDEN_LIGAS = ["Liga MX", "Selección Nacional", "LaLiga", "MLS", "Serie A", "Premier League", "Bundesliga", "Ligue 1", "Edición especial"];
 const ORDEN_EQUIPOS = [
   "Selección Mexicana", "Selección de España", "Selección de Argentina", "Selección de Inglaterra", "Selección de Noruega",
   "Selección de Portugal", "Selección de Brasil", "Selección de Alemania",
