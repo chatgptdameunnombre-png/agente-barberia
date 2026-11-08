@@ -1,6 +1,7 @@
-import { db } from "./db.js?v=103";
-import { pintarEstadisticas } from "./estadisticas.js?v=103";
-import "./panel-nav.js?v=103";
+import { db } from "./db.js?v=104";
+import { KIKI_EMAIL } from "./config.js?v=104";
+import { pintarEstadisticas } from "./estadisticas.js?v=104";
+import "./panel-nav.js?v=104";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -17,7 +18,7 @@ let productos = [];
 let inicializado = false;
 let fotosActuales = [];
 
-const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
+const OWNER_EMAILS = ["admindeportesmartinez@gmail.com", KIKI_EMAIL];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
 
 db.onAuth(user => {
@@ -25,6 +26,7 @@ db.onAuth(user => {
   if (!esDueno(user)) { window.location.replace("index.html"); return; }
   $("#loader").hidden = true;
   $("#dash").hidden = false;
+  $("#pnavPromotores").hidden = (user.email || "").toLowerCase() !== KIKI_EMAIL;
   window.scrollTo(0, 0);
   arrancarDash();
 });
