@@ -1,11 +1,11 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=106";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=106";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=106";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=106";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=106";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=106";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=106";
-import { promotorActual, promoVigente, promotorPorCodigo } from "./promotor.js?v=106";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=107";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=107";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=107";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=107";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=107";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=107";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=107";
+import { promotorActual, promoVigente, promotorPorCodigo } from "./promotor.js?v=107";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -17,7 +17,8 @@ let fotosCache = null;
 let entregaProd = null;
 let tallaSel = null;
 let metodoPagoProd = "tarjeta";
-let promoProd = null;   /* {codigo, descuento, etiqueta} — lo que dijo el servidor */
+let promoProd = null;
+const codigoAplicadoHTML = (codigo, etiqueta) => `<div class="pd-cod-ok"><span class="pd-cod-ok__check">✓</span><div><b>Descuento aplicado</b><span>Código ${String(codigo).replace(/[^A-Z0-9]/gi, "")}${etiqueta ? " · " + String(etiqueta).replace(/[<>&"]/g, "") : ""}</span></div></div>`;   /* {codigo, descuento, etiqueta} — lo que dijo el servidor */
 
 /* Revisa el código con el servidor. Igual que en el carrito: la página nunca
    decide el descuento, solo pinta lo que le contestaron. */
@@ -155,14 +156,14 @@ function render() {
           <button class="add-btn add-btn--big pd-carrito" id="addBtn2" ${puede && !topeAdd ? "" : "disabled"}>${labelAdd}</button>
           <button class="add-btn add-btn--big pd-pagar" id="buyNow" ${puede ? "" : "disabled"}>${labelBuy}</button>
         </div>
-        <div class="promo-caja" style="margin-top:12px;border:0;padding:0">
-          ${pr ? `<p class="promo-aviso promo-aviso--ok pd-promotor">Código <b>${pr.codigo}</b> · ✓ Descuento aplicado</p>` : ""}
-          <button type="button" class="promo-abrir" id="pdPromoAbrir">${pr ? "¿Tienes otro código?" : "¿Tienes un código de descuento?"}</button>
+        <div class="promo-caja" id="pdPromoCaja" style="margin-top:12px;border:0;padding:0">
+          ${promoProd ? codigoAplicadoHTML(promoProd.codigo, promoProd.etiqueta) : pr ? codigoAplicadoHTML(pr.codigo) : `
+          <button type="button" class="promo-abrir" id="pdPromoAbrir">¿Tienes un código de descuento?</button>
           <div class="promo-campo" id="pdPromoCampo" hidden>
             <input id="pdPromoInput" placeholder="Escríbelo aquí" autocapitalize="characters" autocomplete="off">
             <button type="button" id="pdPromoAplicar">Aplicar</button>
           </div>
-          <p class="promo-aviso" id="pdPromoAviso" hidden></p>
+          <p class="promo-aviso" id="pdPromoAviso" hidden></p>`}
         </div>
         <div id="prodTotal" style="margin-top:10px;font-weight:600;color:#e8b923"></div>
         ${p.descripcion ? `<p class="prod__desc">${p.descripcion}</p>` : ""}
@@ -388,13 +389,6 @@ document.addEventListener("click", async e => {
     document.getElementById("pdPromoInput")?.focus();
     return;
   }
-  if (e.target.closest("#pdPromoQuitar")) {
-    promoProd = null;
-    const av = $("#pdPromoAviso"); av.hidden = true; av.className = "promo-aviso";
-    const inp = $("#pdPromoInput"); if (inp) inp.value = "";
-    actualizarTotal();
-    return;
-  }
   if (e.target.closest("#pdPromoAplicar")) {
     const p = productos.find(x => x.id === id);
     const inp = $("#pdPromoInput"), av = $("#pdPromoAviso"), btn = e.target;
@@ -408,9 +402,10 @@ document.addEventListener("click", async e => {
       const d = await revisarPromoProd(cod, base);
       if (d && d.ok) {
         promoProd = { codigo: d.codigo, descuento: d.descuento, etiqueta: d.etiqueta };
-        av.className = "promo-aviso promo-aviso--ok";
-        av.innerHTML = `Se aplicó <b>${d.codigo}</b> — ${d.etiqueta}. <button type="button" id="pdPromoQuitar" class="promo-quitar">Quitar</button>`;
+        $("#pdPromoCaja").innerHTML = codigoAplicadoHTML(d.codigo, d.etiqueta);
         track("promo_aplicada", { codigo: d.codigo, descuento: d.descuento, donde: "ficha" });
+        actualizarTotal();
+        return;
       } else if (await promotorPorCodigo(cod)) {
         promoProd = null;
         track("promo_promotor", { codigo: cod, donde: "ficha" });
@@ -473,7 +468,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=106");
+  const { conectarFormulario } = await import("./sugerencias.js?v=107");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
