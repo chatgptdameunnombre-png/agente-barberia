@@ -1,12 +1,12 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=109";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=109";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=109";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=109";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=109";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=109";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=109";
-import { promotorPorCodigo } from "./promotor.js?v=109";
-import { codigoDe, ponerCodigo } from "./codigos.js?v=109";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=110";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=110";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=110";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=110";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=110";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=110";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=110";
+import { promotorPorCodigo } from "./promotor.js?v=110";
+import { codigoDe, ponerCodigo } from "./codigos.js?v=110";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -409,8 +409,6 @@ document.addEventListener("click", async e => {
         actualizarTotal();
         return;
       } else if (await promotorPorCodigo(cod)) {
-        promoProd = { codigo: cod, descuento: 0, etiqueta: "" };
-        ponerCodigo(p.id, promoProd);
         track("promo_promotor", { codigo: cod, donde: "ficha" });
         render();
         return;
@@ -471,7 +469,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=109");
+  const { conectarFormulario } = await import("./sugerencias.js?v=110");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
