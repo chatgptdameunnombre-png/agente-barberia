@@ -1856,6 +1856,10 @@ a.proxi-card:hover { transform: translateY(-4px); border-color: var(--accent); }
 @media (max-width: 420px) { .pd-botones { gap: 8px; } .pd-botones .add-btn { padding: 14px 8px; font-size: 13px; } .pd-pagar { font-size: 15px; } .prod__info .prod__price { font-size: 44px; } }
 .pd-pagar:disabled { background: #26262c; color: #7a7a82; box-shadow: none; }
 .pd-promotor { margin: 0 0 8px; }
+.pd-cod-ok { display: flex; align-items: center; gap: 14px; max-width: 620px; padding: 16px 18px; border: 1px solid rgba(232,185,35,.55); border-radius: 12px; background: rgba(232,185,35,.08); }
+.pd-cod-ok__check { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #e8b923; color: #1a1405; font-size: 22px; font-weight: 800; }
+.pd-cod-ok b { display: block; font-size: 20px; color: #f7d154; line-height: 1.2; }
+.pd-cod-ok span:not(.pd-cod-ok__check) { display: block; margin-top: 3px; font-size: 15.5px; color: #e8e8ea; }
 .pago-modal { max-width: 440px; }
 .pago-modal__paso { margin: 16px 0 8px; font-size: 14px; font-weight: 700; color: #c9c9cf; }
 .pago-modal__ops { display: flex; gap: 8px; }
