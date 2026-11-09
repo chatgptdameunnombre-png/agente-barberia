@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=111";
+import { firebaseConfig } from "./config.js?v=112";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -16,6 +16,7 @@ let cargando = false;
 let bd = null;
 /* referencia de pedido -> venta. Se llena al cargar y sirve para saber quien pago de verdad. */
 let ventasPorRef = new Map();
+let ventasCargadas = false;
 /* id de producto -> foto, para el jersey mas visto. Se pide una sola vez por sesion. */
 let fotos = new Map();
 let listaVisitas = [];
@@ -25,14 +26,41 @@ let fVisitas = { q: "", dia: "" };
    Cruzamos la referencia que la visita guardo al salir a pagar contra las ventas registradas:
    si hay venta, esta persona compro — haya regresado o no. */
 function cruzarConVentas(lista) {
+  if (!ventasCargadas) return;
+  const mejor = new Map();
   for (const s of lista) {
     const refs = Array.isArray(s.refPedidos) && s.refPedidos.length ? s.refPedidos : [s.refPedido];
-    const v = refs.map(r => r ? ventasPorRef.get(r) : null).find(Boolean);
-    if (!v) continue;
-    s.venta = v;
+    const inicio = new Date(s.inicio || 0).getTime();
+    for (const r of refs) {
+      const v = r ? ventasPorRef.get(r) : null;
+      if (!v || v.estado === "cancelada") continue;
+      const cuando = new Date(v.fechaISO || v.confirmada || v.fecha || 0).getTime();
+      if (cuando && (inicio > cuando + 10 * 60e3 || inicio < cuando - 6 * 3600e3)) continue;
+      if (v.clienteUid && s.clienteUid && v.clienteUid !== s.clienteUid) continue;
+      const prev = mejor.get(v);
+      if (!prev || inicio > new Date(prev.inicio || 0).getTime()) mejor.set(v, s);
+    }
+  }
+  const suyas = new Map();
+  for (const [v, s] of mejor) suyas.set(s, [...(suyas.get(s) || []), v]);
+  for (const s of lista) {
+    const vs = suyas.get(s) || [];
+    delete s.venta;
+    s.compro = false;
+    s.compraPorConfirmar = false;
+    if (!vs.length) continue;
+    const pagadas = vs.filter(v => v.estado !== "por_cobrar");
+    const suma = l => l.reduce((a, v) => a + Number(v.total || 0), 0);
+    s.venta = {
+      folio: vs.map(v => v.folio || v.ref).join(", "),
+      total: pagadas.length ? suma(pagadas) : suma(vs),
+      estado: pagadas.length ? "pagada" : "por_cobrar",
+      cliente: vs[0].cliente || "",
+      telefono: vs[0].telefono || ""
+    };
     s.compro = true;
-    s.compraPorConfirmar = v.estado === "por_cobrar";
-    if (!s.nombreCliente && v.cliente) s.nombreCliente = v.cliente;
+    s.compraPorConfirmar = !pagadas.length;
+    if (!s.nombreCliente && s.venta.cliente) s.nombreCliente = s.venta.cliente;
   }
 }
 
@@ -403,7 +431,7 @@ function filtrarVisitas(list) {
   return list.filter(s => {
     if (fVisitas.dia && diaDe(s.inicio) !== fVisitas.dia) return false;
     if (!q) return true;
-    return [s.nombreCliente, s.clienteEmail, s.refPedido, s.venta?.folio, s.venta?.cliente, s.venta?.telefono]
+    return [s.nombreCliente, s.clienteEmail, s.refPedido, ...(s.refPedidos || []), s.venta?.folio, s.venta?.cliente, s.venta?.telefono]
       .some(x => String(x || "").toLowerCase().includes(q));
   });
 }
@@ -550,7 +578,8 @@ export async function pintarEstadisticas(db) {
       const ventas = await bd.listarVentas();
       ventasPorRef = new Map();
       for (const v of ventas) { if (v.ref) ventasPorRef.set(v.ref, v); }
-    } catch { ventasPorRef = new Map(); }
+      ventasCargadas = true;
+    } catch { ventasPorRef = new Map(); ventasCargadas = false; }
     if (!fotos.size) {
       try {
         for (const p of await bd.productosParaFoto()) { if (p.imagen) fotos.set(p.id, p.imagen); }
