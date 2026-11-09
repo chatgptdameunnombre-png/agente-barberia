@@ -1,11 +1,11 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=105";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=105";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=105";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=105";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=105";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=105";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=105";
-import { promotorActual, promoVigente, promotorPorCodigo } from "./promotor.js?v=105";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=106";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=106";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=106";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=106";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=106";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=106";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=106";
+import { promotorActual, promoVigente, promotorPorCodigo } from "./promotor.js?v=106";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -151,8 +151,10 @@ function render() {
         <p class="prod__envio">🚚 Envío a todo México: se prepara en 1 a 2 días hábiles y llega en 2 a 5 días hábiles más${p.personalizable === false ? "" : " (si lo pides con nombre y número, unos días más)"}</p>
         ${tallasBloque}
         ${persoBloque}
-        <button class="add-btn add-btn--big pd-carrito" id="addBtn2" ${puede && !topeAdd ? "" : "disabled"}>${labelAdd}</button>
-        <button class="add-btn add-btn--big pd-pagar" id="buyNow" ${puede ? "" : "disabled"}>${labelBuy}</button>
+        <div class="pd-botones">
+          <button class="add-btn add-btn--big pd-carrito" id="addBtn2" ${puede && !topeAdd ? "" : "disabled"}>${labelAdd}</button>
+          <button class="add-btn add-btn--big pd-pagar" id="buyNow" ${puede ? "" : "disabled"}>${labelBuy}</button>
+        </div>
         <div class="promo-caja" style="margin-top:12px;border:0;padding:0">
           ${pr ? `<p class="promo-aviso promo-aviso--ok pd-promotor">Código <b>${pr.codigo}</b> · ✓ Descuento aplicado</p>` : ""}
           <button type="button" class="promo-abrir" id="pdPromoAbrir">${pr ? "¿Tienes otro código?" : "¿Tienes un código de descuento?"}</button>
@@ -471,7 +473,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=105");
+  const { conectarFormulario } = await import("./sugerencias.js?v=106");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
