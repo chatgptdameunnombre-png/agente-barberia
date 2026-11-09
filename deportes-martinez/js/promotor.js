@@ -27,17 +27,40 @@ export function promotorActual() {
   if (p) {
     const previo = leer();
     const s = limpiarSlug(p);
-    if (s.length >= 2 && (!previo || previo.slug !== s)) return guardarPromotor(s, true);
+    let rechazado = false;
+    try { rechazado = (sessionStorage.getItem("dm_promotor_no") || "").split(",").includes(s); } catch { }
+    if (s.length >= 2 && !rechazado && (!previo || previo.slug !== s)) return guardarPromotor(s, true);
   }
   return leer();
 }
 
 export const promoVigente = () => Date.now() < PROMO_HASTA.getTime();
 
+export async function validarPromotor() {
+  const g = promotorActual();
+  if (!g) return null;
+  try { if (sessionStorage.getItem("dm_promotor_ok") === g.slug) return g; } catch { }
+  const { firebaseConfig } = await import("./config.js?v=111");
+  const r = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/promotores/${g.slug}?key=${firebaseConfig.apiKey}&mask.fieldPaths=activo`).catch(() => null);
+  if (!r) return g;
+  const d = r.ok ? await r.json().catch(() => null) : null;
+  if (r.status === 404 || d?.fields?.activo?.booleanValue === false) {
+    try {
+      localStorage.removeItem(KEY);
+      const no = (sessionStorage.getItem("dm_promotor_no") || "").split(",").filter(Boolean);
+      sessionStorage.setItem("dm_promotor_no", [...new Set([...no, g.slug])].slice(-20).join(","));
+    } catch { }
+    document.dispatchEvent(new CustomEvent("promotor:cambio"));
+    return null;
+  }
+  if (r.ok) try { sessionStorage.setItem("dm_promotor_ok", g.slug); } catch { }
+  return g;
+}
+
 export async function promotorPorCodigo(codigo) {
   const c = String(codigo || "").toUpperCase().replace(/\s+/g, "");
   if (!/^[A-Z0-9]{3,30}$/.test(c)) return null;
-  const { firebaseConfig } = await import("./config.js?v=110");
+  const { firebaseConfig } = await import("./config.js?v=111");
   const slug = c.toLowerCase();
   const r = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/promotores/${slug}?key=${firebaseConfig.apiKey}&mask.fieldPaths=activo`).catch(() => null);
   if (!r || !r.ok) return null;
