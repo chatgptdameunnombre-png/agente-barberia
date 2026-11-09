@@ -1,4 +1,4 @@
-import { limpiarSlug } from "./promotor.js?v=105";
+import { limpiarSlug } from "./promotor.js?v=106";
 
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
