@@ -3,7 +3,7 @@
    Escribe directo a Firestore: la regla deja crear a cualquiera pero solo el
    dueño puede leer, y ahí mismo se valida el tope de 200 caracteres. */
 
-import { firebaseConfig } from "./config.js?v=112";
+import { firebaseConfig } from "./config.js?v=113";
 
 const PROJ = firebaseConfig.projectId;
 const KEY = firebaseConfig.apiKey;
@@ -70,6 +70,7 @@ export function conectarFormulario(form) {
     const texto = form.querySelector("[name=texto]")?.value || "";
     const nombre = form.querySelector("[name=nombre]")?.value || "";
     const tel = form.querySelector("[name=tel]")?.value || "";
+    const talla = form.querySelector("[name=talla]")?.value || "";
     msg.className = "sug__msg";
     if (texto.trim().length < 3) { msg.textContent = "Escribe qué jersey te gustaría."; msg.classList.add("sug__msg--mal"); return; }
     /* el teléfono es opcional, pero si lo ponen tiene que estar completo:
@@ -78,7 +79,8 @@ export function conectarFormulario(form) {
     if (soloNum && soloNum.length < 10) { msg.textContent = "Ese WhatsApp está incompleto. Son 10 dígitos, o déjalo vacío."; msg.classList.add("sug__msg--mal"); return; }
     btn.disabled = true; btn.textContent = "Enviando…";
     try {
-      await mandarSugerencia({ texto, nombre, tel, deporte: form.dataset.deporte || "" });
+      const conTalla = talla ? texto.trim().slice(0, 186) + " · Talla " + talla : texto;
+      await mandarSugerencia({ texto: conTalla, nombre, tel, deporte: form.dataset.deporte || "" });
       form.querySelector(".sug__campos")?.remove();
       msg.innerHTML = soloNum
         ? "¡Gracias! Ya quedó anotado.<br><span>Si lo conseguimos, te escribimos por WhatsApp.</span>"
@@ -117,6 +119,7 @@ export function tarjetaSugerenciaHTML(deporte) {
     <b class="sug__t">¿Cuál jersey te gustaría que trajéramos?</b>
     <p class="sug__ayuda">${AYUDA}</p>
     <input class="sug__in" name="texto" maxlength="200" placeholder="${EJ}" required>
+    <select class="sug__in" name="talla" aria-label="Talla (opcional)"><option value="">Talla (opcional)</option><option value="S">S</option><option value="M">M</option><option value="L">L</option><option value="XL">XL</option><option value="2XL">2XL</option><option value="3XL">3XL</option><option value="4XL">4XL</option><option value="Niño">Niño</option></select>
     <input class="sug__in" name="nombre" maxlength="60" placeholder="Tu nombre (opcional)">
     <input class="sug__in" name="tel" inputmode="tel" maxlength="20" placeholder="Tu WhatsApp (opcional, para avisarte)">
     <p style="margin:10px 0 0;font-size:12.5px;color:#8a8a92;line-height:1.5">Usamos tus datos para conseguirte la playera y avisarte. <a href="legales.html#privacidad" target="_blank" rel="noopener" style="color:#e8b923">Aviso de privacidad</a></p>
