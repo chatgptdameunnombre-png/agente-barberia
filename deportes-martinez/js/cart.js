@@ -1,10 +1,10 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=109";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=109";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=109";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=109";
-import { track, marcarProducto } from "./track.js?v=109";
-import { codigoDe, ponerCodigo } from "./codigos.js?v=109";
-import { promotorPorCodigo } from "./promotor.js?v=109";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=110";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=110";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=110";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=110";
+import { track, marcarProducto } from "./track.js?v=110";
+import { codigoDe, ponerCodigo } from "./codigos.js?v=110";
+import { promotorPorCodigo } from "./promotor.js?v=110";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -196,7 +196,6 @@ document.addEventListener("click", async e => {
         av.textContent = `✓ Código ${d.codigo} aplicado (${d.etiqueta}).`;
         track("promo_aplicada", { codigo: d.codigo, descuento: d.descuento, donde: "carrito" });
       } else if (await promotorPorCodigo(cod)) {
-        libres.forEach(i => ponerCodigo(i.id, { codigo: cod, descuento: 0, etiqueta: "" }));
         av.className = "promo-aviso promo-aviso--ok";
         av.textContent = `✓ Código ${cod} aplicado.`;
         track("promo_promotor", { codigo: cod, donde: "carrito" });
