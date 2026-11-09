@@ -1,4 +1,4 @@
-import { promotorActual, promoVigente } from "./promotor.js?v=110";
+import { validarPromotor, promoVigente } from "./promotor.js?v=111";
 
 const KEY = "dm_promo_vista";
 
@@ -30,11 +30,12 @@ function mostrar(pr) {
   document.body.appendChild(m);
 }
 
-try {
-  const pr = promotorActual();
-  const porLink = new URLSearchParams(location.search).has("p") && pr;
-  if (promoVigente() && (porLink || !sessionStorage.getItem(KEY))) {
-    sessionStorage.setItem(KEY, "1");
-    setTimeout(() => mostrar(porLink ? pr : null), 900);
-  }
-} catch {}
+validarPromotor().catch(() => null).then(pr => {
+  try {
+    const porLink = new URLSearchParams(location.search).has("p") && pr;
+    if (promoVigente() && (porLink || !sessionStorage.getItem(KEY))) {
+      sessionStorage.setItem(KEY, "1");
+      setTimeout(() => mostrar(porLink ? pr : null), 900);
+    }
+  } catch {}
+});
