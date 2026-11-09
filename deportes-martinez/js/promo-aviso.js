@@ -1,4 +1,4 @@
-import { promotorActual, promoVigente } from "./promotor.js?v=108";
+import { promotorActual, promoVigente } from "./promotor.js?v=109";
 
 const KEY = "dm_promo_vista";
 
@@ -10,7 +10,7 @@ function mostrar(pr) {
       <button type="button" class="aviso-modal__x" aria-label="Cerrar">×</button>
       <span class="promo-abre__eti">Gracias por entrar a Deportes Martínez</span>
       <h2 class="promo-abre__t" id="promoT">Todos los jerseys a <b>$600</b></h2>
-      <p class="promo-abre__p">Como agradecimiento, tienes descuento con el código <b class="promo-abre__cod">${pr.codigo}</b>. Escríbelo en la playera que elijas.</p>
+      <p class="promo-abre__p">Como agradecimiento, tienes descuento con el código <b class="promo-abre__cod">${pr.codigo}</b>. Ya va aplicado en cada playera.</p>
       <a class="btn promo-abre__btn" href="futbol.html">Ver jerseys →</a>
     </div>` : `
     <div class="aviso-modal__caja promo-abre__caja" role="dialog" aria-modal="true" aria-labelledby="promoT">
