@@ -1,3 +1,5 @@
+import { promotorActual, promoVigente } from "./promotor.js?v=109";
+
 const KEY = "dm_codigos";
 const VIDA = 7 * 24 * 3600 * 1000;
 
@@ -10,7 +12,12 @@ function leer() {
   } catch { return {}; }
 }
 
-export const codigoDe = id => leer()[id] || null;
+export function codigoDe(id) {
+  const propio = leer()[id];
+  if (propio) return propio;
+  const pr = promoVigente() ? promotorActual() : null;
+  return pr ? { codigo: pr.codigo, descuento: 0, etiqueta: "", promotor: true } : null;
+}
 
 export function ponerCodigo(id, c) {
   const g = leer();
