@@ -37,7 +37,7 @@ export const promoVigente = () => Date.now() < PROMO_HASTA.getTime();
 export async function promotorPorCodigo(codigo) {
   const c = String(codigo || "").toUpperCase().replace(/\s+/g, "");
   if (!/^[A-Z0-9]{3,30}$/.test(c)) return null;
-  const { firebaseConfig } = await import("./config.js?v=108");
+  const { firebaseConfig } = await import("./config.js?v=109");
   const slug = c.toLowerCase();
   const r = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/promotores/${slug}?key=${firebaseConfig.apiKey}&mask.fieldPaths=activo`).catch(() => null);
   if (!r || !r.ok) return null;
