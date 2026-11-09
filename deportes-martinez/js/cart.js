@@ -1,10 +1,10 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=111";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=111";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=111";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=111";
-import { track, marcarProducto } from "./track.js?v=111";
-import { codigoDe, ponerCodigo, descuentoCodigo } from "./codigos.js?v=111";
-import { promotorPorCodigo } from "./promotor.js?v=111";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=112";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=112";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=112";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=112";
+import { track, marcarProducto } from "./track.js?v=112";
+import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos, revisarCodigo } from "./codigos.js?v=112";
+import { promotorPorCodigo } from "./promotor.js?v=112";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -101,11 +101,11 @@ export function renderCart() {
       <div class="line__info">
         <div class="line__name">${i.nombre}${i.talla ? ` <small style="color:#9a9aa2">· Talla ${i.talla}</small>` : ""}${i.perso ? `<br><small style="color:var(--accent)">${i.perso.nombre || ""}${i.perso.dorsal ? " #" + i.perso.dorsal : ""} · personalizado</small>` : ""}</div>
         <div class="line__price">${precioHTML(i.precio)}</div>
-        ${i.cod ? `<div class="line__cod">✓ Código ${i.cod.codigo.replace(/[^A-Z0-9]/g, "")}${i.desc > 0 ? ` · −${money(i.desc)}` : " aplicado"}</div>` : ""}
+        ${i.cod ? `<div class="line__cod">✓ Código ${i.cod.codigo.replace(/[^A-Z0-9-]/g, "")}${i.desc > 0 ? ` · −${money(i.desc)}` : " aplicado"}</div>` : ""}
         <div class="qty">
           <button data-dec="${i.key}">−</button>
           <span>${i.qty}</span>
-          <button data-inc="${i.key}" ${i.qty >= i.disp ? "disabled" : ""}>+</button>
+          <button data-inc="${i.key}" ${items.filter(x => x.id === i.id && x.talla === i.talla).reduce((n, x) => n + x.qty, 0) >= i.disp ? "disabled" : ""}>+</button>
         </div>
       </div>
       <button class="line__rm" data-rm="${i.key}">Quitar</button>
@@ -144,13 +144,6 @@ export function renderCart() {
 
 /* El código se guarda por playera (codigos.js). Escrito aquí, se pone en las playeras
    del carrito que todavía no traen uno. Quien decide si vale y cuánto es el servidor. */
-async function revisarPromo(codigo, subtotal) {
-  const r = await fetch(PROMO_WEBHOOK, {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ codigo, subtotal })
-  });
-  return r.json();
-}
 
 function pintarCajaCodigo(items) {
   const abrir = document.getElementById("promoAbrir");
@@ -185,9 +178,11 @@ document.addEventListener("click", async e => {
     btn.disabled = true; btn.textContent = "Revisando…";
     av.hidden = false; delete av.dataset.todo; av.className = "promo-aviso"; av.textContent = "Revisando tu código…";
     try {
-      const d = await revisarPromo(cod, libres[0].precio);
+      const resp = [];
+      for (const i of libres) resp.push(await revisarCodigo(cod, i.precio).catch(() => null));
+      const d = resp.find(x => x && x.ok) || resp[0];
       if (d && d.ok) {
-        libres.forEach(i => ponerCodigo(i.id, { codigo: d.codigo, tipo: d.tipo, valor: d.valor, etiqueta: d.etiqueta }));
+        libres.forEach((i, n) => { if (resp[n]?.ok) ponerCodigo(i.id, resp[n]); });
         av.className = "promo-aviso promo-aviso--ok";
         av.textContent = `✓ Código ${d.codigo} aplicado (${d.etiqueta}).`;
         track("promo_aplicada", { codigo: d.codigo, descuento: d.descuento, donde: "carrito" });
@@ -211,10 +206,17 @@ document.addEventListener("click", async e => {
   }
 });
 
-function checkout() {
-  const items = itemsCarrito();
+async function checkout() {
+  let items = itemsCarrito();
   if (!items.length) return;
   if (!entrega) { toast("Elige cómo lo recibes: <b>recoger</b> o <b>a domicilio</b>"); return; }
+  const fuera = await revalidarCodigos(items.filter(i => i.desc > 0).map(i => ({ id: i.id, precio: i.precio })));
+  if (fuera.length) {
+    renderCart();
+    toast(`El código <b>${fuera.join(", ")}</b> ya no aplica a algunas playeras. Revisa el nuevo total.`);
+    return;
+  }
+  items = itemsCarrito();
   const productos = items.map(i => ({ id: i.id, qty: i.qty, title: i.nombre, talla: i.talla || "", perso: i.perso || null, promo: i.cod?.codigo || "" }));
   const promo = items.find(i => i.desc > 0)?.cod.codigo || "";
   track("checkout", { metodo: metodoPago, entrega, items: items.length });
@@ -270,7 +272,8 @@ export function initCart() {
       if (!c) return;
       const p = productos.find(x => x.id === c.id);
       const disp = p ? dispDe(p, tieneTallas(p) ? c.talla : null) : 0;
-      if (c.qty < disp) {
+      const usado = Object.values(cart).filter(x => x.id === c.id && x.talla === c.talla).reduce((a, x) => a + x.qty, 0);
+      if (usado < disp) {
         c.qty++;
         track("carrito_cantidad", { id: c.id, nombre: p?.nombre || "", cantidad: c.qty });
         guardar();
