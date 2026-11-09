@@ -1,6 +1,6 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=110";
-import { permiteMedicion } from "./cookies.js?v=110";
-import { promotorActual } from "./promotor.js?v=110";
+import { firebaseConfig, usaFirebase } from "./config.js?v=111";
+import { permiteMedicion } from "./cookies.js?v=111";
+import { promotorActual } from "./promotor.js?v=111";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
@@ -199,7 +199,8 @@ function resumenSesion(uid) {
     clienteEmail: ses.clienteEmail || "",
     nombreCliente: ses.nombreCliente || "",
     refPedido: ses.refPedido || "",
-    promotor: promotorGuardado(),
+    refPedidos: ses.refPedidos || (ses.refPedido ? [ses.refPedido] : []),
+    promotor: ses.promotor || (ses.promotor = promotorGuardado()),
     vistos: prods.length,
     alCarrito: prods.filter(([, p]) => p.carrito).length,
     favorito: masVisto ? masVisto[1].nombre : "",
@@ -287,7 +288,10 @@ export function track(evento, datos = {}) {
      así que la compra no se puede marcar al volver. Guardamos su nombre y la referencia del pedido:
      el panel cruza esa referencia con las ventas registradas y sabe si pagó, haya regresado o no. */
   if (datos.cliente) ses.nombreCliente = String(datos.cliente).slice(0, 60);
-  if (datos.ref) ses.refPedido = String(datos.ref).slice(0, 40);
+  if (datos.ref) {
+    ses.refPedido = String(datos.ref).slice(0, 40);
+    ses.refPedidos = [...new Set([...(ses.refPedidos || []), ses.refPedido])].slice(-10);
+  }
   sucio = true;
   guardarLocal();
   guardarPendientes();
@@ -341,7 +345,7 @@ export function setCliente(uid, email) {
       entrada: pagina(),
       paginas: [pagina()],
       productos: {}, busquedas: [], sinResultado: [], tallas: [],
-      segundos: 0, compro: false, clienteUid: "", clienteEmail: "", nombreCliente: "", refPedido: ""
+      segundos: 0, compro: false, clienteUid: "", clienteEmail: "", nombreCliente: "", refPedido: "", refPedidos: [], promotor: ""
     };
     pendientes = [];
     guardarPendientes();
@@ -421,5 +425,7 @@ window.addEventListener("dm-medicion-off", () => {
   productoAbierto = null;
   ident = null;
   sucio = false;
-  if (ses) ses = { ...ses, busquedas: [], sinResultado: [], tallas: [], productos: {}, segundos: 0, nombreCliente: "", refPedido: "", clienteUid: "", clienteEmail: "" };
+  if (ses) ses = { ...ses, busquedas: [], sinResultado: [], tallas: [], productos: {}, segundos: 0, nombreCliente: "", refPedido: "", refPedidos: [], promotor: "", clienteUid: "", clienteEmail: "" };
 });
+
+document.addEventListener("promotor:cambio", () => { if (ses) ses.promotor = ""; });
