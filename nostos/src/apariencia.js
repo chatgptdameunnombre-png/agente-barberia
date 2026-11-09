@@ -27,7 +27,10 @@ const PREDET = { tinte: 'bronce', color: 'dorado', mira: 'cruz' };
 
 export function leer() {
   try {
-    return { ...PREDET, ...JSON.parse(localStorage.getItem('nostos.estilo') || '{}') };
+    const d = JSON.parse(localStorage.getItem('nostos.estilo') || '{}') || {};
+    const e = { ...PREDET };
+    for (const k in PREDET) if (typeof d[k] === 'string') e[k] = d[k];
+    return e;
   } catch (e) {
     return { ...PREDET };
   }

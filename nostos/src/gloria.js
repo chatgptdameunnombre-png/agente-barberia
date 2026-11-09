@@ -63,8 +63,9 @@ const LLAVE = 'nostos.gloria';
 
 export function estado() {
   try {
-    const d = JSON.parse(localStorage.getItem(LLAVE) || '{}');
-    return { comprados: d.comprados || [], activos: d.activos || [] };
+    const d = JSON.parse(localStorage.getItem(LLAVE) || '{}') || {};
+    const lista = v => Array.isArray(v) ? v.filter(x => typeof x === 'string') : [];
+    return { comprados: lista(d.comprados), activos: lista(d.activos) };
   } catch (e) {
     return { comprados: [], activos: [] };
   }

@@ -299,8 +299,9 @@ export function encuadrar(textura, ancho, alto, altoDeseado) {
 export function cargarImagen(ruta) {
   return new Promise(resolver => {
     const img = new Image();
-    img.onload = () => resolver(img);
-    img.onerror = () => resolver(null);
+    const tope = setTimeout(() => { img.src = ''; resolver(null); }, 15000);
+    img.onload = () => { clearTimeout(tope); resolver(img); };
+    img.onerror = () => { clearTimeout(tope); resolver(null); };
     img.src = ruta;
   });
 }

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261108145613';
-import { CELDA, esSolido } from './mapa.js?v=20261108145613';
+import { Billboard } from './sprites.js?v=20261108200044';
+import { CELDA, esSolido } from './mapa.js?v=20261108200044';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -59,6 +59,7 @@ export class Enemigo {
     this.cuadro = 0;
     this.alGolpear = null;
     this.alRugir = null;
+    this.alMatar = null;
     this.alMorir = null;
     this.sprite = new Billboard(recursos.quieto, 5.2, this.tipo.alto);
     this.sprite.grupo.position.copy(pos);
@@ -217,7 +218,7 @@ export class Enemigo {
             if (this.tipo.distancia) {
               if (this.alTirar) this.alTirar(this, this.dano * 2.2, this.presa);
             } else if (dist < this.rango + 2) {
-              this.presa.recibir(this.dano * 2.2);
+              if (this.presa.recibir(this.dano * 2.2) && this.alMatar) this.alMatar(this.presa);
             }
           } else if (this.tipo.distancia) {
             if (this.alTirar && this._veA(jugador)) this.alTirar(this, this.dano);

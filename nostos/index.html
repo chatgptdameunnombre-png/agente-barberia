@@ -387,15 +387,15 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   } }
   </script>
-  <script type="module" src="./src/main.js?v=20261108145613"></script>
+  <script type="module" src="./src/main.js?v=20261108200044"></script>
   <script>
     setTimeout(function () {
       if (window.__nostosListo) return;
       var c = document.getElementById('carga');
-      if (!c || document.getElementById('cargaBarra').style.width) return;
+      if (!c) return;
       c.classList.add('error');
       document.getElementById('cargaTexto').textContent = 'NO SE PUDO CARGAR. REVISA TU CONEXION';
-    }, 20000);
+    }, 30000);
   </script>
 </body>
 </html>

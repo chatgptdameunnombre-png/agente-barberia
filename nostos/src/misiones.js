@@ -32,7 +32,13 @@ export class Misiones {
 
   _leer() {
     try {
-      return { ...VACIO, ...JSON.parse(localStorage.getItem(LLAVE) || '{}') };
+      const d = JSON.parse(localStorage.getItem(LLAVE) || '{}') || {};
+      const limpio = { ...VACIO };
+      for (const k in VACIO) {
+        if (k === 'puesto') limpio.puesto = typeof d.puesto === 'string' ? d.puesto : null;
+        else if (Number.isFinite(d[k]) && d[k] >= 0) limpio[k] = d[k];
+      }
+      return limpio;
     } catch (e) {
       return { ...VACIO };
     }

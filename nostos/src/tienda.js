@@ -1,4 +1,5 @@
-import { RELIQUIAS } from './reliquias.js?v=20261108145613';
+import { urlIcono } from './iconos.js?v=20261108200044';
+import { RELIQUIAS } from './reliquias.js?v=20261108200044';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -108,7 +109,8 @@ export class Tienda {
     this.yaCompro = false;
     this.compradas = new Set();
     this.abierta = false;
-    this.oferta = [];
+    this.oferta = null;
+    this.previa = [];
     this._dom();
   }
 
@@ -141,37 +143,7 @@ export class Tienda {
   }
 
   _icono(art) {
-    if (art.hoja && this.iconos[art.hoja] && this.iconos[art.hoja][art.celda]) {
-      return `url(${this.iconos[art.hoja][art.celda].image.toDataURL()})`;
-    }
-    if (art.id === 'portales' && this.iconos.cuerno && this.iconos.cuerno[1]) {
-      return `url(${this.iconos.cuerno[1].image.toDataURL()})`;
-    }
-    if (art.id === 'guante' && this.iconos.guante && this.iconos.guante[2]) {
-      return `url(${this.iconos.guante[2].image.toDataURL()})`;
-    }
-    if (art.id === 'gancho' && this.iconos.hilo && this.iconos.hilo[1]) {
-      return `url(${this.iconos.hilo[1].image.toDataURL()})`;
-    }
-    if (art.id === 'pico' && this.iconos.pico && this.iconos.pico[0]) {
-      return `url(${this.iconos.pico[0].image.toDataURL()})`;
-    }
-    if (art.id === 'manoP' && this.iconos.mano && this.iconos.mano[2]) {
-      return `url(${this.iconos.mano[2].image.toDataURL()})`;
-    }
-    if (art.id === 'cuchillos' && this.iconos.cuchillo && this.iconos.cuchillo[0]) {
-      return `url(${this.iconos.cuchillo[0].image.toDataURL()})`;
-    }
-    if (art.id === 'hachaArma' && this.iconos.hacha && this.iconos.hacha[0]) {
-      return `url(${this.iconos.hacha[0].image.toDataURL()})`;
-    }
-    if (art.id === 'cazador' && this.iconos.insignias && this.iconos.insignias[7]) {
-      return `url(${this.iconos.insignias[7].image.toDataURL()})`;
-    }
-    const t = (this.iconos.tienda && this.iconos.tienda[art.celda]) ||
-              (this.iconos.items && this.iconos.items[art.respaldo]);
-    if (!t || !t.image) return '';
-    return `url(${t.image.toDataURL()})`;
+    return urlIcono(this.iconos, art);
   }
 
   _armarOferta() {
@@ -309,5 +281,8 @@ export class Tienda {
 
   reiniciar() {
     this.compradas.clear();
+    this.yaCompro = false;
+    this.oferta = null;
+    this.previa = [];
   }
 }
