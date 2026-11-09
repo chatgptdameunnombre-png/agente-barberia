@@ -1,4 +1,5 @@
-import { limpiarSlug } from "./promotor.js?v=108";
+import { limpiarSlug } from "./promotor.js?v=109";
+import { tiempo, hace, sinRepetidos, tarjeta, barra, bloque } from "./estadisticas.js?v=109";
 
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -6,46 +7,119 @@ const money = n => "$" + Number(n || 0).toLocaleString("es-MX");
 const BASE = location.origin + location.pathname.replace(/[^/]*$/, "");
 const linkDe = slug => `${BASE}?p=${slug}`;
 const copiarBtn = (txt, etiqueta) => `<button type="button" class="btn btn--ghost prm__copiar" data-copiar="${esc(txt)}">${etiqueta}</button>`;
+const APARATO = { movil: "Teléfono", tablet: "Tablet", escritorio: "Computadora" };
 
 let db = null;
+let datos = { filas: [], visitas: [] };
+let filtro = "";
+
+function etiquetaVisita(s) {
+  if (s.venta) return s.venta.estado === "por_cobrar"
+    ? ["porconfirmar", `Compró · falta que pague ${money(s.venta.total)}`]
+    : ["compro", `Compró y pagó ${money(s.venta.total)}`];
+  const prods = s.productos || {};
+  if (Object.values(prods).some(d => d.carrito)) return ["carrito", "Dejó el carrito"];
+  if (Object.keys(prods).length) return ["miro", "Miró jerseys"];
+  return ["paso", "Solo pasó"];
+}
+
+function visitaHTML(s, nombres) {
+  const [clase, etiqueta] = etiquetaVisita(s);
+  const vio = Object.values(s.productos || {}).map(d => d.nombre).filter(Boolean);
+  return `<details class="st-visita">
+    <summary class="st-visita__cab">
+      <span class="st-visita__cuando">${hace(s.inicio)}</span>
+      <span class="st-visita__quien">${esc(s.nombreCliente || s.clienteEmail || "Visitante")}<span class="st-visita__vio"> · de ${esc(nombres[s.promotor] || s.promotor)}</span></span>
+      <span class="st-visita__tiempo">${tiempo(s.duracion)} · ${esc(APARATO[s.dispositivo] || s.dispositivo || "")}</span>
+      <span class="st-tag st-tag--${clase}">${etiqueta}</span>
+    </summary>
+    <div class="st-visita__cuerpo">
+      ${vio.length ? `Vio: ${vio.slice(0, 6).map(esc).join(", ")}${vio.length > 6 ? "…" : ""}` : "No abrió ningún jersey."}
+      ${s.venta?.folio ? `<br>Pedido <b>${esc(s.venta.folio)}</b>` : ""}
+      ${(s.eventos || []).length ? `<div class="st-visita__acciones"><button class="btn btn--ghost" data-prm-pasos="${esc(s.id)}">Ver qué hizo paso a paso</button></div>` : ""}
+    </div>
+  </details>`;
+}
+
+function pintarVisitas() {
+  const nombres = Object.fromEntries(datos.filas.map(f => [f.slug, f.nombre]));
+  const lista = datos.visitas.filter(s => !filtro || s.promotor === filtro);
+  const cont = $("#prmVisitas");
+  if (!cont) return;
+  cont.innerHTML = lista.length
+    ? `<div class="st-visitas">${lista.slice(0, 40).map(s => visitaHTML(s, nombres)).join("")}</div>${lista.length > 40 ? `<p class="st-bloque__ayuda">Se muestran las 40 más recientes de ${lista.length}.</p>` : ""}`
+    : `<p class="st-vacio">Todavía no hay visitas${filtro ? " de este promotor" : ""}.</p>`;
+}
+
+function pintar() {
+  const { filas, visitas } = datos;
+  const tot = filas.reduce((a, f) => ({ visitas: a.visitas + f.visitas, personas: a.personas + f.personas, compras: a.compras + f.compras, vendido: a.vendido + f.vendido }), { visitas: 0, personas: 0, compras: 0, vendido: 0 });
+  $("#prmResumen").innerHTML = `<div class="stat-row st-tarjetas">
+    ${tarjeta(filas.filter(f => f.activo !== false).length, "Promotores activos", `${filas.length} en total`)}
+    ${tarjeta(tot.visitas, "Visitas que trajeron", `${tot.personas} ${tot.personas === 1 ? "persona" : "personas"} distintas`)}
+    ${tarjeta(tot.compras, "Compras", tot.visitas ? `${Math.round(tot.compras / tot.visitas * 100)}% de las visitas` : "")}
+    ${tarjeta(money(tot.vendido), "Vendido", "sin contar canceladas")}
+  </div>`;
+  if (!filas.length) { $("#prmTabla").innerHTML = `<p class="st-vacio">Todavía no hay promotores. Crea el primero arriba.</p>`; return; }
+  const max = Math.max(1, ...filas.map(f => f.visitas));
+  const ranking = filas.filter(f => f.visitas).slice(0, 8).map((f, i) => `<div class="prm__rank">
+      <span class="prm__rank-n">${i + 1}</span>
+      <div class="prm__rank-c"><b>${esc(f.nombre)}</b>${barra(f.visitas, max, `${f.visitas} ${f.visitas === 1 ? "visita" : "visitas"} · ${f.compras} ${f.compras === 1 ? "compra" : "compras"}`)}</div>
+    </div>`).join("");
+  const tarjetas = filas.map(f => `
+    <article class="prm__card${f.activo === false ? " prm__card--off" : ""}">
+      <div class="prm__quien">
+        <b>${esc(f.nombre)}</b>
+        <span>Código <b class="prm__cod">${esc(f.codigo || f.slug.toUpperCase())}</b>${f.activo === false ? " · pausado" : ""}${f.ultima ? ` · última visita ${hace(f.ultima)}` : ""}</span>
+      </div>
+      <div class="prm__nums">
+        <div><b>${f.visitas}</b><span>visitas</span></div>
+        <div><b>${f.personas}</b><span>personas</span></div>
+        <div><b>${f.compras}</b><span>compras</span></div>
+        <div><b>${money(f.vendido)}</b><span>vendido</span></div>
+      </div>
+      <div class="prm__acc">
+        ${f.visitas ? `<button type="button" class="btn btn--ghost" data-prm-filtro="${esc(f.slug)}">Ver sus visitas</button>` : ""}
+        ${copiarBtn(linkDe(f.slug), "Copiar link")}
+        <button type="button" class="btn btn--ghost" data-activo="${esc(f.slug)}" data-on="${f.activo === false ? "1" : "0"}">${f.activo === false ? "Reactivar" : "Pausar"}</button>
+        <button type="button" class="btn btn--ghost prm__borrar" data-borrar="${esc(f.slug)}" data-nombre="${esc(f.nombre)}">Borrar</button>
+      </div>
+    </article>`).join("");
+  const opciones = `<option value="">Todos los promotores</option>` + filas.filter(f => f.visitas).map(f => `<option value="${esc(f.slug)}"${filtro === f.slug ? " selected" : ""}>${esc(f.nombre)} (${f.visitas})</option>`).join("");
+  $("#prmTabla").innerHTML = `
+    ${visitas.length ? bloque("Quién te trae más gente", `<div class="prm__ranking">${ranking}</div>`) : ""}
+    ${bloque("Tus promotores", tarjetas)}
+    ${bloque("Visita por visita", `<div class="prm__filtro"><select class="input" id="prmFiltro">${opciones}</select></div><div id="prmVisitas"></div>`, "prmDetalle", "Abre cualquiera para ver qué hizo esa persona.")}`;
+  pintarVisitas();
+}
 
 async function cargar() {
   $("#prmTabla").innerHTML = `<p class="st-vacio">Cargando…</p>`;
   try {
     const [proms, ses, ventas] = await Promise.all([db.listarPromotores(), db.sesionesDePromotores(), db.listarVentas()]);
     const porRef = new Map(ventas.filter(v => v.estado !== "cancelada").map(v => [String(v.folio || v.id).replace(/^TR-/, ""), v]));
+    for (const s of ses) {
+      const v = porRef.get(String(s.refPedido || "").replace(/^TR-/, ""));
+      if (v) { s.venta = v; if (!s.nombreCliente && v.cliente) s.nombreCliente = v.cliente; }
+    }
+    ses.sort((a, b) => String(b.inicio || "").localeCompare(String(a.inicio || "")));
     const filas = proms.map(p => {
       const suyas = ses.filter(s => s.promotor === p.slug);
-      const refs = new Set(suyas.map(s => String(s.refPedido || "").replace(/^TR-/, "")).filter(Boolean));
-      const vendidas = [...refs].map(r => porRef.get(r)).filter(Boolean);
+      const vendidas = [...new Map(suyas.filter(s => s.venta).map(s => [s.venta.folio || s.venta.id, s.venta])).values()];
       return {
         ...p,
         visitas: suyas.length,
         personas: new Set(suyas.map(s => s.uid || s.id)).size,
         compras: vendidas.length,
-        vendido: vendidas.reduce((a, v) => a + Number(v.total || 0), 0)
+        vendido: vendidas.reduce((a, v) => a + Number(v.total || 0), 0),
+        ultima: suyas[0]?.inicio || ""
       };
     }).sort((a, b) => b.vendido - a.vendido || b.visitas - a.visitas);
-    if (!filas.length) { $("#prmTabla").innerHTML = `<p class="st-vacio">Todavía no hay promotores. Crea el primero arriba.</p>`; return; }
-    $("#prmTabla").innerHTML = filas.map(f => `
-      <article class="prm__card${f.activo === false ? " prm__card--off" : ""}">
-        <div class="prm__quien">
-          <b>${esc(f.nombre)}</b>
-          <span>Código <b class="prm__cod">${esc(f.codigo || f.slug.toUpperCase())}</b>${f.activo === false ? " · pausado" : ""}</span>
-        </div>
-        <div class="prm__nums">
-          <div><b>${f.visitas}</b><span>visitas</span></div>
-          <div><b>${f.personas}</b><span>personas</span></div>
-          <div><b>${f.compras}</b><span>compras</span></div>
-          <div><b>${money(f.vendido)}</b><span>vendido</span></div>
-        </div>
-        <div class="prm__acc">
-          ${copiarBtn(linkDe(f.slug), "Copiar link")}
-          <button type="button" class="btn btn--ghost" data-activo="${esc(f.slug)}" data-on="${f.activo === false ? "1" : "0"}">${f.activo === false ? "Reactivar" : "Pausar"}</button>
-          <button type="button" class="btn btn--ghost prm__borrar" data-borrar="${esc(f.slug)}" data-nombre="${esc(f.nombre)}">Borrar</button>
-        </div>
-      </article>`).join("");
+    datos = { filas, visitas: ses.filter(s => proms.some(p => p.slug === s.promotor)) };
+    if (filtro && !filas.some(f => f.slug === filtro)) filtro = "";
+    pintar();
   } catch (e) {
+    $("#prmResumen").innerHTML = "";
     $("#prmTabla").innerHTML = `<p class="st-vacio">No se pudo cargar (${esc(e?.code || e?.message || e)}). Revisa que estén publicadas las reglas nuevas.</p>`;
   }
 }
@@ -85,10 +159,27 @@ export function iniciarPromotores(base) {
   $("#prmForm")?.addEventListener("submit", crear);
   $("#prmCodigo")?.addEventListener("input", e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); });
   document.addEventListener("panel:seccion", e => { if (e.detail?.sec === "promotores") cargar(); });
+  document.addEventListener("change", e => { if (e.target.id === "prmFiltro") { filtro = e.target.value; pintarVisitas(); } });
   document.addEventListener("click", async e => {
     const c = e.target.closest("[data-copiar]");
     if (c) {
       try { await navigator.clipboard.writeText(c.dataset.copiar); c.textContent = "Copiado ✓"; } catch { }
+      return;
+    }
+    const pa = e.target.closest("[data-prm-pasos]");
+    if (pa) {
+      const s = datos.visitas.find(x => x.id === pa.dataset.prmPasos);
+      const cont = pa.closest(".st-visita__cuerpo");
+      pa.parentElement.remove();
+      cont.insertAdjacentHTML("beforeend", `<ul class="st-pasos">${sinRepetidos(s?.eventos || []).map(t => `<li>${t}</li>`).join("")}</ul>`);
+      return;
+    }
+    const fi = e.target.closest("[data-prm-filtro]");
+    if (fi) {
+      filtro = fi.dataset.prmFiltro;
+      const sel = $("#prmFiltro"); if (sel) sel.value = filtro;
+      pintarVisitas();
+      $("#prmDetalle")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
     const a = e.target.closest("[data-activo]");
