@@ -1,4 +1,4 @@
-import { promotorActual, promoVigente } from "./promotor.js?v=109";
+import { promotorActual, promoVigente } from "./promotor.js?v=110";
 
 const KEY = "dm_codigos";
 const VIDA = 7 * 24 * 3600 * 1000;
@@ -7,7 +7,7 @@ function leer() {
   try {
     const g = JSON.parse(localStorage.getItem(KEY) || "{}") || {};
     const ahora = Date.now();
-    for (const k of Object.keys(g)) if (!g[k] || ahora - g[k].t > VIDA) delete g[k];
+    for (const k of Object.keys(g)) if (!g[k] || !(g[k].descuento > 0) || ahora - g[k].t > VIDA) delete g[k];
     return g;
   } catch { return {}; }
 }
