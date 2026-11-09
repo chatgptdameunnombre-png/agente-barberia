@@ -1670,6 +1670,9 @@ label, .field label { color: var(--ink-soft); }
   outline: none; box-sizing: border-box;
 }
 .sug__in:focus { border-color: var(--accent); }
+select.sug__in { appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 40px;
+  background-image: linear-gradient(45deg, transparent 50%, #e8b923 50%), linear-gradient(135deg, #e8b923 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%; background-size: 6px 6px; background-repeat: no-repeat; }
 .sug__btn { margin-top: 18px; min-height: 50px; font-size: 16px; }
 .sug__msg { font-size: 14.5px; min-height: 20px; margin: 12px 0 0; line-height: 1.6; }
 .sug__msg--mal { color: #ff6b6b; }
