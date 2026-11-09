@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=107";
-import { PRODUCTOS_SEED } from "./seed.js?v=107";
+import { firebaseConfig, usaFirebase } from "./config.js?v=108";
+import { PRODUCTOS_SEED } from "./seed.js?v=108";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -159,6 +159,7 @@ async function crearImplFirebase() {
       return snap.docs.map(d => ({ ...d.data(), slug: d.id }));
     },
     async guardarPromotorDoc(slug, datos) { await setDoc(doc(fdb, "promotores", slug), datos, { merge: true }); },
+    async borrarPromotorDoc(slug) { await deleteDoc(doc(fdb, "promotores", slug)); },
     async sesionesDePromotores() {
       const snap = await getDocs(query(colSes, where("promotor", ">", "")));
       return snap.docs.map(d => ({ ...d.data(), id: d.id }));
