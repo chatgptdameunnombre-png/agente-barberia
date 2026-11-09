@@ -1,12 +1,12 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=110";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=110";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=110";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=110";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=110";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=110";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=110";
-import { promotorPorCodigo } from "./promotor.js?v=110";
-import { codigoDe, ponerCodigo } from "./codigos.js?v=110";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=111";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=111";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=111";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=111";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=111";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=111";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=111";
+import { promotorPorCodigo } from "./promotor.js?v=111";
+import { codigoDe, ponerCodigo, descuentoCodigo } from "./codigos.js?v=111";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -18,7 +18,7 @@ let fotosCache = null;
 let entregaProd = null;
 let tallaSel = null;
 let metodoPagoProd = "tarjeta";
-let promoProd = null;   /* {codigo, descuento, etiqueta} — lo que dijo el servidor */
+let promoProd = null;   /* {codigo, tipo, valor, etiqueta} — lo que dijo el servidor */
 const codigoAplicadoHTML = (codigo, etiqueta) => `<div class="pd-cod-ok"><span class="pd-cod-ok__check">✓</span><div><b>Descuento aplicado</b><span>Código ${String(codigo).replace(/[^A-Z0-9]/gi, "")}${etiqueta ? " · " + String(etiqueta).replace(/[<>&"]/g, "") : ""}</span></div></div>`;
 
 /* Revisa el código con el servidor. Igual que en el carrito: la página nunca
@@ -45,6 +45,7 @@ fotosRapido(id).then(extra => {
   render();
 });
 onMayoreo(() => render());
+document.addEventListener("promotor:cambio", () => render());
 
 function tallaBtn(t, on) {
   const ag = Number(t.stock) <= 0;
@@ -240,7 +241,7 @@ function pintarPago() {
 
 function totalPagar(p) {
   const base = precioMay(precioSel(p)) + (persoOn ? PERSONALIZACION_PRECIO : 0);
-  const desc = promoProd ? Math.min(promoProd.descuento, base - 1) : 0;
+  const desc = descuentoCodigo(promoProd, base);
   return base - desc + (entregaProd === "domicilio" ? ENVIO_DOMICILIO : 0);
 }
 
@@ -257,7 +258,7 @@ function precioConDescuento() {
   const el = document.querySelector(".prod__price");
   if (!p || !el) return;
   const base = precioMay(precioSel(p));
-  const desc = promoProd ? Math.min(promoProd.descuento, base - 1) : 0;
+  const desc = descuentoCodigo(promoProd, base);
   if (desc > 0) {
     el.innerHTML = `<s class="prod__price-antes">${money(base)}</s> ${money(base - desc)} <span>MXN</span>`;
   } else if (el.querySelector(".prod__price-antes")) {
@@ -282,7 +283,7 @@ function actualizarTotal() {
   const conEnvio = base + (entregaProd === "domicilio" ? ENVIO_DOMICILIO : 0);
   const cola = entregaProd === "domicilio" ? "(con envío)" : "(recoges en tienda)";
   /* el descuento lo calculó el servidor sobre el precio del jersey, sin el envío */
-  const desc = promoProd ? Math.min(promoProd.descuento, base - 1) : 0;
+  const desc = descuentoCodigo(promoProd, base);
   if (desc > 0) {
     el.innerHTML = `Total: <s style="color:#7a7a82;font-weight:400;margin-right:6px">${money(conEnvio)}</s>` +
       `${money(conEnvio - desc)} <span style="color:#9a9aa2;font-weight:400;font-size:13px">${cola}</span>`;
@@ -327,10 +328,10 @@ function comprarDirecto() {
   const prodInfo = [{ id: p.id, qty: 1, title: p.nombre, talla: sized ? tallaSel : "", perso: pe, promo: promoProd?.codigo || "" }];
   document.getElementById("pagoModal")?.remove();
   track("comprar_directo", { id: p.id, nombre: p.nombre, metodo: metodoPagoProd, promo: promoProd?.codigo || "" });
-  const promo = promoProd?.descuento > 0 ? promoProd.codigo : "";
+  const promo = descuentoCodigo(promoProd, precio) > 0 ? promoProd.codigo : "";
   if (metodoPagoProd === "transferencia") {
     const bruto = precio + (entregaProd === "domicilio" ? ENVIO_DOMICILIO : 0);
-    const total = promoProd ? Math.max(1, bruto - Math.min(promoProd.descuento, precio - 1)) : bruto;
+    const total = Math.max(1, bruto - descuentoCodigo(promoProd, precio));
     iniciarTransferencia({ productos: prodInfo, entrega: entregaProd, total, promo, onError: () => err("No se pudo, intenta de nuevo") });
     return;
   }
@@ -402,7 +403,7 @@ document.addEventListener("click", async e => {
     try {
       const d = await revisarPromoProd(cod, base);
       if (d && d.ok) {
-        promoProd = { codigo: d.codigo, descuento: d.descuento, etiqueta: d.etiqueta };
+        promoProd = { codigo: d.codigo, tipo: d.tipo, valor: d.valor, etiqueta: d.etiqueta };
         ponerCodigo(p.id, promoProd);
         $("#pdPromoCaja").innerHTML = codigoAplicadoHTML(d.codigo, d.etiqueta);
         track("promo_aplicada", { codigo: d.codigo, descuento: d.descuento, donde: "ficha" });
@@ -469,7 +470,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=110");
+  const { conectarFormulario } = await import("./sugerencias.js?v=111");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
