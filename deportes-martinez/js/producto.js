@@ -1,12 +1,12 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=111";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=111";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=111";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=111";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=111";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=111";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=111";
-import { promotorPorCodigo } from "./promotor.js?v=111";
-import { codigoDe, ponerCodigo, descuentoCodigo } from "./codigos.js?v=111";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=112";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=112";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=112";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=112";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=112";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=112";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=112";
+import { promotorPorCodigo } from "./promotor.js?v=112";
+import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos } from "./codigos.js?v=112";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -18,8 +18,9 @@ let fotosCache = null;
 let entregaProd = null;
 let tallaSel = null;
 let metodoPagoProd = "tarjeta";
-let promoProd = null;   /* {codigo, tipo, valor, etiqueta} — lo que dijo el servidor */
-const codigoAplicadoHTML = (codigo, etiqueta) => `<div class="pd-cod-ok"><span class="pd-cod-ok__check">✓</span><div><b>Descuento aplicado</b><span>Código ${String(codigo).replace(/[^A-Z0-9]/gi, "")}${etiqueta ? " · " + String(etiqueta).replace(/[<>&"]/g, "") : ""}</span></div></div>`;
+let promoProd = null;
+let persoN = "", persoD = "";   /* {codigo, tipo, valor, etiqueta} — lo que dijo el servidor */
+const codigoAplicadoHTML = (codigo, etiqueta) => `<div class="pd-cod-ok"><span class="pd-cod-ok__check">✓</span><div><b>Descuento aplicado</b><span>Código ${String(codigo).replace(/[^A-Z0-9-]/gi, "")}${etiqueta ? " · " + String(etiqueta).replace(/[<>&"]/g, "") : ""}</span></div></div>`;
 
 /* Revisa el código con el servidor. Igual que en el carrito: la página nunca
    decide el descuento, solo pinta lo que le contestaron. */
@@ -46,6 +47,10 @@ fotosRapido(id).then(extra => {
 });
 onMayoreo(() => render());
 document.addEventListener("promotor:cambio", () => render());
+document.addEventListener("input", e => {
+  if (e.target.id === "persoNombre") persoN = e.target.value;
+  if (e.target.id === "persoDorsal") persoD = e.target.value;
+});
 
 function tallaBtn(t, on) {
   const ag = Number(t.stock) <= 0;
@@ -103,8 +108,8 @@ function render() {
         <span>Ponle nombre y número <b style="color:#e8b923">+${money(PERSONALIZACION_PRECIO)}</b></span>
       </label>
       <div id="persoCampos" style="display:${persoOn ? "flex" : "none"};gap:8px;margin-top:10px">
-        <input id="persoNombre" maxlength="14" placeholder="NOMBRE" style="flex:2;min-width:0;background:#0b0b0e;border:1px solid #2a2a32;color:#f4f4f5;border-radius:10px;padding:10px;font:inherit;text-transform:uppercase">
-        <input id="persoDorsal" maxlength="2" inputmode="numeric" placeholder="10" style="flex:1;min-width:0;background:#0b0b0e;border:1px solid #2a2a32;color:#f4f4f5;border-radius:10px;padding:10px;font:inherit;text-align:center">
+        <input id="persoNombre" maxlength="14" value="${escA(persoN)}" placeholder="NOMBRE" style="flex:2;min-width:0;background:#0b0b0e;border:1px solid #2a2a32;color:#f4f4f5;border-radius:10px;padding:10px;font:inherit;text-transform:uppercase">
+        <input id="persoDorsal" maxlength="2" inputmode="numeric" value="${escA(persoD)}" placeholder="10" style="flex:1;min-width:0;background:#0b0b0e;border:1px solid #2a2a32;color:#f4f4f5;border-radius:10px;padding:10px;font:inherit;text-align:center">
       </div>
     </div>`;
 
@@ -314,9 +319,20 @@ function agregar() {
   addCart(p.id, sized ? tallaSel : null, persoActual());
 }
 
-function comprarDirecto() {
+async function comprarDirecto() {
   const p = productos.find(x => x.id === id);
   if (!p) return;
+  const precioCod = precioSel(p) + (persoActual() ? PERSONALIZACION_PRECIO : 0);
+  if (descuentoCodigo(promoProd, precioCod) > 0) {
+    const fuera = await revalidarCodigos([{ id: p.id, precio: precioCod }]);
+    if (fuera.length) {
+      promoProd = codigoDe(id);
+      render();
+      err(`El código ${fuera.join(", ")} ya no aplica para esta playera. Revisa el nuevo total.`);
+      return;
+    }
+    promoProd = codigoDe(id);
+  }
   const sized = tieneTallas(p);
   if (sized && !tallaSel) { err("Elige tu talla"); return; }
   const stock = sized ? stockDeTalla(p, tallaSel) : stockTotal(p);
@@ -470,7 +486,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=111");
+  const { conectarFormulario } = await import("./sugerencias.js?v=112");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
