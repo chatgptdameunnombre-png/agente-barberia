@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=110";
+import { firebaseConfig } from "./config.js?v=111";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -9,7 +9,7 @@ const RAIZ = `https://firestore.googleapis.com/v1/projects/${PROJ}/databases/(de
    El detalle de una visita se baja solo cuando el dueño la abre. */
 const CAMPOS = ["inicio", "fin", "duracion", "dispositivo", "origen", "entrada", "paginas",
   "compro", "compraPorConfirmar", "clienteEmail", "vistos", "alCarrito", "favorito", "busquedas", "sinResultado", "tallas", "productos",
-  "nombreCliente", "refPedido"];
+  "nombreCliente", "refPedido", "refPedidos"];
 
 let sesiones = [];
 let cargando = false;
@@ -26,7 +26,8 @@ let fVisitas = { q: "", dia: "" };
    si hay venta, esta persona compro — haya regresado o no. */
 function cruzarConVentas(lista) {
   for (const s of lista) {
-    const v = s.refPedido ? ventasPorRef.get(s.refPedido) : null;
+    const refs = Array.isArray(s.refPedidos) && s.refPedidos.length ? s.refPedidos : [s.refPedido];
+    const v = refs.map(r => r ? ventasPorRef.get(r) : null).find(Boolean);
     if (!v) continue;
     s.venta = v;
     s.compro = true;
