@@ -1,4 +1,5 @@
-import { promotorActual, promoVigente } from "./promotor.js?v=111";
+import { promotorActual, promoVigente } from "./promotor.js?v=112";
+import { PROMO_WEBHOOK } from "./config.js?v=112";
 
 const KEY = "dm_codigos";
 const VIDA = 2 * 24 * 3600 * 1000;
@@ -29,4 +30,30 @@ export function descuentoCodigo(cod, precio) {
   if (!cod || !(cod.valor > 0) || !(precio > 1)) return 0;
   const d = cod.tipo === "fijo" ? Math.min(cod.valor, precio - 1) : Math.round(precio * cod.valor / 100);
   return Math.max(0, d);
+}
+
+export function quitarCodigo(id) {
+  const g = leer();
+  delete g[id];
+  try { localStorage.setItem(KEY, JSON.stringify(g)); } catch { }
+}
+
+export async function revisarCodigo(codigo, precio) {
+  const r = await fetch(PROMO_WEBHOOK, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ codigo, subtotal: precio })
+  });
+  return r.json();
+}
+
+export async function revalidarCodigos(lineas) {
+  const fuera = [];
+  for (const l of lineas) {
+    const cod = codigoDe(l.id);
+    if (!(cod && cod.valor > 0)) continue;
+    const d = await revisarCodigo(cod.codigo, l.precio).catch(() => null);
+    if (d && d.ok === false) { quitarCodigo(l.id); fuera.push(cod.codigo); }
+    else if (d && d.ok && (d.tipo !== cod.tipo || Number(d.valor) !== cod.valor)) ponerCodigo(l.id, d);
+  }
+  return [...new Set(fuera)];
 }
