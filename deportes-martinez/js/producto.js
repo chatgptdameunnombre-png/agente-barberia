@@ -1,12 +1,12 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=108";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=108";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=108";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=108";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=108";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=108";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=108";
-import { promotorPorCodigo } from "./promotor.js?v=108";
-import { codigoDe, ponerCodigo } from "./codigos.js?v=108";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=109";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=109";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=109";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=109";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=109";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=109";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=109";
+import { promotorPorCodigo } from "./promotor.js?v=109";
+import { codigoDe, ponerCodigo } from "./codigos.js?v=109";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -471,7 +471,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=108");
+  const { conectarFormulario } = await import("./sugerencias.js?v=109");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
