@@ -1,5 +1,5 @@
-import { limpiarSlug } from "./promotor.js?v=110";
-import { tiempo, hace, sinRepetidos, tarjeta, barra, bloque } from "./estadisticas.js?v=110";
+import { limpiarSlug } from "./promotor.js?v=111";
+import { tiempo, hace, sinRepetidos, tarjeta, barra, bloque } from "./estadisticas.js?v=111";
 
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -13,10 +13,13 @@ let db = null;
 let datos = { filas: [], visitas: [] };
 let filtro = "";
 
+const pagada = v => v.estado !== "por_cobrar" && v.estado !== "cancelada";
+const suma = vs => vs.reduce((a, v) => a + Number(v.total || 0), 0);
+
 function etiquetaVisita(s) {
-  if (s.venta) return s.venta.estado === "por_cobrar"
-    ? ["porconfirmar", `Compró · falta que pague ${money(s.venta.total)}`]
-    : ["compro", `Compró y pagó ${money(s.venta.total)}`];
+  const pag = s.ventas.filter(pagada), pend = s.ventas.filter(v => v.estado === "por_cobrar");
+  if (pag.length) return ["compro", `Compró y pagó ${money(suma(pag))}`];
+  if (pend.length) return ["porconfirmar", `Compró · falta que pague ${money(suma(pend))}`];
   const prods = s.productos || {};
   if (Object.values(prods).some(d => d.carrito)) return ["carrito", "Dejó el carrito"];
   if (Object.keys(prods).length) return ["miro", "Miró jerseys"];
@@ -35,7 +38,7 @@ function visitaHTML(s, nombres) {
     </summary>
     <div class="st-visita__cuerpo">
       ${vio.length ? `Vio: ${vio.slice(0, 6).map(esc).join(", ")}${vio.length > 6 ? "…" : ""}` : "No abrió ningún jersey."}
-      ${s.venta?.folio ? `<br>Pedido <b>${esc(s.venta.folio)}</b>` : ""}
+      ${s.ventas.length ? `<br>Pedido ${s.ventas.map(v => `<b>${esc(v.folio || v.id)}</b>`).join(", ")}` : ""}
       ${(s.eventos || []).length ? `<div class="st-visita__acciones"><button class="btn btn--ghost" data-prm-pasos="${esc(s.id)}">Ver qué hizo paso a paso</button></div>` : ""}
     </div>
   </details>`;
@@ -53,12 +56,12 @@ function pintarVisitas() {
 
 function pintar() {
   const { filas, visitas } = datos;
-  const tot = filas.reduce((a, f) => ({ visitas: a.visitas + f.visitas, personas: a.personas + f.personas, compras: a.compras + f.compras, vendido: a.vendido + f.vendido }), { visitas: 0, personas: 0, compras: 0, vendido: 0 });
+  const tot = filas.reduce((a, f) => ({ visitas: a.visitas + f.visitas, personas: a.personas + f.personas, compras: a.compras + f.compras, vendido: a.vendido + f.vendido, porCobrar: a.porCobrar + f.porCobrar }), { visitas: 0, personas: 0, compras: 0, vendido: 0, porCobrar: 0 });
   $("#prmResumen").innerHTML = `<div class="stat-row st-tarjetas">
     ${tarjeta(filas.filter(f => f.activo !== false).length, "Promotores activos", `${filas.length} en total`)}
     ${tarjeta(tot.visitas, "Visitas que trajeron", `${tot.personas} ${tot.personas === 1 ? "persona" : "personas"} distintas`)}
     ${tarjeta(tot.compras, "Compras", tot.visitas ? `${Math.round(tot.compras / tot.visitas * 100)}% de las visitas` : "")}
-    ${tarjeta(money(tot.vendido), "Vendido", "sin contar canceladas")}
+    ${tarjeta(money(tot.vendido), "Vendido y pagado", tot.porCobrar ? `${money(tot.porCobrar)} falta que paguen` : "solo lo ya cobrado")}
   </div>`;
   if (!filas.length) { $("#prmTabla").innerHTML = `<p class="st-vacio">Todavía no hay promotores. Crea el primero arriba.</p>`; return; }
   const max = Math.max(1, ...filas.map(f => f.visitas));
@@ -76,7 +79,7 @@ function pintar() {
         <div><b>${f.visitas}</b><span>visitas</span></div>
         <div><b>${f.personas}</b><span>personas</span></div>
         <div><b>${f.compras}</b><span>compras</span></div>
-        <div><b>${money(f.vendido)}</b><span>vendido</span></div>
+        <div><b>${money(f.vendido)}</b><span>${f.porCobrar ? `pagado · ${money(f.porCobrar)} por cobrar` : "pagado"}</span></div>
       </div>
       <div class="prm__acc">
         ${f.visitas ? `<button type="button" class="btn btn--ghost" data-prm-filtro="${esc(f.slug)}">Ver sus visitas</button>` : ""}
@@ -98,20 +101,33 @@ async function cargar() {
   try {
     const [proms, ses, ventas] = await Promise.all([db.listarPromotores(), db.sesionesDePromotores(), db.listarVentas()]);
     const porRef = new Map(ventas.filter(v => v.estado !== "cancelada").map(v => [String(v.folio || v.id).replace(/^TR-/, ""), v]));
+    const asignadas = new Set();
+    ses.sort((a, b) => String(a.inicio || "").localeCompare(String(b.inicio || "")));
     for (const s of ses) {
-      const v = porRef.get(String(s.refPedido || "").replace(/^TR-/, ""));
-      if (v) { s.venta = v; if (!s.nombreCliente && v.cliente) s.nombreCliente = v.cliente; }
+      delete s.venta;
+      s.ventas = [];
+      const refs = Array.isArray(s.refPedidos) && s.refPedidos.length ? s.refPedidos : [s.refPedido];
+      for (const ref of refs) {
+        const v = porRef.get(String(ref || "").replace(/^TR-/, ""));
+        const clave = v && (v.folio || v.id);
+        if (!v || asignadas.has(clave)) continue;
+        asignadas.add(clave);
+        s.ventas.push(v);
+        if (!s.nombreCliente && v.cliente) s.nombreCliente = v.cliente;
+      }
     }
-    ses.sort((a, b) => String(b.inicio || "").localeCompare(String(a.inicio || "")));
+    ses.reverse();
     const filas = proms.map(p => {
       const suyas = ses.filter(s => s.promotor === p.slug);
-      const vendidas = [...new Map(suyas.filter(s => s.venta).map(s => [s.venta.folio || s.venta.id, s.venta])).values()];
+      const todas = suyas.flatMap(s => s.ventas);
+      const pagadas = todas.filter(pagada), pendientes = todas.filter(v => v.estado === "por_cobrar");
       return {
         ...p,
         visitas: suyas.length,
         personas: new Set(suyas.map(s => s.uid || s.id)).size,
-        compras: vendidas.length,
-        vendido: vendidas.reduce((a, v) => a + Number(v.total || 0), 0),
+        compras: pagadas.length,
+        vendido: suma(pagadas),
+        porCobrar: suma(pendientes),
         ultima: suyas[0]?.inicio || ""
       };
     }).sort((a, b) => b.vendido - a.vendido || b.visitas - a.visitas);
