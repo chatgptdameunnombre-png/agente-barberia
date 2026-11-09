@@ -1,4 +1,4 @@
-import { limpiarSlug } from "./promotor.js?v=107";
+import { limpiarSlug } from "./promotor.js?v=108";
 
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -42,6 +42,7 @@ async function cargar() {
         <div class="prm__acc">
           ${copiarBtn(linkDe(f.slug), "Copiar link")}
           <button type="button" class="btn btn--ghost" data-activo="${esc(f.slug)}" data-on="${f.activo === false ? "1" : "0"}">${f.activo === false ? "Reactivar" : "Pausar"}</button>
+          <button type="button" class="btn btn--ghost prm__borrar" data-borrar="${esc(f.slug)}" data-nombre="${esc(f.nombre)}">Borrar</button>
         </div>
       </article>`).join("");
   } catch (e) {
@@ -92,6 +93,13 @@ export function iniciarPromotores(base) {
     }
     const a = e.target.closest("[data-activo]");
     if (a) { await db.guardarPromotorDoc(a.dataset.activo, { activo: a.dataset.on === "1" }); cargar(); return; }
+    const bo = e.target.closest("[data-borrar]");
+    if (bo) {
+      if (!confirm(`¿Borrar a ${bo.dataset.nombre}? Su link deja de dar código. Sus visitas pasadas se quedan en tus estadísticas.`)) return;
+      bo.disabled = true;
+      try { await db.borrarPromotorDoc(bo.dataset.borrar); } catch (x) { alert("No se pudo borrar: " + (x?.code || x?.message || x)); }
+      cargar(); return;
+    }
     if (e.target.closest("#prmRecargar")) cargar();
   });
   if (!$("#secPromotores")?.hidden) cargar();
