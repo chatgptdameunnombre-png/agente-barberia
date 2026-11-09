@@ -1,10 +1,10 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=110";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=110";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=110";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=110";
-import { track, marcarProducto } from "./track.js?v=110";
-import { codigoDe, ponerCodigo } from "./codigos.js?v=110";
-import { promotorPorCodigo } from "./promotor.js?v=110";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=111";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=111";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=111";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=111";
+import { track, marcarProducto } from "./track.js?v=111";
+import { codigoDe, ponerCodigo, descuentoCodigo } from "./codigos.js?v=111";
+import { promotorPorCodigo } from "./promotor.js?v=111";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -75,7 +75,7 @@ function itemsCarrito() {
     const extra = c.perso ? PERSONALIZACION_PRECIO : 0;
     const precio = precioDe(p, t) + extra;
     const cod = codigoDe(c.id);
-    const desc = cod && cod.descuento > 0 ? Math.min(cod.descuento, precio - 1) : 0;
+    const desc = descuentoCodigo(cod, precio) * qty;
     return { key: k, id: c.id, talla: t, perso: c.perso || null, nombre: p.nombre, imagen: p.imagen, precio, qty, disp, cod, desc };
   }).filter(Boolean);
 }
@@ -187,11 +187,7 @@ document.addEventListener("click", async e => {
     try {
       const d = await revisarPromo(cod, libres[0].precio);
       if (d && d.ok) {
-        const valor = Number(d.valor) || 0;
-        libres.forEach(i => {
-          const desc = d.tipo === "fijo" ? Math.min(valor, i.precio - 1) : Math.round(i.precio * valor / 100);
-          ponerCodigo(i.id, { codigo: d.codigo, descuento: desc, etiqueta: d.etiqueta });
-        });
+        libres.forEach(i => ponerCodigo(i.id, { codigo: d.codigo, tipo: d.tipo, valor: d.valor, etiqueta: d.etiqueta }));
         av.className = "promo-aviso promo-aviso--ok";
         av.textContent = `✓ Código ${d.codigo} aplicado (${d.etiqueta}).`;
         track("promo_aplicada", { codigo: d.codigo, descuento: d.descuento, donde: "carrito" });
@@ -319,3 +315,4 @@ export function initCart() {
   renderCart();
 }
 
+document.addEventListener("promotor:cambio", () => renderCart());
