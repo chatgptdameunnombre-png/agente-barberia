@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=105";
+import { firebaseConfig } from "./config.js?v=106";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
