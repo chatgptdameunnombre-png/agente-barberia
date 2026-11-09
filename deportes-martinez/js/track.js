@@ -1,6 +1,6 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=111";
-import { permiteMedicion } from "./cookies.js?v=111";
-import { promotorActual } from "./promotor.js?v=111";
+import { firebaseConfig, usaFirebase } from "./config.js?v=112";
+import { permiteMedicion } from "./cookies.js?v=112";
+import { promotorActual } from "./promotor.js?v=112";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
@@ -181,7 +181,7 @@ function val(v) {
   return { stringValue: String(v) };
 }
 
-function resumenSesion(uid) {
+function resumenSesion(uid, ses) {
   const prods = Object.entries(ses.productos);
   const masVisto = prods.slice().sort((a, b) => b[1].segundos - a[1].segundos)[0];
   return {
@@ -217,13 +217,14 @@ async function enviar(keepalive = false) {
   if (!sucio && !pendientes.length) return;
   enVuelo = true;
   const loteEventos = pendientes.slice(0, 60);
+  const sesEnvio = ses;
   try {
     const id = await identidad();
     if (!permiteMedicion()) { enVuelo = false; return; }
-    const campos = resumenSesion(id.uid);
+    const campos = resumenSesion(id.uid, sesEnvio);
     const write = {
       update: {
-        name: `projects/${PROJ}/databases/(default)/documents/sesiones/${ses.id}`,
+        name: `projects/${PROJ}/databases/(default)/documents/sesiones/${sesEnvio.id}`,
         fields: Object.fromEntries(Object.entries(campos).map(([k, v]) => [k, val(v)]))
       },
       updateMask: { fieldPaths: Object.keys(campos) }
@@ -428,4 +429,4 @@ window.addEventListener("dm-medicion-off", () => {
   if (ses) ses = { ...ses, busquedas: [], sinResultado: [], tallas: [], productos: {}, segundos: 0, nombreCliente: "", refPedido: "", refPedidos: [], promotor: "", clienteUid: "", clienteEmail: "" };
 });
 
-document.addEventListener("promotor:cambio", () => { if (ses) ses.promotor = ""; });
+document.addEventListener("promotor:cambio", e => { if (ses && ses.promotor === e.detail?.slug) ses.promotor = ""; });
