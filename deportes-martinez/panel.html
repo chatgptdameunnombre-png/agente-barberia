@@ -6,7 +6,7 @@
   <title>Panel del dueño — Deportes Martínez</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="fotos/logo/iso-blanco.png">
-  <link rel="stylesheet" href="css/styles.css?v=108">
+  <link rel="stylesheet" href="css/styles.css?v=109">
 </head>
 <body class="admin-body">
 
@@ -107,19 +107,19 @@
       <section class="psec" id="secPromotores" hidden>
         <div class="admin-head" style="margin-bottom:14px">
           <h1>Promotores</h1>
+          <button class="btn btn--ghost" id="prmRecargar" type="button">Actualizar</button>
         </div>
-        <p style="color:var(--ink-soft);font-size:14px;max-width:66ch;margin-bottom:20px">
-          Crea un link para cada persona que promocione la tienda. Quien entre con su link ve el descuento con su código,
-          y aquí ves cuántas visitas y ventas te trajo. Solo tú ves esta sección.
-        </p>
-        <form id="prmForm" class="prm__form" autocomplete="off">
-          <label class="prm__campo"><span>Nombre</span><input class="input" id="prmNombre" maxlength="40" placeholder="Juan Pérez" required></label>
-          <label class="prm__campo"><span>Código que quieres</span><input class="input" id="prmCodigo" maxlength="20" placeholder="JUAN06" autocapitalize="characters" required></label>
-          <button class="btn" type="submit" id="prmCrear">Crear link</button>
-        </form>
-        <p class="prm__err" id="prmErr"></p>
-        <div id="prmNuevo"></div>
-        <div class="prm__cab"><h2 class="prm__t">Cómo van</h2><button class="btn btn--ghost" id="prmRecargar" type="button">Actualizar</button></div>
+        <div id="prmResumen"></div>
+        <section class="st-bloque">
+          <div class="st-cubo"><h3 class="st-cubo__h">Crear link para un promotor</h3></div>
+          <form id="prmForm" class="prm__form" autocomplete="off">
+            <label class="prm__campo"><span>Nombre</span><input class="input" id="prmNombre" maxlength="40" placeholder="Juan Pérez" required></label>
+            <label class="prm__campo"><span>Código que quieres</span><input class="input" id="prmCodigo" maxlength="20" placeholder="JUAN06" autocapitalize="characters" required></label>
+            <button class="btn" type="submit" id="prmCrear">Crear link</button>
+          </form>
+          <p class="prm__err" id="prmErr"></p>
+          <div id="prmNuevo"></div>
+        </section>
         <div id="prmTabla"><p class="st-vacio">Cargando…</p></div>
       </section>
 
@@ -304,6 +304,6 @@
   </div>
 
   <div class="toast-wrap" id="toasts"></div>
-  <script type="module" src="js/panel.js?v=108"></script>
+  <script type="module" src="js/panel.js?v=109"></script>
 </body>
 </html>
