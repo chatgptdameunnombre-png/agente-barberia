@@ -1,5 +1,5 @@
-import { limpiarSlug } from "./promotor.js?v=111";
-import { tiempo, hace, sinRepetidos, tarjeta, barra, bloque } from "./estadisticas.js?v=111";
+import { limpiarSlug } from "./promotor.js?v=112";
+import { tiempo, hace, sinRepetidos, tarjeta, barra, bloque } from "./estadisticas.js?v=112";
 
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -101,21 +101,28 @@ async function cargar() {
   try {
     const [proms, ses, ventas] = await Promise.all([db.listarPromotores(), db.sesionesDePromotores(), db.listarVentas()]);
     const porRef = new Map(ventas.filter(v => v.estado !== "cancelada").map(v => [String(v.folio || v.id).replace(/^TR-/, ""), v]));
-    const asignadas = new Set();
-    ses.sort((a, b) => String(a.inicio || "").localeCompare(String(b.inicio || "")));
+    const fechaDe = v => new Date(v.fechaISO || v.confirmada || v.fecha || 0).getTime();
+    const candidatas = new Map();
     for (const s of ses) {
       delete s.venta;
       s.ventas = [];
       const refs = Array.isArray(s.refPedidos) && s.refPedidos.length ? s.refPedidos : [s.refPedido];
       for (const ref of refs) {
         const v = porRef.get(String(ref || "").replace(/^TR-/, ""));
-        const clave = v && (v.folio || v.id);
-        if (!v || asignadas.has(clave)) continue;
-        asignadas.add(clave);
-        s.ventas.push(v);
-        if (!s.nombreCliente && v.cliente) s.nombreCliente = v.cliente;
+        if (!v) continue;
+        const cuando = fechaDe(v), inicio = new Date(s.inicio || 0).getTime();
+        if (cuando && (inicio > cuando + 10 * 60e3 || inicio < cuando - 6 * 3600e3)) continue;
+        if (v.clienteUid && s.clienteUid && v.clienteUid !== s.clienteUid) continue;
+        const clave = v.folio || v.id;
+        const prev = candidatas.get(clave);
+        if (!prev || inicio > new Date(prev.s.inicio || 0).getTime()) candidatas.set(clave, { s, v });
       }
     }
+    for (const { s, v } of candidatas.values()) {
+      s.ventas.push(v);
+      if (!s.nombreCliente && v.cliente) s.nombreCliente = v.cliente;
+    }
+    ses.sort((a, b) => String(a.inicio || "").localeCompare(String(b.inicio || "")));
     ses.reverse();
     const filas = proms.map(p => {
       const suyas = ses.filter(s => s.promotor === p.slug);
