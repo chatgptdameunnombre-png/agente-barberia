@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=108";
+import { firebaseConfig } from "./config.js?v=109";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -40,7 +40,7 @@ const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
 const esc = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 const money = n => "$" + Number(n || 0).toLocaleString("es-MX");
 
-function tiempo(seg) {
+export function tiempo(seg) {
   seg = Math.round(Number(seg) || 0);
   if (seg < 60) return seg + "s";
   const m = Math.floor(seg / 60);
@@ -58,7 +58,7 @@ function hora12(iso) {
   return `${h}:${m} ${ampm}`;
 }
 
-function hace(iso) {
+export function hace(iso) {
   const t = new Date(iso || 0).getTime();
   if (!t) return "—";
   const min = Math.round((Date.now() - t) / 60000);
@@ -212,7 +212,7 @@ export function paso(ev) {
 }
 
 /* dos veces lo mismo seguido (recargó, o el aviso se mandó dos veces) = una sola línea */
-function sinRepetidos(lista) {
+export function sinRepetidos(lista) {
   const fuera = [];
   let anterior = "";
   /* los avisos llegan por lotes y no siempre en orden: se acomodan por hora */
@@ -234,7 +234,7 @@ function sinRepetidos(lista) {
 }
 
 /* ---------------- pintado ---------------- */
-function tarjeta(num, txt, pie) {
+export function tarjeta(num, txt, pie) {
   return `<div class="stat">
     <div class="n">${num}</div>
     <div class="l">${txt}</div>
@@ -242,7 +242,7 @@ function tarjeta(num, txt, pie) {
   </div>`;
 }
 
-function barra(valor, max, texto, tono = "oro") {
+export function barra(valor, max, texto, tono = "oro") {
   const w = max ? Math.max(2, Math.round((valor / max) * 100)) : 0;
   return `<div class="st-barra">
     <div class="st-barra__riel"><div class="st-barra__fill st-barra__fill--${tono}" style="width:${w}%"></div></div>
@@ -252,7 +252,7 @@ function barra(valor, max, texto, tono = "oro") {
 
 /* Encabezado tipo cubo: titulo grande, sin parrafo de explicacion.
    `ayuda` queda opcional y solo se usa donde de verdad hace falta. */
-function bloque(titulo, cuerpo, id, ayuda) {
+export function bloque(titulo, cuerpo, id, ayuda) {
   return `<section class="st-bloque"${id ? ` id="${id}" data-sub="${id}"` : ""}>
     <div class="st-cubo"><h3 class="st-cubo__h">${titulo}</h3></div>
     ${ayuda ? `<p class="st-bloque__ayuda">${ayuda}</p>` : ""}
