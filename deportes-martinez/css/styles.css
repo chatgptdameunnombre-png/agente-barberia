@@ -1881,6 +1881,15 @@ a.proxi-card:hover { transform: translateY(-4px); border-color: var(--accent); }
 .prm__listo b { color: #e8b923; word-break: break-all; flex: 1; }
 .prm__cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0 12px; }
 .prm__t { margin: 0; font-size: 19px; }
+.prm__ranking { display: grid; gap: 12px; }
+.prm__rank { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: center; }
+.prm__rank-n { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: rgba(232,185,35,.14); color: #f7d154; font-weight: 800; }
+.prm__rank-c > b { display: block; font-size: 16px; margin-bottom: 4px; }
+.prm__filtro { margin-bottom: 12px; max-width: 360px; }
+#secPromotores .prm__card { padding: 18px; }
+#secPromotores .prm__quien > b { font-size: 18px; }
+#secPromotores .prm__nums b { font-size: 22px; }
+#secPromotores .prm__acc .btn { min-height: 42px; }
 .prm__card { display: grid; grid-template-columns: 1.3fr 2fr auto; gap: 14px; align-items: center; background: #141418; border: 1px solid #26262e; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
 .prm__card--off { opacity: .5; }
 .prm__quien { display: grid; gap: 3px; }
