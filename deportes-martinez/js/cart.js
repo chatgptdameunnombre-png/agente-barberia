@@ -1,8 +1,10 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=107";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=107";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=107";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=107";
-import { track, marcarProducto } from "./track.js?v=107";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=108";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=108";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=108";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=108";
+import { track, marcarProducto } from "./track.js?v=108";
+import { codigoDe, ponerCodigo } from "./codigos.js?v=108";
+import { promotorPorCodigo } from "./promotor.js?v=108";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -71,7 +73,10 @@ function itemsCarrito() {
     const qty = Math.min(c.qty, disp);
     if (qty <= 0) return null;
     const extra = c.perso ? PERSONALIZACION_PRECIO : 0;
-    return { key: k, id: c.id, talla: t, perso: c.perso || null, nombre: p.nombre, imagen: p.imagen, precio: precioDe(p, t) + extra, qty, disp };
+    const precio = precioDe(p, t) + extra;
+    const cod = codigoDe(c.id);
+    const desc = cod && cod.descuento > 0 ? Math.min(cod.descuento, precio - 1) : 0;
+    return { key: k, id: c.id, talla: t, perso: c.perso || null, nombre: p.nombre, imagen: p.imagen, precio, qty, disp, cod, desc };
   }).filter(Boolean);
 }
 
@@ -96,6 +101,7 @@ export function renderCart() {
       <div class="line__info">
         <div class="line__name">${i.nombre}${i.talla ? ` <small style="color:#9a9aa2">· Talla ${i.talla}</small>` : ""}${i.perso ? `<br><small style="color:var(--accent)">${i.perso.nombre || ""}${i.perso.dorsal ? " #" + i.perso.dorsal : ""} · personalizado</small>` : ""}</div>
         <div class="line__price">${precioHTML(i.precio)}</div>
+        ${i.cod ? `<div class="line__cod">✓ Código ${i.cod.codigo.replace(/[^A-Z0-9]/g, "")}${i.desc > 0 ? ` · −${money(i.desc)}` : " aplicado"}</div>` : ""}
         <div class="qty">
           <button data-dec="${i.key}">−</button>
           <span>${i.qty}</span>
@@ -105,7 +111,7 @@ export function renderCart() {
       <button class="line__rm" data-rm="${i.key}">Quitar</button>
     </div>`).join("");
   /* si hay descuento, el total viejo va tachado y abajo el nuevo */
-  const desc = promoAplicada ? Math.min(promoAplicada.descuento, subtotal - 1) : 0;
+  const desc = items.reduce((a, i) => a + i.desc, 0);
   const totalFinal = Math.max(0, total - desc);
   const tot = $("#cartTotal");
   if (desc > 0) {
@@ -113,7 +119,7 @@ export function renderCart() {
     const fila = $("#cartDesc");
     if (fila) {
       fila.hidden = false;
-      fila.innerHTML = `<span>Descuento ${promoAplicada.codigo}</span><b>−${money(desc)}</b>`;
+      fila.innerHTML = `<span>Descuento</span><b>−${money(desc)}</b>`;
     }
   } else {
     tot.textContent = money(total);
@@ -133,18 +139,12 @@ export function renderCart() {
     b.style.color = on ? "#e8b923" : "#f4f4f5";
   });
   $("#cartFoot").hidden = false;
+  pintarCajaCodigo(items);
 }
 
-/* El código lo teclea el cliente aquí, pero quien decide si vale es el servidor.
-   Aquí solo se guarda para mandarlo con el pedido. */
-let promoEscrita = "";
-let promoAplicada = null;   /* {codigo, descuento, etiqueta} — lo que dijo el servidor */
-
-/* El descuento se enseña en el carrito, pero lo calcula el servidor.
-   La página nunca decide cuánto se descuenta: solo pinta lo que le contestaron. */
-async function revisarPromo(codigo) {
-  const items = itemsCarrito();
-  const subtotal = items.reduce((a, i) => a + i.qty * i.precio, 0);
+/* El código se guarda por playera (codigos.js). Escrito aquí, se pone en las playeras
+   del carrito que todavía no traen uno. Quien decide si vale y cuánto es el servidor. */
+async function revisarPromo(codigo, subtotal) {
   const r = await fetch(PROMO_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ codigo, subtotal })
@@ -152,54 +152,66 @@ async function revisarPromo(codigo) {
   return r.json();
 }
 
-function quitarPromo() {
-  promoAplicada = null; promoEscrita = "";
+function pintarCajaCodigo(items) {
+  const abrir = document.getElementById("promoAbrir");
+  if (!abrir) return;
+  const sinCodigo = items.filter(i => !i.cod).length;
+  const campo = document.getElementById("promoCampo");
   const av = document.getElementById("promoAviso");
-  if (av) { av.hidden = true; av.className = "promo-aviso"; }
-  const inp = document.getElementById("promoInput");
-  if (inp) inp.value = "";
-  renderCart();
+  if (!items.length || sinCodigo) {
+    if (campo.hidden) abrir.hidden = false;
+    if (av && av.dataset.todo) { av.hidden = true; delete av.dataset.todo; }
+    return;
+  }
+  abrir.hidden = true; campo.hidden = true;
+  if (av) { av.hidden = false; av.dataset.todo = "1"; av.className = "promo-aviso promo-aviso--ok"; av.textContent = "✓ Todas tus playeras ya tienen código."; }
 }
 
 document.addEventListener("click", async e => {
   if (e.target.id === "promoAbrir") {
-    const c = document.getElementById("promoCampo");
-    c.hidden = false;
+    document.getElementById("promoCampo").hidden = false;
     e.target.hidden = true;
     document.getElementById("promoInput")?.focus();
     return;
   }
-  if (e.target.id === "promoQuitar") { quitarPromo(); return; }
-
   if (e.target.id === "promoAplicar") {
     const inp = document.getElementById("promoInput");
     const av = document.getElementById("promoAviso");
     const btn = e.target;
     const cod = inp.value.trim().toUpperCase().replace(/\s+/g, "");
-    if (!cod) { inp.focus(); return; }
+    const libres = itemsCarrito().filter(i => !i.cod);
+    if (!cod || !libres.length) { inp.focus(); return; }
     inp.value = cod;
     btn.disabled = true; btn.textContent = "Revisando…";
-    av.hidden = false; av.className = "promo-aviso"; av.textContent = "Revisando tu código…";
+    av.hidden = false; delete av.dataset.todo; av.className = "promo-aviso"; av.textContent = "Revisando tu código…";
     try {
-      const d = await revisarPromo(cod);
+      const d = await revisarPromo(cod, libres[0].precio);
       if (d && d.ok) {
-        promoAplicada = { codigo: d.codigo, descuento: d.descuento, etiqueta: d.etiqueta };
-        promoEscrita = d.codigo;
+        const valor = Number(d.valor) || 0;
+        libres.forEach(i => {
+          const desc = d.tipo === "fijo" ? Math.min(valor, i.precio - 1) : Math.round(i.precio * valor / 100);
+          ponerCodigo(i.id, { codigo: d.codigo, descuento: desc, etiqueta: d.etiqueta });
+        });
         av.className = "promo-aviso promo-aviso--ok";
-        av.innerHTML = `Se aplicó <b>${d.codigo}</b> — ${d.etiqueta}. <button type="button" id="promoQuitar" class="promo-quitar">Quitar</button>`;
-        track("promo_aplicada", { codigo: d.codigo, descuento: d.descuento });
+        av.textContent = `✓ Código ${d.codigo} aplicado (${d.etiqueta}).`;
+        track("promo_aplicada", { codigo: d.codigo, descuento: d.descuento, donde: "carrito" });
+      } else if (await promotorPorCodigo(cod)) {
+        libres.forEach(i => ponerCodigo(i.id, { codigo: cod, descuento: 0, etiqueta: "" }));
+        av.className = "promo-aviso promo-aviso--ok";
+        av.textContent = `✓ Código ${cod} aplicado.`;
+        track("promo_promotor", { codigo: cod, donde: "carrito" });
       } else {
-        promoAplicada = null; promoEscrita = "";
         av.className = "promo-aviso promo-aviso--mal";
         av.textContent = (d && d.motivo) || "Ese código no sirve";
         track("promo_rechazada", { codigo: cod, motivo: (d && d.motivo) || "" });
       }
     } catch (err) {
-      promoAplicada = null; promoEscrita = "";
       av.className = "promo-aviso promo-aviso--mal";
       av.textContent = "No se pudo revisar. Revisa tu internet e intenta otra vez.";
     }
     btn.disabled = false; btn.textContent = "Aplicar";
+    inp.value = "";
+    document.getElementById("promoCampo").hidden = true;
     renderCart();
   }
 });
@@ -208,8 +220,8 @@ function checkout() {
   const items = itemsCarrito();
   if (!items.length) return;
   if (!entrega) { toast("Elige cómo lo recibes: <b>recoger</b> o <b>a domicilio</b>"); return; }
-  const productos = items.map(i => ({ id: i.id, qty: i.qty, title: i.nombre, talla: i.talla || "", perso: i.perso || null }));
-  const promo = promoEscrita;
+  const productos = items.map(i => ({ id: i.id, qty: i.qty, title: i.nombre, talla: i.talla || "", perso: i.perso || null, promo: i.cod?.codigo || "" }));
+  const promo = items.find(i => i.desc > 0)?.cod.codigo || "";
   track("checkout", { metodo: metodoPago, entrega, items: items.length });
   if (metodoPago === "transferencia") {
     const subtotal = items.reduce((a, i) => a + i.qty * i.precio, 0);
@@ -307,3 +319,4 @@ export function initCart() {
   }
   renderCart();
 }
+
