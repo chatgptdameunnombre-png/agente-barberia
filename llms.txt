@@ -22,8 +22,8 @@ Sitios con diseño propio, animaciones y las fotos y videos reales del negocio. 
 ### Automatización de procesos
 Conectamos las herramientas que el negocio ya usa para que lo repetitivo se haga solo: reportes que llegan a tiempo, facturas que se mandan sin que nadie las mande, inventario que se revisa solo, datos que se cruzan sin copiar y pegar, avisos automáticos.
 
-### Videos con inteligencia artificial
-Videos de producto para redes y anuncios hechos con IA, a partir de una foto. Sin cámara, sin set y sin sesión de fotos. Se identifican como generados con IA.
+### Chips NFC
+Chips NFC para mostrador, mesas o tarjetas: el cliente acerca su celular y se abre lo que el negocio elija (reseñas de Google, Instagram, WhatsApp, menú o página web). Sin descargar ninguna app.
 
 ## Para qué negocios
 

@@ -16,7 +16,6 @@
     'llamadas-demo': { k: 'Escúchalo', t: 'Así se oiría una llamada a tu negocio: la voz contesta, resuelve la duda y aparta la cita sola.', g: 'feliz', sel: '.call-demo-wrap' },
     pwsec:     { k: 'Qué hacemos', t: 'Así construimos tu página: con tus fotos, tus videos y tus servicios reales. Hecha para que la gente te ubique y te encuentre en Google, y pueda saber todo sobre tu negocio sin verte genérico.', g: 'feliz' },
     comp:      { k: 'Qué hacemos', t: 'Te dejamos un negocio que contesta siempre, no cuando alguien alcanza.', g: 'pensando' },
-    'videos-ia': { k: 'Qué hacemos', t: 'Te hacemos los videos para tus redes sociales con IA. Nos das una foto de tu producto y te lo entregamos listo para publicar.', g: 'guino' },
     industrias:{ k: 'Qué hacemos', t: 'Adaptamos nuestros productos a tu negocio, sea cual sea tu tipo de negocio.', g: 'pensando' },
     extras:    { k: 'Qué hacemos', t: 'Conectamos las apps que ya usas para que lo repetitivo se haga solo: facturas, reportes, inventario y avisos.', g: 'pensando' },
     contacto:  { k: 'Qué hacemos', t: 'Llenas el formulario, se abre tu WhatsApp con el mensaje ya escrito, y nosotros te armamos la preview sin costo.', g: 'feliz' },
@@ -26,7 +25,7 @@
   var PASEO = {
     problema: [0.74, 0.24], 'wa-demo': [0.28, 0.58], flow: [0.80, 0.30],
     llamadas: [0.34, 0.62], 'llamadas-demo': [0.80, 0.30], pwsec: [0.72, 0.26], comp: [0.30, 0.55],
-    'videos-ia': [0.82, 0.30], industrias: [0.36, 0.62],
+    industrias: [0.36, 0.62],
     extras: [0.32, 0.58], contacto: [0.66, 0.40], legales: [0.70, 0.34]
   };
 

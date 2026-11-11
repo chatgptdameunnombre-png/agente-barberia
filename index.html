@@ -645,7 +645,7 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
     <a href="#wa-demo">WhatsApp</a>
     <a href="#llamadas">Llamadas</a>
     <a href="#pwsec">P&aacute;ginas web</a>
-    <a href="#videos-ia">Videos con IA</a>
+    <a href="#nfc">NFC</a>
     <a href="#extras">Automatizaciones</a>
   </div>
   <div class="lg-acc" style="display:flex;align-items:center;gap:20px">
@@ -1355,21 +1355,105 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
   </div>
 </section>
 
-<section id="videos-ia" style="padding:110px 24px;border-top:1px solid var(--border)">
-  <div class="ctn">
-    <div class="videos-ia-grid" style="display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center">
-      <div style="position:relative;max-width:340px;justify-self:center;width:100%;border-radius:18px;overflow:hidden;border:1px solid var(--border);background:#0c0c0c;box-shadow:0 30px 70px rgba(0,0,0,.5)">
-        <video src="assets/video-ia.mp4" autoplay muted loop playsinline style="display:block;width:100%;height:auto"></video>
-        <span style="position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:7px;background:rgba(5,5,5,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(201,168,76,.35);border-radius:99px;padding:6px 13px;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)"><span style="width:6px;height:6px;border-radius:50%;background:var(--gold)"></span>Video generado con IA</span>
-      </div>
-      <div>
-        <span class="lbl">Videos con IA</span>
-        <h2 class="ttl" style="margin:6px 0 0">Hacemos tu video de IA promocionando tu producto</h2>
-        <p class="desc" style="margin-top:16px">Creamos videos con inteligencia artificial para tus redes y anuncios. No necesitas fotógrafo ni cámara, y te los entregamos listos para publicar.</p>
-        <p style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1.35rem;line-height:1.3;color:#f0f0f0;margin-top:26px">El video no es real,<br><span style="background:var(--gold-g);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">pero tus ventas sí</span>.</p>
+<section id="nfc" class="nfx">
+<style>
+.nfx{position:relative;border-top:1px solid var(--border);overflow:hidden}
+.nfx-pin{position:relative;min-height:100vh;display:grid;grid-template-columns:1fr 1.05fr;gap:40px;align-items:center;max-width:1180px;margin:0 auto;padding:90px 32px}
+.nfx::before{content:'';position:absolute;right:-10%;top:10%;width:820px;height:820px;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 62%);pointer-events:none}
+.nfx-h{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(2.2rem,4.6vw,3.6rem);line-height:1.02;letter-spacing:-.035em;margin:8px 0 20px;text-wrap:balance}
+.nfx-h em{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-.01em;background:var(--gold-g);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:.08em}
+.nfx-p{color:var(--dim);font-size:1.05rem;line-height:1.7;max-width:460px}
+.nfx-where{display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 30px}
+.nfx-where span{font:500 .72rem 'JetBrains Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,168,76,.3);border-radius:99px;padding:8px 14px;background:rgba(201,168,76,.05)}
+.nfx-cta{display:inline-flex;align-items:center;gap:10px;background:var(--gold-g);color:#0a0a0a;font:700 .95rem 'Instrument Sans',sans-serif;padding:15px 26px;border-radius:99px;text-decoration:none;box-shadow:0 14px 40px rgba(201,168,76,.28);transition:transform .25s,box-shadow .25s}
+.nfx-cta:hover{transform:translateY(-3px);box-shadow:0 20px 50px rgba(201,168,76,.4)}
+.nfx-stage{position:relative;height:640px}
+.nfx-chip{position:absolute;left:50%;bottom:40px;width:210px;height:210px;margin-left:-105px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#2b2517,#090807 72%);border:2px solid rgba(223,192,106,.85);box-shadow:0 0 0 10px rgba(201,168,76,.06),0 0 70px rgba(201,168,76,.25),inset 0 0 30px rgba(201,168,76,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.nfx-chip svg{width:70px;height:70px}
+.nfx-chip b{font:500 .8rem 'JetBrains Mono',monospace;letter-spacing:.4em;color:var(--gold2);padding-left:.4em}
+.nfx-rip{position:absolute;left:50%;bottom:40px;width:210px;height:210px;margin-left:-105px;border-radius:50%;border:1.5px solid var(--gold2);opacity:0;pointer-events:none}
+.nfx-on .nfx-rip{animation:nfxRip 2.4s cubic-bezier(.2,.6,.3,1) infinite}
+.nfx-on .nfx-rip:nth-child(2){animation-delay:.8s}.nfx-on .nfx-rip:nth-child(3){animation-delay:1.6s}
+@keyframes nfxRip{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.3);opacity:0}}
+.nfx-ph{position:absolute;left:50%;top:0;width:220px;height:440px;margin-left:-110px;border-radius:40px;background:#0b0b0b;border:9px solid #151515;box-shadow:0 0 0 1px #2c2c2c,0 40px 80px rgba(0,0,0,.65);overflow:hidden;z-index:3;will-change:transform}
+.nfx-ph::before{content:'';position:absolute;left:50%;top:9px;width:70px;height:20px;margin-left:-35px;border-radius:12px;background:#000;z-index:2}
+.nfx-scr{position:absolute;inset:0;background:radial-gradient(120% 70% at 50% 0%,#2a2416,#0b0b0b 60%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px}
+.nfx-scr .t{font:600 2.6rem/1 'Space Grotesk';color:#f2efe6;letter-spacing:-.04em}
+.nfx-scr .s{font:500 .62rem 'JetBrains Mono';letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.nfx-scr2{opacity:0;background:#0d0d0d;gap:12px}
+.nfx-mini{display:flex;align-items:center;gap:10px;width:150px;padding:10px 12px;border-radius:14px;background:#1a1a1a;font:600 .78rem 'Instrument Sans';color:#eee}
+.nfx-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.nfx-ic svg{width:58%;height:58%}
+.nfx-ic.wa{background:#25D366}.nfx-ic.ig{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}.nfx-ic.gg{background:#fff}
+.nfx-card{position:absolute;width:250px;padding:16px 18px;border-radius:20px;background:rgba(18,16,12,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(201,168,76,.32);box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05);z-index:4;opacity:0}
+.nfx-card .hd{display:flex;align-items:center;gap:12px;font:700 1rem 'Space Grotesk';color:#f4f2ec}
+.nfx-card .hd .nfx-ic{width:40px;height:40px;border-radius:12px}
+.nfx-card p{font:400 .86rem/1.5 'Instrument Sans';color:#b9b5aa;margin-top:10px;overflow:hidden}
+.nfx-c1{left:-70px;top:50px}.nfx-c2{right:-70px;top:190px}.nfx-c3{left:-70px;top:330px}
+@media(max-width:860px){
+.nfx-pin{grid-template-columns:1fr;gap:6px;padding:84px 18px 24px;align-content:start;min-height:100svh}
+.nfx-h{font-size:2.1rem;margin:4px 0 10px} .nfx-p{font-size:.9rem;line-height:1.55} .nfx-where,.nfx-cta{display:none}
+.nfx-stage{height:410px;margin-top:4px}
+.nfx-ph{left:8px;margin-left:0;width:150px;height:300px;border-width:7px;border-radius:30px}
+.nfx-ph::before{width:50px;height:14px;margin-left:-25px;top:7px}
+.nfx-scr .t{font-size:1.8rem} .nfx-mini{width:116px;padding:7px 8px;font-size:.66rem;gap:7px} .nfx-mini .nfx-ic{width:26px;height:26px;border-radius:8px}
+.nfx-chip,.nfx-rip{left:8px;margin-left:0;width:150px;height:150px;bottom:0}
+.nfx-chip svg{width:48px;height:48px}
+.nfx-c1,.nfx-c2,.nfx-c3{left:auto;right:0}.nfx-c1{top:0}.nfx-c2{top:138px}.nfx-c3{top:276px}
+.nfx-card{width:190px;padding:12px 13px;border-radius:16px} .nfx-card .hd{font-size:.88rem;gap:9px} .nfx-card .hd .nfx-ic{width:32px;height:32px} .nfx-card p{font-size:.78rem}
+.nfx-ctam{display:inline-flex!important;margin-top:6px;justify-self:center}
+}
+.nfx-ctam{display:none}
+</style>
+<div class="nfx-pin">
+  <div class="nfx-txt">
+    <span class="lbl">Chips NFC</span>
+    <h2 class="nfx-h">Un toque <em>y se abre lo que tú quieras.</em></h2>
+    <p class="nfx-p">Tu cliente acerca su celular al chip y le abre directo tus reseñas de Google, tu Instagram o tu WhatsApp. Sin descargar nada y sin buscarte.</p>
+    <div class="nfx-where"><span>Mostrador</span><span>Mesas</span><span>Tarjetas</span></div>
+    <a class="nfx-cta" href="#contacto">Pide tu sistema de chips NFC</a>
+  </div>
+  <div class="nfx-stage" aria-hidden="true">
+    <div class="nfx-rip"></div><div class="nfx-rip"></div><div class="nfx-rip"></div>
+    <div class="nfx-chip"><svg viewBox="0 0 24 24" fill="none" stroke="#DFC06A" stroke-width="1.5" stroke-linecap="round"><path d="M6 8.5a5 5 0 010 7"/><path d="M9.5 6a9 9 0 010 12"/><path d="M13 3.5a13 13 0 010 17"/></svg><b>NFC</b></div>
+    <div class="nfx-ph">
+      <div class="nfx-scr nfx-scr1"><div class="s">Acerca tu celular</div><div class="t">10:42</div></div>
+      <div class="nfx-scr nfx-scr2">
+        <div class="nfx-mini"><span class="nfx-ic gg"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg></span>Reseñas</div>
+        <div class="nfx-mini"><span class="nfx-ic ig"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg></span>Instagram</div>
+        <div class="nfx-mini"><span class="nfx-ic wa"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></span>WhatsApp</div>
       </div>
     </div>
+    <div class="nfx-card nfx-c1"><div class="hd"><span class="nfx-ic gg"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg></span>Reseñas en Google</div><p>Le abre tu ficha lista para dejarte 5 estrellas. Más reseñas, más confianza.</p></div>
+    <div class="nfx-card nfx-c2"><div class="hd"><span class="nfx-ic ig"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg></span>Tu Instagram</div><p>Te sigue en un toque y ve tus trabajos al momento.</p></div>
+    <div class="nfx-card nfx-c3"><div class="hd"><span class="nfx-ic wa"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></span>Tu WhatsApp</div><p>Abre un chat contigo con el mensaje ya escrito. Solo le da enviar.</p></div>
   </div>
+  <a class="nfx-cta nfx-ctam" href="#contacto">Pide tu sistema de chips NFC</a>
+</div>
+<script>
+(function(){
+  var s=document.getElementById('nfc'); if(!s) return;
+  var cards=s.querySelectorAll('.nfx-card'), ps=s.querySelectorAll('.nfx-card p');
+  function showAll(){ s.classList.add('nfx-on'); cards.forEach(function(c){c.style.opacity=1;}); s.querySelector('.nfx-scr2').style.opacity=1; }
+  if(!window.gsap||!window.ScrollTrigger||matchMedia('(prefers-reduced-motion: reduce)').matches){ showAll(); return; }
+  gsap.registerPlugin(ScrollTrigger);
+  var ph=s.querySelector('.nfx-ph');
+  function from(c){ return function(){ var a=ph.getBoundingClientRect(), b=c.getBoundingClientRect(); return {x:(a.left+a.width/2)-(b.left+b.width/2), y:(a.top+a.height/2)-(b.top+b.height/2)}; }; }
+  var tl=gsap.timeline({scrollTrigger:{trigger:s,start:'top top',end:'+=1900',pin:s.querySelector('.nfx-pin'),scrub:.6,invalidateOnRefresh:true,
+    onUpdate:function(st){ s.classList.toggle('nfx-on', st.progress>.24); } }});
+  tl.fromTo(ph,{y:function(){return innerWidth<860?-60:-150;},rotate:-9},{y:function(){return innerWidth<860?62:70;},rotate:0,ease:'power2.inOut',duration:3})
+    .to(s.querySelector('.nfx-chip'),{boxShadow:'0 0 0 14px rgba(201,168,76,.12),0 0 120px rgba(223,192,106,.55),inset 0 0 40px rgba(201,168,76,.25)',duration:.6})
+    .to(s.querySelector('.nfx-scr1'),{opacity:0,duration:.4},'<')
+    .to(s.querySelector('.nfx-scr2'),{opacity:1,duration:.5},'<.1');
+  cards.forEach(function(c,i){
+    var f=from(c);
+    tl.fromTo(c,{opacity:0,scale:.35,x:function(){return f().x;},y:function(){return f().y;}},{opacity:1,scale:1,x:0,y:0,ease:'back.out(1.4)',duration:1.3},i?'+=.25':'+=.3')
+      .fromTo(ps[i],{height:0,opacity:0,marginTop:0},{height:'auto',opacity:1,marginTop:10,duration:.9},'-=.35');
+  });
+  tl.to({},{duration:1});
+  window.addEventListener('load',function(){ ScrollTrigger.refresh(); });
+})();
+</script>
 </section>
 
 <section id="industrias">
@@ -1480,7 +1564,7 @@ select.frm-i{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
             <button type="button" class="frm-pill" data-v="Agente telef&oacute;nico">Agente telef&oacute;nico</button>
             <button type="button" class="frm-pill" data-v="P&aacute;gina web">P&aacute;gina web</button>
             <button type="button" class="frm-pill" data-v="Automatizar procesos">Automatizar procesos</button>
-            <button type="button" class="frm-pill" data-v="Videos con IA">Videos con IA</button>
+            <button type="button" class="frm-pill" data-v="Chips NFC">Chips NFC</button>
           </div>
         </div>
 
@@ -2284,7 +2368,7 @@ Object.entries(SM).forEach(([step,indices])=>{
     'Agente telef\u00f3nico':['tu agente telef\u00f3nico','Ej: que conteste llamadas y tome pedidos'],
     'P\u00e1gina web':['tu p\u00e1gina web','Ej: mostrar mis servicios y que me escriban'],
     'Automatizar procesos':['la automatizaci\u00f3n','Ej: mandar recordatorios, sacar reportes'],
-    'Videos con IA':['tus videos con IA','Ej: anuncios para Instagram de mis productos']
+    'Chips NFC':['tus chips NFC','Ej: que me dejen reseña o me sigan en Instagram']
   };
   function pintaPara(){
     var n=intereses.filter(function(x){return PARA[x];}).map(function(x){return PARA[x][0];});
@@ -2342,7 +2426,7 @@ Object.entries(SM).forEach(([step,indices])=>{
   });
 })();
 </script>
-<script src="js/td-track.js" defer></script>
-<script src="js/td-tuia.js?v=20261023" defer></script>
+<script src="js/td-track.js?v=20261111" defer></script>
+<script src="js/td-tuia.js?v=20261111" defer></script>
 <script src="js/liquid-glass.js" defer></script>
 </body></html>

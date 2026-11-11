@@ -136,7 +136,7 @@
 
   var SECS = {
     inicio: "el inicio", problema: "el problema", "wa-demo": "la demo de WhatsApp",
-    llamadas: "la demo de llamadas", comp: "la comparaci\u00f3n", "videos-ia": "los videos con IA",
+    llamadas: "la demo de llamadas", comp: "la comparaci\u00f3n", nfc: "los chips NFC", "videos-ia": "los videos con IA",
     industrias: "las industrias", stats: "los n\u00fameros", extras: "las automatizaciones",
     flow: "c\u00f3mo funciona", pwsec: "las p\u00e1ginas web", "llamadas-demo": "la demo de la llamada", contacto: "el formulario"
   };

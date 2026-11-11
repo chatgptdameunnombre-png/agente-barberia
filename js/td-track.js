@@ -377,11 +377,11 @@
         var id = x.target.id;
         if (id === "wa-demo") hito("Vio la demo de WhatsApp");
         if (id === "llamadas") hito("Vio la demo de llamadas");
-        if (id === "videos-ia") hito("Vio los videos con IA");
+        if (id === "nfc") hito("Vio los chips NFC");
         if (id === "contacto") hito("Llegó al formulario");
       });
     }, { rootMargin: "-45% 0px -45% 0px", threshold: 0 });
-    ["wa-demo", "llamadas", "videos-ia", "contacto"].forEach(function (id) {
+    ["wa-demo", "llamadas", "nfc", "contacto"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) obs.observe(el);
     });
