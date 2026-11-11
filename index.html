@@ -1437,7 +1437,7 @@ body.nfx-act #tuiaGlobo{opacity:0!important;visibility:hidden!important}
 <script>
 (function(){
   var s=document.getElementById('nfc'); if(!s) return;
-  s.querySelectorAll('.nfx-cta').forEach(function(a){ a.addEventListener('click',function(){ var b=document.querySelector('#frmInt .frm-pill[data-v="Chips NFC"]'); if(b&&!b.classList.contains('on')) b.click(); }); });
+  s.querySelectorAll('.nfx-cta').forEach(function(a){ a.addEventListener('click',function(){ var b=document.querySelector('#frmInt .frm-pill[data-v="Sistema NFC"]'); if(b&&!b.classList.contains('on')) b.click(); }); });
   var cards=s.querySelectorAll('.nfx-card'), ps=s.querySelectorAll('.nfx-card p');
   function showAll(){ s.classList.add('nfx-on'); cards.forEach(function(c){c.style.opacity=1;}); s.querySelector('.nfx-scr2').style.opacity=1; }
   if(!window.gsap||!window.ScrollTrigger||matchMedia('(prefers-reduced-motion: reduce)').matches){ showAll(); return; }
@@ -1457,7 +1457,7 @@ body.nfx-act #tuiaGlobo{opacity:0!important;visibility:hidden!important}
   });
   tl.fromTo(s.querySelectorAll('.nfx-cta'),{opacity:0,y:24,pointerEvents:'none'},{opacity:1,y:0,pointerEvents:'auto',duration:.9,ease:'power2.out'},'+=.2');
   tl.to({},{duration:1});
-  ScrollTrigger.create({trigger:s,start:'top 60%',endTrigger:s,end:'bottom 30%',onToggle:function(st){ document.body.classList.toggle('nfx-act', st.isActive); }});
+  ScrollTrigger.create({trigger:s,start:'top -560',endTrigger:s,end:'bottom 30%',onToggle:function(st){ document.body.classList.toggle('nfx-act', st.isActive); }});
   window.addEventListener('load',function(){ ScrollTrigger.refresh(); });
 })();
 </script>
@@ -1571,7 +1571,7 @@ body.nfx-act #tuiaGlobo{opacity:0!important;visibility:hidden!important}
             <button type="button" class="frm-pill" data-v="Agente telef&oacute;nico">Agente telef&oacute;nico</button>
             <button type="button" class="frm-pill" data-v="P&aacute;gina web">P&aacute;gina web</button>
             <button type="button" class="frm-pill" data-v="Automatizar procesos">Automatizar procesos</button>
-            <button type="button" class="frm-pill" data-v="Chips NFC">Chips NFC</button>
+            <button type="button" class="frm-pill" data-v="Sistema NFC">Sistema NFC</button>
           </div>
         </div>
 
@@ -2375,7 +2375,7 @@ Object.entries(SM).forEach(([step,indices])=>{
     'Agente telef\u00f3nico':['tu agente telef\u00f3nico','Ej: que conteste llamadas y tome pedidos'],
     'P\u00e1gina web':['tu p\u00e1gina web','Ej: mostrar mis servicios y que me escriban'],
     'Automatizar procesos':['la automatizaci\u00f3n','Ej: mandar recordatorios, sacar reportes'],
-    'Chips NFC':['tus chips NFC','Ej: que me dejen reseña o me sigan en Instagram']
+    'Sistema NFC':['tu sistema NFC','Ej: que me dejen reseña o me sigan en Instagram']
   };
   function pintaPara(){
     var n=intereses.filter(function(x){return PARA[x];}).map(function(x){return PARA[x][0];});
@@ -2434,6 +2434,6 @@ Object.entries(SM).forEach(([step,indices])=>{
 })();
 </script>
 <script src="js/td-track.js?v=20261111" defer></script>
-<script src="js/td-tuia.js?v=20261111" defer></script>
+<script src="js/td-tuia.js?v=20261111b" defer></script>
 <script src="js/liquid-glass.js" defer></script>
 </body></html>
