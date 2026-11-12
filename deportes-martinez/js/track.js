@@ -1,6 +1,6 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=118";
-import { permiteMedicion } from "./cookies.js?v=118";
-import { promotorActual } from "./promotor.js?v=118";
+import { firebaseConfig, usaFirebase } from "./config.js?v=119";
+import { permiteMedicion } from "./cookies.js?v=119";
+import { promotorActual } from "./promotor.js?v=119";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
