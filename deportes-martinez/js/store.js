@@ -1,10 +1,10 @@
-import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=121";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=121";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=121";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=121";
-import { track } from "./track.js?v=121";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=121";
-import { ESCUDOS } from "./escudos.js?v=121";
+import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=122";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=122";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=122";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=122";
+import { track } from "./track.js?v=122";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=122";
+import { ESCUDOS } from "./escudos.js?v=122";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -168,9 +168,9 @@ function cardHTML(p) {
       ? `<a class="add-btn" href="producto.html?id=${encodeURIComponent(p.id)}" style="display:block;text-align:center;text-decoration:none">Elegir talla</a>`
       : (enCarrito(p.id) >= total
           ? `<button class="add-btn" disabled>Máximo en carrito</button>`
-          : `<button class="add-btn" data-add="${p.id}">Agregar al carrito</button>`);
+          : `<button class="add-btn" data-add="${esc(p.id)}">Agregar al carrito</button>`);
   const media = p.imagen
-    ? `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy" onerror="this.style.display='none';this.parentElement.querySelector('.card__ph').style.display='block'">
+    ? `<img src="${esc(p.imagen)}" alt="${esc(p.nombre)}" loading="lazy" onerror="this.style.display='none';this.parentElement.querySelector('.card__ph').style.display='block'">
        <span class="card__ph" style="display:none">📷 Sin foto aún</span>`
     : `<span class="card__ph">📷 Foto pendiente</span>`;
   const flags = [
@@ -178,19 +178,19 @@ function cardHTML(p) {
     p.piezaUnica ? `<span class="card__flag card__flag--semi">Pieza única</span>` : ""
   ].join("");
   const tallas = tallasDisponibles(p);
-  const tallasTxt = tallas.length ? `<div class="card__tallas">${tallas.map(t => `<span>${t}</span>`).join("")}</div>` : "";
+  const tallasTxt = tallas.length ? `<div class="card__tallas">${tallas.map(t => `<span>${esc(t)}</span>`).join("")}</div>` : "";
   const meta = [p.equipo, p.temporada].filter(Boolean).join(" · ");
   return `
-    <article class="card reveal" data-id="${p.id}">
+    <article class="card reveal" data-id="${esc(p.id)}">
       <div class="card__media">
-        <span class="card__cat">${p.subcategoria || ""}</span>
+        <span class="card__cat">${esc(p.subcategoria || "")}</span>
         ${flags}
         ${media}
       </div>
       <div class="card__body">
-        <span class="card__brand">${meta || p.marca || ""}</span>
-        <h3 class="card__name">${p.nombre}</h3>
-        <p class="card__desc">${p.descripcion || ""}</p>
+        <span class="card__brand">${esc(meta || p.marca || "")}</span>
+        <h3 class="card__name">${esc(p.nombre)}</h3>
+        <p class="card__desc">${esc(p.descripcion || "")}</p>
         ${tallasTxt}
         <div class="card__foot">
           <div class="price">${precioTxt} <span>MXN</span></div>
@@ -247,7 +247,7 @@ function porLigas(lista) {
 function grupo(lbl, key, valores, abierto, chips) {
   if (valores.length <= 2) return "";
   const opts = valores.map(v =>
-    `<span class="opt${key === "color" && v !== "Todos" ? " opt--color" : ""}" data-f="${key}" data-v="${v}">${key === "color" && v !== "Todos" ? `<i class="pinta pinta--${norm(v)}"></i>` : ""}${v}</span>`).join("");
+    `<span class="opt${key === "color" && v !== "Todos" ? " opt--color" : ""}" data-f="${esc(key)}" data-v="${esc(v)}">${key === "color" && v !== "Todos" ? `<i class="pinta pinta--${esc(norm(v))}"></i>` : ""}${esc(v)}</span>`).join("");
   return `<div class="acc${abierto ? " open" : ""}${chips ? " acc--chips" : ""}" data-grp="${key}">
       <button class="acc__h" type="button"><span>${lbl}</span><span class="arr">▾</span></button>
       <div class="acc__b">${opts}</div></div>`;
@@ -390,7 +390,7 @@ function render() {
 }
 
 function esc(t) {
-  return String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  return String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 function observarReveal() {
