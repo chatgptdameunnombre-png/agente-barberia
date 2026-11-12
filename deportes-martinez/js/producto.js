@@ -1,12 +1,13 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=121";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=121";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=121";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=121";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=121";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=121";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=121";
-import { promotorPorCodigo } from "./promotor.js?v=121";
-import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos } from "./codigos.js?v=121";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=122";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=122";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=122";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=122";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=122";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=122";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=122";
+import { promotorPorCodigo } from "./promotor.js?v=122";
+import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos } from "./codigos.js?v=122";
+const escH = t => String(t ?? "").replace(/[<>&"']/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -57,7 +58,7 @@ function tallaBtn(t, on) {
   const color = ag ? "#7a7a82" : (on ? "#e8b923" : "#f4f4f5");
   const borde = on ? "#e8b923" : "#2a2a32";
   const fondo = on ? "rgba(232,185,35,.14)" : "#141418";
-  return `<button type="button" class="talla-btn" data-talla="${t.talla}" style="min-width:48px;padding:9px 13px;border-radius:11px;border:1px solid ${borde};background:${fondo};color:${color};cursor:pointer;font-weight:800;${ag ? "text-decoration:line-through" : ""}">${t.talla}</button>`;
+  return `<button type="button" class="talla-btn" data-talla="${escH(t.talla)}" style="min-width:48px;padding:9px 13px;border-radius:11px;border:1px solid ${borde};background:${fondo};color:${color};cursor:pointer;font-weight:800;${ag ? "text-decoration:line-through" : ""}">${t.talla}</button>`;
 }
 
 function render() {
@@ -86,9 +87,9 @@ function render() {
   const nombreCat = NOMBRE_CAT[p.categoria] || "Catálogo";
 
   const galeria = fotos.length
-    ? `<div class="prod__main"><img id="prodMainImg" src="${fotos[0]}" alt="${p.nombre}"></div>
+    ? `<div class="prod__main"><img id="prodMainImg" src="${escH(fotos[0])}" alt="${escH(p.nombre)}"></div>
        ${fotos.length > 1 ? `<div class="prod__thumbs">${fotos.map((f, i) =>
-         `<button class="prod__thumb ${i === 0 ? "on" : ""}" data-thumb="${f}"><img src="${f}" alt=""></button>`).join("")}</div>` : ""}`
+         `<button class="prod__thumb ${i === 0 ? "on" : ""}" data-thumb="${escH(f)}"><img src="${escH(f)}" alt=""></button>`).join("")}</div>` : ""}`
     : `<div class="prod__main prod__main--ph">📷 Sin foto todavía</div>`;
 
   const detalles = [
@@ -98,7 +99,7 @@ function render() {
   ].filter(d => d[1]);
   const detallesBloque = detalles.length
     ? `<h4 class="prod__spectitle">Detalles</h4>
-       <ul class="prod__specs">${detalles.map(d => `<li><b style="color:#c9c9cf">${d[0]}:</b> ${d[1]}</li>`).join("")}</ul>`
+       <ul class="prod__specs">${detalles.map(d => `<li><b style="color:#c9c9cf">${escH(d[0])}:</b> ${escH(d[1])}</li>`).join("")}</ul>`
     : "";
 
   const persoBloque = p.personalizable === false ? "" : `
@@ -114,11 +115,11 @@ function render() {
     </div>`;
 
   const specs = (p.specs || []).length
-    ? `<h4 class="prod__spectitle">Especificaciones</h4><ul class="prod__specs">${p.specs.map(s => `<li>${s}</li>`).join("")}</ul>`
+    ? `<h4 class="prod__spectitle">Especificaciones</h4><ul class="prod__specs">${p.specs.map(s => `<li>${escH(s)}</li>`).join("")}</ul>`
     : "";
 
   const tallasBloque = sized
-    ? `<div style="margin:12px 0 4px;font-size:13px;color:#c9c9cf;font-weight:600">Talla${tallaSel ? ": " + tallaSel : ""}</div>
+    ? `<div style="margin:12px 0 4px;font-size:13px;color:#c9c9cf;font-weight:600">Talla${tallaSel ? ": " + escH(tallaSel) : ""}</div>
        <div style="display:flex;gap:8px;flex-wrap:wrap">${tallasDe(p).map(t => tallaBtn(t, t.talla === tallaSel)).join("")}</div>`
     : `<div style="margin:8px 0 2px;font-size:12.5px;color:#9a9aa2">Talla universal</div>`;
 
@@ -128,13 +129,13 @@ function render() {
     <div class="prod">
       <div class="prod__galeria">${galeria}</div>
       <div class="prod__info">
-        <span class="prod__brand">${[p.equipo, p.temporada].filter(Boolean).join(" · ") || p.marca || ""}</span>
-        <h1 class="prod__name">${p.nombre}</h1>
+        <span class="prod__brand">${escH([p.equipo, p.temporada].filter(Boolean).join(" · ") || p.marca || "")}</span>
+        <h1 class="prod__name">${escH(p.nombre)}</h1>
         <span class="stock stock--prox">Próximamente</span>
         <p class="prod__envio">Todavía no está a la venta. Dinos si la quieres y te avisamos en cuanto llegue.</p>
         <button class="add-btn add-btn--big" disabled style="width:100%;margin:12px 0 0">Próximamente</button>
         <button type="button" class="btn" id="avisoAbrir" style="display:block;width:100%;text-align:center;margin-top:10px">Avísame cuando llegue →</button>
-        ${p.descripcion ? `<p class="prod__desc">${p.descripcion}</p>` : ""}
+        ${p.descripcion ? `<p class="prod__desc">${escH(p.descripcion)}</p>` : ""}
         ${detallesBloque}
       </div>
     </div>`;
@@ -152,8 +153,8 @@ function render() {
     <div class="prod">
       <div class="prod__galeria">${galeria}</div>
       <div class="prod__info">
-        <span class="prod__brand">${[p.equipo, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span>
-        <h1 class="prod__name">${p.nombre}</h1>
+        <span class="prod__brand">${escH([p.equipo, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || "")}</span>
+        <h1 class="prod__name">${escH(p.nombre)}</h1>
         <div class="prod__price">${precioLinea} <span>MXN</span></div>
         <span class="stock stock--${st.cls}">${st.txt}</span>
         <p class="prod__envio">🚚 Envío a todo México: se prepara en 1 a 2 días hábiles y llega en 2 a 5 días hábiles más${p.personalizable === false ? "" : " (si lo pides con nombre y número, unos días más)"}</p>
@@ -173,7 +174,7 @@ function render() {
           <p class="promo-aviso" id="pdPromoAviso" hidden></p>`}
         </div>
         <div id="prodTotal" style="margin-top:10px;font-weight:600;color:#e8b923"></div>
-        ${p.descripcion ? `<p class="prod__desc">${p.descripcion}</p>` : ""}
+        ${p.descripcion ? `<p class="prod__desc">${escH(p.descripcion)}</p>` : ""}
         ${detallesBloque}
         ${specs}
       </div>
@@ -193,13 +194,13 @@ function cardRel(x) {
   /* el click en un relacionado se registra como ver_producto de la ficha destino */
   const precio = (precioAntes(x) ? `<s class="precio-antes">${money(precioAntes(x))}</s> ` : "") + (preciosVarian(x) ? `desde ${money(precioDesde(x))}` : money(precioDesde(x)));
   const media = x.imagen
-    ? `<img src="${x.imagen}" alt="${x.nombre}" loading="lazy" onerror="this.style.display='none'">`
+    ? `<img src="${escH(x.imagen)}" alt="${escH(x.nombre)}" loading="lazy" onerror="this.style.display='none'">`
     : `<span class="card__ph">📷</span>`;
   const flag = x.retro ? `<span class="rel-card__flag">Retro</span>` : (x.piezaUnica ? `<span class="rel-card__flag">Única</span>` : "");
   return `<a class="rel-card" href="producto.html?id=${encodeURIComponent(x.id)}">
       <div class="rel-card__media">${media}${flag}</div>
       <div class="rel-card__body">
-        <div class="rel-card__name">${x.nombre}</div>
+        <div class="rel-card__name">${escH(x.nombre)}</div>
         <div class="rel-card__price">${precio}</div>
       </div>
     </a>`;
@@ -486,7 +487,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=121");
+  const { conectarFormulario } = await import("./sugerencias.js?v=122");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
