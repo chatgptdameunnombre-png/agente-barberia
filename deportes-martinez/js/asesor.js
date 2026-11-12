@@ -1,7 +1,8 @@
-import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=121";
-import { track } from "./track.js?v=121";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, precioAntes } from "./tallas.js?v=121";
-import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=121";
+import { ASESOR_WEBHOOK, NEGOCIO, firebaseConfig } from "./config.js?v=122";
+import { track } from "./track.js?v=122";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, precioAntes } from "./tallas.js?v=122";
+import { conectarFormulario, tarjetaSugerenciaHTML } from "./sugerencias.js?v=122";
+const escH = t => String(t ?? "").replace(/[<>&"']/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 const SID_KEY = "deportes-martinez_asesor_sid";
@@ -15,7 +16,7 @@ function setProductos(list) {
   if (alCargarProductos) alCargarProductos();
 }
 
-import("./catalogo.js?v=121").then(m => m.catalogoRapido(list => setProductos(list))).catch(() => {});
+import("./catalogo.js?v=122").then(m => m.catalogoRapido(list => setProductos(list))).catch(() => {});
 
 function fsVal(v) {
   const t = Object.keys(v)[0];
@@ -152,18 +153,18 @@ function montar() {
       const sized = tieneTallas(p);
       const precioTxt = (precioAntes(p) ? `<s class="precio-antes">${money(precioAntes(p))}</s> ` : "") + (preciosVarian(p) ? `desde ${money(precioDesde(p))}` : money(precioDesde(p)));
       const foto = p.imagen
-        ? `<img src="${p.imagen}" alt="${p.nombre}" onerror="this.style.display='none'">`
+        ? `<img src="${escH(p.imagen)}" alt="${escH(p.nombre)}" onerror="this.style.display='none'">`
         : `<div class="ac-ph">📷</div>`;
       const accion = sinStock
         ? `<button class="ac-add" type="button" disabled>Agotado</button>`
         : sized
           ? `<a class="ac-add" href="producto.html?id=${encodeURIComponent(p.id)}" style="text-align:center;text-decoration:none;line-height:1.9">Elegir talla</a>`
-          : `<button class="ac-add" type="button" data-add="${p.id}">🛒 Agregar al carrito</button>`;
+          : `<button class="ac-add" type="button" data-add="${escH(p.id)}">🛒 Agregar al carrito</button>`;
       return `
         <div class="ac-card">
           <div class="ac-media">${foto}${sinStock ? '<span class="ac-out">Agotado</span>' : ''}</div>
           <div class="ac-info">
-            <div class="ac-name">${p.nombre}</div>
+            <div class="ac-name">${escH(p.nombre)}</div>
             <div class="ac-price">${precioTxt} <span>MXN</span></div>
             <div class="ac-actions">
               <a class="ac-ver" href="producto.html?id=${encodeURIComponent(p.id)}">Ver</a>
