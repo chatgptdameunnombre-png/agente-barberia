@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./config.js?v=121";
+import { firebaseConfig } from "./config.js?v=122";
 
 const $ = s => document.querySelector(s);
 const PROJ = firebaseConfig.projectId;
@@ -312,7 +312,7 @@ function embudo(r) {
 function foto(id) {
   const src = fotos.get(id);
   return src
-    ? `<img src="${src}" alt="" loading="lazy">`
+    ? `<img src="${esc(src)}" alt="" loading="lazy">`
     : `<span class="st-sinfoto">👕</span>`;
 }
 
