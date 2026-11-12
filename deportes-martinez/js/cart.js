@@ -1,10 +1,11 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=121";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=121";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=121";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=121";
-import { track, marcarProducto } from "./track.js?v=121";
-import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos, revisarCodigo } from "./codigos.js?v=121";
-import { promotorPorCodigo } from "./promotor.js?v=121";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=122";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=122";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=122";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=122";
+import { track, marcarProducto } from "./track.js?v=122";
+import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos, revisarCodigo } from "./codigos.js?v=122";
+import { promotorPorCodigo } from "./promotor.js?v=122";
+const escH = t => String(t ?? "").replace(/[<>&"']/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -59,7 +60,7 @@ export function addCart(id, talla = null, perso = null) {
   guardar();
   marcarProducto(id, "carrito");
   track("agregar_carrito", { id, nombre: p.nombre, talla: t || "", personalizado: !!pe });
-  toast(`<b>${p.nombre}${t ? " — Talla " + t : ""}</b> agregado`);
+  toast(`<b>${escH(p.nombre)}${t ? " — Talla " + escH(t) : ""}</b> agregado`);
   openDrawer();
   document.dispatchEvent(new CustomEvent("cart:add", { detail: { id } }));
 }
@@ -97,18 +98,18 @@ export function renderCart() {
   }
   body.innerHTML = items.map(i => `
     <div class="line">
-      <img class="line__img" src="${i.imagen || ''}" alt="" onerror="this.style.visibility='hidden'">
+      <img class="line__img" src="${escH(i.imagen || '')}" alt="" onerror="this.style.visibility='hidden'">
       <div class="line__info">
-        <div class="line__name">${i.nombre}${i.talla ? ` <small style="color:#9a9aa2">· Talla ${i.talla}</small>` : ""}${i.perso ? `<br><small style="color:var(--accent)">${i.perso.nombre || ""}${i.perso.dorsal ? " #" + i.perso.dorsal : ""} · personalizado</small>` : ""}</div>
+        <div class="line__name">${escH(i.nombre)}${i.talla ? ` <small style="color:#9a9aa2">· Talla ${escH(i.talla)}</small>` : ""}${i.perso ? `<br><small style="color:var(--accent)">${escH(i.perso.nombre || "")}${i.perso.dorsal ? " #" + escH(i.perso.dorsal) : ""} · personalizado</small>` : ""}</div>
         <div class="line__price">${precioHTML(i.precio)}</div>
         ${i.cod ? `<div class="line__cod">✓ Código ${i.cod.codigo.replace(/[^A-Z0-9-]/g, "")}${i.desc > 0 ? ` · −${money(i.desc)}` : " aplicado"}</div>` : ""}
         <div class="qty">
-          <button data-dec="${i.key}">−</button>
+          <button data-dec="${escH(i.key)}">−</button>
           <span>${i.qty}</span>
-          <button data-inc="${i.key}" ${items.filter(x => x.id === i.id && x.talla === i.talla).reduce((n, x) => n + x.qty, 0) >= i.disp ? "disabled" : ""}>+</button>
+          <button data-inc="${escH(i.key)}" ${items.filter(x => x.id === i.id && x.talla === i.talla).reduce((n, x) => n + x.qty, 0) >= i.disp ? "disabled" : ""}>+</button>
         </div>
       </div>
-      <button class="line__rm" data-rm="${i.key}">Quitar</button>
+      <button class="line__rm" data-rm="${escH(i.key)}">Quitar</button>
     </div>`).join("");
   /* si hay descuento, el total viejo va tachado y abajo el nuevo */
   const desc = items.reduce((a, i) => a + i.desc, 0);
