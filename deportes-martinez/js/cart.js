@@ -1,10 +1,10 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=114";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=114";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=114";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=114";
-import { track, marcarProducto } from "./track.js?v=114";
-import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos, revisarCodigo } from "./codigos.js?v=114";
-import { promotorPorCodigo } from "./promotor.js?v=114";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=115";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=115";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=115";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=115";
+import { track, marcarProducto } from "./track.js?v=115";
+import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos, revisarCodigo } from "./codigos.js?v=115";
+import { promotorPorCodigo } from "./promotor.js?v=115";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
