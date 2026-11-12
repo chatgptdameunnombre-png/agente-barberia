@@ -1,6 +1,6 @@
-import { esperaRestante, anotaFallo, limpiaFallos, esFalloDeClave, textoEspera } from "./clave-segura.js?v=117";
-import { db } from "./db.js?v=117";
-import { EDAD_MINIMA } from "./config.js?v=117";
+import { esperaRestante, anotaFallo, limpiaFallos, esFalloDeClave, textoEspera } from "./clave-segura.js?v=118";
+import { db } from "./db.js?v=118";
+import { EDAD_MINIMA } from "./config.js?v=118";
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
 const esDueno = u => !!u && OWNER_EMAILS.includes((u.email || "").toLowerCase());
@@ -280,7 +280,7 @@ else document.addEventListener("DOMContentLoaded", init);
 function aplicarUsuario(u) {
   currentUser = u;
   updateButton();
-  import("./track.js?v=117").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
+  import("./track.js?v=118").then(t => t.setCliente(u?.uid || "", u?.email || "")).catch(() => {});
 }
 
 db.onAuth(u => aplicarUsuario(u));
