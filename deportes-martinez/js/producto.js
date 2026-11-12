@@ -1,12 +1,12 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=118";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=118";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=118";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=118";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=118";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=118";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=118";
-import { promotorPorCodigo } from "./promotor.js?v=118";
-import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos } from "./codigos.js?v=118";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=119";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=119";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=119";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=119";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=119";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=119";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=119";
+import { promotorPorCodigo } from "./promotor.js?v=119";
+import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos } from "./codigos.js?v=119";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -486,7 +486,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=118");
+  const { conectarFormulario } = await import("./sugerencias.js?v=119");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
@@ -548,6 +548,7 @@ function abrirPago() {
       <div class="pago-modal__total">Total <b id="pagoTotal"></b></div>
       <p class="pago-modal__err" id="pagoErr"></p>
       <button type="button" class="add-btn add-btn--big pd-pagar" id="pagoSeguir">Continuar al pago</button>
+      <p class="aviso-wa">Te mandamos la confirmación y los avisos de tu pedido por WhatsApp. <a href="legales.html#privacidad" target="_blank" rel="noopener">Aviso de privacidad</a></p>
     </div>`;
   const cerrar = () => { m.remove(); document.removeEventListener("keydown", tecla); };
   const tecla = e => { if (e.key === "Escape") cerrar(); };
