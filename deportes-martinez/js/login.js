@@ -1,5 +1,5 @@
-import { db } from "./db.js?v=118";
-import { ponOjo, esperaRestante, anotaFallo, limpiaFallos, esFalloDeClave, textoEspera } from "./clave-segura.js?v=118";
+import { db } from "./db.js?v=119";
+import { ponOjo, esperaRestante, anotaFallo, limpiaFallos, esFalloDeClave, textoEspera } from "./clave-segura.js?v=119";
 
 const $ = s => document.querySelector(s);
 ponOjo($("#pass"));
