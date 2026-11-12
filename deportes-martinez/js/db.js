@@ -1,5 +1,5 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=120";
-import { PRODUCTOS_SEED } from "./seed.js?v=120";
+import { firebaseConfig, usaFirebase } from "./config.js?v=121";
+import { PRODUCTOS_SEED } from "./seed.js?v=121";
 
 const LS_KEY = "dm_productos";
 const LS_AUTH = "dm_auth";
@@ -25,7 +25,7 @@ async function crearImplFirebase() {
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js");
   const {
     getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, getDoc,
-    deleteDoc, getDocs, setDoc, deleteField, query, orderBy, where
+    deleteDoc, getDocs, setDoc, deleteField, query, orderBy, where, runTransaction
   } = await import("https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js");
   const {
     getAuth, initializeAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut,
@@ -204,30 +204,37 @@ async function crearImplFirebase() {
        (lo que se apartó de verdad), no del carrito. */
     async cancelarVenta(id) {
       const ref = doc(fdb, "ventas", id);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) return 0;
-      const v = snap.data();
-      let lineas = [];
-      try { lineas = JSON.parse(v.lineas || "[]"); } catch { lineas = []; }
-      let devueltos = 0;
-      for (const l of lineas) {
-        if (!l.id || !l.qty) continue;
-        const rp = refProd(l.id);
-        const ps = await getDoc(rp);
-        if (!ps.exists()) continue;
-        const p = ps.data();
-        if (Array.isArray(p.tallas) && p.tallas.length && l.talla) {
-          const tallas = p.tallas.map(t => t.talla === l.talla
-            ? { ...t, stock: Number(t.stock || 0) + Number(l.qty) } : t);
-          const total = tallas.reduce((a, t) => a + Number(t.stock || 0), 0);
-          await updateDoc(rp, { tallas, stock: total });
-        } else {
-          await updateDoc(rp, { stock: Number(p.stock || 0) + Number(l.qty) });
+      return runTransaction(fdb, async tx => {
+        const snap = await tx.get(ref);
+        if (!snap.exists() || snap.data().estado === "cancelada") return 0;
+        let lineas = [];
+        try { lineas = JSON.parse(snap.data().lineas || "[]"); } catch { lineas = []; }
+        const porProducto = new Map();
+        for (const l of lineas) {
+          if (!l.id || !l.qty) continue;
+          if (!porProducto.has(l.id)) porProducto.set(l.id, []);
+          porProducto.get(l.id).push(l);
         }
-        devueltos += Number(l.qty);
-      }
-      await updateDoc(ref, { estado: "cancelada", cancelada: new Date().toISOString() });
-      return devueltos;
+        const leidos = [];
+        for (const [pid, ls] of porProducto) leidos.push([refProd(pid), await tx.get(refProd(pid)), ls]);
+        let devueltos = 0;
+        for (const [rp, ps, ls] of leidos) {
+          if (!ps.exists()) continue;
+          const p = ps.data();
+          let tallas = Array.isArray(p.tallas) ? p.tallas.map(t => ({ ...t })) : [];
+          let stock = Number(p.stock || 0);
+          for (const l of ls) {
+            const t = l.talla && tallas.find(x => x.talla === l.talla);
+            if (t) t.stock = Number(t.stock || 0) + Number(l.qty);
+            else stock += Number(l.qty);
+            devueltos += Number(l.qty);
+          }
+          if (tallas.length) tx.update(rp, { tallas, stock: tallas.reduce((a, t) => a + Number(t.stock || 0), 0) });
+          else tx.update(rp, { stock });
+        }
+        tx.update(ref, { estado: "cancelada", cancelada: new Date().toISOString() });
+        return devueltos;
+      });
     },
     async borrarVenta(id) { await deleteDoc(doc(fdb, "ventas", id)); },
     /* Borra TODAS las visitas de una persona: las de su cuenta y, si se pasa el correo,
