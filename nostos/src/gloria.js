@@ -13,7 +13,7 @@ export const MODOS = [
 
 export const MEJORAS_MERCADER = [
   { id: 'oferta5', insignia: 4, nombre: 'MAS MERCANCIA', precio: 1000,
-    desc: 'El mercader te ofrece 5 articulos en vez de 4' },
+    desc: 'El mercader te ofrece 4 articulos en vez de 3' },
   { id: 'descuento', insignia: 5, nombre: 'BUEN OJO', precio: 1400,
     desc: '15% de descuento en todo lo del mercader' },
   { id: 'ranura', insignia: 6, nombre: 'MORRAL HONDO', precio: 2000,

@@ -1,11 +1,11 @@
-import { NIVEL_CUEVA, NIVEL_CIRCE, NIVEL_BARCO, ESTILOS_NIVEL } from './mapa.js?v=20261108200044';
-import { NORMAL_CUEVA, NORMAL_CIRCE, NORMAL_BARCO } from './otrolado.js?v=20261108200044';
+import { NIVEL_CUEVA, NIVEL_CIRCE, NIVEL_BARCO, ESTILOS_NIVEL } from './mapa.js?v=20261112080536';
+import { NORMAL_CUEVA, NORMAL_CIRCE, NORMAL_BARCO } from './otrolado.js?v=20261112080536';
 
 export const MAPAS = {
   palacio: { nombre: 'EL PALACIO DE ITACA', radio: 13 },
   cueva: {
     nombre: 'LA CUEVA DE POLIFEMO', rejilla: NIVEL_CUEVA, estilo: ESTILOS_NIVEL.cueva, normal: NORMAL_CUEVA, radio: 4.5,
-    texturas: './arte/crudo/cueva-texturas.webp?v=20261108200044', decoracion: './arte/crudo/cueva-decoracion.webp?v=20261108200044',
+    texturas: './arte/crudo/cueva-texturas.webp?v=20261112080536', decoracion: './arte/crudo/cueva-decoracion.webp?v=20261112080536',
     claves: ['roca', 'musgo', 'tierra', 'techo', 'pilar', 'cerca'],
     recortes: { pilar: [0.12, 0.88], cerca: [0.02, 0.8] },
     respaldo: b => ({ roca: b.roca, musgo: b.roca, tierra: b.piedra, techo: b.roca, pilar: b.columna, cerca: b.terracota }),
@@ -24,7 +24,7 @@ export const MAPAS = {
   },
   circe: {
     nombre: 'LA ISLA DE CIRCE', rejilla: NIVEL_CIRCE, estilo: ESTILOS_NIVEL.circe, normal: NORMAL_CIRCE, radio: 5,
-    texturas: './arte/crudo/circe-texturas.webp?v=20261108200044', decoracion: './arte/crudo/circe-decoracion.webp?v=20261108200044',
+    texturas: './arte/crudo/circe-texturas.webp?v=20261112080536', decoracion: './arte/crudo/circe-decoracion.webp?v=20261112080536',
     claves: ['hiedra', 'flores', 'losas', 'pergola', 'columna', 'friso'],
     recortes: { columna: [0, 0.86] },
     respaldo: b => ({ hiedra: b.marmol, flores: b.marmol, losas: b.mosaico, pergola: b.roca, columna: b.columna, friso: b.terracota }),
@@ -45,7 +45,7 @@ export const MAPAS = {
   },
   barco: {
     nombre: 'EL BARCO DE ODISEO', rejilla: NIVEL_BARCO, estilo: ESTILOS_NIVEL.barco, normal: NORMAL_BARCO, radio: 6,
-    texturas: './arte/crudo/barco-texturas.webp?v=20261108200044', decoracion: './arte/crudo/barco-decoracion.webp?v=20261108200044',
+    texturas: './arte/crudo/barco-texturas.webp?v=20261112080536', decoracion: './arte/crudo/barco-decoracion.webp?v=20261112080536',
     claves: ['casco', 'ojo', 'cubierta', 'cielo', 'mastil', 'vela'],
     recortes: {},
     respaldo: b => ({ casco: b.piedra, ojo: b.terracota, cubierta: b.piedra, cielo: b.roca, mastil: b.columna, vela: b.terracota }),
@@ -67,21 +67,21 @@ export const MAPAS = {
 };
 
 export const ARCOS_HOJA = [
-  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20261108200044'],
-  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20261108200044'],
-  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20261108200044'],
-  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20261108200044'],
-  ['arcoSable', './arte/crudo/arco-sable.webp?v=20261108200044'],
-  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20261108200044']
+  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20261112080536'],
+  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20261112080536'],
+  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20261112080536'],
+  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20261112080536'],
+  ['arcoSable', './arte/crudo/arco-sable.webp?v=20261112080536'],
+  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20261112080536']
 ];
 
 export const CARAS_HOJA = [
-  ['carasFontanero', './arte/crudo/caras-fontanero.webp?v=20261108200044'],
-  ['carasSierra', './arte/crudo/caras-sierra.webp?v=20261108200044'],
-  ['carasPortal', './arte/crudo/caras-portal.webp?v=20261108200044'],
-  ['carasFantasma', './arte/crudo/caras-fantasma.webp?v=20261108200044'],
-  ['carasSable', './arte/crudo/caras-sable.webp?v=20261108200044'],
-  ['carasAbismo', './arte/crudo/caras-abismo.webp?v=20261108200044']
+  ['carasFontanero', './arte/crudo/caras-fontanero.webp?v=20261112080536'],
+  ['carasSierra', './arte/crudo/caras-sierra.webp?v=20261112080536'],
+  ['carasPortal', './arte/crudo/caras-portal.webp?v=20261112080536'],
+  ['carasFantasma', './arte/crudo/caras-fantasma.webp?v=20261112080536'],
+  ['carasSable', './arte/crudo/caras-sable.webp?v=20261112080536'],
+  ['carasAbismo', './arte/crudo/caras-abismo.webp?v=20261112080536']
 ];
 
 export const CONTROLES = [

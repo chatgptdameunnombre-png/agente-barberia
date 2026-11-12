@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261108200044';
+import { Billboard } from './sprites.js?v=20261112080536';
 
 export const CATALOGO = [
   { id: 'flechas',  celda: 0,  alto: 2.0, efecto: 'flechas',  valor: 12, aviso: '+12 FLECHAS' },

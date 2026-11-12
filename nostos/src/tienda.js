@@ -1,5 +1,5 @@
-import { urlIcono } from './iconos.js?v=20261108200044';
-import { RELIQUIAS } from './reliquias.js?v=20261108200044';
+import { urlIcono } from './iconos.js?v=20261112080536';
+import { RELIQUIAS } from './reliquias.js?v=20261112080536';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,
@@ -101,7 +101,7 @@ export class Tienda {
     this.jugador = cfg.jugador;
     this.iconos = cfg.iconos;
     this.mercader = cfg.mercader || null;
-    this.cuantos = cfg.cuantos || 4;
+    this.cuantos = cfg.cuantos || 3;
     this.descuento = cfg.descuento || 1;
     this.alCerrar = cfg.alCerrar;
     this.alComprar = cfg.alComprar;
@@ -172,11 +172,13 @@ export class Tienda {
     const CLAVES = ['portales', 'guante', 'gancho', 'pico', 'manoP'];
     const fijas = nuevo(libres.filter(m => CLAVES.includes(m.id)));
     const resto = nuevo(libres.filter(m => !CLAVES.includes(m.id)));
-    const cuantasArmas = Math.min(fijas.length, Math.random() < 0.5 ? 1 : 2);
+    const lugares = Math.max(1, this.cuantos - (sinArco ? 0 : 1));
+    const nMejoras = Math.max(1, lugares - 1);
+    const cuantasArmas = Math.min(fijas.length, nMejoras, Math.random() < 0.5 ? 1 : 2);
     const mejoras = [...fijas.slice(0, cuantasArmas),
-                     ...resto.slice(0, Math.max(1, 3 - cuantasArmas))];
+                     ...resto.slice(0, nMejoras - cuantasArmas)];
     const consumibles = nuevo(CONSUMIBLES.filter(c => c.id !== 'carcaj'))
-      .slice(0, Math.max(1, this.cuantos - mejoras.length));
+      .slice(0, Math.max(0, lugares - mejoras.length));
     this.oferta = revuelve([...mejoras, ...consumibles]);
     const faltanCuchillos = this.jugador.cuchillosMax - this.jugador.cuchillos;
     if (faltanCuchillos >= 4 && Math.random() < 0.45 && !this.oferta.some(o => o.id === 'cuchillos')) {
