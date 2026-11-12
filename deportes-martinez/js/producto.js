@@ -1,12 +1,12 @@
-import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=117";
-import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=117";
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=117";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=117";
-import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=117";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=117";
-import { track, trackProducto, cerrarProducto } from "./track.js?v=117";
-import { promotorPorCodigo } from "./promotor.js?v=117";
-import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos } from "./codigos.js?v=117";
+import { catalogoRapido, fotosRapido, guardarCatalogo } from "./catalogo.js?v=118";
+import { setProductos, initCart, enCarrito, addCart } from "./cart.js?v=118";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=118";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=118";
+import { tieneTallas, tallasDe, stockDeTalla, stockTotal, precioTalla, precioDesde, preciosVarian, etiquetaStock, precioAntes } from "./tallas.js?v=118";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=118";
+import { track, trackProducto, cerrarProducto } from "./track.js?v=118";
+import { promotorPorCodigo } from "./promotor.js?v=118";
+import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos } from "./codigos.js?v=118";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -486,7 +486,7 @@ function ponerDatosParaGoogle(p, precio, stock) {
 const escA = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function abrirAviso(p) {
-  const { conectarFormulario } = await import("./sugerencias.js?v=117");
+  const { conectarFormulario } = await import("./sugerencias.js?v=118");
   document.getElementById("avisoModal")?.remove();
   const m = document.createElement("div");
   m.className = "aviso-modal";
