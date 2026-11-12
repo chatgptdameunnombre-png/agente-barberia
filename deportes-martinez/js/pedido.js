@@ -1,5 +1,5 @@
-import { NEGOCIO } from "./config.js?v=114";
-import { db } from "./db.js?v=114";
+import { NEGOCIO } from "./config.js?v=115";
+import { db } from "./db.js?v=115";
 
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
@@ -68,10 +68,10 @@ function pintar(user) {
 
   cont.innerHTML = `
     <div class="pd-caja">
-      <div class="pd-icono ${enRevision ? "pd-icono--espera" : ""}">${enRevision ? "⏳" : "✓"}</div>
-      <h1 class="pd-titulo">${enRevision ? "Tu pago está en revisión" : "¡Listo, recibimos tu pago!"}</h1>
+      <div class="pd-icono ${enRevision && !aprobado ? "pd-icono--espera" : ""}">${enRevision ? (aprobado ? "💬" : "⏳") : "✓"}</div>
+      <h1 class="pd-titulo">${enRevision ? (aprobado ? "Te vamos a mandar un WhatsApp" : "Tu pago está en revisión") : "¡Listo, recibimos tu pago!"}</h1>
       <p class="pd-sub">${enRevision
-        ? (aprobado ? "Estamos confirmando tu pago con Mercado Pago. En cuanto se confirme, tu pedido aparece en tu cuenta y te escribimos por WhatsApp." : "Mercado Pago nos avisa en cuanto se acredite. Tu jersey ya está apartado.")
+        ? (aprobado ? "Con toda la info de tu pedido." : "Mercado Pago nos avisa en cuanto se acredite. Tu jersey ya está apartado.")
         : tienda ? "Tu jersey ya está apartado. Te esperamos en la tienda." : "Ya estamos preparando tu envío."}</p>
 
       <div class="pd-folio">
