@@ -1,5 +1,5 @@
 /* Sección Noticias de la HOME: slider de banners (una noticia a la vez, foto grande + texto al lado). */
-import { firebaseConfig } from "./config.js?v=121";
+import { firebaseConfig } from "./config.js?v=122";
 
 const FS = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 const KEY = firebaseConfig.apiKey;
@@ -28,17 +28,21 @@ const ANUNCIOS = [
     link: "https://www.instagram.com/_deportes_martinez_/", externo: true }
 ];
 
+const escH = t => String(t ?? "").replace(/[<>&"']/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
+const linkSeguro = u => /^(https:\/\/|[a-z0-9_-]+\.html(\?[^\s]*)?$|#)/i.test(String(u || "").trim()) ? String(u).trim() : "";
+
 function bannerHTML(a, i) {
   const attrs = a.externo ? `target="_blank" rel="noopener"` : "";
   const cta = a.cta || (a.externo ? "Ver en Instagram ↗" : "Ver jersey →");
-  const btn = a.link ? `<a class="bslide__btn" href="${a.link}" ${attrs}>${cta}</a>` : "";
+  const link = linkSeguro(a.link);
+  const btn = link ? `<a class="bslide__btn" href="${escH(link)}" ${attrs}>${escH(cta)}</a>` : "";
   return `
     <div class="bslide${i === 0 ? " on" : ""}">
-      <div class="bslide__img"><img src="${a.img}" alt="${a.titulo}" loading="lazy" style="${a.fit ? 'object-fit:contain;background:#0d121d' : ''}"></div>
+      <div class="bslide__img"><img src="${escH(a.img)}" alt="${escH(a.titulo)}" loading="lazy" style="${a.fit ? 'object-fit:contain;background:#0d121d' : ''}"></div>
       <div class="bslide__c">
-        ${a.tipo ? `<span class="bslide__tag">${a.tipo}</span>` : ""}
-        <h3>${a.titulo}</h3>
-        <p>${a.texto || ""}</p>
+        ${a.tipo ? `<span class="bslide__tag">${escH(a.tipo)}</span>` : ""}
+        <h3>${escH(a.titulo)}</h3>
+        <p>${escH(a.texto || "")}</p>
         ${btn}
       </div>
     </div>`;
