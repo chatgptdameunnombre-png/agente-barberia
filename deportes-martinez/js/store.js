@@ -1,10 +1,10 @@
-import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=116";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=116";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=116";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=116";
-import { track } from "./track.js?v=116";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=116";
-import { ESCUDOS } from "./escudos.js?v=116";
+import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=117";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=117";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=117";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=117";
+import { track } from "./track.js?v=117";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=117";
+import { ESCUDOS } from "./escudos.js?v=117";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
