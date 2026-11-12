@@ -1,10 +1,10 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=115";
-const authListo = import("./auth.js?v=115");
-const dbListo = import("./db.js?v=115").then(m => m.db);
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=116";
+const authListo = import("./auth.js?v=116");
+const dbListo = import("./db.js?v=116").then(m => m.db);
 const abrirLogin = (...a) => authListo.then(m => m.abrirLogin(...a));
 let db = null;
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=115";
-import { track } from "./track.js?v=115";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=116";
+import { track } from "./track.js?v=116";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -207,12 +207,18 @@ function aviso(txt) {
 }
 
 function guardarUltimo(ref, payload) {
+  let cat = [];
+  try { cat = JSON.parse(localStorage.getItem("dm_catalogo_v1") || "[]"); } catch { }
+  const fotoDe = id => {
+    const im = (Array.isArray(cat) ? cat.find(x => x.id === id) : null)?.imagen || "";
+    return /^data:/.test(im) ? "" : im;
+  };
   try {
     localStorage.setItem("dm_ultimo_pedido", JSON.stringify({
       ref,
       entrega: payload.entrega,
       invitado: !!payload.invitado,
-      productos: (payload.productos || []).map(p => ({ title: p.title, talla: p.talla || "", qty: p.qty })),
+      productos: (payload.productos || []).map(p => ({ id: p.id, title: p.title, talla: p.talla || "", qty: p.qty, img: fotoDe(p.id) })),
       fecha: new Date().toISOString()
     }));
   } catch { }
