@@ -1,10 +1,11 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=121";
-const authListo = import("./auth.js?v=121");
-const dbListo = import("./db.js?v=121").then(m => m.db);
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=122";
+const authListo = import("./auth.js?v=122");
+const dbListo = import("./db.js?v=122").then(m => m.db);
 const abrirLogin = (...a) => authListo.then(m => m.abrirLogin(...a));
 let db = null;
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=121";
-import { track } from "./track.js?v=121";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=122";
+import { track } from "./track.js?v=122";
+const escH = t => String(t ?? "").replace(/[<>&"']/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -160,7 +161,7 @@ async function mostrarClabe({ productos, entrega, total, cliente, telefono, dire
         <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Banco</span><b>${BANCO_TRANSFERENCIA}</b></div>
         <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Beneficiario</span><b style="text-align:right">${BENEFICIARIO_TRANSFERENCIA}</b></div>
         <div style="margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">CLABE</span><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><b id="trClabe" style="font-size:21px;letter-spacing:1px">${CLABE_TRANSFERENCIA}</b><button id="trCopy" style="background:#26262c;border:none;color:#e8b923;border-radius:8px;padding:4px 10px;font-size:14px;cursor:pointer">Copiar</button></div></div>` : ""}
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Tu pedido</span><b style="text-align:right;max-width:60%">${resumen}</b></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Tu pedido</span><b style="text-align:right;max-width:60%">${escH(resumen)}</b></div>
         ${desc
           ? `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span style="color:#e8b923;font-size:15.5px;font-weight:700">Precio mayorista −10%</span><span><s style="color:#7a7a82;font-size:16px;margin-right:8px">${money(total)}</s><b style="color:#e8b923;font-size:23px">${money(totalFinal)}</b></span></div>`
           : `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#9a9aa2;font-size:15.5px">Monto</span><b style="color:#e8b923;font-size:21px">${money(totalFinal)}</b></div>`}
