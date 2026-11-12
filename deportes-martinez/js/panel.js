@@ -1,7 +1,7 @@
-import { db } from "./db.js?v=120";
-import { KIKI_EMAIL, AVISO_WEBHOOK } from "./config.js?v=120";
-import { pintarEstadisticas } from "./estadisticas.js?v=120";
-import "./panel-nav.js?v=120";
+import { db } from "./db.js?v=121";
+import { KIKI_EMAIL, AVISO_WEBHOOK } from "./config.js?v=121";
+import { pintarEstadisticas } from "./estadisticas.js?v=121";
+import "./panel-nav.js?v=121";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -28,7 +28,7 @@ db.onAuth(user => {
   $("#dash").hidden = false;
   const soyKiki = (user.email || "").toLowerCase() === KIKI_EMAIL;
   $("#pnavPromotores").hidden = !soyKiki;
-  if (soyKiki) import("./promotores.js?v=120").then(m => m.iniciarPromotores(db));
+  if (soyKiki) import("./promotores.js?v=121").then(m => m.iniciarPromotores(db));
   window.scrollTo(0, 0);
   arrancarDash();
 });
