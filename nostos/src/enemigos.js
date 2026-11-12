@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261112100558';
-import { CELDA, esSolido } from './mapa.js?v=20261112100558';
+import { Billboard } from './sprites.js?v=20261112102002';
+import { CELDA, esSolido } from './mapa.js?v=20261112102002';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -399,7 +399,7 @@ export class Enemigo {
       if (!this._libre(nx, nz)) {
         this.estado = 'aturdido';
         this.reloj = 0;
-        this.sprite.fijarVistas([this.recursos.quieto[0]]);
+        this.sprite.fijarVistas([(this.recursos.aturdido || this.recursos.quieto)[0]]);
         if (this.alChocar) this.alChocar(this);
         return;
       }
@@ -428,8 +428,15 @@ export class Enemigo {
       }
       return;
     }
-    this.sprite.material.color.setHex(0x9aa6ff);
-    malla.rotation.z = Math.sin(this.reloj * 18) * 0.12;
+    const mareo = this.recursos.aturdido;
+    if (mareo && mareo.length >= 4) {
+      const k = this.reloj < 0.2 ? 0 : this.reloj > 1.25 ? 3 : 1 + Math.floor((this.reloj - 0.2) / 0.22) % 2;
+      if (this.sprite.vistas[0] !== mareo[k]) this.sprite.fijarVistas([mareo[k]]);
+      malla.rotation.z = k === 0 ? 0 : Math.sin(this.reloj * 9) * 0.05;
+    } else {
+      this.sprite.material.color.setHex(0x9aa6ff);
+      malla.rotation.z = Math.sin(this.reloj * 18) * 0.12;
+    }
     malla.position.y = this.baseY;
     if (this.reloj > 1.6) {
       this.estado = 'persigue';
