@@ -1,11 +1,11 @@
-import { NIVEL_CUEVA, NIVEL_CIRCE, NIVEL_BARCO, ESTILOS_NIVEL } from './mapa.js?v=20261112080536';
-import { NORMAL_CUEVA, NORMAL_CIRCE, NORMAL_BARCO } from './otrolado.js?v=20261112080536';
+import { NIVEL_CUEVA, NIVEL_CIRCE, NIVEL_BARCO, NIVEL_SIRENAS, NIVEL_HADES, ESTILOS_NIVEL } from './mapa.js?v=20261112100558';
+import { NORMAL_CUEVA, NORMAL_CIRCE, NORMAL_BARCO, NORMAL_SIRENAS, NORMAL_HADES } from './otrolado.js?v=20261112100558';
 
 export const MAPAS = {
   palacio: { nombre: 'EL PALACIO DE ITACA', radio: 13 },
   cueva: {
     nombre: 'LA CUEVA DE POLIFEMO', rejilla: NIVEL_CUEVA, estilo: ESTILOS_NIVEL.cueva, normal: NORMAL_CUEVA, radio: 4.5,
-    texturas: './arte/crudo/cueva-texturas.webp?v=20261112080536', decoracion: './arte/crudo/cueva-decoracion.webp?v=20261112080536',
+    texturas: './arte/crudo/cueva-texturas.webp?v=20261112100558', decoracion: './arte/crudo/cueva-decoracion.webp?v=20261112100558',
     claves: ['roca', 'musgo', 'tierra', 'techo', 'pilar', 'cerca'],
     recortes: { pilar: [0.12, 0.88], cerca: [0.02, 0.8] },
     respaldo: b => ({ roca: b.roca, musgo: b.roca, tierra: b.piedra, techo: b.roca, pilar: b.columna, cerca: b.terracota }),
@@ -24,7 +24,7 @@ export const MAPAS = {
   },
   circe: {
     nombre: 'LA ISLA DE CIRCE', rejilla: NIVEL_CIRCE, estilo: ESTILOS_NIVEL.circe, normal: NORMAL_CIRCE, radio: 5,
-    texturas: './arte/crudo/circe-texturas.webp?v=20261112080536', decoracion: './arte/crudo/circe-decoracion.webp?v=20261112080536',
+    texturas: './arte/crudo/circe-texturas.webp?v=20261112100558', decoracion: './arte/crudo/circe-decoracion.webp?v=20261112100558',
     claves: ['hiedra', 'flores', 'losas', 'pergola', 'columna', 'friso'],
     recortes: { columna: [0, 0.86] },
     respaldo: b => ({ hiedra: b.marmol, flores: b.marmol, losas: b.mosaico, pergola: b.roca, columna: b.columna, friso: b.terracota }),
@@ -45,7 +45,7 @@ export const MAPAS = {
   },
   barco: {
     nombre: 'EL BARCO DE ODISEO', rejilla: NIVEL_BARCO, estilo: ESTILOS_NIVEL.barco, normal: NORMAL_BARCO, radio: 6,
-    texturas: './arte/crudo/barco-texturas.webp?v=20261112080536', decoracion: './arte/crudo/barco-decoracion.webp?v=20261112080536',
+    texturas: './arte/crudo/barco-texturas.webp?v=20261112100558', decoracion: './arte/crudo/barco-decoracion.webp?v=20261112100558',
     claves: ['casco', 'ojo', 'cubierta', 'cielo', 'mastil', 'vela'],
     recortes: {},
     respaldo: b => ({ casco: b.piedra, ojo: b.terracota, cubierta: b.piedra, cielo: b.roca, mastil: b.columna, vela: b.terracota }),
@@ -63,25 +63,101 @@ export const MAPAS = {
       e: { celda: 10, alto: 2.6 },
       f: { celda: 11, alto: 2.8, basico: true, luz: 30 }
     }
+  },
+  sirenas: {
+    nombre: 'LA ISLA DE LAS SIRENAS', rejilla: NIVEL_SIRENAS, estilo: ESTILOS_NIVEL.sirenas, normal: NORMAL_SIRENAS, radio: 5.5,
+    texturas: './arte/crudo/sirenas-texturas.webp?v=20261112100558', decoracion: './arte/crudo/sirenas-decoracion.webp?v=20261112100558',
+    claves: ['roca', 'conchas', 'arena', 'niebla', 'coral', 'naufragio'],
+    recortes: {},
+    respaldo: b => ({ roca: b.roca, conchas: b.roca, arena: b.piedra, niebla: b.roca, coral: b.columna, naufragio: b.terracota }),
+    canto: true,
+    decor: {
+      b: { celda: 0, alto: 3.0, basico: true, luz: 30, color: 0x70ff90 },
+      e: { celda: 1, alto: 4.6 },
+      a: { celda: 2, alto: 3.0 },
+      k: { celda: 3, alto: 2.0 },
+      h: { celda: 4, alto: 1.8 },
+      p: { celda: 5, alto: 3.2 },
+      v: { celda: 6, alto: 2.6 },
+      n: { celda: 7, alto: 2.4 },
+      m: { celda: 8, alto: 6.0 },
+      o: { celda: 9, alto: 2.6 },
+      c: { celda: 10, alto: 2.0 },
+      l: { celda: 11, alto: 3.4, basico: true, luz: 32 }
+    }
+  },
+  hades: {
+    nombre: 'EL HADES', rejilla: NIVEL_HADES, estilo: ESTILOS_NIVEL.hades, normal: NORMAL_HADES, radio: 5.5,
+    texturas: './arte/crudo/hades-texturas.webp?v=20261112100558', decoracion: './arte/crudo/hades-decoracion.webp?v=20261112100558',
+    claves: ['basalto', 'craneos', 'ceniza', 'caverna', 'obsidiana', 'estigia'],
+    recortes: {},
+    respaldo: b => ({ basalto: b.roca, craneos: b.piedra, ceniza: b.piedra, caverna: b.roca, obsidiana: b.columna, estigia: b.roca }),
+    decor: {
+      b: { celda: 0, alto: 3.0, basico: true, luz: 34, color: 0x6aa0ff },
+      c: { celda: 1, alto: 4.2 },
+      k: { celda: 2, alto: 2.6 },
+      t: { celda: 3, alto: 4.0 },
+      g: { celda: 4, alto: 2.4 },
+      l: { celda: 5, alto: 2.4 },
+      o: { celda: 6, alto: 1.4 },
+      v: { celda: 7, alto: 2.6 },
+      a: { celda: 8, alto: 4.4 },
+      j: { celda: 9, alto: 2.8, basico: true, luz: 24, color: 0x60e0ff },
+      h: { celda: 10, alto: 1.8 },
+      f: { celda: 11, alto: 3.4, basico: true, luz: 34, color: 0x6aa0ff }
+    }
   }
 };
 
+export const MUERTES_HOJA = [
+  ['lobo', 'muereRayo', './arte/crudo/lobo-rayo.webp?v=20261112100558'],
+  ['lobo', 'muereLanza', './arte/crudo/lobo-lanza.webp?v=20261112100558'],
+  ['lobo', 'muereCuchillo', './arte/crudo/lobo-cuchillo.webp?v=20261112100558'],
+  ['lobo', 'muereFuego', './arte/crudo/lobo-fuego.webp?v=20261112100558'],
+  ['lobo', 'muereHacha', './arte/crudo/lobo-hacha.webp?v=20261112100558'],
+  ['lobo', 'muereBomba', './arte/crudo/lobo-bomba.webp?v=20261112100558'],
+  ['pretendiente', 'muereRayo', './arte/crudo/pretendiente-rayo.webp?v=20261112100558'],
+  ['pretendiente', 'muereLanza', './arte/crudo/pretendiente-lanza.webp?v=20261112100558'],
+  ['pretendiente', 'muereCuchillo', './arte/crudo/pretendiente-cuchillo.webp?v=20261112100558'],
+  ['pretendiente', 'muereFuego', './arte/crudo/pretendiente-fuego.webp?v=20261112100558'],
+  ['pretendiente', 'muereHacha', './arte/crudo/pretendiente-hacha.webp?v=20261112100558'],
+  ['pretendiente', 'muereBomba', './arte/crudo/pretendiente-bomba.webp?v=20261112100558'],
+  ['polifemo', 'muereRayo', './arte/crudo/polifemo-rayo.webp?v=20261112100558'],
+  ['polifemo', 'muereLanza', './arte/crudo/polifemo-lanza.webp?v=20261112100558'],
+  ['polifemo', 'muereCuchillo', './arte/crudo/polifemo-cuchillo.webp?v=20261112100558'],
+  ['polifemo', 'muereFuego', './arte/crudo/polifemo-fuego.webp?v=20261112100558'],
+  ['polifemo', 'muereHacha', './arte/crudo/polifemo-hacha.webp?v=20261112100558'],
+  ['polifemo', 'muereBomba', './arte/crudo/polifemo-bomba.webp?v=20261112100558'],
+  ['sombra', 'muereRayo', './arte/crudo/sombra-rayo.webp?v=20261112100558'],
+  ['sombra', 'muereLanza', './arte/crudo/sombra-lanza.webp?v=20261112100558'],
+  ['sombra', 'muereCuchillo', './arte/crudo/sombra-cuchillo.webp?v=20261112100558'],
+  ['sombra', 'muereFuego', './arte/crudo/sombra-fuego.webp?v=20261112100558'],
+  ['sombra', 'muereHacha', './arte/crudo/sombra-hacha.webp?v=20261112100558'],
+  ['sombra', 'muereBomba', './arte/crudo/sombra-bomba.webp?v=20261112100558'],
+  ['cerdo', 'muereRayo', './arte/crudo/cerdo-rayo.webp?v=20261112100558'],
+  ['cerdo', 'muereLanza', './arte/crudo/cerdo-lanza.webp?v=20261112100558'],
+  ['cerdo', 'muereCuchillo', './arte/crudo/cerdo-cuchillo.webp?v=20261112100558'],
+  ['cerdo', 'muereFuego', './arte/crudo/cerdo-fuego.webp?v=20261112100558'],
+  ['cerdo', 'muereHacha', './arte/crudo/cerdo-hacha.webp?v=20261112100558'],
+  ['cerdo', 'muereBomba', './arte/crudo/cerdo-bomba.webp?v=20261112100558']
+];
+
 export const ARCOS_HOJA = [
-  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20261112080536'],
-  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20261112080536'],
-  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20261112080536'],
-  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20261112080536'],
-  ['arcoSable', './arte/crudo/arco-sable.webp?v=20261112080536'],
-  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20261112080536']
+  ['arcoFontanero', './arte/crudo/arco-fontanero.webp?v=20261112100558'],
+  ['arcoSierra', './arte/crudo/arco-sierra.webp?v=20261112100558'],
+  ['arcoPortal', './arte/crudo/arco-portal.webp?v=20261112100558'],
+  ['arcoFantasma', './arte/crudo/arco-fantasma.webp?v=20261112100558'],
+  ['arcoSable', './arte/crudo/arco-sable.webp?v=20261112100558'],
+  ['arcoAbismo', './arte/crudo/arco-abismo.webp?v=20261112100558']
 ];
 
 export const CARAS_HOJA = [
-  ['carasFontanero', './arte/crudo/caras-fontanero.webp?v=20261112080536'],
-  ['carasSierra', './arte/crudo/caras-sierra.webp?v=20261112080536'],
-  ['carasPortal', './arte/crudo/caras-portal.webp?v=20261112080536'],
-  ['carasFantasma', './arte/crudo/caras-fantasma.webp?v=20261112080536'],
-  ['carasSable', './arte/crudo/caras-sable.webp?v=20261112080536'],
-  ['carasAbismo', './arte/crudo/caras-abismo.webp?v=20261112080536']
+  ['carasFontanero', './arte/crudo/caras-fontanero.webp?v=20261112100558'],
+  ['carasSierra', './arte/crudo/caras-sierra.webp?v=20261112100558'],
+  ['carasPortal', './arte/crudo/caras-portal.webp?v=20261112100558'],
+  ['carasFantasma', './arte/crudo/caras-fantasma.webp?v=20261112100558'],
+  ['carasSable', './arte/crudo/caras-sable.webp?v=20261112100558'],
+  ['carasAbismo', './arte/crudo/caras-abismo.webp?v=20261112100558']
 ];
 
 export const CONTROLES = [

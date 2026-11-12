@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CELDA, esSolido } from './mapa.js?v=20261112080536';
+import { CELDA, esSolido } from './mapa.js?v=20261112100558';
 
 const VELOCIDAD = 15;
 const VELOCIDAD_LATERAL = 12;
@@ -16,6 +16,8 @@ export class Jugador {
     this.lienzo = lienzo;
     this.pos = (nivel.spawns.jugador || new THREE.Vector3(CELDA, 0, CELDA)).clone();
     this.vel = new THREE.Vector3();
+    this.impulso = { x: 0, z: 0 };
+    this.arrastre = { x: 0, z: 0 };
     this.yaw = 0;
     this.pitch = 0;
     this.vida = 100;
@@ -297,6 +299,11 @@ export class Jugador {
     if (this.alRecibir) this.alRecibir(dano, absorbido);
   }
 
+  empujar(ux, uz, fuerza) {
+    this.impulso.x += ux * fuerza;
+    this.impulso.z += uz * fuerza;
+  }
+
   _colisionar(nx, nz) {
     const rej = this.nivel.rejilla;
     const cx = Math.floor(nx / CELDA);
@@ -351,10 +358,14 @@ export class Jugador {
     this.vel.x += (objX - this.vel.x) * Math.min(1, ACELERACION * dt);
     this.vel.z += (objZ - this.vel.z) * Math.min(1, ACELERACION * dt);
 
-    const nx = this.pos.x + this.vel.x * dt;
-    if (!this._colisionar(nx, this.pos.z)) this.pos.x = nx; else this.vel.x = 0;
-    const nz = this.pos.z + this.vel.z * dt;
-    if (!this._colisionar(this.pos.x, nz)) this.pos.z = nz; else this.vel.z = 0;
+    const ix = this.impulso.x + this.arrastre.x, iz = this.impulso.z + this.arrastre.z;
+    const nx = this.pos.x + (this.vel.x + ix) * dt;
+    if (!this._colisionar(nx, this.pos.z)) this.pos.x = nx; else { this.vel.x = 0; this.impulso.x = 0; }
+    const nz = this.pos.z + (this.vel.z + iz) * dt;
+    if (!this._colisionar(this.pos.x, nz)) this.pos.z = nz; else { this.vel.z = 0; this.impulso.z = 0; }
+    const frena = Math.max(0, 1 - dt * 5);
+    this.impulso.x *= frena;
+    this.impulso.z *= frena;
 
     const rapidez = Math.hypot(this.vel.x, this.vel.z);
     this.balanceo += dt * rapidez * 0.9;

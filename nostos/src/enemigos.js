@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Billboard } from './sprites.js?v=20261112080536';
-import { CELDA, esSolido } from './mapa.js?v=20261112080536';
+import { Billboard } from './sprites.js?v=20261112100558';
+import { CELDA, esSolido } from './mapa.js?v=20261112100558';
 
 const RADIO = 1.6;
 const RANGO_VISTA = 70;
@@ -25,6 +25,16 @@ export const TIPOS = {
     id: 'pretendiente', nombre: 'PRETENDIENTE', arte: 'pretendiente',
     alto: 4.3, vida: 0.55, velocidad: 1.45, dano: 0.75,
     rango: 26, distancia: true, recarga: 2.4, hueco: 1.0
+  },
+  sombra: {
+    id: 'sombra', nombre: 'SOMBRA DEL HADES', arte: 'sombra',
+    alto: 5.0, vida: 0.7, velocidad: 0.85, dano: 0.8,
+    rango: 4.0, distancia: false, recarga: 0, hueco: 1.0, etereo: true
+  },
+  cerdo: {
+    id: 'cerdo', nombre: 'HOMBRE-CERDO', arte: 'cerdo',
+    alto: 4.8, vida: 1.1, velocidad: 1.05, dano: 1.2,
+    rango: 4.0, distancia: false, recarga: 0, hueco: 1.3, embiste: true
   }
 };
 
@@ -61,6 +71,9 @@ export class Enemigo {
     this.alRugir = null;
     this.alMatar = null;
     this.alMorir = null;
+    this.alEmpujar = null;
+    this.alChocar = null;
+    this.enfriaCarga = 1.5 + Math.random() * 2;
     this.sprite = new Billboard(recursos.quieto, 5.2, this.tipo.alto);
     this.sprite.grupo.position.copy(pos);
     this.malla = this.sprite.grupo;
@@ -105,6 +118,7 @@ export class Enemigo {
   _libre(nx, nz) {
     const rej = this.nivel.rejilla;
     const cx = Math.floor(nx / CELDA), cz = Math.floor(nz / CELDA);
+    if (this.tipo.etereo) return cz >= 1 && cz < rej.length - 1 && cx >= 1 && cx < rej[cz].length - 1;
     for (let dz = -1; dz <= 1; dz++) {
       for (let dx = -1; dx <= 1; dx++) {
         const gx = cx + dx, gz = cz + dz;
@@ -116,6 +130,17 @@ export class Enemigo {
       }
     }
     return true;
+  }
+
+  _dentroMuro() {
+    return esSolido(this.nivel.rejilla, Math.floor(this.pos.x / CELDA), Math.floor(this.pos.z / CELDA));
+  }
+
+  _parpadear(camara) {
+    if (!this.vivo) { this.sprite.grupo.visible = true; return; }
+    const d = Math.hypot(camara.position.x - this.pos.x, camara.position.z - this.pos.z);
+    const cerca = d < 16 || this.estado === 'golpea';
+    this.sprite.grupo.visible = cerca || Math.sin(this.reloj * 7 + this.flanco * 3) > 0.55;
   }
 
   liberar() {
@@ -149,6 +174,7 @@ export class Enemigo {
 
   actualizar(dt, jugador, camara) {
     this.reloj += dt;
+    if (this.tipo.etereo) this._parpadear(camara);
     if (this.tipo.manada) this.sprite.malla.scale.y = 1;
     if (this.paralizado > 0 && this.vivo) {
       this.paralizado -= dt;
@@ -206,6 +232,12 @@ export class Enemigo {
       if (this.alRugir) this.alRugir(this);
     }
 
+    if (this.estado === 'prepara' || this.estado === 'carga' || this.estado === 'aturdido') {
+      this._embestir(dt, dx, dz, dist, enfurecido);
+      this.sprite.encarar(camara, this.rumbo);
+      return;
+    }
+
     if (this.estado === 'golpea') {
       const cuadros = this.recursos.ataca;
       const paso = Math.min(cuadros.length - 1, Math.floor(this.reloj / 0.18));
@@ -247,7 +279,16 @@ export class Enemigo {
 
     if (this.estado === 'persigue') {
       this.rumbo = Math.atan2(dx, dz);
-      if (dist < this.rango && (!this.tipo.distancia || this._veA(objetivo))) {
+      if (this.tipo.embiste) this.enfriaCarga -= dt;
+      if (this.tipo.embiste && !enfurecido && this.enfriaCarga <= 0 && dist > 9 && dist < 34 && this._veA(objetivo)) {
+        this.estado = 'prepara';
+        this.reloj = 0;
+        this.sprite.fijarVistas([this.recursos.ataca[0]]);
+        if (this.alRugir) this.alRugir(this, true);
+        this.sprite.encarar(camara, this.rumbo);
+        return;
+      }
+      if (dist < this.rango && (!this.tipo.distancia || this._veA(objetivo)) && !(this.tipo.etereo && this._dentroMuro())) {
         this.estado = 'golpea';
         this.reloj = 0;
         this.cuadro = -1;
@@ -260,7 +301,7 @@ export class Enemigo {
           const fd = Math.hypot(fx, fz);
           if (fd > 1.5) { ux = fx / fd; uz = fz / fd; }
           if (!this._libre(this.pos.x + ux * 2.5, this.pos.z + uz * 2.5)) { ux = dx / dist; uz = dz / dist; }
-        } else if (dist > 7 && this.flujo && !enfurecido) {
+        } else if (dist > 7 && this.flujo && !enfurecido && !this.tipo.etereo) {
           const guia = this.flujo.rumbo(this.pos.x, this.pos.z);
           if (guia) { ux = guia.x; uz = guia.z; }
           if (this.portales) {
@@ -273,7 +314,7 @@ export class Enemigo {
         if (this._libre(nx, this.pos.z)) this.pos.x = nx;
         if (this._libre(this.pos.x, nz)) this.pos.z = nz;
         if (this.esperaPortal > 0) this.esperaPortal -= dt;
-        else if (this.portales && this.portales.cruzarSuelo(this.pos)) {
+        else if (this.portales && !this.tipo.etereo && this.portales.cruzarSuelo(this.pos)) {
           this.esperaPortal = 1.2;
           this.ultimoX = this.pos.x;
           this.ultimoZ = this.pos.z;
@@ -290,7 +331,7 @@ export class Enemigo {
         if (enfurecido) {
           this.atascoPresa = avance < this.velocidad * dt * 0.3 ? this.atascoPresa + dt : 0;
         }
-        if (this.atasco > 0.8) {
+        if (this.atasco > 0.8 && !this.tipo.etereo) {
           const cx = Math.floor(this.pos.x / CELDA);
           const cz = Math.floor(this.pos.z / CELDA);
           const centroX = cx * CELDA + CELDA / 2;
@@ -324,5 +365,78 @@ export class Enemigo {
     }
 
     this.sprite.encarar(camara, this.rumbo);
+  }
+
+  _embestir(dt, dx, dz, dist, enfurecido) {
+    const malla = this.sprite.malla;
+    if (this.estado === 'prepara') {
+      if (dist < 0.5) {
+        this.estado = 'persigue';
+        this.enfriaCarga = 2;
+        malla.rotation.z = 0;
+        this.sprite.fijarVistas(this.recursos.quieto);
+        return;
+      }
+      this.cargaX = dx / dist;
+      this.cargaZ = dz / dist;
+      this.rumbo = Math.atan2(dx, dz);
+      malla.rotation.z = Math.sin(this.reloj * 30) * 0.03;
+      if (this.reloj > 0.65) {
+        this.estado = 'carga';
+        this.reloj = 0;
+        this.recorrido = 0;
+        this.sprite.fijarVistas([this.recursos.ataca[Math.min(1, this.recursos.ataca.length - 1)]]);
+      }
+      return;
+    }
+    if (this.estado === 'carga') {
+      this.rumbo = Math.atan2(this.cargaX, this.cargaZ);
+      const paso = this.velocidad * 3.2 * dt;
+      const nx = this.pos.x + this.cargaX * paso, nz = this.pos.z + this.cargaZ * paso;
+      this.paso += dt * 16;
+      malla.position.y = this.baseY + Math.abs(Math.sin(this.paso)) * 0.3;
+      malla.rotation.z = 0;
+      if (!this._libre(nx, nz)) {
+        this.estado = 'aturdido';
+        this.reloj = 0;
+        this.sprite.fijarVistas([this.recursos.quieto[0]]);
+        if (this.alChocar) this.alChocar(this);
+        return;
+      }
+      this.pos.x = nx;
+      this.pos.z = nz;
+      this.recorrido += paso;
+      if (dist < 3.4) {
+        if (enfurecido) {
+          if (this.presa.recibir(this.dano * 2.2) && this.alMatar) this.alMatar(this.presa);
+        } else {
+          if (this.alGolpear) this.alGolpear(Math.round(this.dano * 1.4));
+          if (this.alEmpujar) this.alEmpujar(this.cargaX, this.cargaZ);
+        }
+        const cuadros = this.recursos.ataca;
+        this.estado = 'golpea';
+        this.cuadro = cuadros.length - 1;
+        this.reloj = 0.18 * this.cuadro;
+        this.sprite.fijarVistas([cuadros[this.cuadro]]);
+        this.enfriaCarga = 4;
+        return;
+      }
+      if (this.recorrido > 45 || this.reloj > 3) {
+        this.estado = 'persigue';
+        this.enfriaCarga = 3;
+        this.sprite.fijarVistas(this.recursos.quieto);
+      }
+      return;
+    }
+    this.sprite.material.color.setHex(0x9aa6ff);
+    malla.rotation.z = Math.sin(this.reloj * 18) * 0.12;
+    malla.position.y = this.baseY;
+    if (this.reloj > 1.6) {
+      this.estado = 'persigue';
+      this.enfriaCarga = 3.5;
+      malla.rotation.z = 0;
+      this.sprite.material.color.setHex(this.tinteBase);
+      this.sprite.fijarVistas(this.recursos.quieto);
+    }
   }
 }

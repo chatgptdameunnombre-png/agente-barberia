@@ -1,5 +1,5 @@
-import { urlIcono } from './iconos.js?v=20261112080536';
-import { RELIQUIAS } from './reliquias.js?v=20261112080536';
+import { urlIcono } from './iconos.js?v=20261112100558';
+import { RELIQUIAS } from './reliquias.js?v=20261112100558';
 
 export const MEJORAS = [
   { id: 'cuerda', nombre: 'CUERDA DE TENDON', precio: 90, celda: 0, respaldo: 1,

@@ -40,6 +40,26 @@ export const NORMAL_BARCO = {
   tinteEnemigo: 0xffffff
 };
 
+export const NORMAL_SIRENAS = {
+  fondo: 0x0c1418,
+  niebla: { color: 0x40525a, cerca: 8, lejos: 62 },
+  ambiente: { color: 0xa0b4b8, fuerza: 2.0 },
+  antorcha: { color: 0xffd8a8, fuerza: 54 },
+  cenit: { color: 0xb8d0d8, fuerza: 0.7 },
+  tinteNivel: 0xffffff,
+  tinteEnemigo: 0xffffff
+};
+
+export const NORMAL_HADES = {
+  fondo: 0x020205,
+  niebla: { color: 0x05050c, cerca: 4, lejos: 40 },
+  ambiente: { color: 0x5a6080, fuerza: 0.9 },
+  antorcha: { color: 0xffb070, fuerza: 70 },
+  cenit: { color: 0x6070a0, fuerza: 0.12 },
+  tinteNivel: 0xffffff,
+  tinteEnemigo: 0xffffff
+};
+
 const CRUZADO = {
   fondo: 0x0d0206,
   niebla: { color: 0x2a0812, cerca: 6, lejos: 52 },
