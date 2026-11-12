@@ -1,5 +1,6 @@
-import { db } from "./db.js?v=121";
-import { WHATSAPP_NUMERO, BORRAR_CUENTA_WEBHOOK } from "./config.js?v=121";
+import { db } from "./db.js?v=122";
+import { WHATSAPP_NUMERO, BORRAR_CUENTA_WEBHOOK } from "./config.js?v=122";
+const escH = t => String(t ?? "").replace(/[<>&"']/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
 const escC = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 
 const OWNER_EMAILS = ["admindeportesmartinez@gmail.com"];
@@ -130,7 +131,7 @@ async function pintarCompras(uid) {
     const prods = await db.productosParaFoto?.().catch(() => []) || [];
     const foto = id => {
       const p = prods.find(x => x.id === id);
-      return p && p.imagen ? `<img class="mc-foto" src="${p.imagen}" alt="">` : `<div class="mc-foto mc-foto--vacia"></div>`;
+      return p && p.imagen ? `<img class="mc-foto" src="${escH(p.imagen)}" alt="">` : `<div class="mc-foto mc-foto--vacia"></div>`;
     };
     cont.innerHTML = compras.map(v => {
       const e = estadoDe(v);
