@@ -1,4 +1,4 @@
-import { catalogoRapido } from "./catalogo.js?v=115";
+import { catalogoRapido } from "./catalogo.js?v=116";
 
 const caja = document.querySelector("[data-proximos]");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
