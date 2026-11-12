@@ -1,10 +1,10 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=120";
-const authListo = import("./auth.js?v=120");
-const dbListo = import("./db.js?v=120").then(m => m.db);
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=121";
+const authListo = import("./auth.js?v=121");
+const dbListo = import("./db.js?v=121").then(m => m.db);
 const abrirLogin = (...a) => authListo.then(m => m.abrirLogin(...a));
 let db = null;
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=120";
-import { track } from "./track.js?v=120";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=121";
+import { track } from "./track.js?v=121";
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
 
@@ -44,10 +44,10 @@ function enviarPago(payload, onError) {
   guardarUltimo(ref, payload);
   const av = aviso("Te llevamos a Mercado Pago…");
   track("pago_mercadopago", { entrega: payload.entrega, items: (payload.items || []).length, ref, cliente: payload.cliente || "" });
-  fetch(COBRO_WEBHOOK, {
+  dbListo.then(d => d.token()).catch(() => null).then(idToken => fetch(COBRO_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...cuerpo, uid: user?.uid || "", folio: ref, ref })
-  }).then(r => r.json()).then(d => {
+    body: JSON.stringify({ ...cuerpo, uid: user?.uid || "", idToken: idToken || "", folio: ref, ref })
+  })).then(r => r.json()).then(d => {
     if (d.link) {
       track("sale_a_pagar", { proveedor: "Mercado Pago", ref, cliente: payload.cliente || "" });
       setTimeout(() => { window.location.href = d.link; }, 220);
@@ -224,8 +224,21 @@ function guardarUltimo(ref, payload) {
   } catch { }
 }
 
+function telValido(raw) {
+  const s = String(raw || "").trim();
+  let d = s.replace(/\D/g, "");
+  if (s.startsWith("+") || s.startsWith("00")) {
+    if (s.startsWith("00")) d = d.slice(2);
+    if (!d.startsWith("52")) return d.length >= 8 && d.length <= 15;
+    d = d.slice(2);
+    if (d.length === 11 && d.startsWith("1")) d = d.slice(1);
+    return d.length === 10;
+  }
+  return d.length === 10 || (d.length === 12 && d.startsWith("52")) || (d.length === 13 && d.startsWith("521"));
+}
+
 function datosCompletos(p, entrega) {
-  if (!p || !p.nombre || String(p.telefono || "").replace(/\D/g, "").length < 10) return false;
+  if (!p || !p.nombre || !telValido(p.telefono)) return false;
   if (entrega === "domicilio" && !(p.calle && p.colonia && p.cp && p.ciudad && p.estado)) return false;
   return true;
 }
@@ -342,8 +355,7 @@ function abrirModal(entrega, onConfirm, onCancel) {
   $("#dGo").onclick = () => {
     const v = id => { const el = $("#" + id); return el ? el.value.trim() : ""; };
     const nombre = v("dNombre"), tel = v("dTel");
-    const soloDigitos = tel.replace(/\D/g, "");
-    if (!nombre || soloDigitos.length < 10) { $("#dErr").textContent = "Pon tu nombre y un teléfono de 10 dígitos."; return; }
+    if (!nombre || !telValido(tel)) { $("#dErr").textContent = "Pon tu nombre y tu WhatsApp: 10 dígitos, o con + y la lada si es de otro país."; return; }
     const calle = v("dCalle"), col = v("dCol"), cp = v("dCP"), ciudad = v("dCiudad"), estado = v("dEstado"), ref = v("dRef");
     if (aDomicilio && (!calle || !col || !cp || !ciudad || !estado)) { $("#dErr").textContent = "Completa calle, colonia, C.P., ciudad y estado."; return; }
     const direccion = aDomicilio ? `${calle}, Col. ${col}, ${ciudad}, ${estado}, C.P. ${cp}${ref ? " (" + ref + ")" : ""}` : "";
