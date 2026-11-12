@@ -1,7 +1,8 @@
-import { NEGOCIO } from "./config.js?v=115";
-import { db } from "./db.js?v=115";
+import { NEGOCIO } from "./config.js?v=116";
+import { db } from "./db.js?v=116";
 
 const $ = s => document.querySelector(s);
+const ICONO_WA = `<svg viewBox="0 0 24 24" width="32" height="32" fill="#e8b923" aria-label="WhatsApp"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.19 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35zM12.04 21.5h-.01a9.43 9.43 0 0 1-4.8-1.32l-.35-.2-3.57.94.95-3.48-.22-.36a9.4 9.4 0 0 1-1.45-5.02c0-5.2 4.24-9.44 9.46-9.44a9.4 9.4 0 0 1 6.68 2.77 9.38 9.38 0 0 1 2.76 6.68c0 5.21-4.24 9.44-9.45 9.44zm8.04-17.48A11.3 11.3 0 0 0 12.04.7C5.77.7.67 5.8.67 12.06c0 2 .52 3.96 1.52 5.68L.57 23.65l6.04-1.58a11.3 11.3 0 0 0 5.42 1.38h.01c6.26 0 11.36-5.1 11.36-11.36 0-3.03-1.18-5.89-3.32-8.03z"/></svg>`;
 const esc = t => String(t ?? "").replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 
 const u = new URLSearchParams(location.search);
@@ -65,13 +66,43 @@ function pintar(user) {
   const invitado = datos ? datos.invitado : !user;
   const productos = (datos?.productos || []).map(p => `
     <li><b>${esc(p.title)}</b><span>${p.qty > 1 ? `${p.qty} piezas · ` : ""}${p.talla ? `Talla ${esc(p.talla)}` : ""}</span></li>`).join("");
+  const filas = (datos?.productos || []).map(p => `
+    <div class="pd-mini__fila">
+      ${p.img ? `<img class="pd-mini__foto" src="${esc(p.img)}" alt="" loading="lazy">` : `<span class="pd-mini__foto pd-mini__foto--vacia">👕</span>`}
+      <span><b>${p.qty > 1 ? p.qty + "x " : ""}${esc(p.title).replace(/(\d{4}-\d{2,4})/g, '<span class="pd-nw">$1</span>')}</b>${p.talla ? `<small>Talla ${esc(p.talla)}</small>` : ""}</span>
+    </div>`).join("");
 
-  cont.innerHTML = `
+  if (aprobado) cont.innerHTML = `
+    <div class="pd-caja pd-caja--ok">
+      <h1 class="pd-ok"><span class="pd-ok__i">✓</span>Compra completada</h1>
+
+      <div class="pd-info">
+        <div class="pd-info__folio">
+          <span><span class="pd-info__k">Número de pedido</span><b class="pd-info__ref">${esc(ref)}</b></span>
+          <button class="pd-folio__cp" id="pdCopiar" type="button">Copiar</button>
+        </div>
+        ${filas}
+        <div class="pd-info__entrega">
+          <span>${tienda ? "Recoges en tienda" : "Envío a domicilio"}</span>
+          ${invitado ? "" : `<a class="pd-info__seguir" href="cuenta.html">Seguir mi pedido →</a>`}
+        </div>
+      </div>
+
+      <div class="pd-wa">${ICONO_WA}<span>Te vamos a mandar un WhatsApp con toda la info de tu pedido.</span></div>
+
+      <div class="pd-acciones">
+        ${tienda ? `<a class="btn-cta" href="${rutaMapa()}" target="_blank" rel="noopener">📍 Cómo llegar a la tienda</a>` : ""}
+        <a class="pd-btn" href="futbol.html">Seguir viendo jerseys</a>
+      </div>
+
+      ${invitado ? `<p class="pd-final">Guarda tu número de pedido <b class="pd-nw">${esc(ref)}</b>: solo lo vas a tener aquí y en el mensaje de WhatsApp.</p>` : ""}
+    </div>`;
+  else cont.innerHTML = `
     <div class="pd-caja">
-      <div class="pd-icono ${enRevision && !aprobado ? "pd-icono--espera" : ""}">${enRevision ? (aprobado ? "💬" : "⏳") : "✓"}</div>
-      <h1 class="pd-titulo">${enRevision ? (aprobado ? "Te vamos a mandar un WhatsApp" : "Tu pago está en revisión") : "¡Listo, recibimos tu pago!"}</h1>
+      <div class="pd-icono ${enRevision ? "pd-icono--espera" : ""}">${enRevision ? "⏳" : "✓"}</div>
+      <h1 class="pd-titulo">${enRevision ? "Tu pago está en revisión" : "¡Listo, recibimos tu pago!"}</h1>
       <p class="pd-sub">${enRevision
-        ? (aprobado ? "Con toda la info de tu pedido." : "Mercado Pago nos avisa en cuanto se acredite. Tu jersey ya está apartado.")
+        ? "Mercado Pago nos avisa en cuanto se acredite. Tu jersey ya está apartado."
         : tienda ? "Tu jersey ya está apartado. Te esperamos en la tienda." : "Ya estamos preparando tu envío."}</p>
 
       <div class="pd-folio">
