@@ -1,10 +1,10 @@
-import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=120";
-import { setProductos, initCart, enCarrito } from "./cart.js?v=120";
-import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=120";
-import { onMayoreo, precioHTML } from "./mayoreo.js?v=120";
-import { track } from "./track.js?v=120";
-import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=120";
-import { ESCUDOS } from "./escudos.js?v=120";
+import { catalogoRapido, guardarCatalogo } from "./catalogo.js?v=121";
+import { setProductos, initCart, enCarrito } from "./cart.js?v=121";
+import { tieneTallas, stockTotal, precioDesde, preciosVarian, etiquetaStock, tallasDisponibles, precioAntes } from "./tallas.js?v=121";
+import { onMayoreo, precioHTML } from "./mayoreo.js?v=121";
+import { track } from "./track.js?v=121";
+import { tarjetaSugerenciaHTML, conectarFormulario } from "./sugerencias.js?v=121";
+import { ESCUDOS } from "./escudos.js?v=121";
 
 const $ = s => document.querySelector(s);
 const CAT = document.querySelector("#catalogo")?.dataset.categoria || null;
@@ -25,7 +25,7 @@ let f = {
   orden: "rel"
 };
 let q = qs.get("q") || "";
-let qTimer;
+let qTimer, renderTimer;
 
 const norm = t => String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   .replace(/[^a-z0-9]+/g, " ").trim();
@@ -306,7 +306,8 @@ function buildPanel() {
     const u = new URL(location.href);
     q.trim() ? u.searchParams.set("q", q.trim()) : u.searchParams.delete("q");
     history.replaceState(null, "", u);
-    render();
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(render, 160);
     clearTimeout(qTimer);
     qTimer = setTimeout(anotarBusqueda, 1500);
   });
