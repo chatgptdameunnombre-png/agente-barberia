@@ -1,6 +1,6 @@
-import { firebaseConfig, usaFirebase } from "./config.js?v=120";
-import { permiteMedicion } from "./cookies.js?v=120";
-import { promotorActual } from "./promotor.js?v=120";
+import { firebaseConfig, usaFirebase } from "./config.js?v=121";
+import { permiteMedicion } from "./cookies.js?v=121";
+import { promotorActual } from "./promotor.js?v=121";
 
 const KEY = firebaseConfig.apiKey;
 const PROJ = firebaseConfig.projectId;
@@ -11,6 +11,7 @@ const LS_PEND = "dm_track_pend";
 const VIDA_SESION = 3 * 3600e3;   // 3 h: aguanta el viaje a Mercado Pago y la vuelta
 const MAX_EVENTOS = 120;          // los que se guardan en la nube (los últimos)
 const INACTIVO_MS = 45000;        // sin tocar nada 45 s = ya no está mirando
+let ultimoGuardadoTic = 0;
 const LATIDO_MS = 2000;           // cada cuánto se suma tiempo activo
 
 let ident = null;
@@ -165,7 +166,7 @@ function tic() {
     if (p) p.segundos += delta;
   }
   sucio = true;
-  guardarLocal();
+  if (ahora - ultimoGuardadoTic >= 10000) { ultimoGuardadoTic = ahora; guardarLocal(); }
 }
 
 ["mousemove", "keydown", "scroll", "click", "touchstart", "pointerdown"].forEach(ev =>
