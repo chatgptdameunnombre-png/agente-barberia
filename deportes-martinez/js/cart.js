@@ -1,10 +1,10 @@
-import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=118";
-import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=118";
-import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=118";
-import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=118";
-import { track, marcarProducto } from "./track.js?v=118";
-import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos, revisarCodigo } from "./codigos.js?v=118";
-import { promotorPorCodigo } from "./promotor.js?v=118";
+import { ENVIO_DOMICILIO, PERSONALIZACION_PRECIO, PROMO_WEBHOOK } from "./config.js?v=119";
+import { iniciarPago, iniciarTransferencia } from "./checkout.js?v=119";
+import { tieneTallas, stockDeTalla, stockTotal, precioTalla } from "./tallas.js?v=119";
+import { onMayoreo, precioHTML, precioMay } from "./mayoreo.js?v=119";
+import { track, marcarProducto } from "./track.js?v=119";
+import { codigoDe, ponerCodigo, descuentoCodigo, revalidarCodigos, revisarCodigo } from "./codigos.js?v=119";
+import { promotorPorCodigo } from "./promotor.js?v=119";
 
 const CART_KEY = "dm_cart";
 const $ = s => document.querySelector(s);
@@ -299,6 +299,7 @@ export function initCart() {
   $("#closeCart")?.addEventListener("click", () => { track("carrito_cerrar", { items: itemsCarrito().length }); closeDrawer(); });
   $("#overlay")?.addEventListener("click", () => { track("carrito_cerrar", { items: itemsCarrito().length }); closeDrawer(); });
   $("#checkout")?.addEventListener("click", checkout);
+  if ($("#checkout") && !$(".aviso-wa")) $("#checkout").insertAdjacentHTML("afterend", `<p class="aviso-wa">Te mandamos la confirmación y los avisos de tu pedido por WhatsApp. <a href="legales.html#privacidad" target="_blank" rel="noopener">Aviso de privacidad</a></p>`);
   onMayoreo(() => renderCart());
   const foot = $("#cartFoot");
   if (foot && !$("#entregaCart")) {
