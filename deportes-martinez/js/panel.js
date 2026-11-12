@@ -1,7 +1,7 @@
-import { db } from "./db.js?v=121";
-import { KIKI_EMAIL, AVISO_WEBHOOK } from "./config.js?v=121";
-import { pintarEstadisticas } from "./estadisticas.js?v=121";
-import "./panel-nav.js?v=121";
+import { db } from "./db.js?v=122";
+import { KIKI_EMAIL, AVISO_WEBHOOK } from "./config.js?v=122";
+import { pintarEstadisticas } from "./estadisticas.js?v=122";
+import "./panel-nav.js?v=122";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -28,7 +28,7 @@ db.onAuth(user => {
   $("#dash").hidden = false;
   const soyKiki = (user.email || "").toLowerCase() === KIKI_EMAIL;
   $("#pnavPromotores").hidden = !soyKiki;
-  if (soyKiki) import("./promotores.js?v=121").then(m => m.iniciarPromotores(db));
+  if (soyKiki) import("./promotores.js?v=122").then(m => m.iniciarPromotores(db));
   window.scrollTo(0, 0);
   arrancarDash();
 });
@@ -84,10 +84,10 @@ function render() {
 
   const fila = p => `
     <div class="p-row${p.oculto ? " p-row--oculta" : ""}">
-      <img class="p-thumb" src="${p.imagen || ''}" alt="" onerror="this.style.visibility='hidden'">
+      <img class="p-thumb" src="${escHTML(p.imagen || '')}" alt="" onerror="this.style.visibility='hidden'">
       <div class="p-name">
-        <b>${p.nombre}</b>
-        <span>${[p.equipo, p.liga, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || ""}</span>
+        <b>${escHTML(p.nombre)}</b>
+        <span>${escHTML([p.equipo, p.liga, p.temporada, p.subcategoria].filter(Boolean).join(" · ") || p.marca || "")}</span>
         ${p.retro || p.personalizable === false || p.oculto || p.proximamente ? `<span class="p-tags">
           ${p.proximamente ? `<span class="p-tag p-tag--retro">PRÓXIMAMENTE</span>` : ""}
           ${p.oculto ? `<span class="p-tag p-tag--oculta">OCULTA EN LA TIENDA</span>` : ""}
@@ -95,13 +95,13 @@ function render() {
           ${p.personalizable === false ? `<span class="p-tag">SIN NOMBRE</span>` : ""}
         </span>` : ""}
       </div>
-      <span class="hide-sm p-cat">${p.categoria}</span>
+      <span class="hide-sm p-cat">${escHTML(p.categoria)}</span>
       <span class="hide-sm p-precio">${money(p.precio)}</span>
       <span>${stockPill(p.stock)}</span>
       <div class="p-actions">
-        <button class="vis-a" data-vis="${p.id}" title="${p.oculto ? "Mostrarla en la tienda" : "Ocultarla de la tienda sin borrarla"}">${p.oculto ? "Mostrar" : "Ocultar"}</button>
-        <button class="edit-a" data-edit="${p.id}">Editar</button>
-        <button class="del-a" data-del="${p.id}">Borrar</button>
+        <button class="vis-a" data-vis="${escHTML(p.id)}" title="${p.oculto ? "Mostrarla en la tienda" : "Ocultarla de la tienda sin borrarla"}">${p.oculto ? "Mostrar" : "Ocultar"}</button>
+        <button class="edit-a" data-edit="${escHTML(p.id)}">Editar</button>
+        <button class="del-a" data-del="${escHTML(p.id)}">Borrar</button>
       </div>
     </div>`;
 
@@ -110,14 +110,14 @@ function render() {
     const cuantos = [...ligas.values()].reduce((a, l) => a + l.length, 0);
     const dentro = [...ligas.entries()].map(([liga, lista]) => `
       <details class="p-liga">
-        <summary class="p-liga__cab">${liga} <span class="p-cuenta">${lista.length}</span></summary>
+        <summary class="p-liga__cab">${escHTML(liga)} <span class="p-cuenta">${lista.length}</span></summary>
         ${lista.map(fila).join("")}
       </details>`).join("");
     return `<details class="p-dep">
       <summary class="p-grupo">
-        <span class="p-grupo__txt">${DEPORTE_TXT[dep] || dep}</span>
+        <span class="p-grupo__txt">${escHTML(DEPORTE_TXT[dep] || dep)}</span>
         <span class="p-cuenta">${cuantos}</span>
-        <button class="p-todas" data-todas="${dep}" type="button">Abrir todas</button>
+        <button class="p-todas" data-todas="${escHTML(dep)}" type="button">Abrir todas</button>
       </summary>
       ${dentro}
     </details>`;
@@ -336,7 +336,7 @@ function renderFotos() {
   }
   $("#pFotos").innerHTML = fotosActuales.map((src, i) => `
     <div class="foto-mini">
-      <img src="${src}" alt="">
+      <img src="${escHTML(src)}" alt="">
       ${i === 0 ? '<span class="foto-badge">Principal</span>' : ''}
       <button type="button" class="foto-rm" data-rmfoto="${i}">✕</button>
     </div>`).join("");
@@ -468,7 +468,7 @@ $("#prodForm").addEventListener("submit", async e => {
     else await db.addProduct(data);
     cerrar();
     toast(id ? "Producto actualizado" : "Producto agregado");
-  } catch (err) { toast("Error: " + (err.message || "no se pudo guardar")); }
+  } catch (err) { toast("Error: " + escHTML(err.message || "no se pudo guardar")); }
 });
 
 async function borrar(id) {
@@ -491,7 +491,7 @@ $("#optBtn").onclick = async () => {
     const n = await db.optimizarCatalogo(hechos => { btn.textContent = `Optimizando… ${hechos}`; });
     toast(n ? `Listo: ${n} producto${n === 1 ? "" : "s"} optimizado${n === 1 ? "" : "s"}` : "Ya estaba todo optimizado");
   } catch (err) {
-    toast("Error al optimizar: " + (err.message || "reintenta"));
+    toast("Error al optimizar: " + escHTML(err.message || "reintenta"));
   } finally {
     btn.disabled = false;
     btn.textContent = original;
@@ -547,7 +547,7 @@ async function cambiarVisible(id, btn) {
   btn.disabled = true;
   try {
     await db.updateProduct(id, { oculto: ocultar });
-    toast(ocultar ? `<b>${p.nombre}</b> ya no sale en la tienda. Sigue guardada aquí.` : `<b>${p.nombre}</b> ya sale en la tienda.`);
+    toast(ocultar ? `<b>${escHTML(p.nombre)}</b> ya no sale en la tienda. Sigue guardada aquí.` : `<b>${escHTML(p.nombre)}</b> ya sale en la tienda.`);
   } catch {
     btn.disabled = false;
     toast("No se pudo cambiar. Revisa tu conexión e intenta otra vez.");
@@ -764,7 +764,7 @@ function vtLineas(v) {
       <b>${Number(l.qty) || 1}×</b> ${escHTML(l.nombre || l.id)}${l.talla ? ` · talla ${escHTML(l.talla)}` : ""}${l.perso ? ` · <span style="color:var(--accent)">${escHTML(l.perso)}</span>` : ""}
     </div>`).join("");
   }
-  return `<div class="vt-item">${v.productos || "sin detalle"}</div>`;
+  return `<div class="vt-item">${escHTML(v.productos || "sin detalle")}</div>`;
 }
 
 function vtWhats(tel, v) {
@@ -845,7 +845,7 @@ function vtFila(v) {
     ${v.estado === "entregada" || cancelada ? `<div class="vt-acciones">
       ${v.estado === "entregada" ? `<button class="btn btn--ghost" data-vt-regresar="${escHTML(v.id)}">↩ Regresar a por entregar</button>` : ""}
       ${vtWhats(v.telefono, v)}
-      <button class="btn btn--danger" data-vt-borrar="${v.id}">Borrar de la base</button>
+      <button class="btn btn--danger" data-vt-borrar="${escHTML(v.id)}">Borrar de la base</button>
     </div>` : ""}
   </article>`;
 }
@@ -937,7 +937,7 @@ async function cargarVentas() {
     document.querySelectorAll(".vt-tab").forEach(t => t.classList.toggle("on", t.dataset.vt === vtFiltro));
     pintarVentas();
   } catch (e) {
-    cuerpo.innerHTML = `<p class="st-error">No se pudieron leer las ventas: ${e.message}</p>`;
+    cuerpo.innerHTML = `<p class="st-error">No se pudieron leer las ventas: ${escHTML(e.message)}</p>`;
   }
 }
 
@@ -1105,8 +1105,8 @@ function prFila(p) {
   const razon = apagado ? "Apagado" : (v.vencido ? "Vencido" : (agotado ? "Se acabaron los usos" : "Funcionando"));
   return `<article class="pr-card${muerto ? " pr-card--off" : ""}">
     <header class="pr-card__top">
-      <b class="pr-codigo">${p.codigo}</b>
-      <span class="pr-desc">${p.tipo === "fijo" ? vtMoney(p.valor) + " menos" : p.valor + "% de descuento"}</span>
+      <b class="pr-codigo">${escHTML(p.codigo)}</b>
+      <span class="pr-desc">${p.tipo === "fijo" ? vtMoney(p.valor) + " menos" : escHTML(p.valor) + "% de descuento"}</span>
       <span class="st-tag st-tag--${muerto ? "paso" : "compro"}">${razon}</span>
     </header>
     <div class="pr-datos">
@@ -1115,9 +1115,9 @@ function prFila(p) {
       ${p.minimo ? `<span>Solo en compras de ${vtMoney(p.minimo)} o más</span>` : ""}
     </div>
     <div class="vt-acciones">
-      <button class="btn btn--ghost" data-pr-editar="${p.codigo}">Editar</button>
-      <button class="btn btn--ghost" data-pr-toggle="${p.codigo}">${apagado ? "Encender" : "Apagar"}</button>
-      <button class="btn btn--danger" data-pr-borrar="${p.codigo}">Borrar</button>
+      <button class="btn btn--ghost" data-pr-editar="${escHTML(p.codigo)}">Editar</button>
+      <button class="btn btn--ghost" data-pr-toggle="${escHTML(p.codigo)}">${apagado ? "Encender" : "Apagar"}</button>
+      <button class="btn btn--danger" data-pr-borrar="${escHTML(p.codigo)}">Borrar</button>
     </div>
   </article>`;
 }
@@ -1147,7 +1147,7 @@ async function cargarPromos() {
     promosCargadas = await db.listarPromos();
     pintarPromos();
   } catch (e) {
-    cont.innerHTML = `<p class="st-error">No se pudieron leer los códigos: ${e.message}</p>`;
+    cont.innerHTML = `<p class="st-error">No se pudieron leer los códigos: ${escHTML(e.message)}</p>`;
   }
 }
 
