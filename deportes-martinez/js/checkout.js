@@ -1,10 +1,10 @@
-import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=122";
-const authListo = import("./auth.js?v=122");
-const dbListo = import("./db.js?v=122").then(m => m.db);
+import { COBRO_WEBHOOK, PEDIDO_WEBHOOK, ENVIO_DOMICILIO, WHATSAPP_NUMERO, NEGOCIO } from "./config.js?v=123";
+const authListo = import("./auth.js?v=123");
+const dbListo = import("./db.js?v=123").then(m => m.db);
 const abrirLogin = (...a) => authListo.then(m => m.abrirLogin(...a));
 let db = null;
-import { esMayorista as soyMayorista } from "./mayoreo.js?v=122";
-import { track } from "./track.js?v=122";
+import { esMayorista as soyMayorista } from "./mayoreo.js?v=123";
+import { track } from "./track.js?v=123";
 const escH = t => String(t ?? "").replace(/[<>&"']/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -47,7 +47,7 @@ function enviarPago(payload, onError) {
   track("pago_mercadopago", { entrega: payload.entrega, items: (payload.items || []).length, ref, cliente: payload.cliente || "" });
   dbListo.then(d => d.token()).catch(() => null).then(idToken => fetch(COBRO_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...cuerpo, uid: user?.uid || "", idToken: idToken || "", folio: ref, ref })
+    body: JSON.stringify({ ...cuerpo, uid: user?.uid || "", idToken: idToken || "", folio: ref, ref, regreso: new URL("pedido.html", location.href).href })
   })).then(r => r.json()).then(d => {
     if (d.link) {
       track("sale_a_pagar", { proveedor: "Mercado Pago", ref, cliente: payload.cliente || "" });
