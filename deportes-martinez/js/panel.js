@@ -1,7 +1,7 @@
-import { db } from "./db.js?v=119";
-import { KIKI_EMAIL } from "./config.js?v=119";
-import { pintarEstadisticas } from "./estadisticas.js?v=119";
-import "./panel-nav.js?v=119";
+import { db } from "./db.js?v=120";
+import { KIKI_EMAIL, AVISO_WEBHOOK } from "./config.js?v=120";
+import { pintarEstadisticas } from "./estadisticas.js?v=120";
+import "./panel-nav.js?v=120";
 
 const $ = s => document.querySelector(s);
 const money = n => "$" + Number(n).toLocaleString("es-MX");
@@ -28,7 +28,7 @@ db.onAuth(user => {
   $("#dash").hidden = false;
   const soyKiki = (user.email || "").toLowerCase() === KIKI_EMAIL;
   $("#pnavPromotores").hidden = !soyKiki;
-  if (soyKiki) import("./promotores.js?v=119").then(m => m.iniciarPromotores(db));
+  if (soyKiki) import("./promotores.js?v=120").then(m => m.iniciarPromotores(db));
   window.scrollTo(0, 0);
   arrancarDash();
 });
@@ -972,6 +972,7 @@ document.addEventListener("click", async e => {
     pag.disabled = true; pag.textContent = "Guardando…";
     try {
       await db.marcarVentaPagada(pag.dataset.vtPagada);
+      db.token().then(idToken => fetch(AVISO_WEBHOOK, { method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true, body: JSON.stringify({ tipo: "pago", id: pag.dataset.vtPagada, idToken }) })).catch(() => {});
       toast("Pedido marcado como pagado");
       await cargarVentas();
     } catch (err) {
