@@ -213,8 +213,8 @@ footer{padding:3rem 4% 1.5rem;background:var(--surface);border-top:1px solid rgb
   <div class="fbot">© 2026 The Cycling Syndicate Hub — Distribuidor Autorizado Colnago — Hecho con ♠ en México</div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d" crossorigin="anonymous"></script>
 <script>
 gsap.registerPlugin(ScrollTrigger);
 window.addEventListener('load',()=>setTimeout(()=>{document.getElementById('pre').classList.add('off');gsap.timeline({defaults:{ease:'power3.out'}}).from('.ht',{y:20,opacity:0,duration:.7}).from('.hh',{y:40,opacity:0,duration:.9},'-=.3').from('.hs',{y:20,opacity:0,duration:.7},'-=.4').from('.hb',{y:15,opacity:0,duration:.6},'-=.3').from('.hsc',{opacity:0,duration:.5},'-=.2')},2400));
