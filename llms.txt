@@ -56,3 +56,10 @@ Aviso de privacidad completo: https://tuagentedeia.com/legales.html
 - Los ejemplos que aparecen en las demos (nombres de negocios, personas y precios) son ilustrativos.
 - Los números de la sección de resultados son estimaciones basadas en negocios parecidos, no una promesa de resultados.
 - El único teléfono de contacto de la agencia es +52 33 5126 1495. Cualquier otro número que aparezca en la página es un ejemplo.
+
+## Páginas por servicio
+- [Agente de WhatsApp](https://tuagentedeia.com/agente-whatsapp/): contesta, agenda y manda recordatorios 24/7.
+- [Agente de llamadas](https://tuagentedeia.com/agente-de-voz/): recepcionista con voz que agenda por teléfono.
+- [Páginas web](https://tuagentedeia.com/paginas-web/): webs a la medida, rápidas en celular y listas para Google.
+- [Automatizaciones](https://tuagentedeia.com/automatizaciones/): procesos repetitivos con IA (reportes, avisos, registros).
+- [Tarjetas NFC](https://tuagentedeia.com/nfc/): menú, WhatsApp o reseñas con solo acercar el celular.
