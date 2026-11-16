@@ -103,10 +103,11 @@ h1,h2,h3{font-family:"Archivo",Arial,sans-serif;font-weight:900;margin:0;line-he
 .hero{min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:clamp(20px,4vw,60px);padding:110px var(--px) 50px;background:radial-gradient(50% 60% at 75% 50%,rgba(195,200,207,.16),transparent 70%)}
 .h-let{width:min(660px,100%);filter:brightness(1.8) contrast(1.15)}
 .h-sub{font-size:clamp(22px,2.2vw,30px);font-weight:500;margin:26px 0 34px;max-width:24ch;color:var(--plata)}
-.h-ctas{display:flex;flex-wrap:wrap;gap:14px}
+.h-txt{display:flex;flex-direction:column;align-items:center;text-align:center}
+.h-ctas{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:40px}
 .h-emb{display:grid;place-items:center}
 .h-emb img{width:min(480px,82%);filter:drop-shadow(0 30px 50px rgba(0,0,0,.6)) brightness(1.12)}
-@media (max-width:860px){.hero{grid-template-columns:1fr;text-align:center;padding-top:96px}.h-emb{order:-1}.h-emb img{width:min(250px,56vw)}.h-let{margin:0 auto;width:min(420px,86vw)}.h-sub{margin:18px auto 26px}.h-ctas{justify-content:center}}
+@media (max-width:860px){.hero{grid-template-columns:1fr;text-align:center;padding-top:96px}.h-emb{order:-1}.h-emb img{width:min(190px,46vw)}.h-ctas{margin-top:28px}.h-let{margin:0 auto;width:min(420px,86vw)}.h-sub{margin:18px auto 26px}.h-ctas{justify-content:center}}
 
 .estudio,.servicios,.local,.resenas,.contacto{padding:var(--py) var(--px)}
 .estudio{border-top:1px solid rgba(255,255,255,.1)}
@@ -218,7 +219,6 @@ footer .f-let{filter:brightness(1.8)}
 <section class="hero" id="inicio">
   <div class="h-txt">
     <img class="h-let" data-h src="assets/letras.png" alt="Morrow Barber Studio, Est. 2012">
-    <p class="h-sub" data-h>Estilo, buena música y cerveza en cada corte</p>
     <div class="h-ctas" data-h>
       <a class="btn uno" href="https://wa.me/523329376496?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita." target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Agendar por WhatsApp</a>
       <a class="btn dos" href="tel:+523329376496"><svg><use href="#tel"/></svg>Llamar</a>
