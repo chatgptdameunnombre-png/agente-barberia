@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f2023">
+<title>Morrow Barber Studio · Plaza Galicia</title>
+<meta name="description" content="Barbería que mezcla estilo, buena música y cerveza. Cortes y barba en Plaza Galicia, Nueva Galicia. Agenda por WhatsApp.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Morrow Barber Studio · Est. 2012">
+<meta property="og:image" content="https://tuagentedeia.com/morrow-barber-studio/assets/logo.jpg">
+<link rel="icon" type="image/jpeg" href="assets/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Inter:wght@400;500;600&family=Anton&family=Barlow:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{font-size:20px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+section{position:relative}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,background .25s ease,color .25s ease}
+.btn svg{width:22px;height:22px;flex:0 0 22px}
+.btn:hover{transform:translateY(-3px)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:20px;z-index:50}
+.marca{display:flex;align-items:center;gap:12px}
+.em{display:block;-webkit-mask:url(assets/emblema.png) center/contain no-repeat;mask:url(assets/emblema.png) center/contain no-repeat}
+.bar nav{display:flex;gap:30px}
+@media (max-width:900px){.bar nav{display:none}}
+.cab{margin-bottom:clamp(30px,4vw,54px)}
+.cab p{margin:10px 0 0}
+.menu{display:grid;grid-template-columns:1fr 1fr;column-gap:40px}
+@media (max-width:760px){.menu{grid-template-columns:1fr}}
+.item{display:flex;align-items:center;gap:16px;width:100%;padding:22px 4px;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.item .chk{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;color:transparent;transition:all .25s ease}
+.item .chk svg{width:15px;height:15px}
+.item .nom{flex:1}
+.item .nom small{display:block;font-size:16px;margin-top:2px}
+.pie-serv{margin-top:26px;text-align:center}
+.extras{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.extras li{display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-items:start}
+.extras svg{width:28px;height:28px;grid-row:span 2}
+.extras b{font-size:19px}
+.extras span{font-size:17px}
+@media (max-width:560px){.extras{grid-template-columns:1fr}}
+.carrito{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));z-index:55;transform:translate(-50%,160%);transition:transform .45s cubic-bezier(.2,.7,.2,1);display:flex;align-items:center;gap:16px;padding:10px 10px 10px 24px;width:min(540px,calc(100% - 100px))}
+.carrito.ver{transform:translate(-50%,0)}
+.carrito .cuenta{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.carrito .cuenta small{font-size:15px}
+.carrito .cuenta b{font-size:20px}
+@media (max-width:560px){.carrito{left:14px;right:84px;width:auto;transform:translateY(160%)}.carrito.ver{transform:none}}
+.fotos figure{margin:0;overflow:hidden;position:relative}
+.fotos img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.fotos figure:hover img{transform:scale(1.04)}
+.fila{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.pista{display:flex;gap:20px;width:max-content;animation:corre 120s linear infinite}
+@keyframes corre{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.op{flex:0 0 auto;width:clamp(300px,30vw,400px);display:flex;flex-direction:column;padding:28px}
+.op blockquote{flex:1;margin:14px 0 18px;font-size:20px;line-height:1.6}
+.caja{display:grid;grid-template-columns:1fr 1.15fr;overflow:hidden}
+@media (max-width:900px){.caja{grid-template-columns:1fr}}
+.datos{padding:clamp(28px,4vw,56px);display:flex;flex-direction:column;gap:30px}
+.dt .kicker{display:block;margin-bottom:10px}
+.dt p{margin:0;font-size:21px;line-height:1.55}
+.dt a.mapa{display:inline-block;margin-top:12px;font-size:18px;font-weight:600}
+.horas{display:grid;grid-template-columns:auto 1fr;gap:8px 26px;font-size:20px}
+.horas .hoy{font-weight:700}
+.acciones{display:flex;flex-direction:column;gap:12px}
+.acciones .btn{justify-content:space-between}
+.acciones .btn span{display:flex;gap:12px;align-items:center}
+.acciones .btn small{font-size:17px}
+.redes{display:flex;gap:16px}
+.redes a{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;transition:transform .25s ease}
+.redes a:hover{transform:translateY(-3px)}
+.redes svg{width:23px;height:23px}
+.caja iframe{width:100%;height:100%;min-height:440px;border:0}
+footer{text-align:center}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:60;width:60px;height:60px;border-radius:50%;display:grid;place-items:center;transition:transform .25s ease}
+.fab:hover{transform:translateY(-3px) scale(1.05)}
+.fab svg{width:28px;height:28px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+:root{--fondo:#2b2d30;--fondo-2:#1f2023;--concreto:#3a3d41;--blanco:#f4f5f6;--plata:#c3c8cf;--gris:#9ca2aa;--hueso:#efebe4;--papel:#f8f6f2;--tinta:#111111;--gris-c:#5c5a56;--linea-c:rgba(17,17,17,.12);--px:clamp(20px,5vw,96px);--py:clamp(90px,11vw,160px)}
+body{background:var(--fondo);color:var(--blanco);font-family:"Inter",Arial,sans-serif}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.18;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+h1,h2,h3{font-family:"Archivo",Arial,sans-serif;font-weight:900;margin:0;line-height:.98;letter-spacing:-.03em;text-transform:uppercase}
+.kicker{font-family:"Archivo",sans-serif;font-weight:700;font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:var(--gris)}
+
+.bar{position:fixed;top:0;left:0;right:0;padding:12px var(--px);background:var(--fondo-2);border-bottom:4px solid var(--plata)}
+.marca .em{width:38px;height:44px;background:var(--blanco)}
+.marca .let{height:38px;width:auto;filter:brightness(1.6)}
+.bar nav{font-family:"Archivo",sans-serif;font-size:17px;font-weight:700;color:var(--gris)}
+.bar nav a:hover{color:var(--blanco)}
+.cta-mini{background:var(--blanco);color:var(--fondo-2);padding:13px 24px;border-radius:999px;font-family:"Archivo",sans-serif;font-weight:800;font-size:16px}
+@media (max-width:420px){.marca .let{height:30px}.marca .em{width:30px;height:36px}.cta-mini{padding:11px 16px;font-size:14px}}
+
+.btn{padding:19px 32px;border-radius:999px;font-family:"Archivo",sans-serif;font-weight:800;font-size:17px;letter-spacing:.02em}
+.btn.uno{background:var(--blanco);color:var(--fondo-2)}
+.btn.uno:hover{box-shadow:0 18px 40px -16px rgba(255,255,255,.35)}
+.btn.dos{border:2px solid var(--blanco);color:var(--blanco)}
+
+.hero{min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:clamp(20px,4vw,60px);padding:110px var(--px) 50px;background:radial-gradient(50% 60% at 75% 50%,rgba(195,200,207,.16),transparent 70%)}
+.h-let{width:min(660px,100%);filter:brightness(1.8) contrast(1.15)}
+.h-sub{font-size:clamp(22px,2.2vw,30px);font-weight:500;margin:26px 0 34px;max-width:24ch;color:var(--plata)}
+.h-ctas{display:flex;flex-wrap:wrap;gap:14px}
+.h-emb{display:grid;place-items:center}
+.h-emb img{width:min(480px,82%);filter:drop-shadow(0 30px 50px rgba(0,0,0,.6)) brightness(1.12)}
+@media (max-width:860px){.hero{grid-template-columns:1fr;text-align:center;padding-top:96px}.h-emb{order:-1}.h-emb img{width:min(250px,56vw)}.h-let{margin:0 auto;width:min(420px,86vw)}.h-sub{margin:18px auto 26px}.h-ctas{justify-content:center}}
+
+.estudio,.servicios,.local,.resenas,.contacto{padding:var(--py) var(--px)}
+.estudio{border-top:1px solid rgba(255,255,255,.1)}
+.es-in{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(30px,6vw,90px);align-items:center}
+.estudio h2{font-size:clamp(40px,5.4vw,80px);margin:14px 0 22px}
+.estudio p{font-size:22px;color:var(--plata);margin:0}
+.extras li{background:var(--concreto);padding:22px;border-radius:18px;border:1px solid rgba(255,255,255,.1)}
+.extras svg{color:var(--blanco)}
+.extras b{font-family:"Archivo",sans-serif;font-weight:800}
+.extras span{color:var(--gris)}
+@media (max-width:860px){.es-in{grid-template-columns:1fr}}
+
+.cab h2{font-size:clamp(46px,7vw,110px);margin-top:10px}
+.cab p{font-size:21px;color:var(--gris)}
+
+.servicios{background:var(--tinta);color:var(--hueso)}
+.servicios .kicker,.servicios .cab p,.servicios .pie-serv{color:#a9a59e}
+.item{border-bottom:1px solid rgba(255,255,255,.14)}
+.item .chk{border:2px solid rgba(255,255,255,.4);border-radius:50%}
+.item .nom{font-family:"Archivo",sans-serif;font-weight:800;font-size:22px;text-transform:uppercase}
+.item .nom small{font-family:"Inter",sans-serif;font-weight:400;text-transform:none;color:#a9a59e}
+.item .pre{color:#a9a59e;font-size:15px}
+.item.sel .chk{background:var(--hueso);border-color:var(--hueso);color:var(--tinta)}
+
+.carrito{background:var(--tinta);color:var(--hueso);border-radius:999px;border:1px solid rgba(255,255,255,.18);box-shadow:0 24px 60px -20px rgba(0,0,0,.6)}
+.carrito .cuenta small{color:#a9a59e}
+.carrito .cuenta b{font-family:"Archivo",sans-serif;font-weight:900;text-transform:uppercase}
+.carrito .btn.uno{background:var(--hueso);color:var(--tinta);padding:14px 22px}
+
+.local .kicker{display:inline-block;color:var(--fondo-2);background:var(--plata);padding:6px 12px;letter-spacing:.24em}
+.local{padding-top:104px;padding-bottom:40px}
+.local .cab{margin-bottom:22px;display:grid;grid-template-columns:1fr auto;align-items:end;gap:6px 20px}
+.local .cab .kicker{grid-column:1/-1;justify-self:start}
+@media (max-width:760px){.local .cab{grid-template-columns:1fr}}
+.local .cab h2{margin-top:6px!important}
+.local .cab h2{font-family:"Anton",Impact,sans-serif;font-weight:400;font-size:clamp(54px,6.4vw,104px);line-height:.92;letter-spacing:.005em;margin-top:16px}
+.local .cab p{font-family:"Barlow",sans-serif;font-weight:500}
+.fotos{display:grid;grid-template-columns:.8fr 1.5fr;grid-template-rows:1fr 1fr;gap:14px;height:min(calc(100vh - 320px),640px)}
+.fotos .f2{grid-row:span 2}
+.fotos figure{clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);background:#111}
+.fotos img,.fotos video{width:100%;height:100%;object-fit:cover;display:block}
+.fotos img{filter:grayscale(1) contrast(1.15);transition:filter .6s ease,transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.fotos figure:hover img{filter:grayscale(0)}
+@media (max-width:760px){.fotos{grid-template-columns:1fr 1fr;grid-template-rows:auto;height:auto}.fotos .f2{grid-row:auto;grid-column:span 2;aspect-ratio:3/4}.fotos .f3,.fotos .f4{grid-column:span 2;aspect-ratio:16/9}}
+
+.resenas,.contacto{background:var(--hueso);color:var(--tinta)}
+.resenas .kicker,.contacto .kicker{color:var(--gris-c)}
+.resenas .cab p,.contacto .cab p{color:var(--gris-c)}
+.resenas{border-top:1px solid var(--linea-c)}
+.contacto{border-top:1px solid var(--linea-c)}
+.op{background:var(--papel);border:1px solid var(--linea-c);border-radius:18px}
+.op .e{letter-spacing:.14em;font-size:18px}
+.op .q{font-family:"Archivo",sans-serif;font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:.04em}
+.caja{background:var(--papel);border:1px solid var(--linea-c);border-radius:18px}
+.contacto .btn.uno{background:var(--tinta);color:var(--hueso)}
+.contacto .btn.dos{border-color:var(--tinta);color:var(--tinta)}
+.dt a.mapa{border-bottom:2px solid var(--tinta)}
+.horas span:nth-child(odd){color:var(--gris-c)}
+.redes a{border:2px solid var(--tinta)}
+.caja iframe{filter:grayscale(1)}
+
+footer{padding:70px var(--px) 50px;background:var(--hueso);border-top:1px solid var(--linea-c)}
+footer .f-em{width:90px;margin:0 auto 18px;filter:brightness(.25) contrast(1.4)}
+footer .f-let{width:260px;margin:0 auto;filter:brightness(.25) contrast(1.4)}
+.fab{background:var(--tinta);color:var(--hueso);box-shadow:0 0 0 2px rgba(255,255,255,.35),0 18px 40px -12px rgba(0,0,0,.6)}
+
+.resenas,.contacto,footer{background:var(--fondo-2);color:var(--blanco);border-top:1px solid rgba(255,255,255,.1)}
+.resenas .kicker,.contacto .kicker,.resenas .cab p,.contacto .cab p{color:var(--gris)}
+.op{background:var(--concreto);border:1px solid rgba(255,255,255,.1)}
+.op .e{color:var(--plata)}
+.op .q{color:var(--plata)}
+.caja{background:var(--concreto);border:1px solid rgba(255,255,255,.1)}
+.contacto .btn.uno{background:var(--blanco);color:var(--fondo-2)}
+.contacto .btn.dos{border-color:var(--blanco);color:var(--blanco)}
+.dt a.mapa{border-bottom-color:var(--blanco)}
+.horas span:nth-child(odd){color:var(--gris)}
+.redes a{border-color:var(--blanco);color:var(--blanco)}
+.caja iframe{filter:grayscale(1) invert(.9) contrast(.9)}
+footer .f-em{filter:brightness(1.15)}
+footer .f-let{filter:brightness(1.8)}
+.fab{background:var(--blanco);color:var(--fondo-2)}
+.carrito{background:var(--blanco);color:var(--fondo-2)}
+.carrito .cuenta small{color:#555}
+.carrito .btn.uno{background:var(--fondo-2);color:var(--blanco)}
+
+</style>
+</head>
+<body class="negro">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="wa" viewBox="0 0 24 24"><path fill="currentColor" d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></symbol>
+    <symbol id="tel" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.94.32 1.86.57 2.75a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6 6l1.33-1.33a2 2 0 0 1 2.11-.45c.89.25 1.81.44 2.75.57A2 2 0 0 1 22 16.92Z"/></symbol>
+    <symbol id="chk" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="3" d="M20 6 9 17l-5-5"/></symbol>
+  </defs>
+</svg>
+
+<header class="bar" id="bar">
+  <a class="marca" href="#inicio"><span class="em" aria-hidden="true"></span><img class="let" src="assets/letras.png" alt="Morrow Barber Studio"></a>
+  <nav>
+    <a href="#estudio">El estudio</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#local">El lugar</a>
+    <a href="#resenas">Reseñas</a>
+    <a href="#contacto">Contacto</a>
+  </nav>
+  <a class="cta-mini" href="https://wa.me/523329376496?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita." target="_blank" rel="noopener">Agendar</a>
+</header>
+
+<section class="hero" id="inicio">
+  <div class="h-txt">
+    <img class="h-let" data-h src="assets/letras.png" alt="Morrow Barber Studio, Est. 2012">
+    <p class="h-sub" data-h>Estilo, buena música y cerveza en cada corte</p>
+    <div class="h-ctas" data-h>
+      <a class="btn uno" href="https://wa.me/523329376496?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita." target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Agendar por WhatsApp</a>
+      <a class="btn dos" href="tel:+523329376496"><svg><use href="#tel"/></svg>Llamar</a>
+    </div>
+  </div>
+  <div class="h-emb" data-h><img src="assets/emblema.png" alt=""></div>
+</section>
+
+<section class="estudio" id="estudio">
+  <div class="es-in">
+    <div data-r>
+      <span class="kicker">El estudio</span>
+      <h2>Toda una experiencia en cada corte</h2>
+      <p>Morrow es una barbería que mezcla estilo, buena música y cerveza. Ven, siéntate en nuestros sillones y consiéntete con nosotros.</p>
+    </div>
+    <ul class="extras" data-r>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 11h1a3 3 0 0 1 0 6h-1M5 8h12v9a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8ZM8 2v3M12 2v3M16 2v3"/></svg><b>Bebida de cortesía</b><span>Cerveza, refresco o agua</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><b>Buena música</b><span>Para que te relajes</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 21V9l9-6 9 6v12M9 21v-6h6v6"/></svg><b>Sillones de piel</b><span>Y aire acondicionado</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2h12l-1 7a5 5 0 0 1-10 0L6 2ZM12 14v8M8 22h8"/></svg><b>Productos de marca</b><span>Para cabello y barba</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="servicios" id="servicios">
+  <div class="cab" data-r><span class="kicker">Lo que hacemos</span><h2>Servicios</h2><p>Marca los que quieras y te agendamos por WhatsApp.</p></div>
+  <div class="menu" data-r>
+      <button class="item" type="button" data-name="Corte de cabello"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Corte de cabello<small>Lavado, exfoliado, cera y peinado</small></span><span class="pre">Pregunta</span></button>
+      <button class="item" type="button" data-name="Corte y barba"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Corte y barba<small>El servicio completo</small></span><span class="pre">Pregunta</span></button>
+      <button class="item" type="button" data-name="Arreglo de barba"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Arreglo de barba<small>Toalla caliente y navaja</small></span><span class="pre">Pregunta</span></button>
+      <button class="item" type="button" data-name="Contornos"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Contornos<small>Para mantener tu corte</small></span><span class="pre">Pregunta</span></button>
+      <button class="item" type="button" data-name="Corte infantil"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Corte infantil<small>Para los más chicos</small></span><span class="pre">Pregunta</span></button>
+      <button class="item" type="button" data-name="Productos"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Productos<small>Para cabello y barba</small></span><span class="pre">Pregunta</span></button>
+  </div>
+  <p class="pie-serv">Cada servicio incluye bebida de cortesía.</p>
+</section>
+
+<div class="carrito" id="carrito">
+  <div class="cuenta"><small id="c-n">0 servicios</small><b>Cotiza</b></div>
+  <a class="btn uno" id="c-go" href="#" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Agendar</a>
+</div>
+
+<section class="local" id="local">
+  <div class="cab" data-r><span class="kicker">Conócenos</span><h2>El lugar</h2><p>Plaza Galicia, sobre Valle del Silicio, esquina con Mariano Otero.</p></div>
+  <div class="fotos">
+    <figure class="f2" data-r><img src="assets/foto-barra-vertical.jpg" alt="Barra y entrada de Morrow Barber Studio" loading="lazy"></figure>
+    <figure class="f3" data-r><img src="assets/foto-sala.jpg" alt="Sala con sillones de piel" loading="lazy"></figure>
+    <figure class="f4" data-r><img src="assets/foto-barra.jpg" alt="Sala y barra de Morrow Barber Studio" loading="lazy"></figure>
+  </div>
+</section>
+
+<section class="resenas" id="resenas">
+  <div class="cab" data-r><span class="kicker">Lo que dicen</span><h2>Nuestros clientes</h2><p>★★★★★ Más de cien reseñas en Google Maps.</p></div>
+  <div class="fila"><div class="pista">
+    <div class="op"><div class="e">★★★★★</div><blockquote>Muy buena experiencia, el nuevo nombre le da nueva experiencia, nuevos barberos me atendieron súper bien. Desde recepción ahora son atentos y amables.</blockquote><div class="q">Diego Moyer</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Encontré este lugar de casualidad y ya soy uno de sus clientes regulares porque dan una gran atención al detalle, además de que son muy cordiales.</blockquote><div class="q">Christian Diaz</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Excelente servicio, todos sus barberos te tratan bien, el costo lo acredita.</blockquote><div class="q">Oscar Alvarez</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Me encontré una joya en mi visita a Guadalajara. El servicio, calidad y el ambiente son lo que más caracteriza este lugar.</blockquote><div class="q">Carlos Cortes</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Excelente servicio y un lugar muy agradable. Tienen cerveza bien fría y personal muy profesional.</blockquote><div class="q">Pedro Vega</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Excelente calidad tanto en los barberos como en los productos utilizados. Ambiente muy relajado y limpio. Buena relación calidad precio.</blockquote><div class="q">Lalo Landa</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Brindan un servicio muy completo, además de tener un espacio agradable y cómodo, sin duda lo recomiendo.</blockquote><div class="q">Bonfanti Jiménez Andre G.</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Excelente servicio, la atención perfecta y la cerveza fría. Súper recomendado.</blockquote><div class="q">Dante Arrañaga</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Un excelente servicio, un lugar cómodo y acogedor, y una muy buena comunicación.</blockquote><div class="q">Jaan Danna</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Buen ambiente, muy amables y sí hay chavos calificados para cortes muy especiales.</blockquote><div class="q">Abraham Alcaraz</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Muy buen servicio, amables y generalmente puntuales.</blockquote><div class="q">Dr. Alfredo Lizarraga Corona</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Lugar muy agradable y venden productos para cuidar y crecer la barba.</blockquote><div class="q">Gabriel fit GRC</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Muy recomendable para que te arregles para eventos, aparte de corte hay diferentes paquetes.</blockquote><div class="q">Omar Reyes Cordoba</div></div><div class="op"><div class="e">★★★★★</div><blockquote>Salón moderno y limpio. El corte de pelo y el servicio fueron buenos.</blockquote><div class="q">E. S.</div></div>
+  </div></div>
+</section>
+
+<section class="contacto" id="contacto">
+  <div class="cab" data-r><span class="kicker">Visítanos</span><h2>Contacto</h2></div>
+  <div class="caja" data-r>
+    <div class="datos">
+      <div class="dt"><span class="kicker">Dirección</span><p>Plaza Galicia, Local G1<br>Blvd. Valle del Silicio 2, Nueva Galicia<br>Tlajomulco, Jalisco</p><a class="mapa" href="https://maps.google.com/?cid=2274504706552101347" target="_blank" rel="noopener">Cómo llegar →</a></div>
+      <div class="dt"><span class="kicker">Horario</span>
+        <div class="horas" id="horas">
+          <span data-d="1">Lunes a viernes</span><span data-d="1">11:00 a 20:00</span>
+          <span data-d="6">Sábado</span><span data-d="6">10:00 a 18:00</span>
+          <span data-d="0">Domingo</span><span data-d="0">11:00 a 17:00</span>
+        </div>
+      </div>
+      <div class="acciones">
+        <a class="btn uno" href="https://wa.me/523329376496?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita." target="_blank" rel="noopener"><span><svg><use href="#wa"/></svg>WhatsApp</span><small>33 2937 6496</small></a>
+        <a class="btn dos" href="tel:+523329376496"><span><svg><use href="#tel"/></svg>Llamar</span><small>33 2937 6496</small></a>
+      </div>
+      <div class="redes">
+        <a href="https://www.instagram.com/morrowbarberstudioest2012/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+        <a href="https://www.facebook.com/profile.php?id=100065463969386" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12Z"/></svg></a>
+      </div>
+    </div>
+    <iframe src="https://maps.google.com/maps?q=Plaza%20Galicia%2C%20Blvd.%20Valle%20del%20Silicio%202%2C%20Nueva%20Galicia%2C%20Tlajomulco&z=16&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Ubicación de Morrow Barber Studio"></iframe>
+  </div>
+</section>
+
+<footer>
+  <img class="f-em" src="assets/emblema.png" alt="">
+  <img class="f-let" src="assets/letras.png" alt="Morrow Barber Studio">
+</footer>
+
+<a class="fab" href="https://wa.me/523329376496?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita." target="_blank" rel="noopener" aria-label="Agendar por WhatsApp"><svg><use href="#wa"/></svg></a>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
