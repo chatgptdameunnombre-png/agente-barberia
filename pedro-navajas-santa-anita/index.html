@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <title>Club Pedro Navajas · Santa Anita</title>
-<meta name="description" content="Barbería en Bosques de Santa Anita: corte, barba, paquetes, mesa de billar y cerveza de cortesía. Agenda por WhatsApp.">
+<meta name="description" content="Barbería en Bosques de Santa Anita: corte, barba, paquetes y bebida de cortesía. Agenda por WhatsApp.">
 <meta name="robots" content="noindex, nofollow">
 <meta property="og:title" content="Club Pedro Navajas · Santa Anita">
 <meta property="og:url" content="https://tuagentedeia.com/pedro-navajas-santa-anita/">
@@ -17,16 +17,17 @@
 <style>
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:84px;overflow-x:clip}
-:root{--negro:#000000;--muro:#0e0b08;--luz:#f6e7c6;--luz-s:rgba(246,231,198,.55);--ambar:#e0b467;--gris:#9a9184;--px:clamp(20px,5vw,90px);--py:clamp(90px,10vw,140px)}
+html{scroll-behavior:smooth;scroll-padding-top:80px;overflow-x:clip}
+:root{--negro:#000;--carbon:#0d0b09;--carbon-2:#15110d;--luz:#f6e7c6;--luz-s:rgba(246,231,198,.55);--ambar:#e0b467;--gris:#9a9184;--px:clamp(20px,5vw,90px);--py:clamp(90px,10vw,140px)}
 body{background:var(--negro);color:#efe7da;font-family:"Sora",Arial,sans-serif;font-size:20px;line-height:1.65;-webkit-font-smoothing:antialiased}
-body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.25;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
 section{position:relative}
 h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;margin:0;line-height:.95;letter-spacing:.04em;text-transform:uppercase}
-.brilla{color:#0b0806;text-shadow:0 0 1px var(--luz),0 0 10px var(--luz),0 0 26px var(--luz-s),0 0 60px rgba(224,180,103,.35)}
-.etq{display:inline-block;font-weight:600;font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--ambar)}
+.etq{display:inline-flex;align-items:center;gap:12px;font-weight:600;font-size:14px;letter-spacing:.32em;text-transform:uppercase;color:var(--ambar)}
+.etq::before{content:"";width:28px;height:2px;background:var(--ambar);box-shadow:0 0 8px var(--ambar)}
+.brilla{color:#0b0806;text-shadow:0 0 1px var(--luz),0 0 8px var(--luz),0 0 24px var(--luz-s),0 0 54px rgba(224,180,103,.35)}
+.glow{filter:drop-shadow(0 0 1px #f6e7c6) drop-shadow(0 0 4px #f6e7c6) drop-shadow(0 0 12px rgba(246,231,198,.85)) drop-shadow(0 0 30px rgba(224,180,103,.55))}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:18px 30px;font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:21px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease,background .3s ease,color .3s ease}
 .btn svg{width:22px;height:22px;flex:0 0 22px}
 .btn:hover{transform:translateY(-3px)}
@@ -35,55 +36,50 @@ h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;m
 .btn.dos{border:2px solid var(--luz);color:var(--luz)}
 .btn.dos:hover{background:var(--luz);color:#0b0806}
 
-.bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px var(--px);background:linear-gradient(180deg,rgba(5,4,3,.95),rgba(5,4,3,.7));border-bottom:1px solid rgba(246,231,198,.14)}
-.marca{display:flex;align-items:center;gap:12px}
-.marca img{height:44px;width:auto;filter:drop-shadow(0 0 1px #f6e7c6) drop-shadow(0 0 5px rgba(246,231,198,.8))}
-.marca b{font-family:"Big Shoulders Display",sans-serif;font-weight:900;font-size:24px;letter-spacing:.08em;text-transform:uppercase}
-.bar nav{display:flex;gap:30px;font-size:16px;color:var(--gris)}
-.bar nav a:hover{color:var(--luz)}
-.bar .cta{background:var(--luz);color:#0b0806;padding:10px 20px;font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:18px;letter-spacing:.08em;text-transform:uppercase}
+.bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px var(--px);transition:background .4s ease,padding .4s ease}
+.bar.solida{background:rgba(0,0,0,.9);padding-top:10px;padding-bottom:10px;box-shadow:0 1px 0 rgba(246,231,198,.15)}
+.bar .marca img{height:46px;width:auto}
+.bar nav{display:flex;gap:34px;font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--gris)}
+.bar nav a:hover{color:var(--luz);text-shadow:0 0 10px var(--luz-s)}
+.bar .cta{border:2px solid var(--luz);color:var(--luz);padding:9px 20px;font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:18px;letter-spacing:.08em;text-transform:uppercase;transition:background .3s ease,color .3s ease}
+.bar .cta:hover{background:var(--luz);color:#0b0806}
 @media (max-width:1000px){.bar nav{display:none}}
-@media (max-width:420px){.marca b{font-size:19px}}
 
-.hero{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:90px var(--px) 50px}
-.h-logo{width:min(470px,46vh,80vw);margin-bottom:34px;animation:enciende 6s ease-in-out infinite}
-.h-logo img{width:100%;height:auto;filter:drop-shadow(0 0 1px #f6e7c6) drop-shadow(0 0 4px #f6e7c6) drop-shadow(0 0 12px rgba(246,231,198,.85)) drop-shadow(0 0 28px rgba(224,180,103,.55))}
-@keyframes enciende{0%,100%{opacity:1}48%{opacity:1}50%{opacity:.86}52%{opacity:1}}
-.h-giro{margin:-10px 0 0;color:var(--gris);font-size:20px;letter-spacing:.06em}
-.h-ctas{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:26px}
-
-.paquete{padding:var(--py) var(--px);background:radial-gradient(60% 70% at 50% 40%,rgba(224,180,103,.10),transparent 70%)}
-.pq{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,70px);align-items:center}
-.pq h2{font-size:clamp(56px,8vw,128px);margin-top:12px}
-.pq .lead{color:#cfc5b4;font-size:21px;margin:18px 0 0}
-.boleto{position:relative;padding:36px 34px;background:var(--muro);border:2px solid var(--luz);box-shadow:0 0 0 6px var(--negro),0 0 0 7px rgba(246,231,198,.3),0 0 60px rgba(246,231,198,.12)}
-.boleto::before,.boleto::after{content:"";position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:var(--negro);border:2px solid var(--luz);transform:translateY(-50%)}
-.boleto::before{left:-16px;clip-path:inset(0 0 0 50%)}
-.boleto::after{right:-16px;clip-path:inset(0 50% 0 0)}
-.boleto h3{font-size:34px;color:var(--luz)}
-.boleto ul{list-style:none;margin:18px 0 22px;padding:0;display:grid;gap:10px}
-.boleto li{display:flex;gap:12px;align-items:flex-start;font-size:19px}
-.boleto li::before{content:"";flex:0 0 10px;height:10px;margin-top:10px;background:var(--ambar);transform:rotate(45deg)}
-.boleto .btn{width:100%}
-@media (max-width:860px){.pq{grid-template-columns:1fr}}
+.hero{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:90px var(--px) 40px;background:radial-gradient(40% 46% at 50% 44%,rgba(246,231,198,.07),transparent 70%)}
+.hero .logo{width:min(860px,64vh,94vw);animation:enciende 7s ease-in-out infinite}
+@keyframes enciende{0%,100%{opacity:1}47%{opacity:1}49%{opacity:.82}51%{opacity:1}53%{opacity:.9}55%{opacity:1}}
+.hero p{margin:26px 0 0;color:var(--gris);letter-spacing:.14em;text-transform:uppercase;font-size:16px}
+.h-ctas{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:24px}
+.baja{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);width:2px;height:46px;background:linear-gradient(var(--luz),transparent);box-shadow:0 0 10px var(--luz)}
 
 .servicios{padding:var(--py) var(--px);border-top:1px solid rgba(246,231,198,.12)}
-.cab{text-align:center;max-width:760px;margin:0 auto clamp(36px,5vw,56px)}
-.cab h2{font-size:clamp(48px,6.6vw,100px);margin-top:12px}
-.cab p{color:var(--gris);margin:14px 0 0}
-.fichas{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;max-width:1080px;margin:0 auto}
-.item{display:inline-flex;align-items:center;gap:14px;padding:18px 24px;background:var(--muro);border:1.5px solid rgba(246,231,198,.25);color:inherit;font:inherit;text-align:left;cursor:pointer;transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease,background .3s ease}
-.item:hover{transform:translateY(-6px);border-color:var(--luz);box-shadow:0 0 30px rgba(246,231,198,.15)}
-.item .chk{width:26px;height:26px;border:2px solid rgba(246,231,198,.5);display:grid;place-items:center;color:transparent;transition:all .25s ease}
-.item .chk svg{width:14px;height:14px}
-.item .nom{font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:26px;letter-spacing:.05em;text-transform:uppercase;line-height:1.05}
-.item .nom small{display:block;font-family:"Sora",sans-serif;font-weight:400;font-size:15px;letter-spacing:0;text-transform:none;color:var(--gris);margin-top:2px}
-.item.sel{background:var(--luz);color:#0b0806;border-color:var(--luz);box-shadow:0 0 40px rgba(246,231,198,.35)}
-.item.sel .nom small{color:#5a5044}
+.serv-in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:.8fr 1.6fr;gap:clamp(30px,5vw,70px);align-items:start}
+.serv-izq{position:sticky;top:110px}
+.serv-izq h2{font-size:clamp(60px,7vw,118px);margin:16px 0 18px}
+.serv-izq p{color:var(--gris);margin:0 0 26px;max-width:28ch}
+.serv-izq .resumen{border:1.5px solid rgba(246,231,198,.3);padding:22px;display:none}
+.serv-izq .resumen.ver{display:block}
+.serv-izq .resumen b{display:block;font-family:"Big Shoulders Display",sans-serif;font-size:24px;letter-spacing:.06em;text-transform:uppercase;color:var(--luz);margin-bottom:8px}
+.serv-izq .resumen span{display:block;color:#cfc5b4;font-size:17px}
+.serv-der{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.item{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:30px 26px 28px;background:linear-gradient(180deg,var(--carbon-2),var(--carbon));border:1.5px solid rgba(246,231,198,.18);color:inherit;font:inherit;text-align:left;cursor:pointer;transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease,background .35s ease}
+.item:hover{transform:translateY(-8px);border-color:var(--luz);box-shadow:0 0 36px rgba(246,231,198,.16)}
+.item .ic{width:48px;height:48px;color:var(--luz);filter:drop-shadow(0 0 6px rgba(246,231,198,.7)) drop-shadow(0 0 16px rgba(224,180,103,.4))}
+.item .nom{font-family:"Big Shoulders Display",sans-serif;font-weight:900;font-size:32px;letter-spacing:.05em;text-transform:uppercase;line-height:1;margin-top:8px}
+.item .det{color:var(--gris);font-size:17px;line-height:1.5}
+.item .chk{position:absolute;top:20px;right:20px;width:28px;height:28px;border:2px solid rgba(246,231,198,.45);display:grid;place-items:center;color:transparent;transition:all .25s ease}
+.item .chk svg{width:15px;height:15px}
+.item.grande{grid-column:1/-1;flex-direction:row;align-items:center;gap:26px;padding:34px 30px;border-color:rgba(246,231,198,.55);background:radial-gradient(70% 120% at 15% 50%,rgba(224,180,103,.16),transparent 70%),linear-gradient(180deg,var(--carbon-2),var(--carbon))}
+.item.grande .ic{width:76px;height:76px;flex:0 0 76px}
+.item.grande .nom{font-size:clamp(40px,4.2vw,60px);margin:0 0 6px}
+.item.grande .det{font-size:18px;color:#cfc5b4}
+.item.sel{background:var(--luz);color:#0b0806;border-color:var(--luz);box-shadow:0 0 44px rgba(246,231,198,.35)}
+.item.sel .det{color:#5a5044}.item.sel .ic{color:#0b0806;filter:none}
 .item.sel .chk{background:#0b0806;border-color:#0b0806;color:var(--luz)}
-.pie{text-align:center;color:var(--gris);font-size:17px;margin-top:22px}
+@media (max-width:900px){.serv-in{grid-template-columns:1fr}.serv-izq{position:static}}
+@media (max-width:560px){.serv-der{grid-template-columns:1fr}.item.grande{flex-direction:column;align-items:flex-start}}
 
-.carrito{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));z-index:55;transform:translate(-50%,170%);transition:transform .45s cubic-bezier(.2,.7,.2,1);display:flex;align-items:center;gap:16px;padding:10px 10px 10px 22px;width:min(540px,calc(100% - 100px));background:var(--muro);border:2px solid var(--luz);box-shadow:0 0 40px rgba(246,231,198,.2),0 24px 60px -20px rgba(0,0,0,.9)}
+.carrito{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));z-index:55;transform:translate(-50%,170%);transition:transform .45s cubic-bezier(.2,.7,.2,1);display:flex;align-items:center;gap:16px;padding:10px 10px 10px 22px;width:min(540px,calc(100% - 100px));background:var(--carbon);border:2px solid var(--luz);box-shadow:0 0 40px rgba(246,231,198,.2),0 24px 60px -20px rgba(0,0,0,.9)}
 .carrito.ver{transform:translate(-50%,0)}
 .carrito .cuenta{flex:1;display:flex;flex-direction:column;line-height:1.2}
 .carrito .cuenta small{font-size:15px;color:var(--gris)}
@@ -91,62 +87,62 @@ h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;m
 .carrito .btn{padding:12px 18px;font-size:18px}
 @media (max-width:560px){body:has(.carrito.ver) .fab{display:none}.carrito{left:12px;right:12px;width:auto;transform:translateY(170%);gap:10px;padding:8px 8px 8px 16px}.carrito.ver{transform:none}.carrito .cuenta small,.carrito .cuenta b,.carrito .btn{white-space:nowrap}.carrito .btn{padding:11px 14px;font-size:17px}}
 
-.club{padding:clamp(70px,8vw,110px) var(--px);background:var(--muro);border-top:1px solid rgba(246,231,198,.12);border-bottom:1px solid rgba(246,231,198,.12)}
-.club .cab h2{font-size:clamp(40px,5vw,72px)}
-.extras{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1180px;margin:0 auto}
-.extra{padding:28px 22px;text-align:center;border:1px solid rgba(246,231,198,.16);transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease}
-.extra:hover{transform:translateY(-8px);border-color:var(--luz);box-shadow:0 0 30px rgba(246,231,198,.12)}
-.extra svg{width:40px;height:40px;color:var(--luz);filter:drop-shadow(0 0 8px rgba(246,231,198,.5))}
-.extra h3{font-size:28px;margin:14px 0 6px}
-.extra p{margin:0;color:var(--gris);font-size:18px}
-@media (max-width:900px){.extras{grid-template-columns:1fr 1fr}}
+.club{padding:0;border-top:1px solid rgba(246,231,198,.12);border-bottom:1px solid rgba(246,231,198,.12);overflow:hidden}
+.cinta{display:flex;width:max-content;animation:corre 40s linear infinite}
+.cinta div{display:flex;align-items:center;gap:22px;padding:30px 40px;font-family:"Big Shoulders Display",sans-serif;font-weight:900;font-size:clamp(30px,3.4vw,46px);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.cinta svg{width:40px;height:40px;color:var(--luz);filter:drop-shadow(0 0 8px rgba(246,231,198,.6))}
+.cinta div span{color:#0b0806;text-shadow:0 0 1px var(--luz),0 0 8px var(--luz),0 0 22px var(--luz-s)}
 
-.local{min-height:100dvh;padding:100px var(--px) 50px;display:flex;flex-direction:column;justify-content:center}
-#local{scroll-margin-top:-84px}
-.local .cab{margin-bottom:26px}
-.fotos{display:grid;grid-template-columns:1.5fr 1fr 1fr;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:14px;max-width:1280px;margin:0 auto;width:100%;height:min(calc(100dvh - 330px),600px)}
-.fotos figure{margin:0;min-height:0;overflow:hidden;border:1px solid rgba(246,231,198,.22)}
-.fotos img{width:100%;height:100%;object-fit:cover;filter:saturate(.85) contrast(1.05);transition:transform 1.2s cubic-bezier(.2,.7,.2,1),filter .5s ease}
-.fotos figure:hover img{transform:scale(1.05);filter:none}
-.fotos .f1{grid-row:span 2}
-.fotos .f2{grid-row:span 2}
-@media (max-width:860px){.fotos{grid-template-columns:1fr 1fr;grid-template-rows:auto;height:auto}.fotos .f1{grid-column:1/-1;grid-row:auto;aspect-ratio:16/10}.fotos .f2{grid-row:span 2}.fotos .f3,.fotos .f4{aspect-ratio:1}}
+.lugar{padding:var(--py) 0 calc(var(--py) - 30px)}
+.lugar .cab{padding:0 var(--px);display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 40px;margin-bottom:30px}
+.lugar h2{font-size:clamp(56px,7vw,110px);margin-top:14px}
+.lugar .cab p{margin:0;color:var(--gris);max-width:32ch}
+.tira{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(300px,34vw);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 var(--px) 18px;scrollbar-width:thin;scrollbar-color:var(--luz) transparent}
+.tira figure{margin:0;height:min(64vh,560px);scroll-snap-align:start;overflow:hidden;border:1px solid rgba(246,231,198,.25)}
+.tira img{width:100%;height:100%;object-fit:cover;filter:saturate(.85) contrast(1.05);transition:transform 1.2s cubic-bezier(.2,.7,.2,1),filter .5s ease}
+.tira figure:hover img{transform:scale(1.05);filter:none}
+@media (max-width:700px){.tira{grid-auto-columns:80vw}.tira figure{height:56vh}}
 
-.resenas{padding:var(--py) 0}
-.resenas .cab{padding:0 var(--px)}
-.fila{overflow:hidden;padding:16px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.resenas{padding:var(--py) 0;background:var(--carbon);border-top:1px solid rgba(246,231,198,.12)}
+.resenas .cab{padding:0 var(--px);text-align:center;margin-bottom:40px}
+.resenas h2{font-size:clamp(48px,6vw,96px);margin-top:14px}
+.resenas .cab p{color:var(--gris);margin:12px 0 0}
+.fila{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
 .pista{display:flex;gap:20px;width:max-content;animation:corre 150s linear infinite}
 @keyframes corre{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.op{flex:0 0 auto;width:clamp(300px,30vw,400px);display:flex;flex-direction:column;padding:28px;background:var(--muro);border-top:3px solid var(--luz);box-shadow:0 -12px 30px -18px rgba(246,231,198,.45);transition:transform .35s ease}
+.op{flex:0 0 auto;width:clamp(300px,30vw,400px);display:flex;flex-direction:column;padding:28px;background:#000;border-left:3px solid var(--luz);box-shadow:-12px 0 30px -18px rgba(246,231,198,.45);transition:transform .35s ease}
 .op:hover{transform:translateY(-8px)}
 .op .e{color:var(--ambar);letter-spacing:.14em}
 .op blockquote{flex:1;margin:12px 0 16px;font-size:19px;line-height:1.6}
 .op .q{font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:20px;letter-spacing:.06em;text-transform:uppercase;color:var(--luz)}
 
-.contacto{padding:var(--py) var(--px);background:var(--muro);border-top:1px solid rgba(246,231,198,.12)}
-.caja{display:grid;grid-template-columns:1fr 1.1fr;gap:34px;max-width:1180px;margin:0 auto}
-.datos{display:flex;flex-direction:column;gap:26px}
-.dt .etq{margin-bottom:8px}
-.dt p{margin:0;font-size:20px}
-.dt a.mapa{display:inline-block;margin-top:8px;color:var(--luz);font-weight:600;border-bottom:2px solid var(--luz)}
-.horas{display:grid;grid-template-columns:auto 1fr;gap:6px 24px;font-size:19px}
+.contacto{padding:var(--py) var(--px)}
+.cab-c{text-align:center;margin-bottom:clamp(34px,5vw,56px)}.cab-c h2{font-size:clamp(48px,6vw,96px);margin-top:14px}
+.c-in{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,70px);align-items:stretch}
+.c-in>div{display:flex;flex-direction:column;justify-content:center}
+.tel{display:block;font-family:"Big Shoulders Display",sans-serif;font-weight:900;font-size:clamp(56px,7vw,110px);line-height:1;letter-spacing:.03em;margin:14px 0 26px}
+.dt{margin-bottom:22px}
+.dt{margin-bottom:30px}.dt b{display:block;font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--ambar);margin-bottom:6px;font-weight:600}
+.dt p{margin:0;font-size:22px;line-height:1.55}
+.dt a.mapa{display:inline-block;margin-top:6px;color:var(--luz);border-bottom:2px solid var(--luz);font-weight:600}
+.horas{display:grid;grid-template-columns:auto 1fr;gap:8px 30px;font-size:21px}
 .horas span:nth-child(odd){color:var(--gris)}
 .horas .hoy{color:var(--luz)!important;font-weight:600}
-.acciones{display:flex;flex-wrap:wrap;gap:12px}
-.redes{display:flex;gap:14px}
-.redes a{width:50px;height:50px;display:grid;place-items:center;border:1.5px solid rgba(246,231,198,.5);color:var(--luz);transition:transform .25s ease,box-shadow .25s ease}
-.redes a:hover{transform:translateY(-3px);box-shadow:0 0 20px rgba(246,231,198,.3)}
+.acciones{display:flex;flex-wrap:wrap;gap:14px;margin-top:4px}.acciones .btn{padding:22px 34px;font-size:24px}
+.redes{display:flex;gap:14px;margin-top:22px}
+.redes a{width:50px;height:50px;display:grid;place-items:center;border:1.5px solid rgba(246,231,198,.5);color:var(--luz)}
 .redes svg{width:22px;height:22px}
-.caja iframe{width:100%;height:100%;min-height:440px;border:1px solid rgba(246,231,198,.25);filter:grayscale(1) invert(.92) sepia(.25) contrast(.9)}
-@media (max-width:900px){.caja{grid-template-columns:1fr}}
+.c-in iframe{width:100%;height:100%;min-height:520px;border:1px solid rgba(246,231,198,.25);filter:grayscale(1) invert(.92) sepia(.25) contrast(.9)}
+@media (max-width:900px){.c-in{grid-template-columns:1fr}.c-in iframe{height:340px}}
 
-footer{text-align:center;padding:56px var(--px) 50px}
-footer img{width:150px;margin:0 auto 18px;filter:drop-shadow(0 0 1px #f6e7c6) drop-shadow(0 0 4px #f6e7c6) drop-shadow(0 0 12px rgba(246,231,198,.85)) drop-shadow(0 0 28px rgba(224,180,103,.55))}
-footer p{margin:0;color:var(--gris);font-size:17px}
+footer{text-align:center;padding:60px var(--px) 54px;border-top:1px solid rgba(246,231,198,.12)}
+footer img{width:200px;margin:0 auto 16px}
+footer p{margin:0;color:var(--gris);font-size:16px;letter-spacing:.12em;text-transform:uppercase}
 .fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:60;width:60px;height:60px;display:grid;place-items:center;background:var(--luz);color:#0b0806;box-shadow:0 0 30px rgba(246,231,198,.45);transition:transform .25s ease}
 .fab:hover{transform:translateY(-3px) scale(1.05)}
 .fab svg{width:28px;height:28px}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.item.grande>span:last-child{display:flex;flex-direction:column}
 </style>
 </head>
 <body data-wa="523329459293">
@@ -157,54 +153,40 @@ footer p{margin:0;color:var(--gris);font-size:17px}
     <symbol id="chk" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="3" d="M20 6 9 17l-5-5"/></symbol>
   </defs>
 </svg>
-<header class="bar">
-  <a class="marca" href="#inicio"><img src="assets/logo.png" alt=""><b>Pedro Navajas</b></a>
-  <nav><a href="#paquete">Paquete Plata</a><a href="#servicios">Servicios</a><a href="#club">El club</a><a href="#local">El lugar</a><a href="#resenas">Reseñas</a><a href="#contacto">Contacto</a></nav>
+<header class="bar" id="bar">
+  <a class="marca" href="#inicio"><img class="glow" src="assets/logo.png" alt="Club Pedro Navajas"></a>
+  <nav><a href="#servicios">Servicios</a><a href="#lugar">El lugar</a><a href="#resenas">Reseñas</a><a href="#contacto">Contacto</a></nav>
   <a class="cta" href="https://wa.me/523329459293?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita." target="_blank" rel="noopener">Agendar</a>
 </header>
 
 <section class="hero" id="inicio">
-  <div class="h-logo" data-h><img src="assets/logo.png" alt="Club Pedro Navajas"></div>
-  <p class="h-giro" data-h style="margin-top:0">Barbería · Bosques de Santa Anita</p>
+  <img class="logo glow" data-h src="assets/logo.png" alt="Club Pedro Navajas">
+  <p data-h>Barbería · Bosques de Santa Anita</p>
   <div class="h-ctas" data-h>
     <a class="btn uno" href="https://wa.me/523329459293?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita." target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Agendar por WhatsApp</a>
     <a class="btn dos" href="tel:+523329459293"><svg><use href="#tel"/></svg>Llamar</a>
   </div>
-</section>
-
-<section class="paquete" id="paquete">
-  <div class="pq">
-    <div data-r>
-      <span class="etq">El favorito del club</span>
-      <h2 class="brilla">Paquete Plata</h2>
-      <p class="lead">Mucho más que un corte: sales renovado y relajado.</p>
-    </div>
-    <div class="boleto" data-r>
-      <h3>Incluye</h3>
-      <ul>
-        <li>Corte de cabello</li>
-        <li>Micro limpieza facial</li>
-        <li>Mascarilla de carbón activado</li>
-        <li>Vapor de ozono y toalla caliente</li>
-        <li>Masaje relajante y bebida de cortesía</li>
-      </ul>
-      <a class="btn uno" href="https://wa.me/523329459293?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20el%20Paquete%20Plata." target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Agendar Paquete Plata</a>
-    </div>
-  </div>
+  <span class="baja" aria-hidden="true"></span>
 </section>
 
 <section class="servicios" id="servicios">
-  <div class="cab" data-r><span class="etq">Lo que hacemos</span><h2>Servicios</h2><p>Marca los que quieras y te agendamos por WhatsApp.</p></div>
-  <div class="fichas" data-r>
-    <button class="item" type="button" data-name="Corte de cabello"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Corte de cabello<small>A tu estilo</small></span></button>
-    <button class="item" type="button" data-name="Arreglo de barba"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Arreglo de barba<small>Con toalla caliente</small></span></button>
-    <button class="item" type="button" data-name="Corte y barba"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Corte y barba<small>El servicio completo</small></span></button>
-    <button class="item" type="button" data-name="Paquete Plata"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Paquete Plata<small>Corte y tratamiento facial</small></span></button>
-    <button class="item" type="button" data-name="Paquetes Olimpo"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Paquetes Olimpo<small>Nuestros paquetes completos</small></span></button>
-    <button class="item" type="button" data-name="Limpieza profunda"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Limpieza profunda<small>Para relajarte un rato</small></span></button>
-    <button class="item" type="button" data-name="Corte infantil"><span class="chk"><svg><use href="#chk"/></svg></span><span class="nom">Corte infantil<small>Para los más chicos</small></span></button>
+  <div class="serv-in">
+    <div class="serv-izq" data-r>
+      <span class="etq">Lo que hacemos</span>
+      <h2 class="brilla">Servicios</h2>
+      <p>Elige los que quieras y te agendamos por WhatsApp.</p>
+      <div class="resumen" id="resumen"><b>Tu cita</b><span id="res-lista"></span></div>
+    </div>
+    <div class="serv-der" data-r>
+      <button class="item grande" type="button" data-name="Paquete Plata"><span class="chk"><svg><use href="#chk"/></svg></span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m12 3 2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.4l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8L12 3Z"/></svg><span><span class="nom">Paquete Plata</span><span class="det">Corte, micro limpieza, mascarilla de carbón activado, vapor de ozono, toalla caliente y masaje.</span></span></button>
+      <button class="item" type="button" data-name="Corte de cabello"><span class="chk"><svg><use href="#chk"/></svg></span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg><span class="nom">Corte de cabello</span><span class="det">A tu estilo, con el acabado que pidas.</span></button>
+      <button class="item" type="button" data-name="Arreglo de barba"><span class="chk"><svg><use href="#chk"/></svg></span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 17 17 3l4 4L7 21H3v-4Z"/><path d="m14 6 4 4"/></svg><span class="nom">Arreglo de barba</span><span class="det">Perfilado con navaja y toalla caliente.</span></button>
+      <button class="item" type="button" data-name="Corte y barba"><span class="chk"><svg><use href="#chk"/></svg></span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20"/><path d="M15 3h6v6"/></svg><span class="nom">Corte y barba</span><span class="det">El servicio completo.</span></button>
+      <button class="item" type="button" data-name="Paquetes Olimpo"><span class="chk"><svg><use href="#chk"/></svg></span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 18h18M4 18 3 7l5 4 4-7 4 7 5-4-1 11"/></svg><span class="nom">Paquetes Olimpo</span><span class="det">Nuestros paquetes más completos.</span></button>
+      <button class="item" type="button" data-name="Limpieza profunda"><span class="chk"><svg><use href="#chk"/></svg></span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></svg><span class="nom">Limpieza profunda</span><span class="det">Tratamiento facial para relajarte un rato.</span></button>
+      <button class="item" type="button" data-name="Corte infantil"><span class="chk"><svg><use href="#chk"/></svg></span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="7" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></svg><span class="nom">Corte infantil</span><span class="det">Para los más chicos.</span></button>
+    </div>
   </div>
-  <p class="pie" data-r>Pregunta por precios y detalles de cada paquete.</p>
 </section>
 
 <div class="carrito" id="carrito">
@@ -212,23 +194,17 @@ footer p{margin:0;color:var(--gris);font-size:17px}
   <a class="btn uno" id="c-go" href="#" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Mandar por WhatsApp</a>
 </div>
 
-<section class="club" id="club">
-  <div class="cab" data-r><span class="etq">El club</span><h2>Aquí la espera también se disfruta</h2></div>
-  <div class="extras">
-    <div class="extra" data-r><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 11h1a3 3 0 0 1 0 6h-1M5 8h12v9a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8ZM8 2v3M12 2v3M16 2v3"/></svg><h3>Cerveza de cortesía</h3><p>Para ti y tu acompañante</p></div>
-    <div class="extra" data-r><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2"/></svg><h3>Mesa de billar</h3><p>Mientras esperas</p></div>
-    <div class="extra" data-r><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><h3>Rock y pop</h3><p>Buena música siempre</p></div>
-    <div class="extra" data-r><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21V9l9-6 9 6v12M9 21v-6h6v6"/></svg><h3>Espacio amplio</h3><p>Limpio y cómodo</p></div>
-  </div>
+<section class="club" aria-label="El club">
+  <div class="cinta"><div><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 11h1a3 3 0 0 1 0 6h-1M5 8h12v9a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8ZM8 2v3M12 2v3M16 2v3"/></svg><span>Bebida de cortesía</span></div><div><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg><span>Barberos con experiencia</span></div><div><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Música rock y pop</span></div><div><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21V9l9-6 9 6v12M9 21v-6h6v6"/></svg><span>Lugar limpio</span></div><div><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 11h1a3 3 0 0 1 0 6h-1M5 8h12v9a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8ZM8 2v3M12 2v3M16 2v3"/></svg><span>Bebida de cortesía</span></div><div><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg><span>Barberos con experiencia</span></div><div><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Música rock y pop</span></div><div><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21V9l9-6 9 6v12M9 21v-6h6v6"/></svg><span>Lugar limpio</span></div></div>
 </section>
 
-<section class="local" id="local">
-  <div class="cab" data-r><span class="etq">Conócenos</span><h2>El lugar</h2></div>
-  <div class="fotos">
-    <figure class="f1" data-r><img src="assets/sala.jpg" alt="Sala con sillones y barra" loading="lazy"></figure>
-    <figure class="f2" data-r><img src="assets/barberos.jpg" alt="Barbero trabajando" loading="lazy"></figure>
-    <figure class="f3" data-r><img src="assets/billar.jpg" alt="Mesa de billar" loading="lazy"></figure>
-    <figure class="f4" data-r><img src="assets/panorama.jpg" alt="Interior del club" loading="lazy"></figure>
+<section class="lugar" id="lugar">
+  <div class="cab" data-r><div><span class="etq">Conócenos</span><h2>El lugar</h2></div><p>Buena música y una bebida de cortesía mientras esperas tu turno.</p></div>
+  <div class="tira">
+    <figure data-r><img src="assets/sala.jpg" alt="Sala con sillones y barra" loading="lazy"></figure>
+    <figure data-r><img src="assets/barberos.jpg" alt="Barbero trabajando" loading="lazy"></figure>
+    <figure data-r><img src="assets/billar.jpg" alt="Mesa de billar" loading="lazy"></figure>
+    <figure data-r><img src="assets/panorama.jpg" alt="Interior del club" loading="lazy"></figure>
   </div>
 </section>
 
@@ -240,32 +216,28 @@ footer p{margin:0;color:var(--gris);font-size:17px}
 </section>
 
 <section class="contacto" id="contacto">
-  <div class="cab" data-r><span class="etq">Visítanos</span><h2>Contacto</h2></div>
-  <div class="caja" data-r>
-    <div class="datos">
-      <div class="dt"><span class="etq">Dirección</span><p>Blvd. Bosques de Santa Anita 255<br>Bosques de Santa Anita, Jalisco</p><a class="mapa" href="https://maps.google.com/?cid=87215299822246486" target="_blank" rel="noopener">Cómo llegar →</a></div>
-      <div class="dt"><span class="etq">Horario</span>
-        <div class="horas" id="horas">
+  <div class="cab-c" data-r><span class="etq">Visítanos</span><h2>Contacto</h2></div>
+  <div class="c-in" data-r>
+    <div>
+            <div class="dt"><b>Dirección</b><p>Blvd. Bosques de Santa Anita 255<br>Bosques de Santa Anita, Jalisco</p><a class="mapa" href="https://maps.google.com/?cid=87215299822246486" target="_blank" rel="noopener">Cómo llegar →</a></div>
+      <div class="dt"><b>Horario</b><div class="horas" id="horas">
           <span data-d="1">Lunes a viernes</span><span data-d="1">10:00 a 21:00</span>
           <span data-d="6">Sábado</span><span data-d="6">10:00 a 19:00</span>
           <span data-d="0">Domingo</span><span data-d="0">10:00 a 16:00</span>
-        </div>
-      </div>
+        </div></div>
       <div class="acciones">
         <a class="btn uno" href="https://wa.me/523329459293?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita." target="_blank" rel="noopener"><svg><use href="#wa"/></svg>WhatsApp</a>
         <a class="btn dos" href="tel:+523329459293"><svg><use href="#tel"/></svg>33 2945 9293</a>
       </div>
-      <div class="redes">
-        <a href="https://www.instagram.com/clubpedronavajas/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
-        <a href="https://www.tiktok.com/@clubpedronavajas1" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.8 5.8 0 1 0 4.9 5.7V9.1a7.4 7.4 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6Z"/></svg></a>
-      </div>
+      <div class="redes"><a href="https://www.instagram.com/clubpedronavajas/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+        <a href="https://www.tiktok.com/@clubpedronavajas1" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.8 5.8 0 1 0 4.9 5.7V9.1a7.4 7.4 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6Z"/></svg></a></div>
     </div>
     <iframe src="https://maps.google.com/maps?q=CLUB%20PEDRO%20NAVAJAS%20SANTA%20ANITA%2C%20Blvd%20Bosques%20de%20Santa%20Anita%20255&z=16&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Ubicación de Club Pedro Navajas Santa Anita"></iframe>
   </div>
 </section>
 
 <footer>
-  <img src="assets/logo.png" alt="Club Pedro Navajas">
+  <img class="glow" src="assets/logo.png" alt="Club Pedro Navajas">
   <p>Barbería · Bosques de Santa Anita</p>
 </footer>
 
@@ -274,5 +246,10 @@ footer p{margin:0;color:var(--gris);font-size:17px}
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script src="assets/app.js"></script>
+<script>
+(function(){var bar=document.getElementById('bar');function s(){bar.classList.toggle('solida',scrollY>40)}addEventListener('scroll',s,{passive:true});s();
+var r=document.getElementById('resumen'),l=document.getElementById('res-lista');function upd(){var n=[].map.call(document.querySelectorAll('.item.sel'),function(b){return b.dataset.name});r.classList.toggle('ver',n.length>0);l.textContent=n.join(' · ')}
+document.querySelectorAll('.item').forEach(function(b){b.addEventListener('click',function(){setTimeout(upd,0)})})})();
+</script>
 </body>
 </html>
