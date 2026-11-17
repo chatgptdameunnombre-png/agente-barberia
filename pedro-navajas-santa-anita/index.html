@@ -9,8 +9,8 @@
 <meta name="robots" content="noindex, nofollow">
 <meta property="og:title" content="Club Pedro Navajas · Santa Anita">
 <meta property="og:url" content="https://tuagentedeia.com/pedro-navajas-santa-anita/">
-<meta property="og:image" content="https://tuagentedeia.com/pedro-navajas-santa-anita/assets/logo.jpg">
-<link rel="icon" type="image/jpeg" href="assets/favicon.jpg">
+<meta property="og:image" content="https://tuagentedeia.com/pedro-navajas-santa-anita/assets/og.jpg">
+<link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
@@ -37,7 +37,7 @@ h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;m
 
 .bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px var(--px);background:linear-gradient(180deg,rgba(5,4,3,.95),rgba(5,4,3,.7));border-bottom:1px solid rgba(246,231,198,.14)}
 .marca{display:flex;align-items:center;gap:12px}
-.marca img{width:48px;height:48px;object-fit:cover;object-position:50% 40%;border-radius:8px}
+.marca img{height:44px;width:auto;filter:drop-shadow(0 0 1px #f6e7c6) drop-shadow(0 0 5px rgba(246,231,198,.8))}
 .marca b{font-family:"Big Shoulders Display",sans-serif;font-weight:900;font-size:24px;letter-spacing:.08em;text-transform:uppercase}
 .bar nav{display:flex;gap:30px;font-size:16px;color:var(--gris)}
 .bar nav a:hover{color:var(--luz)}
@@ -46,9 +46,9 @@ h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;m
 @media (max-width:420px){.marca b{font-size:19px}}
 
 .hero{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:90px var(--px) 50px}
-.h-logo{width:min(520px,58vh,88vw);aspect-ratio:1;-webkit-mask-image:radial-gradient(closest-side,#000 70%,transparent);mask-image:radial-gradient(closest-side,#000 70%,transparent);animation:enciende 6s ease-in-out infinite}
-.h-logo img{width:100%;height:100%;object-fit:cover}
-@keyframes enciende{0%,100%{filter:brightness(1)}48%{filter:brightness(1.12)}50%{filter:brightness(.92)}52%{filter:brightness(1.1)}}
+.h-logo{width:min(470px,46vh,80vw);margin-bottom:34px;animation:enciende 6s ease-in-out infinite}
+.h-logo img{width:100%;height:auto;filter:drop-shadow(0 0 1px #f6e7c6) drop-shadow(0 0 4px #f6e7c6) drop-shadow(0 0 12px rgba(246,231,198,.85)) drop-shadow(0 0 28px rgba(224,180,103,.55))}
+@keyframes enciende{0%,100%{opacity:1}48%{opacity:1}50%{opacity:.86}52%{opacity:1}}
 .h-giro{margin:-10px 0 0;color:var(--gris);font-size:20px;letter-spacing:.06em}
 .h-ctas{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:26px}
 
@@ -141,7 +141,7 @@ h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;m
 @media (max-width:900px){.caja{grid-template-columns:1fr}}
 
 footer{text-align:center;padding:56px var(--px) 50px}
-footer img{width:170px;margin:0 auto 10px;-webkit-mask-image:radial-gradient(closest-side,#000 65%,transparent);mask-image:radial-gradient(closest-side,#000 65%,transparent)}
+footer img{width:150px;margin:0 auto 18px;filter:drop-shadow(0 0 1px #f6e7c6) drop-shadow(0 0 4px #f6e7c6) drop-shadow(0 0 12px rgba(246,231,198,.85)) drop-shadow(0 0 28px rgba(224,180,103,.55))}
 footer p{margin:0;color:var(--gris);font-size:17px}
 .fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:60;width:60px;height:60px;display:grid;place-items:center;background:var(--luz);color:#0b0806;box-shadow:0 0 30px rgba(246,231,198,.45);transition:transform .25s ease}
 .fab:hover{transform:translateY(-3px) scale(1.05)}
@@ -158,14 +158,14 @@ footer p{margin:0;color:var(--gris);font-size:17px}
   </defs>
 </svg>
 <header class="bar">
-  <a class="marca" href="#inicio"><img src="assets/logo.jpg" alt=""><b>Pedro Navajas</b></a>
+  <a class="marca" href="#inicio"><img src="assets/logo.png" alt=""><b>Pedro Navajas</b></a>
   <nav><a href="#paquete">Paquete Plata</a><a href="#servicios">Servicios</a><a href="#club">El club</a><a href="#local">El lugar</a><a href="#resenas">Reseñas</a><a href="#contacto">Contacto</a></nav>
   <a class="cta" href="https://wa.me/523329459293?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita." target="_blank" rel="noopener">Agendar</a>
 </header>
 
 <section class="hero" id="inicio">
-  <div class="h-logo" data-h><img src="assets/logo.jpg" alt="Club Pedro Navajas"></div>
-  <p class="h-giro" data-h>Barbería · Bosques de Santa Anita</p>
+  <div class="h-logo" data-h><img src="assets/logo.png" alt="Club Pedro Navajas"></div>
+  <p class="h-giro" data-h style="margin-top:0">Barbería · Bosques de Santa Anita</p>
   <div class="h-ctas" data-h>
     <a class="btn uno" href="https://wa.me/523329459293?text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita." target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Agendar por WhatsApp</a>
     <a class="btn dos" href="tel:+523329459293"><svg><use href="#tel"/></svg>Llamar</a>
@@ -265,7 +265,7 @@ footer p{margin:0;color:var(--gris);font-size:17px}
 </section>
 
 <footer>
-  <img src="assets/logo.jpg" alt="Club Pedro Navajas">
+  <img src="assets/logo.png" alt="Club Pedro Navajas">
   <p>Barbería · Bosques de Santa Anita</p>
 </footer>
 
