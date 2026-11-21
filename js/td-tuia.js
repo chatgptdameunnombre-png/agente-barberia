@@ -19,6 +19,7 @@
     nfc:       { k: 'Qué hacemos', t: 'Pon un chip en tu mostrador y tus clientes te dejan reseña, te siguen o te escriben con un solo toque.', g: 'guino' },
     industrias:{ k: 'Qué hacemos', t: 'Adaptamos nuestros productos a tu negocio, sea cual sea tu tipo de negocio.', g: 'pensando' },
     extras:    { k: 'Qué hacemos', t: 'Conectamos las apps que ya usas para que lo repetitivo se haga solo: facturas, reportes, inventario y avisos.', g: 'pensando' },
+    resenas:   { k: 'Clientes reales', t: 'Esto opinan negocios que ya trabajan con nosotros. Dale play y mira cómo les cambió el día a día. El tuyo puede ser el siguiente.', g: 'feliz' },
     contacto:  { k: 'Qué hacemos', t: 'Llenas el formulario, se abre tu WhatsApp con el mensaje ya escrito, y nosotros te armamos la preview sin costo.', g: 'feliz' },
     legales:   { k: 'Aviso de privacidad', t: '&Eacute;ste es nuestro aviso de privacidad. Léelo para saber a detalle qué datos guardamos, cuáles no, y cómo puedes pedirnos que los borremos.', g: 'pensando' }
   };
@@ -27,7 +28,7 @@
     problema: [0.74, 0.24], 'wa-demo': [0.28, 0.58], flow: [0.80, 0.30],
     llamadas: [0.34, 0.62], 'llamadas-demo': [0.80, 0.30], pwsec: [0.72, 0.26], comp: [0.30, 0.55],
     nfc: [0.86, 0.72], industrias: [0.36, 0.62],
-    extras: [0.32, 0.58], contacto: [0.66, 0.40], legales: [0.70, 0.34]
+    extras: [0.32, 0.58], resenas: [0.88, 0.30], contacto: [0.66, 0.40], legales: [0.70, 0.34]
   };
 
   var CSS = '' +
