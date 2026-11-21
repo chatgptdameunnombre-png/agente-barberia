@@ -256,3 +256,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 }
 @media (max-width:480px){#site-nav{column-gap:6px!important}#site-nav>a:first-child{font-size:13px!important;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}#site-nav a[href="#contacto"]{font-size:12px!important;padding:7px 10px!important}#site-nav .nav-entrar{font-size:12px!important;padding:7px 8px!important}.lg-acc{gap:4px!important}}
 @media (max-width:480px){#site-nav{padding-left:10px!important;padding-right:7px!important}#site-nav a[href="#contacto"]{padding:7px 9px!important}#site-nav .nav-entrar{padding:7px 7px!important}}@media (max-width:385px){#site-nav>a:first-child{font-size:12px!important}#site-nav a[href="#contacto"]{font-size:11px!important;padding:7px 8px!important}#site-nav .nav-entrar{font-size:11px!important}}
+#site-nav>a:first-child{font-size:22px!important;letter-spacing:-.015em!important}
+@media (max-width:1180px){#site-nav>a:first-child{font-size:20px!important}}
+@media (max-width:480px){#site-nav>a:first-child{font-size:16px!important}}
+@media (max-width:400px){#site-nav>a:first-child{font-size:15px!important}}
