@@ -265,7 +265,7 @@
     if(!debe)corre=false;
   }
 
-  if(!MODOS[modo])modo='seda';
+  if(!Object.prototype.hasOwnProperty.call(MODOS,modo))modo='seda';
   medir();
   if(quieto)quietoPinta();else arranca();
 

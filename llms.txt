@@ -63,4 +63,4 @@ Aviso de privacidad completo: https://tuagentedeia.com/legales.html
 - [Páginas web](https://tuagentedeia.com/paginas-web/): webs a la medida, rápidas en celular y listas para Google.
 - [Automatizaciones](https://tuagentedeia.com/automatizaciones/): procesos repetitivos con IA (reportes, avisos, registros).
 - [Tarjetas NFC](https://tuagentedeia.com/nfc/): menú, WhatsApp o reseñas con solo acercar el celular.
-- [Reseñas de clientes](https://tuagentedeia.com/resenas/): video y comentario de Barberísimo, barbería que usa agente de WhatsApp, agente de llamadas y página web.
+- [Reseñas de clientes](https://tuagentedeia.com/rese%C3%B1as/): video y comentario de Barberísimo, barbería que usa agente de WhatsApp, agente de llamadas y página web.

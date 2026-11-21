@@ -1495,6 +1495,103 @@ body.nfx-act #tuiaGlobo{opacity:0!important;visibility:hidden!important}
   </div>
 </section>
 
+<style>
+#resenas{position:relative;padding:130px 0 140px;border-top:1px solid var(--border);overflow:hidden;background:radial-gradient(55% 45% at 50% 0%,rgba(201,168,76,.10),transparent 70%),radial-gradient(40% 35% at 85% 70%,rgba(201,168,76,.06),transparent 70%)}
+#resenas .rs-head{text-align:center;margin-bottom:64px}
+#resenas .rs-head .desc{margin:0 auto}
+.rs-h{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(2.1rem,4.6vw,3.5rem);line-height:1.04;letter-spacing:-.035em;margin:6px 0 18px;text-wrap:balance}
+.rs-h em{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-.01em;background:var(--gold-g);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:.08em}
+.rs-card{position:relative;padding:48px 46px 38px;border-radius:28px;background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.012) 60%),#0b0b0a;border:1px solid rgba(201,168,76,.22);box-shadow:0 40px 100px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05)}
+.rs-card::before{content:'';position:absolute;inset:-1px;border-radius:29px;padding:1px;background:linear-gradient(140deg,rgba(223,192,106,.65),rgba(223,192,106,0) 35%,rgba(223,192,106,0) 70%,rgba(223,192,106,.35));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.rs-mark{position:absolute;top:-34px;left:38px;font-family:'Instrument Serif',Georgia,serif;font-size:150px;line-height:1;background:var(--gold-g);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 6px 20px rgba(201,168,76,.35))}
+.rs-quote{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(1.22rem,2vw,1.48rem);line-height:1.55;color:#ece8dc;letter-spacing:.005em}
+.rs-quote b{font-weight:400;font-style:italic;background:var(--gold-g);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.rs-line{height:1px;margin:30px 0 24px;background:linear-gradient(90deg,rgba(201,168,76,.45),rgba(201,168,76,0))}
+.rs-who{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.rs-who img{width:54px;height:54px;border-radius:50%;background:#000;border:1px solid rgba(201,168,76,.5);box-shadow:0 0 24px rgba(201,168,76,.18)}
+.rs-who b{display:block;font-family:'Space Grotesk',sans-serif;font-size:1.05rem;color:#fff}
+.rs-who span{font-size:.82rem;color:var(--dim)}
+.rs-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.rs-tags span{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold2);padding:7px 12px;border-radius:99px;border:1px solid rgba(201,168,76,.3);background:rgba(201,168,76,.06)}
+.rs-snd{display:inline-flex;align-items:center;gap:9px;padding:11px 20px;border-radius:99px;border:1px solid rgba(223,192,106,.55);background:rgba(5,5,5,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--gold2);font-family:'Instrument Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:transform .25s,box-shadow .25s;box-shadow:0 0 0 0 rgba(223,192,106,.35);animation:rsPulse 2.6s ease-in-out infinite}
+.rs-snd:hover{transform:translateY(-2px)}
+.rs-snd.on{animation:none}
+.rs-snd svg{width:17px;height:17px}
+@media(prefers-reduced-motion:reduce){.rs-snd{animation:none}}
+@keyframes rsPulse{0%,100%{box-shadow:0 0 0 0 rgba(223,192,106,.35)}50%{box-shadow:0 0 0 10px rgba(223,192,106,0)}}
+@keyframes rsFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes rsSpin{to{transform:rotate(360deg)}}
+@media(max-width:600px){#resenas{padding:96px 0 104px}.rs-card{padding:40px 24px 28px;border-radius:22px}.rs-mark{font-size:120px;top:-28px;left:20px}}
+</style>
+<section id="resenas">
+  <div class="ctn" style="max-width:1180px">
+    <div class="rs-head" data-rs-rev>
+      <span class="lbl">Clientes reales</span>
+      <h2 class="rs-h">Reseñas de <em>Tu Agente de IA</em></h2>
+      <p class="desc">Aquí están las reseñas de nuestros clientes que ya usan nuestros sistemas y lo que piensan de ellos.</p>
+    </div>
+    <div class="rs-full" data-rs-rev>
+      <div class="rs-glow"></div>
+      <div class="rs-frame">
+        <video src="/assets/resenas/resena-barberisimo-540.mp4" poster="/assets/resenas/resena-barberisimo-portada.jpg" muted playsinline loop preload="none" aria-label="Video: reseña de Barberísimo sobre Tu Agente de IA"></video>
+      </div>
+      <button class="rs-snd" type="button" aria-pressed="false">Escuchar con sonido</button>
+    </div>
+    <div class="rs-under"><div class="rs-card rs-wide" data-rs-rev><span class="rs-mark">“</span>
+        <p class="rs-quote">El servicio que recibí de tuagentedeia.com fue <b>excelente</b>. La solución de diseño que le dieron a mi sitio web fue <b>justo lo que necesitaba</b>. Todo el tiempo que necesité soporte para mis agentes, para optimizar el mensaje de mis clientes, fue <b>oportuna y muy puntual</b>. <b>Recomendado al 100%.</b></p>
+        <div class="rs-line"></div>
+        <div class="rs-foot"><div class="rs-who"><img src="/assets/resenas/logo-barberisimo.png" alt="Barberísimo"><div><b>Barberísimo</b><span>Barbería</span></div></div><div class="rs-tags"><span>Agente de WhatsApp</span><span>Agente de llamadas</span><span>Página web</span></div></div>
+      </div></div>
+  </div>
+</section>
+<style>
+.rs-full{position:relative}
+.rs-glow{position:absolute;inset:8% 6% -6%;border-radius:40px;background:radial-gradient(60% 60% at 50% 50%,rgba(201,168,76,.32),transparent 70%);filter:blur(40px);pointer-events:none}
+.rs-frame{position:relative;border-radius:26px;padding:1.5px;background:linear-gradient(120deg,rgba(223,192,106,.8),rgba(223,192,106,.08) 30%,rgba(223,192,106,.08) 70%,rgba(223,192,106,.6));box-shadow:0 50px 140px rgba(0,0,0,.75)}
+.rs-frame video{display:block;width:100%;aspect-ratio:16/9;border-radius:24.5px;background:#000;object-fit:cover}
+.rs-full>.rs-snd{position:absolute;right:22px;bottom:22px;z-index:3}
+.rs-under{position:relative;margin:56px 0 0;z-index:2}
+.rs-under .rs-card{padding:52px 60px 40px}
+.rs-under .rs-quote{font-size:clamp(1.25rem,2.1vw,1.62rem)}
+.rs-under .rs-foot{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.rs-under .rs-tags{margin-top:0}
+@media(max-width:600px){.rs-frame{border-radius:16px}.rs-frame video{border-radius:14.5px}.rs-full{display:flex;flex-direction:column;align-items:center}.rs-frame{width:100%}.rs-full>.rs-snd{position:relative;right:auto;bottom:auto;margin-top:16px}.rs-under{margin-top:36px}.rs-under .rs-card{padding:40px 24px 28px}}
+</style>
+
+<script>
+(function(){
+  var s=document.getElementById('resenas');if(!s)return;
+  var v=s.querySelector('video'),b=s.querySelector('.rs-snd');if(!v||!b)return;
+  var quieto=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ahorro=navigator.connection&&navigator.connection.saveData;
+  if(!ahorro&&window.matchMedia&&matchMedia('(min-width:900px)').matches)v.src=v.src.replace('-540.mp4','-1080.mp4');
+  var ico='<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>';
+  var on=ico+'<path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>Quitar sonido',
+      off=ico+'<line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>Escuchar con sonido';
+  function pinta(c){b.innerHTML=c?on:off;b.setAttribute('aria-pressed',c?'true':'false');b.classList.toggle('on',c)}
+  pinta(false);
+  b.addEventListener('click',function(){
+    if(v.muted){
+      v.muted=false;try{v.currentTime=0}catch(e){}
+      pinta(true);
+      var p=v.play();if(p)p.catch(function(){v.muted=true;pinta(false)});
+    }else{v.muted=true;pinta(false)}
+  });
+  v.addEventListener('error',function(){v.muted=true;pinta(false)});
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){if(!quieto||!v.muted){var p=v.play();if(p)p.catch(function(){})}}else v.pause();
+    })},{threshold:.35}).observe(v);
+  }
+  if(window.gsap&&window.ScrollTrigger&&!quieto){
+    gsap.registerPlugin(ScrollTrigger);
+    s.querySelectorAll('[data-rs-rev]').forEach(function(el,i){
+      gsap.from(el,{y:50,opacity:0,duration:1,ease:'power3.out',delay:i?0.12*i:0,scrollTrigger:{trigger:el,start:'top 85%',once:true}});
+    });
+  }
+})();
+</script>
+
 <section class="cta-sec" id="contacto">
   <div class="ctn">
     <span class="lbl">Siguiente paso</span>
@@ -1611,6 +1708,7 @@ body.nfx-act #tuiaGlobo{opacity:0!important;visibility:hidden!important}
     <a href="/paginas-web/" style="color:#555;text-decoration:none;margin:0 10px">Páginas web</a>
     <a href="/automatizaciones/" style="color:#555;text-decoration:none;margin:0 10px">Automatizaciones</a>
     <a href="/nfc/" style="color:#555;text-decoration:none;margin:0 10px">Tarjetas NFC</a>
+    <a href="/reseñas/" style="color:#555;text-decoration:none;margin:0 10px">Reseñas</a>
   </p>
   <p>© 2026 Tu Agente de IA · Jalisco, México</p>
 </footer>
@@ -2414,9 +2512,9 @@ Object.entries(SM).forEach(([step,indices])=>{
   });
 })();
 </script>
-<script src="/js/td-track.js?v=20261111" defer></script>
+<script src="/js/td-track.js?v=20261120" defer></script>
 <script src="/js/td-tuia.js?v=20261111b" defer></script>
 <script src="/js/liquid-glass.js" defer></script>
-<script src="/js/td-fondo-hero.js?v=20261113"></script>
+<script src="/js/td-fondo-hero.js?v=20261120"></script>
 <script>(function(){var id="wa-demo";function ir(){var s=document.getElementById(id);if(!s)return;var y=s.getBoundingClientRect().top+window.scrollY-60;window.scrollTo(0,Math.max(0,y));}if("scrollRestoration" in history)history.scrollRestoration="manual";if(document.readyState==="complete")ir();else window.addEventListener("load",function(){ir();setTimeout(ir,350);});})();</script>
 </body></html>
