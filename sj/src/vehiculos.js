@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220041';
-import { mat } from './persona.js?v=202611220041';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220045';
+import { mat } from './persona.js?v=202611220045';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220041';
+import { hoja } from './texturas.js?v=202611220045';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -18,6 +18,7 @@ export const TIPOS = {
   policia: { largo: 4.7, ancho: 1.9, alto: 0.62, cabina: 0.5, vmax: 46, acel: 13, freno: 24, giro: 2.2, masa: 1.2, salud: 160 },
   moto: { largo: 2.1, ancho: 0.8, alto: 0.5, cabina: 0, vmax: 50, acel: 17, freno: 26, giro: 3.1, masa: 0.45, salud: 60 },
   ambulancia: { largo: 5.4, ancho: 2.1, alto: 0.8, cabina: 0.62, vmax: 37, acel: 9.5, freno: 18, giro: 1.85, masa: 1.5, salud: 170 },
+  bici: { largo: 1.75, ancho: 0.6, alto: 0.45, cabina: 0, vmax: 13.5, acel: 4.8, freno: 13, giro: 3.3, masa: 0.22, salud: 60 },
   reparto: { largo: 6.6, ancho: 2.3, alto: 1.2, cabina: 0, vmax: 27, acel: 6.5, freno: 14, giro: 1.55, masa: 2.4, salud: 260 },
   autobus: { largo: 10.5, ancho: 2.55, alto: 2.4, cabina: 0, vmax: 20, acel: 4.5, freno: 10, giro: 1.25, masa: 4, salud: 400 },
   lancha: { largo: 5.2, ancho: 2.1, alto: 0.5, cabina: 0, vmax: 30, acel: 8.5, freno: 5, giro: 1.5, masa: 1.1, salud: 140 },
@@ -210,6 +211,31 @@ const geoEspejo = (() => { const a = new THREE.BoxGeometry(0.06, 0.04, 0.05).tra
 const matEspejo = new THREE.MeshStandardMaterial({ color: '#cfd6de', metalness: 1, roughness: 0.05 });
 const geoEscape = new THREE.CylinderGeometry(0.035, 0.04, 0.22, 10).rotateX(Math.PI / 2);
 
+function modeloBici(color) {
+  const g = new THREE.Group(), carro = new THREE.Group(); g.add(carro);
+  const pinta = new THREE.MeshStandardMaterial({ color, metalness: 0.5, roughness: 0.35 });
+  pinturas.add(pinta);
+  const negro = new THREE.MeshStandardMaterial({ color: '#151515', roughness: 0.6 });
+  const tubo = (a, b, r, mt) => { const va = new THREE.Vector3(...a), vb = new THREE.Vector3(...b), d = vb.clone().sub(va); const k = new THREE.Mesh(new THREE.CylinderGeometry(r, r, d.length(), 8), mt); k.position.copy(va).add(vb).multiplyScalar(0.5); k.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); k.castShadow = true; carro.add(k); return k; };
+  const T = [0, 0.36, -0.52], D = [0, 0.36, 0.58], P = [0, 0.33, 0], S = [0, 0.92, -0.18], H = [0, 0.95, 0.42];
+  const cuadro = tubo(P, S, 0.025, pinta); tubo(S, H, 0.025, pinta); tubo(P, H, 0.028, pinta);
+  for (const sx of [-0.05, 0.05]) { tubo([sx, ...T.slice(1)], [sx, ...P.slice(1)], 0.015, pinta); tubo([sx, ...T.slice(1)], [sx, ...S.slice(1)], 0.015, pinta); tubo([sx, ...D.slice(1)], [sx, ...H.slice(1)], 0.017, pinta); }
+  tubo([-0.28, 1.08, 0.4], [0.28, 1.08, 0.4], 0.017, negro); tubo([0, 0.95, 0.42], [0, 1.08, 0.4], 0.018, negro);
+  const asiento = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.05, 0.26), negro); asiento.position.set(0, 0.98, -0.2); carro.add(asiento);
+  const biela = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.03, 14).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#9aa0a8', metalness: 0.8, roughness: 0.3 })); biela.position.set(0.06, 0.33, 0); carro.add(biela);
+  const cal = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 0.02), new THREE.MeshBasicMaterial({ color: '#a01020' })); cal.position.set(0, 0.9, -0.55); carro.add(cal);
+  const aro = new THREE.TorusGeometry(0.34, 0.025, 6, 28); aro.rotateY(Math.PI / 2);
+  const rayos = new THREE.CylinderGeometry(0.006, 0.006, 0.66, 3);
+  const ruedas = [], delanteras = [];
+  for (const z of [0.58, -0.52]) {
+    const piv = new THREE.Group(); piv.position.set(0, 0.36, z);
+    const ll = new THREE.Mesh(aro, negro); ll.castShadow = true;
+    for (let k = 0; k < 6; k++) { const r = new THREE.Mesh(rayos, matRin2); r.rotation.x = k / 6 * Math.PI; ll.add(r); }
+    piv.add(ll); carro.add(piv); ruedas.push(ll); if (z > 0) delanteras.push(piv);
+  }
+  return { grupo: g, carro, pinta, ruedas, delanteras, barra: null, partes: [cuadro], calav: cal.material, calavMalla: cal };
+}
+
 function modeloMoto(color) {
   const g = new THREE.Group(), carro = new THREE.Group(); g.add(carro);
   const pinta = new THREE.MeshStandardMaterial({ color, metalness: 0.4, roughness: 0.3 });
@@ -353,6 +379,7 @@ function modeloLancha(color) {
 }
 
 export function modelo(tipo, color) {
+  if (tipo === 'bici') return modeloBici(color);
   if (tipo === 'moto') return modeloMoto(color);
   if (tipo === 'lancha') return modeloLancha(color);
   if (tipo === 'autobus') return modeloAutobus(color);
@@ -461,14 +488,15 @@ export class Coche {
   static vidrioRoto = matVidrioRoto;
   constructor(juego, tipo, color, x, z, yaw) {
     this.juego = juego;
-    this.tipo = tipo;
+    this.bici = tipo === 'bici';
+    this.tipo = this.bici ? 'moto' : tipo;
     this.t = TIPOS[tipo];
     this.color = color || COLORES_COCHE[Math.random() * COLORES_COCHE.length | 0];
     const m = modelo(tipo, this.color);
     Object.assign(this, m);
-    if (tipo === 'moto') {
+    if (this.tipo === 'moto') {
       const pp = juego.crearPiloto?.();
-      if (pp) { pp.grupo.position.set(0, 0.42, -0.15); this.carro.add(pp.grupo); this.piloto = pp.grupo; this.pilotoP = pp; }
+      if (pp) { pp.grupo.position.set(0, this.bici ? 0.5 : 0.42, this.bici ? -0.1 : -0.15); this.carro.add(pp.grupo); this.piloto = pp.grupo; this.pilotoP = pp; }
     }
     this.pos = new THREE.Vector3(x, 0, z);
     this.yaw = yaw;
@@ -669,6 +697,7 @@ export class Coche {
   dañar(n, causa, autor) {
     if (this.quemado) return;
     if (this.tipo === 'blindado' && causa !== 'explosion') n *= causa === 'bala' ? 0.3 : 0.5;
+    if (this.bici && causa !== 'explosion') { this.salud = Math.max(1, this.salud - n * 0.3); return; }
     this.salud -= n;
     if (autor === 'jugador') this.golpeadoPorJugador = true;
     if (this.salud <= 0) this.explotar(autor || (this.golpeadoPorJugador ? 'jugador' : null));
