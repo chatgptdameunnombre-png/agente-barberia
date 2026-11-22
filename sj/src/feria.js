@@ -9,7 +9,7 @@ export class Feria {
     const B = juego.ciudad.bloques.find(b => b.tipo === 'parque' && b.bx === 5 && b.bz === 4) || juego.ciudad.bloques.find(b => b.tipo === 'parque');
     if (!B) return;
     const x = B.cx - 13, z = B.cz + 11, R = 13, H = R + 2.5;
-    this.centro = new THREE.Vector3(x, H, z);
+    this.centro = new THREE.Vector3(x, H, z); this.entrada = new THREE.Vector3(x, 0, z + 3.2); this.paseo = null;
     const acero = new THREE.MeshStandardMaterial({ color: '#e8e8ec', roughness: 0.35, metalness: 0.6 });
     const base = [];
     for (const s of [-1, 1]) for (const k of [-1, 1]) {
@@ -55,9 +55,34 @@ export class Feria {
     }
   }
 
+  cerca() { const J = this.j.jugador; if (!this.rueda || this.paseo || J.coche || J.interior) return false; return Math.hypot(J.pos.x - this.entrada.x, J.pos.z - this.entrada.z) < 3; }
+
+  subir() {
+    const j = this.j, J = j.jugador; if (!this.cerca()) return false;
+    if (J.dinero < 25) { j.hud.notificar('alerta', 'Rueda de la fortuna', 'El boleto cuesta $25.', 2.5); return true; }
+    if (j.policia.estrellas) { j.hud.notificar('alerta', 'Rueda de la fortuna', 'Con la policía encima no te suben.', 2.5); return true; }
+    J.dinero -= 25; j.audio.compra?.();
+    let mejor = this.canastas[0], my = 1e9; const v = new THREE.Vector3(); for (const g of this.canastas) { g.getWorldPosition(v); if (v.y < my) { my = v.y; mejor = g; } }
+    this.paseo = { g: mejor, giro: 0, cam: null }; J.grupo.visible = false; mejor.visible = false;
+    j.hud.notificar('info', 'Rueda de la fortuna', 'Disfruta la vista. E para bajarte.', 3.5);
+    return true;
+  }
+
+  bajar() { const j = this.j, J = j.jugador; if (this.paseo) this.paseo.g.visible = true; this.paseo = null; J.pos.copy(this.entrada); J.grupo.visible = true; j.camYaw = 0; }
+
+  camara(cam, dt) {
+    const P = this.paseo, v = P.g.getWorldPosition(new THREE.Vector3());
+    const ang = Math.sin(P.giro * 0.7) * 1.2 + Math.PI;
+    cam.position.set(v.x + Math.sin(ang) * 1.6, v.y - 0.9, v.z + Math.cos(ang) * 1.6);
+    cam.lookAt(v.x + Math.sin(ang) * 30, v.y - 6 - Math.max(0, v.y - 12) * 0.25, v.z + Math.cos(ang) * 30);
+    if (cam.fov !== 62) { cam.fov = 62; cam.updateProjectionMatrix(); }
+  }
+
   actualizar(dt, noche) {
     if (!this.rueda) return;
-    this.rueda.rotation.z += dt * 0.07;
+    const vel = this.paseo ? 0.24 : 0.07;
+    this.rueda.rotation.z += dt * vel;
+    if (this.paseo) { this.paseo.giro += dt * vel; if (this.paseo.giro >= Math.PI * 2) this.bajar(); }
     for (const g of this.canastas) g.rotation.z = -this.rueda.rotation.z;
     this.tiempo.value += dt; this.brillo.value = noche;
   }
