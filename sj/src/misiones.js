@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611220244';
-import { Coche } from './vehiculos.js?v=202611220244';
-import { Peaton } from './peatones.js?v=202611220244';
-import { CONTACTOS } from './contactos.js?v=202611220244';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220244';
-import { crearHumano } from './humanos.js?v=202611220244';
+import { linea, CARRIL } from './ciudad.js?v=202611220247';
+import { Coche } from './vehiculos.js?v=202611220247';
+import { Peaton } from './peatones.js?v=202611220247';
+import { CONTACTOS } from './contactos.js?v=202611220247';
+import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220247';
+import { crearHumano } from './humanos.js?v=202611220247';
 
 export function crearMarcador(escena, color) {
   const g = new THREE.Group();
@@ -126,7 +126,7 @@ export class Misiones {
     if (C.modelo && !this.j.sinRealista) {
       const g = new THREE.Group(); g.position.set(p.x + 1.5, 0, p.z - 0.9); g.rotation.y = Math.atan2(-1.5, 0.9); this.j.escena.add(g);
       mk.fig = { grupo: g, yawBase: g.rotation.y, real: true };
-      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); if (C.mascara) import('./humanos.js?v=202611220244').then(H => H.ponerMascara(h, ...C.mascara)); }).catch(() => {});
+      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); if (C.mascara) import('./humanos.js?v=202611220247').then(H => H.ponerMascara(h, ...C.mascara)); }).catch(() => {});
       return;
     }
     if (!C.apariencia) return;

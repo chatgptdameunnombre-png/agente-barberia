@@ -1,4 +1,4 @@
-import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611220244';
+import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611220247';
 
 export class Eventos {
   constructor(juego) {

@@ -1,17 +1,17 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611220244';
-import { hoja } from './texturas.js?v=202611220244';
-import { Peaton } from './peatones.js?v=202611220244';
-import { letrero } from './ciudad.js?v=202611220244';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220244';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220244';
-import { ARTICULOS } from './actividades.js?v=202611220244';
+import { animar } from './persona.js?v=202611220247';
+import { hoja } from './texturas.js?v=202611220247';
+import { Peaton } from './peatones.js?v=202611220247';
+import { letrero } from './ciudad.js?v=202611220247';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220247';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220247';
+import { ARTICULOS } from './actividades.js?v=202611220247';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
 const INT = hoja('assets/interior.jpg', 3, 2, { tam: 512, sinUrl: true });
-const COLOR_ICONO = { tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a', mercado: '#ff8a3a' };
-const LETRA = { tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L', mercado: 'M' };
+const COLOR_ICONO = { tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a', mercado: '#ff8a3a', templo: '#f2e6c8' };
+const LETRA = { tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L', mercado: 'M', templo: '+' };
 const LUGARES_LIBRES = [
   ['ropa', 'BOUTIQUE LA JACARANDA', 'Boutique La Jacaranda', '#2a1440', '#e9c8ff'],
   ['barberia', 'BARBERÍA EL BIGOTE', 'Barbería El Bigote', '#1a1a1a', '#ff6b6b'],
@@ -168,6 +168,7 @@ export class Interiores {
       }
       lista.push(t);
     }
+    { const Bc = c.bloques.find(b => b.tipo === 'catedral'); if (Bc) { const fz = Bc.z1 - 3 - 12; lista.push({ tipo: 'templo', nombre: 'Catedral de Santa Jacaranda', rot: 0, fx: 0, fz: 1, fachada: { x: Bc.cx, z: fz + 1.9 }, puerta: new THREE.Vector3(Bc.cx, 0, fz + 3.3), robadaHasta: 0 }); } }
     { const Bm = c.bloques.find(b => b.tipo === 'mercado'); if (Bm) lista.push({ tipo: 'mercado', nombre: 'Mercado de San Jacinto', rot: 0, fx: 0, fz: 1, fachada: { x: Bm.cx - 3.4, z: Bm.cz + 23.2 }, puerta: new THREE.Vector3(Bm.cx - 3.4, 0, Bm.cz + 24.6), robadaHasta: 0 }); }
     if (c.gasolinera) { const G = c.gasolinera, px = G.cx + 7, pz = G.iz0 + 11.5; lista.push({ tipo: 'tienda', nombre: 'Súper 24', letrero: 0, rot: 0, fx: 0, fz: 1, fachada: { x: px, z: pz }, puerta: new THREE.Vector3(px, 0, pz + 1.3), robadaHasta: 0 }); }
     const a = c.lugares.armeria;
@@ -234,7 +235,7 @@ export class Interiores {
 
   construir(t, i) {
     const j = this.j, esc = j.escena, mundo = j.mundo;
-    const W = t.tipo === 'armeria' ? 12 : t.tipo === 'arena' ? 22 : t.tipo === 'mercado' ? 24 : 14, L = t.tipo === 'arena' ? 19 : t.tipo === 'mercado' ? 20 : 11, H = t.tipo === 'arena' ? 6.5 : t.tipo === 'mercado' ? 7 : 4;
+    const W = t.tipo === 'armeria' ? 12 : t.tipo === 'arena' ? 22 : t.tipo === 'mercado' ? 24 : t.tipo === 'templo' ? 16 : 14, L = t.tipo === 'arena' ? 19 : t.tipo === 'mercado' ? 20 : t.tipo === 'templo' ? 30 : 11, H = t.tipo === 'arena' ? 6.5 : t.tipo === 'mercado' ? 7 : t.tipo === 'templo' ? 12 : 4;
     const ox = 3000 + (i % 4) * 40, oz = 3000 + Math.floor(i / 4) * 40;
     const g = new THREE.Group(); g.position.set(ox, 0, oz); g.visible = false; esc.add(g);
     t.interior = { g, ox, oz, W, L, H, entrada: new THREE.Vector3(ox, 0, oz + L / 2 - 1.6), salida: new THREE.Vector3(ox, 0, oz + L / 2 - 0.9) };
@@ -244,7 +245,7 @@ export class Interiores {
     const piso = new THREE.Mesh(new THREE.PlaneGeometry(W, L), t.tipo === 'tienda' ? m('#d8d0c8', { map: repetir(INT[2].textura, W / 3, L / 3) }) : t.tipo === 'barberia' ? m('#ddd', { map: this.ajedrez() }) : m(t.tipo === 'armeria' ? '#3a3632' : '#8a7060'));
     piso.rotation.x = -Math.PI / 2; g.add(piso);
     const techo = new THREE.Mesh(new THREE.PlaneGeometry(W, L), m('#f2efe8')); techo.rotation.x = Math.PI / 2; techo.position.y = H; g.add(techo);
-    const pared = t.tipo === 'tienda' ? m('#e0d8d0', { map: repetir(INT[3].textura, W / 4, 1) }) : m(t.tipo === 'ropa' ? '#c9a3c4' : t.tipo === 'barberia' ? '#b8ad98' : t.tipo === 'mercado' ? '#e8dcc4' : '#5a5650');
+    const pared = t.tipo === 'tienda' ? m('#e0d8d0', { map: repetir(INT[3].textura, W / 4, 1) }) : m(t.tipo === 'ropa' ? '#c9a3c4' : t.tipo === 'barberia' ? '#b8ad98' : t.tipo === 'mercado' ? '#e8dcc4' : t.tipo === 'templo' ? '#efe4cc' : '#5a5650');
     caja(W, H, 0.3, pared, 0, H / 2, -L / 2);
     caja(W, H, 0.3, pared, 0, H / 2, L / 2);
     caja(0.3, H, L, pared, -W / 2, H / 2, 0);
@@ -333,6 +334,23 @@ export class Interiores {
       t.antro = { baldosas, focos, dj, bailarines, t: 0 };
       t.cajero = this.npc(t, W / 2 - 0.5, 0.5, { cara: 5, ropa: 6 });
       t.interior.mostrador.set(ox + W / 2 - 2.2, 0, oz + 0.5);
+    } else if (t.tipo === 'templo') {
+      const madera = m('#8a5a34'), oro = m('#d8b04a', { emissive: '#7a5a10', emissiveIntensity: 0.3 });
+      for (const s2 of [-1, 1]) for (let k = 0; k < 7; k++) { const z = -4 + k * 2.4; caja(5.2, 0.45, 0.5, madera, s2 * 3.6, 0.45, z, true); caja(5.2, 0.8, 0.08, madera, s2 * 3.6, 0.85, z + 0.24, false); }
+      for (const s2 of [-1, 1]) for (let k = 0; k < 5; k++) { const col = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.5, H, 14), m('#e6d8b8')); col.position.set(s2 * 6.6, H / 2, -11 + k * 5.5); g.add(col); mundo.agregar(ox + s2 * 6.6 - 0.5, oz - 11 + k * 5.5 - 0.5, ox + s2 * 6.6 + 0.5, oz - 11 + k * 5.5 + 0.5, H); }
+      caja(8, 0.6, 4, m('#d8ccb0'), 0, 0.3, -L / 2 + 3);
+      caja(3.2, 1.1, 1.2, m('#f4efe2'), 0, 1.15, -L / 2 + 2.6);
+      caja(6, 7.5, 0.4, oro, 0, 4.6, -L / 2 + 0.4, false);
+      for (let k = 0; k < 5; k++) caja(0.9, 2.4, 0.1, m(['#7a3ab0', '#2a5ab8', '#c8202e', '#2a5ab8', '#7a3ab0'][k], { emissive: '#ffffff', emissiveIntensity: 0.15 }), -2.4 + k * 1.2, 4.8, -L / 2 + 0.62, false);
+      const cruz = new THREE.Group(); const c1 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.4, 0.15), oro); const c2 = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.25, 0.15), oro); c2.position.y = 0.5; cruz.add(c1, c2); cruz.position.set(0, 8.6, -L / 2 + 0.7); g.add(cruz);
+      const vitral = (x, z, ry) => { const c = document.createElement('canvas'); c.width = 64; c.height = 160; const q = c.getContext('2d'); const cols = ['#c8202e', '#2a5ab8', '#f2c14e', '#3a8f5c', '#7a3ab0']; for (let y = 0; y < 160; y += 16) for (let x2 = 0; x2 < 64; x2 += 16) { q.fillStyle = cols[(x2 / 16 + y / 16) % cols.length | 0]; q.fillRect(x2, y, 15, 15); } q.globalCompositeOperation = 'destination-in'; q.beginPath(); q.moveTo(0, 160); q.lineTo(0, 32); q.arc(32, 32, 32, Math.PI, 0); q.lineTo(64, 160); q.fill(); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; const v = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 4), new THREE.MeshBasicMaterial({ map: tx, transparent: true, toneMapped: false })); v.position.set(x, 6.5, z); v.rotation.y = ry; g.add(v); };
+      for (const s2 of [-1, 1]) for (let k = 0; k < 4; k++) vitral(s2 * (W / 2 - 0.2), -9 + k * 6, -s2 * Math.PI / 2);
+      t.velas = [];
+      for (let k = 0; k < 14; k++) { const x = 4.6 + (k % 7) * 0.25, z = -L / 2 + 5 + Math.floor(k / 7) * 0.3; const v = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.18, 6), m('#f4efe2')); v.position.set(x, 1.0, z); g.add(v); const fl = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 4), new THREE.MeshBasicMaterial({ color: '#ffcf6a', toneMapped: false })); fl.position.set(x, 1.13, z); fl.visible = k < 5; g.add(fl); t.velas.push(fl); }
+      caja(2, 0.9, 0.7, m('#5a3a22'), 5.4, 0.45, -L / 2 + 5.15);
+      t.cajero = this.npc(t, 5.4, -L / 2 + 6.4, { cara: 1, ropa: null, camisa: '#1a1a1e', pantalon: '#1a1a1e' });
+      t.interior.mostrador.set(ox + 5.4, 0, oz - L / 2 + 7.2);
+      const luz = new THREE.PointLight('#ffd9a0', 14, 18, 1.4); luz.position.set(0, 5, -L / 2 + 4); g.add(luz);
     } else if (t.tipo === 'mercado') {
       const azulejo = m('#3a8f6a'); caja(W - 0.4, 1.4, 0.05, azulejo, 0, 0.7, -L / 2 + 0.18, false); caja(0.05, 1.4, L - 0.4, azulejo, -W / 2 + 0.18, 0.7, 0, false); caja(0.05, 1.4, L - 0.4, azulejo, W / 2 - 0.18, 0.7, 0, false);
       for (const x of [-W / 3, 0, W / 3]) for (const z of [-L / 3, L / 6]) caja(2.4, 0.06, 0.5, m('#fff', { emissive: '#fff4d8', emissiveIntensity: 1 }), x, H - 0.04, z, false);
@@ -543,6 +561,10 @@ export class Interiores {
       { id: 'tequila', nombre: 'Tequila', precio: 70, verbo: 'Tomar', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 15); j.mareo = Math.min(90, (j.mareo || 0) + 35); } },
       { id: 'jamaica', nombre: 'Agua de jamaica', precio: 25, verbo: 'Tomar', dar: jj => { j.mareo = Math.max(0, (j.mareo || 0) - 25); } },
       { id: 'bailar', nombre: 'Bailar en la pista', precio: 0, verbo: 'Bailar', desc: 'La gente te graba y subes seguidores.', dar: jj => { jj.gesto = { tipo: 'bailar', t: 8 }; j.redes.seguidores += 20 + (Math.random() * 30 | 0); j.redes.publicar('foto', '', { forzar: true }); j.actividades.cerrarTienda(); } }
+    ] };
+    if (t.tipo === 'templo') return { titulo: 'CATEDRAL DE SANTA JACARANDA', sub: 'UN MOMENTO DE PAZ', articulos: [
+      { id: 'veladora', nombre: 'Encender una veladora', precio: 5, verbo: 'Encender', desc: 'Te sientes en paz: recuperas toda la salud.', dar: jj => { jj.salud = jj.saludMax; const v = t.velas?.find(f => !f.visible); if (v) v.visible = true; j.hud.notificar('ok', 'Veladora encendida', 'Recuperaste toda la salud.', 3); } },
+      { id: 'limosna', nombre: 'Dejar limosna', precio: 50, verbo: 'Dar', desc: 'La policía se olvida un poco de ti.', dar: () => { if (j.policia.estrellas) { j.policia.estrellas = Math.max(0, j.policia.estrellas - 1); j.hud.notificar('ok', 'Que Dios se lo pague', 'Bajó una estrella.', 3); } else j.hud.notificar('ok', 'Que Dios se lo pague', '', 2); } }
     ] };
     if (t.tipo === 'mercado') return { titulo: 'MERCADO DE SAN JACINTO', sub: 'FONDA DOÑA CHUY', articulos: [
       { id: 'birria', nombre: 'Plato de birria', precio: 70, verbo: 'Comer', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 60); } },
