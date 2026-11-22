@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611212229';
-import { mat } from './persona.js?v=202611212229';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611212233';
+import { mat } from './persona.js?v=202611212233';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611212229';
+import { hoja } from './texturas.js?v=202611212233';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -187,6 +187,25 @@ const matForro = new THREE.MeshStandardMaterial({ color: '#24252a', roughness: 0
 const geoArco = new THREE.TorusGeometry(0.44, 0.045, 6, 18, Math.PI);
 const geoHueco = new THREE.CircleGeometry(0.45, 18, 0, Math.PI);
 export const pinturas = new Set();
+const texPlacas = (() => {
+  const c = document.createElement('canvas'); c.width = 512; c.height = 256; const g = c.getContext('2d');
+  const L = 'ABCDEFGHJKLMNPRSTUVWXYZ';
+  for (let k = 0; k < 8; k++) {
+    const x = (k % 4) * 128, y = Math.floor(k / 4) * 128;
+    g.fillStyle = '#f2f0e8'; g.fillRect(x + 2, y + 30, 124, 64);
+    g.strokeStyle = '#2a2a2e'; g.lineWidth = 3; g.strokeRect(x + 4, y + 32, 120, 60);
+    g.fillStyle = '#7a1f2c'; g.font = 'bold 11px sans-serif'; g.textAlign = 'center'; g.fillText('JALISCO', x + 64, y + 46);
+    g.fillStyle = '#1a1a20'; g.font = 'bold 26px Arial Narrow, Arial, sans-serif';
+    const t = L[(k * 7) % L.length] + L[(k * 11 + 3) % L.length] + L[(k * 5 + 1) % L.length] + '-' + (100 + k * 113 % 900) + '-' + L[(k * 3) % L.length];
+    g.fillText(t, x + 64, y + 78);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+})();
+const matsPlaca = Array.from({ length: 8 }, (_, k) => { const t = texPlacas.clone(); t.needsUpdate = true; t.repeat.set(0.25, 0.25); t.offset.set((k % 4) * 0.25, k < 4 ? 0.5 + 0.0625 : 0.0625); return new THREE.MeshStandardMaterial({ map: t, roughness: 0.5, metalness: 0.2 }); });
+const geoPlaca = new THREE.PlaneGeometry(0.34, 0.17);
+const geoEspejo = (() => { const a = new THREE.BoxGeometry(0.06, 0.04, 0.05).translate(0.03, 0, 0); const b = new THREE.SphereGeometry(0.075, 10, 8).scale(0.6, 0.62, 1.0).translate(0.1, 0.02, 0); return [a, b]; })();
+const matEspejo = new THREE.MeshStandardMaterial({ color: '#cfd6de', metalness: 1, roughness: 0.05 });
+const geoEscape = new THREE.CylinderGeometry(0.035, 0.04, 0.22, 10).rotateX(Math.PI / 2);
 
 function modeloMoto(color) {
   const g = new THREE.Group(), carro = new THREE.Group(); g.add(carro);
@@ -349,6 +368,16 @@ export function modelo(tipo, color) {
   const linea = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.022, Math.max(0.5, zf + 0.3 - G.cr)).translate(0, yt + 0.012, (zf - 0.1 + G.cr) / 2), matCromo);
   for (const sx of [-1, 1]) { const l = linea.clone(); l.position.x = sx * (t.ancho * 0.43); carro.add(l); }
   if (tipo !== 'deportivo' && tipo !== 'compacto') { const pil = new THREE.Mesh(new THREE.BoxGeometry(t.ancho * 0.85, t.cabina * 0.92, 0.09), matTrim); pil.position.set(0, yt + t.cabina * 0.48, zf - largoP - 0.02); carro.add(pil); }
+  const np = (Math.random() * 8) | 0;
+  const pf = new THREE.Mesh(geoPlaca, matsPlaca[np]); pf.position.set(0, piso + 0.12, t.largo / 2 + 0.14); carro.add(pf);
+  const pt = new THREE.Mesh(geoPlaca, matsPlaca[(np + 3) % 8]); pt.position.set(0, piso + H * 0.32, -t.largo / 2 - 0.14); pt.rotation.y = Math.PI; carro.add(pt);
+  for (const sx of [-1, 1]) {
+    const ze = G.cf + P.inclF * 0.72, ye = yt + 0.1;
+    const brazo = new THREE.Mesh(geoEspejo[0], pinta); brazo.position.set(sx * (t.ancho * 0.43), ye, ze); brazo.scale.x = sx; carro.add(brazo);
+    const caja = new THREE.Mesh(geoEspejo[1], pinta); caja.position.set(sx * (t.ancho * 0.43), ye, ze); caja.scale.x = sx; caja.castShadow = true; carro.add(caja);
+    const vid = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.07), matEspejo); vid.position.set(sx * (t.ancho * 0.43 + 0.1), ye + 0.02, ze - 0.077); vid.rotation.y = Math.PI; carro.add(vid);
+  }
+  const esc = new THREE.Mesh(geoEscape, matCromo); esc.position.set(t.ancho * 0.3, piso + 0.04, -t.largo / 2 - 0.05); carro.add(esc);
   const silueta = new THREE.Group();
   if (tipo !== 'camioneta' || true) {
     const ropa = new THREE.MeshStandardMaterial({ color: tipo === 'policia' ? '#1f3f7a' : tipo === 'ambulancia' ? '#e8e8e4' : ROPA_C[Math.random() * ROPA_C.length | 0], roughness: 0.85 });
@@ -533,7 +562,7 @@ export class Coche {
     const inclinar = this.tipo === 'moto' ? 0.55 : 0.075 + (this.t.masa || 1) * 0.015;
     const metaRol = (-this.giroSuave * Math.min(1, vel / 20)) * inclinar;
     if (this.tipo === 'moto') this.carro.rotation.z += (metaRol - this.carro.rotation.z) * Math.min(1, dt * 5);
-    else { const h = Math.min(dt, 1 / 30); this.rolV = (this.rolV || 0) + ((metaRol - this.carro.rotation.z) * 70 - this.rolV * 7.5) * h; this.carro.rotation.z += this.rolV * h; }
+    else { const h = Math.min(dt, 1 / 30); if (!isFinite(this.rolV)) this.rolV = 0; if (!isFinite(this.carro.rotation.z)) this.carro.rotation.z = 0; this.rolV += ((metaRol - this.carro.rotation.z) * 70 - this.rolV * 7.5) * h; this.carro.rotation.z += this.rolV * h; }
     if (this.piloto) this.piloto.visible = this.conductor === 'ia' || this.conductor === 'rival' || this.conductor === 'policia';
     if (this.silueta) this.silueta.visible = !!this.conductor && !this.quemado && !(this.juego.entrando?.c === this);
     const fwd = this.adelante;
@@ -543,10 +572,10 @@ export class Coche {
     const caballito = this.tipo === 'moto' && this.conductor === 'jugador' && !this.enAire && aceleracion > 7 && fwd > 2 && fwd < 24 ? -Math.min(0.3, (aceleracion - 7) * 0.035) : 0;
     const cabeceo = this.enAire ? -Math.atan2(this.vy, Math.max(4, Math.abs(fwd))) * 0.7 : caballito || Math.max(-0.065, Math.min(0.065, -aceleracion * 0.005));
     if (this.tipo === 'moto' || this.enAire) { this.carro.rotation.x += (cabeceo - this.carro.rotation.x) * Math.min(1, dt * (this.enAire ? 3 : 6)); this.cabV = 0; }
-    else { const h = Math.min(dt, 1 / 30); this.cabV = (this.cabV || 0) + ((cabeceo - this.carro.rotation.x) * 85 - this.cabV * 8) * h; this.carro.rotation.x += this.cabV * h; }
+    else { const h = Math.min(dt, 1 / 30); if (!isFinite(this.cabV)) this.cabV = 0; if (!isFinite(this.carro.rotation.x)) this.carro.rotation.x = 0; this.cabV += ((cabeceo - this.carro.rotation.x) * 85 - this.cabV * 8) * h; this.carro.rotation.x += this.cabV * h; }
     if (this.estabaAire && !this.enAire && this.tipo !== 'moto') { this.cabV = (this.cabV || 0) + 0.9; this.alturaV = -1.6; }
     this.estabaAire = this.enAire;
-    { const h = Math.min(dt, 1 / 30); this.alturaV = (this.alturaV || 0) + (-(this.altura || 0) * 120 - (this.alturaV || 0) * 9) * h; this.altura = (this.altura || 0) + this.alturaV * h; }
+    { const h = Math.min(dt, 1 / 30); if (!isFinite(this.alturaV)) this.alturaV = 0; if (!isFinite(this.altura)) this.altura = 0; this.alturaV += (-this.altura * 120 - this.alturaV * 9) * h; this.altura += this.alturaV * h; }
     if (this.rebote > 0) this.rebote = Math.max(0, this.rebote - dt * 0.8);
     this.carro.position.y = -(this.rebote || 0) * Math.sin(performance.now() / 40) * 0.5 + (this.tipo === 'moto' ? Math.max(0, -this.carro.rotation.x) * 0.95 : (this.altura || 0) * 0.06);
     if (this.calavMalla) { this.calavMalla.visible = !!this.frenando && !this.quemado; this.calav.color.set('#ff2436'); }

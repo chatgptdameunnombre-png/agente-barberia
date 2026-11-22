@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611212229';
-import { Coche } from './vehiculos.js?v=202611212229';
-import { Peaton } from './peatones.js?v=202611212229';
-import { CONTACTOS } from './contactos.js?v=202611212229';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611212229';
-import { crearHumano } from './humanos.js?v=202611212229';
+import { linea, CARRIL } from './ciudad.js?v=202611212233';
+import { Coche } from './vehiculos.js?v=202611212233';
+import { Peaton } from './peatones.js?v=202611212233';
+import { CONTACTOS } from './contactos.js?v=202611212233';
+import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611212233';
+import { crearHumano } from './humanos.js?v=202611212233';
 
 export function crearMarcador(escena, color) {
   const g = new THREE.Group();

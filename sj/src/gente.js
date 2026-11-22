@@ -1,7 +1,7 @@
-import { Realista } from './realista.js?v=202611212229';
+import { Realista } from './realista.js?v=202611212233';
 
-const HOMBRES = ['peaton1', 'peaton3', 'peaton5', 'peaton7', 'peaton9'];
-const MUJERES = ['peaton2', 'peaton4', 'peaton6', 'peaton8', 'peaton10'];
+const HOMBRES = ['peaton1', 'peaton3', 'peaton5', 'peaton7', 'peaton9', 'peaton11', 'peaton13', 'peaton15', 'peaton17', 'peaton19'];
+const MUJERES = ['peaton2', 'peaton4', 'peaton6', 'peaton8', 'peaton10', 'peaton12', 'peaton14', 'peaton16', 'peaton18', 'peaton20'];
 const POLIS_H = ['poli1', 'poli2'], POLIS_M = ['poli3'], MATONES = ['maton1', 'maton2'];
 
 export class Gente {
