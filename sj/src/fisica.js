@@ -26,6 +26,7 @@ const OBJETOS = {
   caja: { forma: 'caja', medida: [0.3, 0.22, 0.25], masa: 2, color: '#a77b4a', geo: () => [new THREE.BoxGeometry(0.6, 0.44, 0.5)], uv: true },
   cono: { forma: 'cilindro', medida: [0.35, 0.16], masa: 1.5, color: '#ff6a1a', geo: () => { const g = new THREE.ConeGeometry(0.16, 0.66, 14); g.translate(0, 0.02, 0); const b = new THREE.BoxGeometry(0.4, 0.04, 0.4); b.translate(0, -0.33, 0); return [g, b]; } },
   tambo: { forma: 'cilindro', medida: [0.44, 0.29], masa: 16, color: '#ffffff', geo: () => { const g = new THREE.CylinderGeometry(0.29, 0.29, 0.88, 16); const a = new THREE.TorusGeometry(0.29, 0.018, 4, 16).rotateX(Math.PI / 2); const b2 = a.clone(); a.translate(0, 0.15, 0); b2.translate(0, -0.15, 0); const t = new THREE.CylinderGeometry(0.29, 0.29, 0.02, 16).translate(0, 0.44, 0); return [g, a, b2, t]; } },
+  bolsa: { forma: 'cilindro', medida: [0.24, 0.27], masa: 1.4, color: '#ffffff', geo: () => { const g = new THREE.IcosahedronGeometry(0.3, 2); const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i), f = 1 + Math.sin(p.getX(i) * 13 + p.getZ(i) * 9) * 0.08; p.setXYZ(i, p.getX(i) * f * (y < 0 ? 1.05 : 0.92), y * 0.85 * (y < -0.1 ? 0.75 : 1), p.getZ(i) * f); } g.computeVertexNormals(); const n = new THREE.ConeGeometry(0.06, 0.16, 6).translate(0, 0.3, 0); return [g, n]; } },
   silla: { forma: 'caja', medida: [0.24, 0.42, 0.24], masa: 2.5, color: '#d8d4cc', geo: () => { const s = new THREE.BoxGeometry(0.46, 0.05, 0.44); s.translate(0, 0.02, 0); const r = new THREE.BoxGeometry(0.46, 0.42, 0.05); r.translate(0, 0.24, -0.2); const p = []; for (const [x, z] of [[0.2, 0.19], [-0.2, 0.19], [0.2, -0.19], [-0.2, -0.19]]) { const k = new THREE.BoxGeometry(0.04, 0.42, 0.04); k.translate(x, -0.2, z); p.push(k); } return [s, r, ...p]; } }
 };
 
@@ -44,6 +45,10 @@ export class Fisica {
     for (const c of this.j.mundo.cajas) {
       const hy = Math.min(c.h, 40) / 2, b = W.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation((c.minx + c.maxx) / 2, hy, (c.minz + c.maxz) / 2));
       W.createCollider(RAPIER.ColliderDesc.cuboid(Math.max(0.05, (c.maxx - c.minx) / 2), hy, Math.max(0.05, (c.maxz - c.minz) / 2)).setFriction(0.7).setCollisionGroups(grupo(MUNDO, 0xffff)), b);
+    }
+    for (const B of this.j.ciudad?.bloques || []) {
+      const b = W.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation((B.x0 + B.x1) / 2, 0.075, (B.z0 + B.z1) / 2));
+      W.createCollider(RAPIER.ColliderDesc.cuboid((B.x1 - B.x0) / 2, 0.075, (B.z1 - B.z0) / 2).setFriction(0.8).setCollisionGroups(grupo(MUNDO, 0xffff)), b);
     }
     this.colocarObjetos();
     this.listo = true;
@@ -71,7 +76,8 @@ export class Fisica {
       if (porTipo[tipo].some(o => o[5])) { const cc = new THREE.Color(); porTipo[tipo].forEach((o, i) => im.setColorAt(i, cc.set(o[5] || T.color))); }
       this.j.escena.add(im); this.mallas[tipo] = im;
       porTipo[tipo].forEach((o, i) => {
-        const [, x, z, giro, alto = 0] = o, hy = T.forma === 'caja' ? T.medida[1] : T.medida[0];
+        const [, x, z, giro, alto0 = 0] = o, hy = T.forma === 'caja' ? T.medida[1] : T.medida[0];
+        const alto = alto0 + ((this.j.ciudad?.bloques || []).some(B => x > B.x0 && x < B.x1 && z > B.z0 && z < B.z1) ? 0.15 : 0);
         const b = this.mundo.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(x, hy + alto + 0.002, z).setRotation(_q.setFromAxisAngle(_p.set(0, 1, 0), giro)).setLinearDamping(0.25).setAngularDamping(0.6).setCanSleep(true));
         const cd = T.forma === 'caja' ? RAPIER.ColliderDesc.cuboid(...T.medida) : RAPIER.ColliderDesc.cylinder(T.medida[0], T.medida[1]);
         this.mundo.createCollider(cd.setMass(T.masa).setFriction(0.7).setRestitution(0.2).setCollisionGroups(grupo(OBJETO, MUNDO | OBJETO | COCHE | MUNECO | ESCOMBRO)), b);
