@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611220026';
+import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611220030';
 
 const _v = new THREE.Vector3();
 
@@ -40,6 +40,19 @@ export class Peaton {
     juego.escena.add(this.grupo);
   }
   quitar() { this.soltarBanca?.(); if (this.muneco) { this.juego.fisica?.soltar(this.muneco); this.muneco = null; } this.juego.escena.remove(this.grupo); }
+
+  planearCruce() {
+    const j = this.juego, B = this.bloque, c = this.indice, bx = B.bx, bz = B.bz;
+    const OPC = { 0: [[-1, 0, 1, 'z', 0, 0], [0, -1, 3, 'x', 0, 0]], 1: [[1, 0, 0, 'z', 1, 0], [0, -1, 2, 'x', 1, 0]], 2: [[1, 0, 3, 'z', 1, 1], [0, 1, 1, 'x', 1, 1]], 3: [[-1, 0, 2, 'z', 0, 1], [0, 1, 0, 'x', 0, 1]] }[c];
+    if (!OPC) return false;
+    const [dx, dz, llega, eje, oi, ok] = OPC[Math.random() * 2 | 0];
+    const nb = j.ciudad.bloques.find(q => q.bx === bx + dx && q.bz === bz + dz);
+    if (!nb) return false;
+    const m = 1.5, esq = [[nb.x0 + m, nb.z0 + m], [nb.x1 - m, nb.z0 + m], [nb.x1 - m, nb.z1 - m], [nb.x0 + m, nb.z1 - m]][llega];
+    this.cruce = { bloque: nb, llega, meta: esq, i: bx + oi, k: bz + ok, eje };
+    this.estado = 'esperarCruce'; this.cruceT = 0;
+    return true;
+  }
 
   asignarBloque(b) {
     const m = 1.5;
@@ -137,8 +150,8 @@ export class Peaton {
       const obj = this.ruta[this.indice];
       dirx = obj[0] - this.pos.x; dirz = obj[1] - this.pos.z;
       const d = Math.hypot(dirx, dirz);
-      if (d < 0.6) this.indice = (this.indice + this.sentido + 4) % 4;
-      mover = this.corredor ? 3.4 : 1.25;
+      if (d < 0.6) { if (this.tipo === 'civil' && !this.objetivoMision && !this.corredor && !this.limpiador && this.bloque && Math.random() < 0.3 && this.planearCruce()) { dirx = dirz = 0; } else this.indice = (this.indice + this.sentido + 4) % 4; }
+      mover = this.estado === 'pasear' ? (this.corredor ? 3.4 : 1.25) : 0;
     } else if (this.estado === 'rendido') {
       this.tRendido -= dt;
       dirx = jp.x - this.pos.x; dirz = jp.z - this.pos.z;
@@ -177,6 +190,17 @@ export class Peaton {
     } else if (this.estado === 'quieto') {
       mover = 0;
       if (this.volverPasear && this.t > this.volverPasear) { this.volverPasear = 0; if (this.ruta) this.estado = 'pasear'; }
+    } else if (this.estado === 'esperarCruce') {
+      const C = this.cruce; mover = 0; dirx = C.meta[0] - this.pos.x; dirz = C.meta[1] - this.pos.z; this.cruceT = (this.cruceT || 0) + dt;
+      if ((j.semaforos?.rojoRestante(C.i, C.k, C.eje) || 0) > 10.2) { this.estado = 'cruzar'; this.cruceT = 0; }
+      else if (this.cruceT > 40) { this.estado = 'pasear'; this.cruce = null; this.cruceT = 0; this.indice = (this.indice + this.sentido + 4) % 4; }
+    } else if (this.estado === 'cruzar') {
+      const C = this.cruce; dirx = C.meta[0] - this.pos.x; dirz = C.meta[1] - this.pos.z; mover = 1.9;
+      if (Math.hypot(dirx, dirz) < 0.5) {
+        const b = C.bloque, m = 1.5;
+        this.bloque = b; this.ruta = [[b.x0 + m, b.z0 + m], [b.x1 - m, b.z0 + m], [b.x1 - m, b.z1 - m], [b.x0 + m, b.z1 - m]];
+        this.indice = (C.llega + this.sentido + 4) % 4; this.estado = 'pasear'; this.cruce = null; this.cruceT = 0;
+      }
     } else if (this.estado === 'irPunto') {
       dirx = this.meta.x - this.pos.x; dirz = this.meta.z - this.pos.z; mover = this.metaVel || 1.3;
       if (Math.hypot(dirx, dirz) < 0.35) { this.estado = 'quieto'; this.llego = true; dirx = dirz = 0; mover = 0; }

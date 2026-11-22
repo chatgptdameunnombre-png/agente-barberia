@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { linea, BLOQUES, CALLE, LIMITE } from './ciudad.js?v=202611220026';
+import { linea, BLOQUES, CALLE, LIMITE } from './ciudad.js?v=202611220030';
 
 const CICLO = 26, VERDE = 10.5, AMBAR = 2;
 
@@ -43,6 +43,12 @@ export class Semaforos {
     juego.escena.add(this.poste, this.cajas, this.focos);
     this.colores = { rojo: [new THREE.Color('#ff2a2a'), new THREE.Color('#3a0c0c')], amarillo: [new THREE.Color('#ffc030'), new THREE.Color('#3a2a08')], verde: [new THREE.Color('#3aff7a'), new THREE.Color('#0c2a14')] };
     this.pintar();
+  }
+
+  rojoRestante(i, k, eje) {
+    const t = ((this.t + (i * 3.1 + k * 1.7)) % CICLO + CICLO) % CICLO;
+    const fase = eje === 'x' ? t : (t + CICLO / 2) % CICLO;
+    return fase >= VERDE + AMBAR ? CICLO - fase : 0;
   }
 
   estado(i, k, eje) {
