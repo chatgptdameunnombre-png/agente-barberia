@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220132';
-import { mat } from './persona.js?v=202611220132';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220135';
+import { mat } from './persona.js?v=202611220135';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220132';
+import { hoja } from './texturas.js?v=202611220135';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -19,6 +19,7 @@ export const TIPOS = {
   moto: { largo: 2.1, ancho: 0.8, alto: 0.5, cabina: 0, vmax: 50, acel: 17, freno: 26, giro: 3.1, masa: 0.45, salud: 60 },
   ambulancia: { largo: 5.4, ancho: 2.1, alto: 0.8, cabina: 0.62, vmax: 37, acel: 9.5, freno: 18, giro: 1.85, masa: 1.5, salud: 170 },
   bici: { largo: 1.75, ancho: 0.6, alto: 0.45, cabina: 0, vmax: 13.5, acel: 4.8, freno: 13, giro: 3.3, masa: 0.22, salud: 60 },
+  redilas: { largo: 5.3, ancho: 2.0, alto: 0.8, cabina: 0, vmax: 30, acel: 7.5, freno: 16, giro: 1.75, masa: 1.7, salud: 180 },
   reparto: { largo: 6.6, ancho: 2.3, alto: 1.2, cabina: 0, vmax: 27, acel: 6.5, freno: 14, giro: 1.55, masa: 2.4, salud: 260 },
   autobus: { largo: 10.5, ancho: 2.55, alto: 2.4, cabina: 0, vmax: 20, acel: 4.5, freno: 10, giro: 1.25, masa: 4, salud: 400 },
   lancha: { largo: 5.2, ancho: 2.1, alto: 0.5, cabina: 0, vmax: 30, acel: 8.5, freno: 5, giro: 1.5, masa: 1.1, salud: 140 },
@@ -357,6 +358,39 @@ function modeloReparto(color) {
   return { grupo: g, carro, pinta, ruedas, delanteras, barra: null, partes: [cab, caja], calav: cal.material, calavMalla: cal };
 }
 
+function modeloRedilas(color) {
+  const g = new THREE.Group(), carro = new THREE.Group(); g.add(carro);
+  const pinta = new THREE.MeshPhysicalMaterial({ color, metalness: 0.3, roughness: 0.45, clearcoat: 0.6, clearcoatRoughness: 0.15 });
+  pinturas.add(pinta);
+  const L = 5.3, A = 2.0, CL = 1.9;
+  const madera = new THREE.MeshStandardMaterial({ color: '#8a6038', roughness: 0.85 }), oscuro = new THREE.MeshStandardMaterial({ color: '#2a2c30', roughness: 0.8 });
+  const m = (geo, mt, x, y, z) => { const k = new THREE.Mesh(geo, mt); k.position.set(x, y, z); k.castShadow = true; carro.add(k); return k; };
+  const cab = m(new RoundedBoxGeometry(A - 0.05, 1.45, CL, 3, 0.15), pinta, 0, 1.25, L / 2 - CL / 2);
+  m(new THREE.BoxGeometry(A - 0.25, 0.55, 0.06), matVidrio2, 0, 1.62, L / 2 + 0.01);
+  for (const s of [-1, 1]) m(new THREE.BoxGeometry(0.04, 0.45, 0.8), matVidrio2, s * (A / 2 - 0.02), 1.62, L / 2 - CL / 2 + 0.15);
+  m(new THREE.BoxGeometry(A, 0.3, L - 0.2), oscuro, 0, 0.58, 0);
+  const caja = L - CL - 0.1, zc = -(L / 2) + caja / 2;
+  m(new THREE.BoxGeometry(A, 0.1, caja), madera, 0, 0.8, zc);
+  for (const s of [-1, 1]) {
+    for (let k = 0; k < 3; k++) m(new THREE.BoxGeometry(0.06, 0.12, caja), madera, s * (A / 2 - 0.03), 1.0 + k * 0.3, zc);
+    for (let k = 0; k <= 3; k++) m(new THREE.BoxGeometry(0.08, 0.95, 0.08), madera, s * (A / 2 - 0.03), 1.3, zc - caja / 2 + k * caja / 3);
+  }
+  for (let k = 0; k < 3; k++) m(new THREE.BoxGeometry(A, 0.12, 0.06), madera, 0, 1.0 + k * 0.3, -L / 2 + 0.05);
+  const carga = Math.random();
+  if (carga < 0.4) { const sandia = new THREE.MeshStandardMaterial({ color: '#2f7a3a', roughness: 0.6 }); for (let i = 0; i < 14; i++) { const s = m(new THREE.SphereGeometry(0.2, 10, 8), sandia, (Math.random() - 0.5) * (A - 0.5), 1.0 + (i % 3) * 0.12, zc + (Math.random() - 0.5) * (caja - 0.5)); s.scale.set(1, 0.85, 1.3); } }
+  else if (carga < 0.75) { const costal = new THREE.MeshStandardMaterial({ color: '#cbb58a', roughness: 0.95 }); for (let i = 0; i < 8; i++) { const s = m(new THREE.BoxGeometry(0.5, 0.28, 0.8), costal, (i % 2 - 0.5) * 0.65, 1.0 + Math.floor(i / 4) * 0.28, zc + ((i >> 1) % 2 - 0.5) * 0.9); s.rotation.y = (Math.random() - 0.5) * 0.3; } }
+  for (const sx of [-1, 1]) { const f = m(new THREE.BoxGeometry(0.28, 0.15, 0.05), matFaro, sx * (A / 2 - 0.3), 0.95, L / 2 + 0.02); f.castShadow = false; }
+  m(new THREE.BoxGeometry(A + 0.05, 0.18, 0.18), matTrim, 0, 0.72, L / 2 + 0.05);
+  const cal = m(new THREE.BoxGeometry(A - 0.5, 0.12, 0.05), new THREE.MeshBasicMaterial({ color: '#a01020' }), 0, 0.85, -L / 2 - 0.02); cal.visible = false;
+  const ruedas = [], delanteras = [];
+  for (const [sx, sz] of [[-1, 0.33], [1, 0.33], [-1, -0.3], [1, -0.3]]) {
+    const piv = new THREE.Group(); piv.position.set(sx * (A / 2 - 0.12), 0.42, sz * L);
+    const ll = new THREE.Mesh(geoLlanta, matLlanta); ll.scale.setScalar(1.2); ll.castShadow = true; ll.add(new THREE.Mesh(geoRin2, matRin2));
+    piv.add(ll); g.add(piv); ruedas.push(ll); if (sz > 0) delanteras.push(piv);
+  }
+  return { grupo: g, carro, pinta, ruedas, delanteras, barra: null, partes: [cab], calav: cal.material, calavMalla: cal };
+}
+
 function modeloLancha(color) {
   const g = new THREE.Group(), carro = new THREE.Group(); g.add(carro);
   const pinta = new THREE.MeshPhysicalMaterial({ color, metalness: 0.2, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.05 });
@@ -384,6 +418,7 @@ export function modelo(tipo, color) {
   if (tipo === 'lancha') return modeloLancha(color);
   if (tipo === 'autobus') return modeloAutobus(color);
   if (tipo === 'reparto') return modeloReparto(color);
+  if (tipo === 'redilas') return modeloRedilas(color);
   if (tipo === 'blindado') return modeloBlindado(color);
   const t = TIPOS[tipo];
   const G = geometrias(tipo);
