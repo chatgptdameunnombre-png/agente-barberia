@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611212258';
-import { hoja } from './texturas.js?v=202611212258';
+import { construirEstadio } from './estadio.js?v=202611212308';
+import { hoja } from './texturas.js?v=202611212308';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -484,7 +484,6 @@ export function construirCiudad(escena, mundo) {
       obra.caja('liso', ix0 + 18, iz0 + 15.1, 12, 0.3, 4.6, '#2b2f33', 0.15, false);
       obra.caja('liso', ix1 - 9, iz0 + 7, 14, 12, 6, '#ff4f9a');
       obra.caja('liso', ix1 - 9, iz0 + 13.1, 9, 0.3, 4, '#1f1f24', 0.15, false);
-      obra.caja('liso', ix0 + 2, cz + 10, 4, 20, 2.5, '#9a6b4a');
       const l1 = letrero('TALLER DON CHUY', '#1c2230', '#ffc94a', 16, 2.4);
       l1.position.set(ix0 + 18, 8.4, iz0 + 15.2);
       escena.add(l1); salida.letreros.push(l1);
@@ -521,6 +520,7 @@ export function construirCiudad(escena, mundo) {
       salida.lugares.taller = { x: ix0 + 18, z: iz0 + 21 };
       salida.lugares.pintura = { x: ix1 - 9, z: iz0 + 19 };
       salida.lugares.inicio = { x: ix0 + 26, z: iz0 + 30 };
+      salida.estacionados.push({ x: ix0 + 41, z: iz0 + 22, yaw: Math.PI / 2, tipo: 'camioneta', color: '#d8d4cc' }, { x: ix0 + 45.5, z: iz0 + 46, yaw: 0.15, tipo: 'compacto', color: '#3a6a44' });
     } else if (tipo === 'hospital') {
       obra.caja('oficina', cx, iz0 + 14, 44, 22, 22, '#ffffff');
       obra.caja('oficina', cx + 14, iz1 - 10, 14, 14, 12, '#eef3f6');
@@ -774,7 +774,9 @@ export function construirCiudad(escena, mundo) {
     const n = 2400, geo = new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0);
     { const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 2, uv.getY(i) * 1.4); }
     const tx = FACH[ESTILO_FACH.casa].textura.clone(); tx.needsUpdate = true; tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
-    const mat = new THREE.MeshLambertMaterial({ fog: true, map: tx });
+    const br = FACH[ESTILO_FACH.casa].brillo?.clone(); if (br) { br.needsUpdate = true; br.wrapS = br.wrapT = THREE.RepeatWrapping; }
+    const mat = new THREE.MeshLambertMaterial({ fog: true, map: tx, emissive: br ? '#ffd9a0' : '#000000', emissiveMap: br || null, emissiveIntensity: 0 });
+    salida.manchaMat = mat;
     const im = new THREE.InstancedMesh(geo, mat, n), M = new THREE.Matrix4(), Q = new THREE.Quaternion(), V = new THREE.Vector3(), E = new THREE.Vector3(), cc = new THREE.Color();
     const tonos = ['#d8c8b0', '#c8b49a', '#e0d4c0', '#b89c84', '#d0a888', '#bcbcb4', '#e8dcc8', '#a8a49c', '#c89a7a', '#d8d0c0'];
     let k = 0;

@@ -25,6 +25,7 @@ const OBJETOS = {
   bote: { forma: 'cilindro', medida: [0.42, 0.27], masa: 6, color: '#2f5a3a', geo: () => { const g = new THREE.CylinderGeometry(0.29, 0.25, 0.84, 14); const t = new THREE.CylinderGeometry(0.3, 0.3, 0.06, 14); t.translate(0, 0.44, 0); return [g, t]; } },
   caja: { forma: 'caja', medida: [0.3, 0.22, 0.25], masa: 2, color: '#a77b4a', geo: () => [new THREE.BoxGeometry(0.6, 0.44, 0.5)], uv: true },
   cono: { forma: 'cilindro', medida: [0.35, 0.16], masa: 1.5, color: '#ff6a1a', geo: () => { const g = new THREE.ConeGeometry(0.16, 0.66, 14); g.translate(0, 0.02, 0); const b = new THREE.BoxGeometry(0.4, 0.04, 0.4); b.translate(0, -0.33, 0); return [g, b]; } },
+  tambo: { forma: 'cilindro', medida: [0.44, 0.29], masa: 16, color: '#ffffff', geo: () => { const g = new THREE.CylinderGeometry(0.29, 0.29, 0.88, 16); const a = new THREE.TorusGeometry(0.29, 0.018, 4, 16).rotateX(Math.PI / 2); const b2 = a.clone(); a.translate(0, 0.15, 0); b2.translate(0, -0.15, 0); const t = new THREE.CylinderGeometry(0.29, 0.29, 0.02, 16).translate(0, 0.44, 0); return [g, a, b2, t]; } },
   silla: { forma: 'caja', medida: [0.24, 0.42, 0.24], masa: 2.5, color: '#d8d4cc', geo: () => { const s = new THREE.BoxGeometry(0.46, 0.05, 0.44); s.translate(0, 0.02, 0); const r = new THREE.BoxGeometry(0.46, 0.42, 0.05); r.translate(0, 0.24, -0.2); const p = []; for (const [x, z] of [[0.2, 0.19], [-0.2, 0.19], [0.2, -0.19], [-0.2, -0.19]]) { const k = new THREE.BoxGeometry(0.04, 0.42, 0.04); k.translate(x, -0.2, z); p.push(k); } return [s, r, ...p]; } }
 };
 
@@ -58,6 +59,7 @@ export class Fisica {
       else if (a < 0.78) { lista.push(['silla', k.x + sx * 0.7, k.z + sz * 1.3, R() * 6], ['silla', k.x + sx * 0.5, k.z + sz * 2.1, R() * 6]); }
       if (R() < 0.12) lista.push(['cono', k.x - sx * 2.2, k.z + sz * 5, 0], ['cono', k.x - sx * 2.2, k.z + sz * 6.5, 0], ['cono', k.x - sx * 2.2, k.z + sz * 8, 0]);
     }
+    for (const o of this.j.ciudad?.objetosExtra || []) lista.push(o);
     const porTipo = {};
     for (const o of lista) (porTipo[o[0]] ||= []).push(o);
     this.mallas = {};
@@ -66,6 +68,7 @@ export class Fisica {
       const geo = partes.length > 1 ? unir(partes) : partes[0];
       const im = new THREE.InstancedMesh(geo, mat, porTipo[tipo].length);
       im.castShadow = true; im.receiveShadow = true; im.frustumCulled = false;
+      if (porTipo[tipo].some(o => o[5])) { const cc = new THREE.Color(); porTipo[tipo].forEach((o, i) => im.setColorAt(i, cc.set(o[5] || T.color))); }
       this.j.escena.add(im); this.mallas[tipo] = im;
       porTipo[tipo].forEach((o, i) => {
         const [, x, z, giro, alto = 0] = o, hy = T.forma === 'caja' ? T.medida[1] : T.medida[0];

@@ -169,6 +169,7 @@ export class Ambiente {
     this.ciudad.focoMat.color.set(this.noche > 0.2 ? '#ffe7a8' : '#d8d8d0');
     this.estrellas.material.opacity = Math.max(0, this.noche - L) * 0.9;
     this.ciudad.estadio?.actualizar(this.noche);
+    if (this.ciudad.manchaMat) { this.ciudad.manchaMat.color.setScalar(1 - this.noche * 0.72); this.ciudad.manchaMat.emissiveIntensity = this.noche * 0.7; }
     this.ciudad.cerros.color.set('#8aa07c').lerp(horiz, 0.5).multiplyScalar(0.55 + 0.45 * Math.max(0.15, 1 - this.noche * 0.85));
     if (camara) {
       this.cielo.position.copy(camara.position);
