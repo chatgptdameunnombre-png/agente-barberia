@@ -15,9 +15,10 @@
   function lsDel(k) { try { localStorage.removeItem(k); } catch (e) { } }
 
   /* ---------- aviso de medición ---------- */
-  function permite() { return ls(K_OPT) !== "no"; }
+  var optMem = null;
+  function permite() { return optMem !== "no" && ls(K_OPT) !== "no"; }
   window.TDmedicion = {
-    apagar: function () { ls_(K_OPT, "no"); },
+    apagar: function () { optMem = "no"; ls_(K_OPT, "no"); },
     prender: function () { ls_(K_OPT, "si"); },
     estado: function () { return ls(K_OPT); }
   };
@@ -96,7 +97,7 @@
   }
 
   function ruta() {
-    return sub() ? "/" + sub() + "/" : location.pathname;
+    return sub() ? "/" + encodeURIComponent(sub()) + "/" : location.pathname;
   }
 
   function pagina() {
@@ -118,7 +119,7 @@
     try {
       var p = new URLSearchParams(location.search);
       var u = p.get("utm_source");
-      if (u) return u;
+      if (u) return u.slice(0, 120);
       var r = document.referrer;
       if (!r) return "Directo";
       var h = new URL(r).hostname.replace(/^www\./, "");
@@ -376,7 +377,7 @@
       if (!el) return;
       var h = (el.getAttribute && el.getAttribute("href")) || "";
       var texto = (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 46);
-      if (/wa\.me|whatsapp/.test(h)) { ev("click_whatsapp", texto); hito("Tocó WhatsApp"); return; }
+      if (/^https:\/\/(wa\.me|api\.whatsapp\.com)\//i.test(h)) { ev("click_whatsapp", texto); hito("Tocó WhatsApp"); return; }
       if (/^tel:/.test(h)) { ev("click_telefono", h.replace("tel:", "")); hito("Tocó llamar"); return; }
       /* irse a otra página del sitio NO es irse del sitio */
       if (h && h.charAt(0) !== "#" && (!/^https?:/i.test(h) || /^https:\/\/([a-z0-9-]+\.)?tuagentedeia\.com(\/|$)/i.test(h)) && !/^mailto:/i.test(h) && !/^https:\/\/panel\./i.test(h)) {
@@ -412,6 +413,23 @@
       manda(true);
     });
   }
+
+  try {
+    var q = new URLSearchParams(location.search);
+    if (q.get("td_med") === "no") {
+      optMem = "no";
+      ls_(K_OPT, "no");
+      q.delete("td_med");
+      history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
+    }
+  } catch (e) { }
+
+  function marcaApagado(e) {
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (!a || permite() || a.hostname === location.hostname || !/(^|\.)tuagentedeia\.com$/.test(a.hostname)) return;
+    try { var u = new URL(a.href); u.searchParams.set("td_med", "no"); a.href = u.href; } catch (x) { }
+  }
+  ["mousedown", "click", "contextmenu", "focusin"].forEach(function (n) { document.addEventListener(n, marcaApagado, true); });
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () { banner(); arranca(); });
