@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano, recorte } from './humanos.js?v=202611221014';
+import { crearHumano, recorte } from './humanos.js?v=202611221510';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -41,7 +41,7 @@ class Locomocion {
     let ciclo = 0, wt = 0;
     LOCO.forEach((n, i) => { if (w[i] > 0) { const r = Math.max(MIN_R[n] ?? 0.55, Math.min(1.7, v / RITMO[n])); ciclo += w[i] * this.clips[n].duration / r; wt += w[i]; } });
     ciclo = ciclo / (wt || 1);
-    if (v > 0.05) this.fase = (this.fase + dt / Math.max(0.2, ciclo)) % 1;
+    if (v > 0.05) this.fase = (this.fase + dt * (this.aire ? 0.28 : 1) / Math.max(0.2, ciclo)) % 1;
     LOCO.forEach((n, i) => {
       for (const sfx of ['', '#inf']) {
         const nombre = n + sfx, quiero = (sfx === '#inf') === !!inf;
@@ -134,6 +134,7 @@ export class Realista {
   esArma(o, p) { let q = o; while (q && q !== p.grupo) { if (this.armas?.includes(q) || q.parent === this.empunadura) return true; q = q.parent; } return false; }
 
   elegirJugador(j, dt) {
+    this.loco.aire = !j.coche && !j.nadando && j.y - (j.suelo || 0) > 0.08;
     if (j.anim && this.clips[j.anim.clip]) { const A = j.anim, f = !!A.nuevo; A.nuevo = false; return { base: A.clip, escala: A.escala || 1, veces: A.veces ?? 1, sup: null, supVeces: Infinity, forzarSup: false, forzarBase: f }; }
     const fuego = FUEGO.includes(j.arma), v = j.velocidad || 0;
     let base = 'Idle_Loop', escala = 1, veces = Infinity, sup = null, supVeces = Infinity, forzarSup = false, forzarBase = false;
@@ -144,7 +145,7 @@ export class Realista {
     else if (j.reparando > 0) base = 'Fixing_Kneeling';
     else if (j.pintando > 0) base = 'Spell_Simple_Idle_Loop';
     else if (j.nadando) { base = v > 0.3 ? 'Swim_Fwd_Loop' : 'Swim_Idle_Loop'; if (v > 0.3) escala = Math.max(0.7, Math.min(1.6, v / 1.9)); }
-    else if (j.y - (j.suelo || 0) > 0.08) base = 'Jump_Loop';
+    else if (j.y - (j.suelo || 0) > 0.08) base = v > 3 ? (v < 6.8 ? 'Jog_Fwd_Loop' : 'Sprint_Loop') : 'Jump_Loop';
     else if (j.agachado) { base = v > 0.3 ? 'Crouch_Fwd_Loop' : 'Crouch_Idle_Loop'; }
     else if (v < 0.25) base = j.gesto?.tipo === 'bailar' ? 'Dance_Loop' : j.gesto ? 'Idle_Talking_Loop' : 'Idle_Loop';
     else if (v < 2.8) base = 'Walk_Loop';
@@ -186,7 +187,7 @@ export class Realista {
 
   actualizarJugador(j, dt, duo = null) {
     if (!this.listo) return;
-    if (duo) Object.assign(j, { yaw: duo.yaw, sentado: duo.sentadoListo || null, p: duo.p, velocidad: duo.vel, apunta: duo.apunta > 0, disparando: false, arma: duo.apunta > 0 ? 'pistola' : 'puno', coche: duo.enMoto ? { tipo: 'moto' } : null, muerto: 0, y: 0, rueda: null, agachado: false, golpeT: 0, recargando: 0, gesto: null });
+    if (duo) Object.assign(j, { yaw: duo.yaw, sentado: duo.sentadoListo || null, p: duo.p, velocidad: duo.vel, apunta: duo.apunta > 0, disparando: false, arma: duo.apunta > 0 ? 'pistola' : 'puno', coche: duo.enMoto ? { tipo: 'moto' } : null, anim: duo.anim || null, muerto: 0, y: 0, rueda: null, agachado: false, golpeT: 0, recargando: 0, gesto: null });
     if (j.p !== this.p) this.montar(j);
     if (j.muerto && j.muneco && !j.arrestado) { this.seguirMuneco(j.muneco, j.p); return; }
     this.soltarMuneco();

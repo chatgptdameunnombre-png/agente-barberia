@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611221014';
-import { mat } from './persona.js?v=202611221014';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611221510';
+import { mat } from './persona.js?v=202611221510';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611221014';
+import { hoja } from './texturas.js?v=202611221510';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, vocho: 1, vochotaxi: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
@@ -79,6 +79,12 @@ export async function cargarVehiculos() {
     gl.scene.traverse(o => { if (!o.isMesh || !o.name.includes('__')) return; const [t, p] = o.name.split('__'); o.updateWorldMatrix(true, false); const g = soloPN(o.geometry.clone().applyMatrix4(o.matrixWorld)); (BL[t] = BL[t] || {})[p] = g; });
   } catch (e) { console.warn('vehiculos.glb', e); }
 }
+function cabinaBL(tipo, carro, pinta, zFrente) {
+  const B = BL[tipo]; if (!B?.cabp) return null;
+  const add = (geo, mt, sombra = true) => { if (!geo) return null; const k = new THREE.Mesh(geo, mt); k.position.z = zFrente; k.castShadow = sombra; carro.add(k); return k; };
+  const cab = add(B.cabp, pinta); add(B.cabv, matVidrio2); add(B.cabt, matTrim); add(B.cabf, matFaro, false);
+  return cab;
+}
 const matMotor = new THREE.MeshStandardMaterial({ color: '#2b2c30', metalness: 0.7, roughness: 0.4 });
 export const matLuzTrasera = new THREE.MeshStandardMaterial({ color: '#8a0e18', roughness: 0.25, metalness: 0.1, emissive: '#ff1a2a', emissiveIntensity: 0.12 });
 const ni = g => g.index ? g.toNonIndexed() : g;
@@ -145,9 +151,9 @@ function geometrias(tipo) {
   const t = TIPOS[tipo], P = PERFIL[tipo];
   const L = t.largo, H = t.alto, C = t.cabina, A = t.ancho, piso = 0.3;
   const yb = piso, yt = piso + H;
-  const B = BL[tipo];
+  const B = BL[tipo] || (esVocho(tipo) ? BL.vocho : null);
   if (B?.pinta && B.vidrio) {
-    const geo = { pinta: B.pinta, vidrio: B.vidrio, trim: B.trim, faros: B.faros, calaveras: B.calaveras, blender: true, datos: BLD[tipo] || {} };
+    const geo = { pinta: B.pinta, vidrio: B.vidrio, trim: B.trim, cromo: B.cromo, faros: B.faros, calaveras: B.calaveras, blender: true, datos: BLD[tipo] || {} };
     if (tipo === 'ambulancia') { const c = new THREE.BoxGeometry(A * 0.98, 1.25, L * 0.56); c.translate(0, yt + 0.58, -L * 0.2); geo.pinta = mergeGeometries([ni(B.pinta), soloPN(ni(c))]); }
     if (tipo === 'policia') { const b = new THREE.BoxGeometry(A * 1.01, H * 0.5, L * 0.46); b.translate(0, yb + H * 0.45, 0.05); geo.franja = b; }
     if (tipo === 'taxi') { const b = new THREE.BoxGeometry(A * 1.01, 0.14, L * 0.9); b.translate(0, yb + H * 0.5, 0); geo.franja = b; }
@@ -289,6 +295,19 @@ function modeloBici(color) {
   const g = new THREE.Group(), carro = new THREE.Group(); g.add(carro);
   const pinta = new THREE.MeshStandardMaterial({ color, metalness: 0.5, roughness: 0.35 });
   pinturas.add(pinta);
+  const BB = BL.bici;
+  if (BB?.pinta) {
+    const add = (geo, mt) => { const k = new THREE.Mesh(geo, mt); k.castShadow = true; carro.add(k); return k; };
+    const cuadro = add(BB.pinta, pinta); add(BB.cromo, matCromo); add(BB.trim, new THREE.MeshStandardMaterial({ color: '#151515', roughness: 0.6 }));
+    const cal = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 0.02), new THREE.MeshBasicMaterial({ color: '#a01020' })); cal.position.set(0, 0.9, -0.55); carro.add(cal);
+    const ruedas = [], delanteras = [];
+    for (const z of [0.58, -0.52]) {
+      const piv = new THREE.Group(); piv.position.set(0, 0.36, z);
+      const ll = new THREE.Mesh(BB.llanta, matLlanta); ll.castShadow = true; ll.add(new THREE.Mesh(BB.rin, matRin2));
+      piv.add(ll); carro.add(piv); ruedas.push(ll); if (z > 0) delanteras.push(piv);
+    }
+    return { grupo: g, carro, pinta, ruedas, delanteras, barra: null, partes: [cuadro], calav: cal.material, calavMalla: cal };
+  }
   const negro = new THREE.MeshStandardMaterial({ color: '#151515', roughness: 0.6 });
   const tubo = (a, b, r, mt) => { const va = new THREE.Vector3(...a), vb = new THREE.Vector3(...b), d = vb.clone().sub(va); const k = new THREE.Mesh(new THREE.CylinderGeometry(r, r, d.length(), 8), mt); k.position.copy(va).add(vb).multiplyScalar(0.5); k.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); k.castShadow = true; carro.add(k); return k; };
   const T = [0, 0.36, -0.52], D = [0, 0.36, 0.58], P = [0, 0.33, 0], S = [0, 0.92, -0.18], H = [0, 0.95, 0.42];
@@ -354,10 +373,11 @@ function modeloBlindado(color) {
   const pinta = new THREE.MeshStandardMaterial({ color: '#c9ced6', metalness: 0.5, roughness: 0.4 }); pinturas.add(pinta);
   const m = (geo, mt, x, y, z) => { const k = new THREE.Mesh(geo, mt); k.position.set(x, y, z); k.castShadow = true; carro.add(k); return k; };
   const caja = m(new THREE.BoxGeometry(2.3, 2.1, 4), pinta, 0, 1.55, -0.9);
-  const cabina = m(new THREE.BoxGeometry(2.2, 1.5, 1.8), pinta, 0, 1.25, 2.05);
-  m(new THREE.BoxGeometry(2.0, 0.6, 0.05), matVidrio2, 0, 1.6, 2.96);
+  const cabB = cabinaBL('blindado', carro, pinta, 2.95);
+  const cabina = cabB || m(new THREE.BoxGeometry(2.2, 1.5, 1.8), pinta, 0, 1.25, 2.05);
+  if (!cabB) m(new THREE.BoxGeometry(2.0, 0.6, 0.05), matVidrio2, 0, 1.6, 2.96);
   m(new THREE.BoxGeometry(2.32, 0.4, 4.02), mat('#1f6b3a'), 0, 1.3, -0.9);
-  m(new THREE.BoxGeometry(2.4, 0.3, 6), matTrim, 0, 0.45, 0);
+  m(new THREE.BoxGeometry(2.4, 0.3, cabB ? 5.6 : 6), matTrim, 0, 0.45, cabB ? -0.2 : 0);
   const l = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 0.5), new THREE.MeshBasicMaterial({ map: letreroTex('VALORES OCCIDENTE', '#1f6b3a', '#ffd77a') }));
   for (const s of [-1, 1]) { const x = l.clone(); x.position.set(s * 1.165, 2.1, -0.9); x.rotation.y = s * Math.PI / 2; carro.add(x); }
   const cal = m(new THREE.BoxGeometry(2, 0.15, 0.05), new THREE.MeshBasicMaterial({ color: '#a01020' }), 0, 0.9, -2.93);
@@ -384,16 +404,23 @@ function modeloAutobus(color) {
   const blanco = new THREE.MeshStandardMaterial({ color: '#eeeeea', roughness: 0.45 });
   const L = 10.5, A = 2.55;
   const m = (geo, mat, x, y, z) => { const k = new THREE.Mesh(geo, mat); k.position.set(x, y, z); k.castShadow = true; carro.add(k); return k; };
-  const cuerpo = m(new RoundedBoxGeometry(A, 2.5, L, 3, 0.18), blanco, 0, 1.75, 0);
-  m(new THREE.BoxGeometry(A + 0.02, 0.55, L - 0.3), pinta, 0, 0.85, 0);
-  m(new THREE.BoxGeometry(A + 0.03, 0.9, L - 1.2), matVidrio2, 0, 2.0, -0.4);
-  m(new THREE.BoxGeometry(A - 0.2, 1.1, 0.05), matVidrio2, 0, 2.0, L / 2 + 0.01);
-  m(new THREE.BoxGeometry(0.06, 1.9, 1.0), matTrim, A / 2 + 0.02, 1.45, L / 2 - 1.3);
+  const BB = BL.autobus;
+  let cuerpo;
+  if (BB?.blanco) {
+    cuerpo = m(BB.blanco, blanco, 0, 0, 0); if (BB.franja) m(BB.franja, pinta, 0, 0, 0); m(BB.vidrio, matVidrio2, 0, 0, 0); m(BB.trim, matTrim, 0, 0, 0);
+    const fa = m(BB.faros, matFaro, 0, 0, 0); fa.castShadow = false; const ce = m(BB.calaveras, matLuzTrasera, 0, 0, 0); ce.castShadow = false;
+  } else {
+    cuerpo = m(new RoundedBoxGeometry(A, 2.5, L, 3, 0.18), blanco, 0, 1.75, 0);
+    m(new THREE.BoxGeometry(A + 0.02, 0.55, L - 0.3), pinta, 0, 0.85, 0);
+    m(new THREE.BoxGeometry(A + 0.03, 0.9, L - 1.2), matVidrio2, 0, 2.0, -0.4);
+    m(new THREE.BoxGeometry(A - 0.2, 1.1, 0.05), matVidrio2, 0, 2.0, L / 2 + 0.01);
+    m(new THREE.BoxGeometry(0.06, 1.9, 1.0), matTrim, A / 2 + 0.02, 1.45, L / 2 - 1.3);
+  }
   const c = document.createElement('canvas'); c.width = 256; c.height = 48; const x = c.getContext('2d');
   x.fillStyle = '#111'; x.fillRect(0, 0, 256, 48); x.fillStyle = '#ffb030'; x.font = '900 30px Inter, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('7 · CENTRO', 128, 26);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  m(new THREE.PlaneGeometry(1.6, 0.3), new THREE.MeshBasicMaterial({ map: t }), 0, 2.78, L / 2 + 0.02);
-  for (const sx of [-1, 1]) { const f = m(new THREE.BoxGeometry(0.3, 0.16, 0.05), matFaro, sx * (A / 2 - 0.35), 0.9, L / 2 + 0.01); f.castShadow = false; }
+  m(new THREE.PlaneGeometry(1.6, 0.3), new THREE.MeshBasicMaterial({ map: t }), 0, 2.78, BB?.blanco ? L / 2 - 0.05 : L / 2 + 0.02);
+  if (!BB?.blanco) for (const sx of [-1, 1]) { const f = m(new THREE.BoxGeometry(0.3, 0.16, 0.05), matFaro, sx * (A / 2 - 0.35), 0.9, L / 2 + 0.01); f.castShadow = false; }
   const cal = m(new THREE.BoxGeometry(A - 0.4, 0.14, 0.05), new THREE.MeshBasicMaterial({ color: '#a01020' }), 0, 1.0, -L / 2 - 0.01); cal.visible = false;
   const ruedas = [], delanteras = [];
   for (const [sx, sz] of [[-1, 0.34], [1, 0.34], [-1, -0.3], [1, -0.3]]) {
@@ -428,13 +455,15 @@ function modeloReparto(color) {
   const zc = -(L - CL) / 2 + (L / 2 - CL - (L - CL) / 2) * 0;
   const caja = m(new THREE.BoxGeometry(A, 2.5, L - CL - 0.15), [lado, lado, liso, liso, liso, new THREE.MeshStandardMaterial({ color: '#d8d6d0', roughness: 0.6 })], 0, 2.0, -(CL + 0.15) / 2);
   m(new THREE.BoxGeometry(0.05, 2.2, 0.05), matTrim, 0, 1.95, -L / 2 - 0.01);
-  const cab = m(new RoundedBoxGeometry(A - 0.05, 1.75, CL, 3, 0.16), pinta, 0, 1.45, L / 2 - CL / 2);
-  m(new THREE.BoxGeometry(A - 0.25, 0.7, 0.06), matVidrio2, 0, 1.85, L / 2 + 0.01);
-  for (const s of [-1, 1]) m(new THREE.BoxGeometry(0.04, 0.55, 0.9), matVidrio2, s * (A / 2 - 0.02), 1.85, L / 2 - CL / 2 + 0.1);
-  m(new THREE.BoxGeometry(A, 0.35, L - 0.2), new THREE.MeshStandardMaterial({ color: '#2a2c30', roughness: 0.8 }), 0, 0.62, 0);
-  m(new THREE.BoxGeometry(A + 0.06, 0.22, 0.2), matTrim, 0, 0.75, L / 2 + 0.05);
-  for (const sx of [-1, 1]) { const f = m(new THREE.BoxGeometry(0.32, 0.18, 0.05), matFaro, sx * (A / 2 - 0.3), 1.0, L / 2 + 0.02); f.castShadow = false; }
-  for (const sx of [-1, 1]) m(new THREE.BoxGeometry(0.06, 0.32, 0.22), matTrim, sx * (A / 2 + 0.12), 1.95, L / 2 - 0.25);
+  const cabB = cabinaBL('reparto', carro, pinta, L / 2);
+  const cab = cabB || m(new RoundedBoxGeometry(A - 0.05, 1.75, CL, 3, 0.16), pinta, 0, 1.45, L / 2 - CL / 2);
+  if (!cabB) { m(new THREE.BoxGeometry(A - 0.25, 0.7, 0.06), matVidrio2, 0, 1.85, L / 2 + 0.01); for (const s of [-1, 1]) m(new THREE.BoxGeometry(0.04, 0.55, 0.9), matVidrio2, s * (A / 2 - 0.02), 1.85, L / 2 - CL / 2 + 0.1); }
+  m(new THREE.BoxGeometry(A, 0.35, L - 0.2), new THREE.MeshStandardMaterial({ color: '#2a2c30', roughness: 0.8 }), 0, 0.62, cabB ? -0.15 : 0);
+  if (!cabB) {
+    m(new THREE.BoxGeometry(A + 0.06, 0.22, 0.2), matTrim, 0, 0.75, L / 2 + 0.05);
+    for (const sx of [-1, 1]) { const f = m(new THREE.BoxGeometry(0.32, 0.18, 0.05), matFaro, sx * (A / 2 - 0.3), 1.0, L / 2 + 0.02); f.castShadow = false; }
+    for (const sx of [-1, 1]) m(new THREE.BoxGeometry(0.06, 0.32, 0.22), matTrim, sx * (A / 2 + 0.12), 1.95, L / 2 - 0.25);
+  }
   const cal = m(new THREE.BoxGeometry(A - 0.4, 0.14, 0.05), new THREE.MeshBasicMaterial({ color: '#a01020' }), 0, 0.9, -L / 2 - 0.02); cal.visible = false;
   const ruedas = [], delanteras = [];
   for (const [sx, sz] of [[-1, 0.32], [1, 0.32], [-1, -0.3], [1, -0.3]]) {
@@ -452,9 +481,9 @@ function modeloRedilas(color) {
   const L = 5.3, A = 2.0, CL = 1.9;
   const madera = new THREE.MeshStandardMaterial({ color: '#8a6038', roughness: 0.85 }), oscuro = new THREE.MeshStandardMaterial({ color: '#2a2c30', roughness: 0.8 });
   const m = (geo, mt, x, y, z) => { const k = new THREE.Mesh(geo, mt); k.position.set(x, y, z); k.castShadow = true; carro.add(k); return k; };
-  const cab = m(new RoundedBoxGeometry(A - 0.05, 1.45, CL, 3, 0.15), pinta, 0, 1.25, L / 2 - CL / 2);
-  m(new THREE.BoxGeometry(A - 0.25, 0.55, 0.06), matVidrio2, 0, 1.62, L / 2 + 0.01);
-  for (const s of [-1, 1]) m(new THREE.BoxGeometry(0.04, 0.45, 0.8), matVidrio2, s * (A / 2 - 0.02), 1.62, L / 2 - CL / 2 + 0.15);
+  const cabB = cabinaBL('redilas', carro, pinta, L / 2);
+  const cab = cabB || m(new RoundedBoxGeometry(A - 0.05, 1.45, CL, 3, 0.15), pinta, 0, 1.25, L / 2 - CL / 2);
+  if (!cabB) { m(new THREE.BoxGeometry(A - 0.25, 0.55, 0.06), matVidrio2, 0, 1.62, L / 2 + 0.01); for (const s of [-1, 1]) m(new THREE.BoxGeometry(0.04, 0.45, 0.8), matVidrio2, s * (A / 2 - 0.02), 1.62, L / 2 - CL / 2 + 0.15); }
   m(new THREE.BoxGeometry(A, 0.3, L - 0.2), oscuro, 0, 0.58, 0);
   const caja = L - CL - 0.1, zc = -(L / 2) + caja / 2;
   m(new THREE.BoxGeometry(A, 0.1, caja), madera, 0, 0.8, zc);
@@ -466,8 +495,7 @@ function modeloRedilas(color) {
   const carga = Math.random();
   if (carga < 0.4) { const sandia = new THREE.MeshStandardMaterial({ color: '#2f7a3a', roughness: 0.6 }); for (let i = 0; i < 14; i++) { const s = m(new THREE.SphereGeometry(0.2, 10, 8), sandia, (Math.random() - 0.5) * (A - 0.5), 1.0 + (i % 3) * 0.12, zc + (Math.random() - 0.5) * (caja - 0.5)); s.scale.set(1, 0.85, 1.3); } }
   else if (carga < 0.75) { const costal = new THREE.MeshStandardMaterial({ color: '#cbb58a', roughness: 0.95 }); for (let i = 0; i < 8; i++) { const s = m(new THREE.BoxGeometry(0.5, 0.28, 0.8), costal, (i % 2 - 0.5) * 0.65, 1.0 + Math.floor(i / 4) * 0.28, zc + ((i >> 1) % 2 - 0.5) * 0.9); s.rotation.y = (Math.random() - 0.5) * 0.3; } }
-  for (const sx of [-1, 1]) { const f = m(new THREE.BoxGeometry(0.28, 0.15, 0.05), matFaro, sx * (A / 2 - 0.3), 0.95, L / 2 + 0.02); f.castShadow = false; }
-  m(new THREE.BoxGeometry(A + 0.05, 0.18, 0.18), matTrim, 0, 0.72, L / 2 + 0.05);
+  if (!cabB) { for (const sx of [-1, 1]) { const f = m(new THREE.BoxGeometry(0.28, 0.15, 0.05), matFaro, sx * (A / 2 - 0.3), 0.95, L / 2 + 0.02); f.castShadow = false; } m(new THREE.BoxGeometry(A + 0.05, 0.18, 0.18), matTrim, 0, 0.72, L / 2 + 0.05); }
   const cal = m(new THREE.BoxGeometry(A - 0.5, 0.12, 0.05), new THREE.MeshBasicMaterial({ color: '#a01020' }), 0, 0.85, -L / 2 - 0.02); cal.visible = false;
   const ruedas = [], delanteras = [];
   for (const [sx, sz] of [[-1, 0.33], [1, 0.33], [-1, -0.3], [1, -0.3]]) {
@@ -485,9 +513,9 @@ function modeloServicio(tipo, color) {
   const L = TIPOS[tipo].largo, A = TIPOS[tipo].ancho, CL = 1.95;
   const m = (geo, mt, x, y, z) => { const k = new THREE.Mesh(geo, mt); k.position.set(x, y, z); k.castShadow = true; carro.add(k); return k; };
   const oscuro = new THREE.MeshStandardMaterial({ color: '#2a2c30', roughness: 0.8 });
-  const cab = m(new RoundedBoxGeometry(A - 0.05, 1.75, CL, 3, 0.16), pinta, 0, 1.45, L / 2 - CL / 2);
-  m(new THREE.BoxGeometry(A - 0.25, 0.7, 0.06), matVidrio2, 0, 1.85, L / 2 + 0.01);
-  for (const s of [-1, 1]) m(new THREE.BoxGeometry(0.04, 0.55, 0.9), matVidrio2, s * (A / 2 - 0.02), 1.85, L / 2 - CL / 2 + 0.1);
+  const cabB = cabinaBL(tipo, carro, pinta, L / 2);
+  const cab = cabB || m(new RoundedBoxGeometry(A - 0.05, 1.75, CL, 3, 0.16), pinta, 0, 1.45, L / 2 - CL / 2);
+  if (!cabB) { m(new THREE.BoxGeometry(A - 0.25, 0.7, 0.06), matVidrio2, 0, 1.85, L / 2 + 0.01); for (const s of [-1, 1]) m(new THREE.BoxGeometry(0.04, 0.55, 0.9), matVidrio2, s * (A / 2 - 0.02), 1.85, L / 2 - CL / 2 + 0.1); }
   m(new THREE.BoxGeometry(A, 0.35, L - 0.2), oscuro, 0, 0.62, 0);
   const atras = L - CL - 0.15, zc = -(CL + 0.15) / 2;
   let barra = null;
@@ -519,8 +547,7 @@ function modeloServicio(tipo, color) {
     const tolva = m(new THREE.BoxGeometry(A - 0.1, 1.8, 1.1), new THREE.MeshStandardMaterial({ color: '#d8d8d0', roughness: 0.6 }), 0, 1.9, -L / 2 + 0.55); tolva.rotation.x = 0.25;
     m(new THREE.CylinderGeometry(0.12, 0.16, 0.25, 10), new THREE.MeshStandardMaterial({ color: '#c9a040', metalness: 0.8, roughness: 0.3 }), A / 2 + 0.12, 2.6, L / 2 - CL - 0.2);
   }
-  for (const sx of [-1, 1]) { const f = m(new THREE.BoxGeometry(0.32, 0.18, 0.05), matFaro, sx * (A / 2 - 0.3), 1.0, L / 2 + 0.02); f.castShadow = false; }
-  m(new THREE.BoxGeometry(A + 0.06, 0.22, 0.2), matTrim, 0, 0.75, L / 2 + 0.05);
+  if (!cabB) { for (const sx of [-1, 1]) { const f = m(new THREE.BoxGeometry(0.32, 0.18, 0.05), matFaro, sx * (A / 2 - 0.3), 1.0, L / 2 + 0.02); f.castShadow = false; } m(new THREE.BoxGeometry(A + 0.06, 0.22, 0.2), matTrim, 0, 0.75, L / 2 + 0.05); }
   const cal = m(new THREE.BoxGeometry(A - 0.4, 0.14, 0.05), new THREE.MeshBasicMaterial({ color: '#a01020' }), 0, 0.9, -L / 2 - 0.02); cal.visible = false;
   const ruedas = [], delanteras = [];
   for (const [sx, sz] of [[-1, 0.33], [1, 0.33], [-1, -0.28], [1, -0.28]]) {
@@ -574,6 +601,7 @@ export function modelo(tipo, color) {
   const cuerpo = malla(G.pinta, pintaCuerpo);
   const cab = malla(G.vidrio, matVidrio2);
   malla(G.trim, matTrim);
+  if (G.cromo) malla(G.cromo, matCromo);
   const calav = new THREE.MeshBasicMaterial({ color: '#a01020' });
   const H = t.alto, piso = 0.3;
   let cal;

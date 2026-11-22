@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Peaton } from './peatones.js?v=202611221014';
+import { Peaton } from './peatones.js?v=202611221510';
 
 const PIDE = ['¡Una cooperación para el artista!', '¡Lo que guste, jefe!', '¡Apoye el arte callejero!'];
 const GRACIAS = ['¡Gracias, patrón! ¡Buen viaje!', '¡Ese es mi público!', '¡Que Dios lo bendiga!'];

@@ -1,11 +1,12 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611221014';
-import { hoja } from './texturas.js?v=202611221014';
-import { Peaton } from './peatones.js?v=202611221014';
-import { letrero } from './ciudad.js?v=202611221014';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611221014';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611221014';
-import { ARTICULOS } from './actividades.js?v=202611221014';
+import { animar } from './persona.js?v=202611221510';
+import { hoja } from './texturas.js?v=202611221510';
+import { Peaton } from './peatones.js?v=202611221510';
+import { letrero } from './ciudad.js?v=202611221510';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611221510';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611221510';
+import { ARTICULOS } from './actividades.js?v=202611221510';
+import { OUTFITS, cambiarOutfit } from './jugador.js?v=202611221510';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
@@ -222,6 +223,16 @@ export class Interiores {
     return sp;
   }
 
+  vestidor() {
+    const j = this.j, jj = j.jugador, quien = jj.personaje, R = ROPA_NOMBRES;
+    const looks = (OUTFITS[quien] || []).map(([modelo, nombre, desc]) => ({ id: 'look_' + modelo, nombre, precio: 0, desc, icono: ICONO.ok,
+      dar: J => { J.estilo.outfit = modelo; cambiarOutfit(quien, modelo, () => J.vestir({ ropa: J.estilo.ropa ?? null, estiloPelo: J.estilo.estiloPelo })); j.hud.notificar('ok', 'Vestidor', 'Te pusiste: ' + nombre + '.', 2.5); j.guardar?.(); },
+      tiene: J => (J.estilo.outfit || (quien === 'Lucía' ? 'lucia' : 'matias')) === modelo, tieneTxt: 'Ya lo traes puesto' }));
+    const colores = ROPA.map((p, i) => ({ id: 'col' + i, nombre: 'Color: ' + R[i], precio: 0, desc: 'Tiñe tu chamarra o playera, gratis.', icono: p.url ? `<img src="${p.url}" alt="" style="border-radius:8px">` : ICONO.tienda, dar: J => J.vestir({ ropa: i }), tiene: J => J.estilo.ropa === i }))
+      .concat([{ id: 'colnull', nombre: 'Color original', precio: 0, desc: 'Regresa el color de fábrica.', icono: ICONO.ok, dar: J => J.vestir({ ropa: null }), tiene: J => J.estilo.ropa === null || J.estilo.ropa === undefined }]);
+    return { titulo: 'TU VESTIDOR', sub: 'AQUÍ TODO ES GRATIS · ' + quien.toUpperCase(), articulos: looks.concat(colores) };
+  }
+
   zona(t, x, z, art, y = 1.85) {
     const I = t.interior;
     if (t.tipo !== 'depa') return;
@@ -434,12 +445,56 @@ export class Interiores {
       caja(0.05, 1, 0.05, m('#444'), 4, 2.6, -2.6, false);
       mundo.agregar(ox + 3.7, oz - 2.9, ox + 4.3, oz - 2.3, 2);
     } else if (t.tipo === 'depa') {
-      caja(2.2, 0.5, 2.6, m('#3a5a8a'), -4.8, 0.25, -3); caja(2.2, 0.2, 0.6, m('#f0ece4'), -4.8, 0.6, -4);
-      caja(2.6, 0.5, 0.9, m('#6a4a3a'), 1, 0.25, 2.4); caja(2.6, 0.6, 0.25, m('#6a4a3a'), 1, 0.7, 2.8, false);
-      caja(2, 1.1, 0.08, m('#111', { emissive: '#3a7ad8', emissiveIntensity: 0.6 }), 1, 1.5, -L / 2 + 0.2, false);
-      caja(3, 0.95, 0.7, m('#d8d0c0'), W / 2 - 1.8, 0.48, -2);
-      caja(1.6, 2.4, 0.6, m('#5a3a24'), W / 2 - 0.5, 1.2, 1.5);
-      const tapete = new THREE.Mesh(new THREE.PlaneGeometry(3, 2).rotateX(-Math.PI / 2), m('#8a3a5a')); tapete.position.set(1, 0.02, 0.5); g.add(tapete);
+      const lienzo = (w, h, f) => { const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return tx; };
+      const cil = (r, h, mt, x, y, z, seg = 16) => { const k = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, seg), mt); k.position.set(x, y, z); g.add(k); return k; };
+      const duela = lienzo(256, 256, (x, w, h) => { for (let k = 0; k < 8; k++) { const v = 0.82 + ((k * 37) % 7) / 40; x.fillStyle = `rgb(${150 * v | 0},${104 * v | 0},${66 * v | 0})`; x.fillRect(0, k * 32, w, 32); x.fillStyle = 'rgba(40,24,12,0.5)'; x.fillRect(0, k * 32, w, 2); x.fillRect(((k * 97) % 256), k * 32, 2, 32); for (let n = 0; n < 40; n++) { x.fillStyle = `rgba(60,36,18,${Math.random() * 0.12})`; x.fillRect(Math.random() * w, k * 32 + Math.random() * 30, 20 + Math.random() * 40, 1); } } });
+      duela.wrapS = duela.wrapT = THREE.RepeatWrapping; duela.repeat.set(W / 2.4, L / 2.4);
+      const piso2 = new THREE.Mesh(new THREE.PlaneGeometry(W - 0.3, L - 0.3).rotateX(-Math.PI / 2), m('#ffffff', { map: duela })); piso2.position.y = 0.005; g.add(piso2);
+      caja(W - 0.32, H, 0.02, m('#c9b8a2'), 0, H / 2, -L / 2 + 0.16, false);
+      const madera = m('#4a3020'), blanco = m('#f2eee6'), gris = m('#3a3c42'), negro = m('#16171a'), metal = new THREE.MeshStandardMaterial({ color: '#c8ccd2', metalness: 0.85, roughness: 0.3 });
+      caja(2.2, 0.36, 2.5, madera, -4.6, 0.18, -3.95); caja(2.06, 0.22, 2.36, blanco, -4.6, 0.47, -3.95, false);
+      caja(2.1, 0.07, 1.55, m('#2e3f6e'), -4.6, 0.6, -3.42, false); caja(2.12, 0.3, 0.05, m('#2e3f6e'), -4.6, 0.46, -2.66, false);
+      for (const sx of [-0.5, 0.5]) caja(0.78, 0.14, 0.42, m('#f7f5f0'), -4.6 + sx, 0.65, -4.85, false);
+      caja(2.3, 1.15, 0.1, m('#5a3a28'), -4.6, 0.75, -5.25, false);
+      for (const sx of [-1.45, 1.45]) {
+        caja(0.5, 0.5, 0.45, madera, -4.6 + sx, 0.25, -4.95);
+        cil(0.07, 0.3, metal, -4.6 + sx, 0.65, -4.95, 10);
+        const pant = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.17, 0.2, 14, 1, true), m('#f4e6c8', { emissive: '#ffcf8a', emissiveIntensity: 0.7, side: THREE.DoubleSide })); pant.position.set(-4.6 + sx, 0.88, -4.95); g.add(pant);
+      }
+      const tapete = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 2.6).rotateX(-Math.PI / 2), m('#ffffff', { map: lienzo(128, 96, (x, w, h) => { x.fillStyle = '#7a2f4a'; x.fillRect(0, 0, w, h); x.strokeStyle = '#e8c87a'; x.lineWidth = 4; x.strokeRect(8, 8, w - 16, h - 16); x.strokeStyle = '#3a1a2a'; x.lineWidth = 2; x.strokeRect(16, 16, w - 32, h - 32); for (let k = 0; k < 5; k++) { x.fillStyle = '#c86a8a'; x.beginPath(); x.arc(24 + k * 20, h / 2, 5, 0, 6.3); x.fill(); } }) })); tapete.position.set(1, 0.012, 0.7); g.add(tapete);
+      const tela = m('#5b6170');
+      caja(2.8, 0.45, 0.95, tela, 1, 0.23, 2.55); caja(2.8, 0.7, 0.25, tela, 1, 0.65, 3.0, false);
+      for (const sx of [-1.5, 1.5]) caja(0.22, 0.62, 0.95, tela, 1 + sx, 0.42, 2.55, false);
+      for (const sx of [-0.7, 0, 0.7]) caja(0.62, 0.14, 0.7, m('#6c7384'), 1 + sx, 0.52, 2.5, false);
+      for (const [sx, c] of [[-0.9, '#c8a04a'], [0.9, '#8a3a5a']]) { const coj = caja(0.42, 0.38, 0.12, m(c), 1 + sx, 0.72, 2.8, false); coj.rotation.x = -0.25; }
+      caja(1.3, 0.06, 0.7, madera, 1, 0.42, 0.7); for (const [sx, sz] of [[-0.55, -0.25], [0.55, -0.25], [-0.55, 0.25], [0.55, 0.25]]) caja(0.06, 0.4, 0.06, madera, 1 + sx, 0.2, 0.7 + sz, false);
+      caja(0.3, 0.04, 0.22, m('#d8c8a8'), 0.75, 0.47, 0.6, false); cil(0.05, 0.12, m('#e8e2d8'), 1.3, 0.51, 0.8, 10);
+      caja(3.2, 0.5, 0.45, madera, 1, 0.25, -5.0);
+      const tv = lienzo(256, 144, (x, w, h) => { const gr = x.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#2a5a9a'); gr.addColorStop(1, '#f08a5a'); x.fillStyle = gr; x.fillRect(0, 0, w, h); x.fillStyle = '#1a1424'; for (let k = 0; k < 14; k++) { const bw = 10 + (k * 7) % 14, bh = 30 + (k * 23) % 60; x.fillRect(k * 19, h - bh, bw, bh); } x.fillStyle = 'rgba(0,0,0,0.55)'; x.fillRect(0, h - 26, w, 26); x.fillStyle = '#ffd23a'; x.font = '900 15px Inter, Arial'; x.fillText('SJ NOTICIAS · EN VIVO', 10, h - 9); });
+      caja(3.0, 1.7, 0.08, negro, 1, 1.7, -5.27, false);
+      const pant = new THREE.Mesh(new THREE.PlaneGeometry(2.86, 1.58), new THREE.MeshBasicMaterial({ map: tv })); pant.position.set(1, 1.7, -5.22); g.add(pant);
+      caja(3.7, 0.9, 0.65, m('#e8e2d6'), 4.75, 0.45, -5.0); caja(3.8, 0.05, 0.7, m('#2a2c30'), 4.75, 0.92, -5.0, false);
+      caja(3.7, 0.75, 0.38, m('#e8e2d6'), 4.75, 2.25, -5.15, false);
+      for (let k = 0; k < 4; k++) caja(0.02, 0.6, 0.02, metal, 3.3 + k * 0.95, 2.25, -4.95, false);
+      caja(0.6, 0.02, 0.45, metal, 5.2, 0.95, -5.0, false); cil(0.02, 0.3, metal, 5.2, 1.08, -5.22, 8);
+      for (const [dx, dz] of [[-0.2, -0.12], [0.2, -0.12], [-0.2, 0.12], [0.2, 0.12]]) cil(0.09, 0.02, negro, 3.7 + dx, 0.955, -5.0 + dz, 14);
+      caja(0.85, 1.95, 0.75, metal, 6.25, 0.98, -4.95);
+      caja(2.2, 0.95, 0.7, madera, 4.6, 0.48, -2.6); caja(2.3, 0.05, 0.8, m('#2a2c30'), 4.6, 0.97, -2.6, false);
+      for (const sx of [-0.6, 0.6]) { cil(0.2, 0.06, negro, 4.6 + sx, 0.72, -1.95, 14); cil(0.03, 0.7, metal, 4.6 + sx, 0.36, -1.95, 8); }
+      caja(0.55, 2.5, 2.4, madera, W / 2 - 0.45, 1.25, 1.6); caja(0.04, 2.3, 2.2, m('#2a2420'), W / 2 - 0.72, 1.25, 1.6, false);
+      cil(0.015, 2.1, metal, W / 2 - 0.62, 2.1, 1.6, 8).rotation.x = Math.PI / 2;
+      ['#7a2f3a', '#1a1a1c', '#e9dfc8', '#2a3c58', '#3e4630', '#8b8d92', '#6a1022', '#4b2280'].forEach((c, k) => { const pr = caja(0.42, 0.95, 0.06, m(c), W / 2 - 0.62, 1.55, 0.7 + k * 0.25, false); pr.rotation.y = 0.12; });
+      for (let k = 0; k < 4; k++) caja(0.34, 0.12, 0.28, m(['#f4f4f2', '#1a1a1c', '#8a3a2a', '#f4f4f2'][k]), W / 2 - 0.55, 0.06, 0.8 + k * 0.5, false);
+      const espejo = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 1.9), new THREE.MeshStandardMaterial({ color: '#dfe6ee', metalness: 1, roughness: 0.04 })); espejo.rotation.y = -Math.PI / 2; espejo.position.set(W / 2 - 0.17, 1.15, 3.6); g.add(espejo);
+      caja(0.05, 2.0, 0.85, madera, W / 2 - 0.18, 1.15, 3.6, false);
+      const ciudadN = lienzo(256, 128, (x, w, h) => { const gr = x.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#0c1230'); gr.addColorStop(1, '#3a2a5a'); x.fillStyle = gr; x.fillRect(0, 0, w, h); for (let k = 0; k < 40; k++) { x.fillStyle = '#fff'; x.fillRect(Math.random() * w, Math.random() * h * 0.4, 1, 1); } for (let k = 0; k < 22; k++) { const bw = 8 + (k * 13) % 18, bh = 24 + (k * 31) % 70, bx = k * 12; x.fillStyle = '#0a0a14'; x.fillRect(bx, h - bh, bw, bh); for (let n = 0; n < 12; n++) { if (Math.random() < 0.5) { x.fillStyle = Math.random() < 0.7 ? '#ffd88a' : '#9ad0ff'; x.fillRect(bx + 2 + (n % 3) * 4, h - bh + 4 + (n / 3 | 0) * 7, 2, 3); } } } });
+      const ven = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.7), new THREE.MeshBasicMaterial({ map: ciudadN })); ven.rotation.y = Math.PI / 2; ven.position.set(-W / 2 + 0.17, 1.8, 1.0); g.add(ven);
+      caja(0.08, 0.08, 3.8, blanco, -W / 2 + 0.2, 2.68, 1.0, false); caja(0.08, 0.08, 3.8, blanco, -W / 2 + 0.2, 0.92, 1.0, false); caja(0.08, 1.8, 0.08, blanco, -W / 2 + 0.2, 1.8, 1.0, false);
+      for (const sz of [-1, 1]) caja(0.06, 2.4, 0.7, m('#7a5a8a'), -W / 2 + 0.24, 1.6, 1.0 + sz * 2.15, false);
+      const cuadro = (txt, c1, c2, z) => { const tx = lienzo(128, 160, (x, w, h) => { x.fillStyle = c1; x.fillRect(0, 0, w, h); x.fillStyle = c2; x.beginPath(); x.arc(w / 2, h * 0.42, 34, 0, 6.3); x.fill(); x.fillStyle = '#fff'; x.font = '900 16px Inter, Arial'; x.textAlign = 'center'; x.fillText(txt, w / 2, h - 18); }); caja(0.04, 1.05, 0.85, negro, -W / 2 + 0.18, 1.85, z, false); const q = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.95), new THREE.MeshBasicMaterial({ map: tx })); q.rotation.y = Math.PI / 2; q.position.set(-W / 2 + 0.21, 1.85, z); g.add(q); };
+      cuadro('JACARANDA', '#2a1a3a', '#9b5fd0', -2.2); cuadro('LAGO AZUL', '#0f2a3a', '#ffb347', 4.2);
+      for (const [x, z, s] of [[-6.2, 4.6, 1], [2.9, 3.1, 0.8], [6.2, -2.2, 0.9]]) { cil(0.22 * s, 0.4 * s, m('#c86a3a'), x, 0.2 * s, z, 12); for (let k = 0; k < 5; k++) { const h2 = new THREE.Mesh(new THREE.IcosahedronGeometry(0.28 * s, 0), m(['#2f7a3a', '#3e8a46', '#276a32'][k % 3])); h2.position.set(x + Math.sin(k * 1.3) * 0.18 * s, (0.6 + k * 0.16) * s, z + Math.cos(k * 1.3) * 0.18 * s); g.add(h2); } }
+      cil(0.03, 1.6, metal, -0.9, 0.8, 3.1, 8); const pl = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.25, 0.3, 14, 1, true), m('#f4e6c8', { emissive: '#ffcf8a', emissiveIntensity: 0.7, side: THREE.DoubleSide })); pl.position.set(-0.9, 1.65, 3.1); g.add(pl);
     }
     const cat = this.catalogo(t).articulos;
     const ORD = ['puno', 'bate', 'cuchillo', 'pistola', 'escopeta', 'subfusil', 'rifle', 'granada'];
@@ -610,7 +665,7 @@ export class Interiores {
     ] };
     if (t.tipo === 'depa') return { titulo: 'TU DEPARTAMENTO', sub: '', articulos: [
       { id: 'dormir', nombre: 'Dormir: te cura y guarda', precio: 0, verbo: '', dar: jj => this.dormir() },
-      { id: 'closet', nombre: 'Clóset: tu ropa de siempre', precio: 0, verbo: '', dar: jj => jj.vestir({ ropa: null }) },
+      { id: 'closet', nombre: 'Vestidor: cámbiate gratis', precio: 0, verbo: '', dar: jj => { j.actividades.abrirTienda(this.vestidor()); return 'sinAviso'; } },
       { id: 'sofa', nombre: 'Cambiar de protagonista', precio: 0, verbo: '', dar: () => { j.duo.pos.copy(j.jugador.pos); j.duo.cambiar(); } }
     ] };
     if (t.tipo === 'ropa') return {

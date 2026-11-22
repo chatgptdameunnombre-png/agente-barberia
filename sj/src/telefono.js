@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221014';
-import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611221014';
-import { TIPOS } from './vehiculos.js?v=202611221014';
-import { glifoSVG } from './iconos.js?v=202611221014';
-import { TITULOS } from './misiones.js?v=202611221014';
-import { CONTACTOS } from './contactos.js?v=202611221014';
-import { SALIDAS } from './trabajos.js?v=202611221014';
-import { linea } from './ciudad.js?v=202611221014';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221510';
+import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611221510';
+import { TIPOS } from './vehiculos.js?v=202611221510';
+import { glifoSVG } from './iconos.js?v=202611221510';
+import { TITULOS } from './misiones.js?v=202611221510';
+import { CONTACTOS } from './contactos.js?v=202611221510';
+import { SALIDAS } from './trabajos.js?v=202611221510';
+import { linea } from './ciudad.js?v=202611221510';
 const tarjeta = o => `<div class="tarjeta ${o.mia ? 'mia' : ''}">${o.src ? `<img src="${o.src}" alt="">` : `<i class="foto" style="${o.img}"></i>`}<div class="cuerpo"><b>${o.titulo}</b><small>${o.desc}</small>${o.barras ? `<div class="barras">${o.barras.map(([n, v]) => `<span><em>${n}</em><i style="--v:${Math.min(1, v) * 100}%"></i></span>`).join('')}</div>` : ''}<div class="pie">${o.mia ? `<em class="sello">${o.sello || 'TUYO'}</em>` : `<button data-accion="${o.accion}" type="button">${o.precio}</button>`}</div></div></div>`;
 
 const dinero = n => '$' + Math.floor(n).toLocaleString('es-MX');
@@ -130,7 +130,7 @@ export class Telefono {
         if (M.indice < C.requisito) return fila(C.nombre, `Se desbloquea al terminar la misión ${C.requisito} de Don Chuy`, undefined, undefined, '#666');
         return fila(`${C.nombre} · ${C.lista[n].titulo}`, `${C.zona} · misión ${n + 1} de ${C.lista.length} · $${C.lista[n].premio.toLocaleString('es-MX')}`, p.x, p.z, C.color);
       }).join('');
-      const carreras = SALIDAS.map(s => fila('Carrera · ' + s.nombre, T.mejores[s.id] ? 'Tu récord: ' + T.mejores[s.id].toFixed(1) + ' s' : 'Llega en coche a la bandera y presiona T', linea(s.i), linea(s.k), '#3fd2ff')).join('');
+      const carreras = SALIDAS.map(s => fila('Carrera · ' + s.nombre, (T.ganadas?.[s.id] ? 'Ganada · ' : '') + (T.mejores[s.id] ? 'Tu récord: ' + T.mejores[s.id].toFixed(1) + ' s' : 'Llega en coche a la bandera y presiona T'), linea(s.i), linea(s.k), T.ganadas?.[s.id] ? '#ffd23a' : '#3fd2ff', !!T.ganadas?.[s.id])).join('');
       const trabajos = [['Taxista', 'Súbete a un taxi y presiona T'], ['Repartidor', 'Súbete a una moto y presiona T'], ['Vigilante', 'Súbete a una patrulla y presiona T'], ['Paramédico', 'Toma la ambulancia del hospital y presiona T']].map(([a, b], i) => fila(a, b, i === 3 ? L.hospital.x : undefined, i === 3 ? L.hospital.z : undefined, '#4fe08a')).join('');
       const G = j.placazos, Lg = j.ciudad.lago;
       const nuevos = (G ? fila('Grafitis del barrio', `${G.hechos.size} de ${G.lugares.length} muros · $300 cada uno`, undefined, undefined, '#ffd23a', G.hechos.size >= G.lugares.length) : '') + (Lg ? fila('Pesca en el muelle', 'Lago Azul · presiona E en la punta del muelle', Lg.muelle.x, Lg.muelle.z0, '#3fb8d8') : '') + (j.lavado?.LX !== undefined ? fila('Autolavado', 'Gasolinera Jacaranda · $15', j.lavado.LX, j.lavado.LZ, '#2a6ec8') : '') + fila('Verbena en la Plaza', 'De 20:00 a 0:30 · banda y baile', L.plaza?.x, L.plaza?.z, '#ff6a8a');

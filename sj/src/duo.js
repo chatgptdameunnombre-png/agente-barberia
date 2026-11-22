@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { modeloProtagonista, realistaDe } from './jugador.js?v=202611221014';
-import { animar, sentar } from './persona.js?v=202611221014';
-import { Peaton } from './peatones.js?v=202611221014';
+import { modeloProtagonista, realistaDe } from './jugador.js?v=202611221510';
+import { animar, sentar } from './persona.js?v=202611221510';
+import { Peaton } from './peatones.js?v=202611221510';
 
 const SENTADOS = [
   [['A', 'A veces se me olvida que esta ciudad también es bonita.'], ['B', 'Cuando no nos andan correteando, sí lo es.']],
@@ -62,9 +62,80 @@ export class Duo {
     return antes;
   }
 
+  asientoP(c) {
+    if (c.tipo === 'moto') return new THREE.Vector3(c.pos.x - c.fx * 0.62, 0, c.pos.z - c.fz * 0.62);
+    const zp = c.puerta ? c.puerta.position.z - 0.55 : 0.2;
+    return new THREE.Vector3(c.pos.x - c.fz * c.t.ancho * 0.2 + c.fx * zp, 0, c.pos.z + c.fx * c.t.ancho * 0.2 + c.fz * zp);
+  }
+
+  dibujar(dt) {
+    const j = this.j, g = this.p.grupo;
+    g.visible = true; animar(this.p, dt, this.vel, 'puno', false);
+    g.position.set(this.pos.x, 0, this.pos.z); g.rotation.y = this.yaw;
+    if (!j.sinRealista) realistaDe(this.nombre).actualizarJugador(this.adaptador || (this.adaptador = { juego: j }), dt, this);
+  }
+
+  abordar(dt) {
+    const A = this.abordo, c = A.c, moto = c.tipo === 'moto';
+    A.t += dt;
+    if (c.vel > 2.5 || A.t > 4.5 || this.pos.distanceTo(c.pos) > 12 || c.quemado) { this.abordo = null; this.anim = null; return false; }
+    const asiento = this.asientoP(c), lx = -c.fz, lz = c.fx, ld = moto ? 0.55 : c.t.ancho / 2 + 0.45;
+    if (A.f === 'ir') {
+      let tx = asiento.x + lx * (moto ? ld : ld - c.t.ancho * 0.2) + (moto ? 0 : c.fx * 0.2), tz = asiento.z + lz * (moto ? ld : ld - c.t.ancho * 0.2) + (moto ? 0 : c.fz * 0.2);
+      if (!A.ruta) {
+        A.ruta = [];
+        const rx = this.pos.x - c.pos.x, rz = this.pos.z - c.pos.z, lat = rx * lx + rz * lz, lon = rx * c.fx + rz * c.fz, an = c.t.ancho / 2 + 0.6;
+        if (!moto && lat < an - 0.2) {
+          const ext = (lon >= 0 ? 1 : -1) * (c.t.largo / 2 + 0.7);
+          if (Math.abs(lon) < c.t.largo / 2 + 0.3) A.ruta.push([-an, ext]);
+          A.ruta.push([an, ext]);
+        }
+      }
+      if (A.ruta.length) {
+        const [la, lo] = A.ruta[0]; tx = c.pos.x + lx * la + c.fx * lo; tz = c.pos.z + lz * la + c.fz * lo;
+        if (Math.hypot(tx - this.pos.x, tz - this.pos.z) < 0.5) A.ruta.shift();
+      }
+      const dx = tx - this.pos.x, dz = tz - this.pos.z, d = Math.hypot(dx, dz);
+      if ((d > 0.22 || A.ruta.length) && A.t < 3.2) { const v = Math.min(d / dt, d > 2.5 ? 5.2 : 3.4); this.pos.x += dx / d * v * dt; this.pos.z += dz / d * v * dt; this.yaw = this.girar(this.yaw, Math.atan2(dx, dz), dt * 1.5); this.vel = v; this.anim = null; this.dibujar(dt); return true; }
+      A.f = moto ? 'montar' : 'abrir'; A.t = 0; A.desde = this.pos.clone(); this.vel = 0;
+      A.yaw0 = moto ? this.yaw : Math.atan2(c.pos.x - this.pos.x, c.pos.z - this.pos.z);
+      this.anim = moto ? { clip: 'Jump_Start', escala: 2.6, veces: 1, nuevo: true } : { clip: 'Interact', escala: 2.2, veces: 1, nuevo: true };
+    }
+    this.vel = 0;
+    if (A.f === 'abrir') {
+      this.yaw = this.girar(this.yaw, A.yaw0, dt * 1.6);
+      if (A.t > 0.38) { A.f = 'sentar'; A.t = 0; A.desde = this.pos.clone(); A.yaw0 = this.yaw; this.anim = { clip: 'Sitting_Enter', escala: 1.75, veces: 1, nuevo: true }; }
+      this.dibujar(dt); return true;
+    }
+    const dur = A.f === 'montar' ? 0.42 : 0.7, k = Math.min(1, A.t / dur), s = k * k * (3 - 2 * k);
+    this.pos.lerpVectors(A.desde, asiento, A.f === 'montar' ? s : Math.min(1, s * 1.15));
+    let dy = c.yaw - A.yaw0; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); this.yaw = A.yaw0 + dy * Math.min(1, s * (A.f === 'montar' ? 1 : 1.6));
+    if (k >= 1) { this.abordo = null; this.anim = null; return false; }
+    this.dibujar(dt); return true;
+  }
+
+  bajar(dt) {
+    const B = this.bajando; B.t += dt;
+    const k = Math.min(1, B.t / B.dur), s = k * k * (3 - 2 * k);
+    this.pos.lerpVectors(B.desde, B.hasta, B.moto ? s : Math.min(1, s * 1.25)); this.yaw = B.yaw; this.vel = 0;
+    if (k >= 1 || this.j.jugador.coche) { this.bajando = null; this.anim = null; return false; }
+    this.dibujar(dt); return true;
+  }
+
   actualizar(dt) {
     const j = this.j, jug = j.jugador, g = this.p.grupo;
-    const c = jug.coche;
+    const c = jug.coche, subeA = c || (j.entrando?.f || j.entrando?.t > 0.15 ? j.entrando.c : null);
+    if (subeA && subeA.tipo !== 'lancha' && this.enCoche !== subeA) {
+      if (this.enMoto) { j.escena.add(g); this.enMoto = null; }
+      this.bajando = null;
+      if (!this.abordo || this.abordo.c !== subeA) this.abordo = { c: subeA, f: 'ir', t: 0 };
+      if (this.abordar(dt)) return;
+      if (!c) { this.enCoche = subeA; this.pos.copy(this.asientoP(subeA)); this.yaw = subeA.yaw; }
+    }
+    if (!c && this.enCoche && j.entrando?.c === this.enCoche) {
+      if (this.enCoche.tipo === 'moto') { this.dibujar(dt); } else g.visible = false;
+      return;
+    }
     if (c) {
       if (c.tipo === 'moto') {
         if (this.enMoto !== c) { c.carro.add(g); g.position.set(0, 0.5, -0.62); g.rotation.set(0, 0, 0); this.enMoto = c; }
@@ -79,14 +150,22 @@ export class Duo {
       }
       return;
     }
+    this.abordo = null;
     if (this.enMoto) { j.escena.add(g); this.enMoto = null; }
     if (this.enCoche) {
-      const k = this.enCoche, lado = k.t.ancho / 2 + 0.8;
+      const k = this.enCoche, lado = k.t.ancho / 2 + 0.8, moto = k.tipo === 'moto';
       this.pos.set(k.pos.x - k.fz * lado, 0, k.pos.z + k.fx * lado);
       j.mundo.empujar(this.pos, 0.4);
       this.p.cuerpo.rotation.set(0, 0, 0); this.p.pi.rotation.set(0, 0, 0); this.p.pd.rotation.set(0, 0, 0);
       this.enCoche = null;
+      if ((k.vel || 0) < 6 && !jug.muerto && k.tipo !== 'lancha' && !jug.interior) {
+        const desde = this.asientoP(k), hasta = this.pos.clone();
+        this.bajando = { t: 0, dur: moto ? 0.4 : 0.68, moto, desde, hasta, yaw: moto ? k.yaw : Math.atan2(hasta.x - desde.x, hasta.z - desde.z) };
+        this.pos.copy(desde); this.yaw = this.bajando.yaw;
+        this.anim = { clip: moto ? 'Jump_Land' : 'Sitting_Exit', escala: moto ? 2.2 : 1.5, veces: 1, nuevo: true };
+      }
     }
+    if (this.bajando && this.bajar(dt)) return;
     g.visible = !jug.interior;
     if (jug.sentado && !this.sentado && !jug.interior && !this.buscarEnemigo()) { let b = j.ciudad.bancas?.find(b => !b.ocupante && !b.pie && Math.hypot(b.x - jug.pos.x, b.z - jug.pos.z) < 3.4); if (!b && !jug.sentado.terraza) { const s = jug.sentado; for (const lado of [-1, 1]) { const x = s.x + Math.cos(s.yaw) * 0.68 * lado, z = s.z - Math.sin(s.yaw) * 0.68 * lado; if (!j.mundo.dentro(x, 0.6, z) && !j.ciudad.arboles?.some?.(t => Math.hypot(t.x - x, t.z - z) < 0.7)) { b = { x, z, yaw: s.yaw, pie: false, virtual: true }; break; } } } if (b) { b.ocupante = this; this.sentado = b; } }
     if (this.sentado && (!jug.sentado || jug.interior)) { if (this.sentado.ocupante === this) this.sentado.ocupante = null; this.sentado = null; this.sentadoListo = null; this.tSentado = 0; this.platico = false; }

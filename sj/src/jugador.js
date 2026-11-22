@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { enLago, sobreMuelle } from './ciudad.js?v=202611221014';
-import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611221014';
+import { enLago, sobreMuelle } from './ciudad.js?v=202611221510';
+import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611221510';
 
 export const ARMAS = {
   puno: { nombre: 'PUÑOS', tipo: 'golpe', daño: 14, cadencia: 0.42, alcance: 1.7, empuje: 3, cargador: 0 },
@@ -32,9 +32,24 @@ export const CATEGORIAS = [
 ];
 export const tieneArma = (j, k) => { const s = j.armas[k]; return !!s && (ARMAS[k].tipo !== 'lanzar' || s.reserva > 0); };
 
-import { Realista } from './realista.js?v=202611221014';
+import { Realista } from './realista.js?v=202611221510';
 export const REALISTAS = {};
-export function realistaDe(nombre) { const k = nombre === 'Lucía' ? 'lucia' : nombre === 'Matías' ? 'matias' : nombre; return REALISTAS[k] || (REALISTAS[k] = new Realista(k)); }
+export const OUTFIT = {};
+export const OUTFITS = {
+  'Matías': [['matias', 'Varsity Jacaranda', 'Chamarra varsity negra con "JACARANDA 07" en la espalda.'], ['matias_jersey', 'Jersey deportivo', 'Jersey morado con franja blanca y gorra.'], ['matias_guinda', 'Chamarra guinda', 'El look clásico de siempre.'], ['matias_traje', 'De traje', 'Traje oscuro con corbata, para las noches importantes.']],
+  'Lucía': [['lucia', 'Pelo suelto', 'Chamarra negra, playera vino y cargo caqui.'], ['lucia_cola', 'Clásica', 'Cola de caballo, chamarra negra y paliacate.'], ['lucia_deportiva', 'Deportiva', 'Top morado, leggings y tenis blancos.'], ['lucia_gala', 'De oficina', 'Blusa de rayas y falda oscura.']]
+};
+const clave = nombre => nombre === 'Lucía' ? 'lucia' : nombre === 'Matías' ? 'matias' : nombre;
+export function realistaDe(nombre) { const k = clave(nombre); return REALISTAS[k] || (REALISTAS[k] = new Realista(OUTFIT[k] || k)); }
+export function cambiarOutfit(nombre, modelo, alListo) {
+  const k = clave(nombre); OUTFIT[k] = modelo;
+  const viejo = REALISTAS[k];
+  if (!viejo) return;
+  if (viejo.nombre === modelo) { alListo?.(viejo); return; }
+  if (viejo.cambiando?.nombre === modelo) return;
+  const nuevo = new Realista(modelo); viejo.cambiando = nuevo;
+  nuevo.promesa.then(() => { if (OUTFIT[k] !== modelo) return; viejo.liberar?.(); REALISTAS[k] = nuevo; alListo?.(nuevo); });
+}
 
 export const PROTAS = {
   'Matías': { base: { piel: '#b07650', camisa: '#f4f1ea', pantalon: '#22304d', pelo: '#15100c', gorra: '#7a2f3a', colorSombrero: '#3a2a1a' }, chamarra: '#7a2f3a', estilo: { cara: 0, ropa: null, estiloPelo: 'corto', barba: 'barba' } },
@@ -225,7 +240,7 @@ export class Jugador {
     if (this.nadando) this.suelo = 0;
     j.mundo.empujar(this.pos, 0.34, this.nadando ? 0 : this.y, true);
     for (const c of j.coches) {
-      if (c === this.coche || c === j.entrando?.c) continue;
+      if (c === this.coche || c === j.entrando?.c || c === j.saliendo?.c) continue;
       const dx = this.pos.x - c.pos.x, dz = this.pos.z - c.pos.z;
       const lx = dx * c.fx + dz * c.fz, lz = dx * -c.fz + dz * c.fx;
       const hl = c.t.largo / 2 + 0.3, ha = c.t.ancho / 2 + 0.3;

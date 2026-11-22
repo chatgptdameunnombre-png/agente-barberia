@@ -1,5 +1,5 @@
-import { Peaton } from './peatones.js?v=202611221014';
-import { linea, CALLE, BLOQUES, tipoBloque } from './ciudad.js?v=202611221014';
+import { Peaton } from './peatones.js?v=202611221510';
+import { linea, CALLE, BLOQUES, tipoBloque } from './ciudad.js?v=202611221510';
 
 export class Pandillas {
   constructor(juego) {

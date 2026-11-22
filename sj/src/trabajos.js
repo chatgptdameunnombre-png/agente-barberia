@@ -1,7 +1,7 @@
-import { linea, BLOQUES } from './ciudad.js?v=202611221014';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221014';
-import { Peaton } from './peatones.js?v=202611221014';
-import { crearMarcador } from './misiones.js?v=202611221014';
+import { linea, BLOQUES } from './ciudad.js?v=202611221510';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221510';
+import { Peaton } from './peatones.js?v=202611221510';
+import { crearMarcador } from './misiones.js?v=202611221510';
 
 const ix = i => linea(i);
 export const SALIDAS = [
@@ -16,7 +16,7 @@ export class Trabajos {
   constructor(juego) {
     this.j = juego;
     this.activo = null;
-    this.mejores = {};
+    this.mejores = {}; this.ganadas = {};
     this.marca = crearMarcador(juego.escena, '#3fd2ff');
   }
 
@@ -28,6 +28,7 @@ export class Trabajos {
       const d = opciones[Math.random() * opciones.length | 0];
       const paso = 2 + (Math.random() * 2 | 0);
       const ni = i + d[0] * paso, nk = k + d[1] * paso;
+      if (d[0] === 0 && i === 3) continue;
       if (ni < 0 || nk < 0 || ni > BLOQUES || nk > BLOQUES || vistos.has(ni + ',' + nk)) continue;
       vistos.add(ni + ',' + nk); pts.push({ i: ni, k: nk }); i = ni; k = nk; dir = d;
     }
@@ -281,9 +282,12 @@ export class Trabajos {
       if (n !== A.ultimoNum && n > 0) { A.ultimoNum = n; j.hud.grande(String(n), '', 0.8); j.audio.ui?.(520); }
       if (A.cuenta <= 0) {
         j.hud.grande('¡YA!', '', 1, 'exito'); j.audio.ui?.(1040);
+        const q0 = A.puntos[0], yr = Math.atan2(q0.x - c.pos.x, q0.z - c.pos.z), fx = Math.sin(yr), fz = Math.cos(yr);
         for (let k = 0; k < 2 && c; k++) {
           const lado = k ? -3.2 : 3.2;
-          const r = new Coche(j, 'deportivo', ['#e8c23a', '#2e8ad8'][k], c.pos.x + c.fz * lado - c.fx * 2, c.pos.z - c.fx * lado - c.fz * 2, c.yaw);
+          let x = c.pos.x + fz * lado - fx * 1.5, z = c.pos.z - fx * lado - fz * 1.5;
+          if (j.mundo.dentro(x, 1, z)) { x = c.pos.x - fz * lado * 2 - fx * 7; z = c.pos.z + fx * lado * 2 - fz * 7; if (j.mundo.dentro(x, 1, z)) { x = c.pos.x - fz * lado - fx * 8; z = c.pos.z + fx * lado - fz * 8; } }
+          const r = new Coche(j, 'deportivo', ['#e8c23a', '#2e8ad8'][k], x, z, yr); r.salud = r.t.salud * 3;
           r.conductor = 'rival'; r.rival = { i: 0, puntos: A.puntos };
           j.coches.push(r); A.rivales.push(r);
         }
@@ -322,7 +326,7 @@ export class Trabajos {
     const premio = lugar === 1 ? A.premio : lugar === 2 ? Math.round(A.premio * 0.35) : 0;
     this.terminar('', true);
     if (premio) { j.jugador.dinero += premio; j.estadisticas.sumar('ganado', premio); j.hud.popDinero(premio); }
-    if (lugar === 1) j.estadisticas.sumar('carreras');
+    if (lugar === 1) { j.estadisticas.sumar('carreras'); if (!this.ganadas[id]) { this.ganadas[id] = true; const n = SALIDAS.filter(x => this.ganadas[x.id]).length; j.hud.notificar('ok', 'Carrera completada', `${A.salida.nombre} · ${n} de ${SALIDAS.length} carreras ganadas.`, 4); } }
     j.hud.grande(lugar === 1 ? '¡PRIMER LUGAR!' : lugar === 2 ? 'SEGUNDO LUGAR' : 'TERCER LUGAR', `${fmt(t)}${record && lugar <= 2 ? ' · nuevo récord' : ''}${premio ? ' · +$' + premio.toLocaleString('es-MX') : ''}`, 3.2, lugar === 1 ? 'exito' : 'mision');
     if (lugar === 1) j.redes?.publicar('persecucion', A.salida.nombre);
     j.guardar();
@@ -341,13 +345,13 @@ export class Trabajos {
 
   marcasMapa() {
     const l = [], A = this.activo;
-    if (!A) for (const s of SALIDAS) l.push({ x: ix(s.i), z: ix(s.k), tipo: 'icono', ic: { c: '#3fd2ff', t: 'bandera', n: 'Carrera callejera' } });
+    if (!A) for (const s of SALIDAS) l.push({ x: ix(s.i), z: ix(s.k), tipo: 'icono', ic: { c: this.ganadas[s.id] ? '#ffd23a' : '#3fd2ff', t: 'bandera', n: this.ganadas[s.id] ? 'Carrera ganada' : 'Carrera callejera' } });
     if (A?.tipo === 'reparto') l.push(A.entrega ? { x: A.entrega.x, z: A.entrega.z, tipo: 'objetivo', color: '#ffb347', texto: 'persona' } : { x: A.recoger.x, z: A.recoger.z, tipo: 'objetivo', color: '#ffb347', texto: 'bolsa' });
     if (A?.tipo === 'paramedico') { const p = A.abordo ? this.j.ciudad.lugares.hospital : A.paciente?.pos; if (p) l.push({ x: p.x, z: p.z, tipo: 'objetivo', color: '#ff5a6a', texto: A.abordo ? 'cruzroja' : 'persona' }); }
     if (A?.tipo === 'vigilante') for (const k of A.criminales || []) if (!k.detenido) l.push({ x: k.pos.x, z: k.pos.z, tipo: 'objetivo', color: '#ff3b3b', texto: 'coche' });
     return l;
   }
 
-  guardar() { return { mejores: this.mejores }; }
-  cargar(d) { if (d?.mejores) this.mejores = d.mejores; }
+  guardar() { return { mejores: this.mejores, ganadas: this.ganadas }; }
+  cargar(d) { if (d?.mejores) this.mejores = d.mejores; if (d?.ganadas) this.ganadas = d.ganadas; }
 }
