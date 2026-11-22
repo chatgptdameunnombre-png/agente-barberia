@@ -22,10 +22,10 @@ class Oclusion extends GTAOPass {
 const Gradacion = {
   uniforms: {
     tDiffuse: { value: null }, vineta: { value: 0.2 }, saturacion: { value: 1.06 }, contraste: { value: 1.04 },
-    tinte: { value: new THREE.Color(1.02, 1.0, 0.97) }, dolor: { value: 0 }, gris: { value: 0 }, aberracion: { value: 0 }, velocidad: { value: 0 }, tiempo: { value: 0 }
+    tinte: { value: new THREE.Color(1.02, 1.0, 0.97) }, filtro: { value: 0 }, dolor: { value: 0 }, gris: { value: 0 }, aberracion: { value: 0 }, velocidad: { value: 0 }, tiempo: { value: 0 }
   },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-  fragmentShader: `uniform sampler2D tDiffuse; uniform float vineta, saturacion, contraste, dolor, gris, aberracion, velocidad, tiempo; uniform vec3 tinte; varying vec2 vUv;
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float vineta, saturacion, contraste, dolor, gris, aberracion, velocidad, tiempo, filtro; uniform vec3 tinte; varying vec2 vUv;
     float azar(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)) + tiempo) * 43758.5453); }
     void main(){
       vec2 c = vUv - 0.5;
@@ -46,6 +46,14 @@ const Gradacion = {
       col.rgb = mix(vec3(l), col.rgb, saturacion * (1.0 - gris));
       col.rgb *= tinte;
       col.rgb = mix(col.rgb, col.rgb * vec3(1.4, 0.35, 0.35), dolor * smoothstep(0.25, 0.75, d));
+      if (filtro > 0.5) {
+        float lf = dot(col.rgb, vec3(0.299, 0.587, 0.114));
+        if (filtro < 1.5) col.rgb = vec3(pow(lf, 0.95) * 1.05);
+        else if (filtro < 2.5) col.rgb = vec3(lf * 1.07, lf * 0.88, lf * 0.66) + vec3(0.04, 0.02, 0.0);
+        else if (filtro < 3.5) col.rgb = mix(col.rgb, col.rgb * vec3(1.18, 1.0, 0.78), 0.8) + vec3(0.02, 0.0, -0.01);
+        else col.rgb = mix(vec3(lf), col.rgb, 1.6) * vec3(1.05, 0.9, 1.2) + vec3(0.03, 0.0, 0.05);
+        col.rgb *= 1.0 - 0.25 * smoothstep(0.3, 0.8, d);
+      }
       col.rgb *= 1.0 - vineta * smoothstep(0.35, 0.85, d);
       gl_FragColor = col;
     }`
