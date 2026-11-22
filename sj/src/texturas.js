@@ -47,6 +47,9 @@ export function hoja(url, cols, rows, opc = {}) {
       const cb = document.createElement('canvas'); cb.width = c.width; cb.height = c.height;
       cb.getContext('2d', { willReadFrequently: true }).fillRect(0, 0, cb.width, cb.height);
       pieza.lienzoBrillo = cb;
+      const cv = document.createElement('canvas'); cv.width = c.width; cv.height = c.height; pieza.lienzoVidrio = cv;
+      pieza.vidrioMapa = new THREE.CanvasTexture(cv); pieza.vidrioMapa.colorSpace = THREE.NoColorSpace;
+      if (opc.repetir) pieza.vidrioMapa.wrapS = pieza.vidrioMapa.wrapT = THREE.RepeatWrapping;
       pieza.brillo = new THREE.CanvasTexture(cb); pieza.brillo.colorSpace = THREE.SRGBColorSpace;
       if (opc.repetir) pieza.brillo.wrapS = pieza.brillo.wrapT = THREE.RepeatWrapping;
       if (opc.pixel) pieza.brillo.magFilter = THREE.NearestFilter;
@@ -81,6 +84,7 @@ export function hoja(url, cols, rows, opc = {}) {
       p.textura.needsUpdate = true;
       if (p.lienzoBrillo) {
         const d = g.getImageData(0, 0, w, h).data, gb = p.lienzoBrillo.getContext('2d', { willReadFrequently: true }), o = gb.createImageData(w, h);
+        const gv = p.lienzoVidrio.getContext('2d'), ov = gv.createImageData(w, h);
         const vidrio = opc.brillo === 'azul' || p.vidrio;
         const hash = (a, b) => { const v = Math.sin(a * 127.1 + b * 311.7 + i * 74.7) * 43758.5453; return v - Math.floor(v); };
         const tonos = [[255, 214, 150], [255, 236, 200], [205, 225, 255], [240, 240, 228]];
@@ -92,6 +96,7 @@ export function hoja(url, cols, rows, opc = {}) {
           const fx = (x / w * CX) % 1, fy = (y / h * CY) % 1;
           const prendida = hash(cx, cy) < (vidrio ? 0.34 : 0.45);
           const ventana = vidrio ? (fx > 0.12 && fx < 0.88 && fy > 0.14 && fy < 0.86) : lum < 0.24;
+          ov.data[q] = 255; ov.data[q + 1] = ventana ? 26 : 235; ov.data[q + 2] = ventana ? 150 : 0; ov.data[q + 3] = 255;
           if (ventana && prendida) {
             const t = tonos[Math.floor(hash(cx + 9, cy + 3) * tonos.length)], k = 0.55 + hash(cx + 4, cy + 7) * 0.45;
             o.data[q] = t[0] * k; o.data[q + 1] = t[1] * k; o.data[q + 2] = t[2] * k;
@@ -100,6 +105,7 @@ export function hoja(url, cols, rows, opc = {}) {
         }
         gb.putImageData(o, 0, 0);
         p.brillo.needsUpdate = true;
+        gv.putImageData(ov, 0, 0); p.vidrioMapa.needsUpdate = true;
       }
       p.url = opc.sinUrl ? null : p.canvas.toDataURL();
       p.listo = true;

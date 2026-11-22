@@ -83,8 +83,27 @@ export class Ambiente {
     return { a, b, t };
   }
 
+  reflejos(forzar = false) {
+    const r = this.juego.renderer; if (!r) return;
+    const h = this.hora ?? 12;
+    if (!forzar && this.horaReflejo !== undefined && Math.abs(h - this.horaReflejo) < 0.5 && Math.abs(h - this.horaReflejo) < 23) return;
+    this.horaReflejo = h;
+    if (!this.escReflejo) {
+      this.escReflejo = new THREE.Scene();
+      this.escReflejo.add(new THREE.Mesh(new THREE.SphereGeometry(10, 32, 16), this.cieloMat));
+      this.sueloReflejo = new THREE.Mesh(new THREE.CircleGeometry(30, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#5a554e' }));
+      this.sueloReflejo.position.y = -0.6; this.escReflejo.add(this.sueloReflejo);
+      this.pmremCielo = new THREE.PMREMGenerator(r);
+    }
+    this.sueloReflejo.material.color.set('#6a645a').multiplyScalar(Math.max(0.08, Math.min(1, (this.hemi?.intensity || 1) / 1.1)));
+    const rt = this.pmremCielo.fromScene(this.escReflejo, 0.02, 0.1, 100);
+    this.rtReflejo?.dispose(); this.rtReflejo = rt;
+    this.juego.escena.environment = rt.texture;
+  }
+
   actualizar(dt, camara) {
     this.hora = (this.hora + dt * this.velocidad) % 24;
+    this.reflejos();
     this.climaT -= dt;
     if (this.climaT <= 0) {
       this.quiereLluvia = Math.random() < 0.3 ? 0.6 + Math.random() * 0.4 : 0;

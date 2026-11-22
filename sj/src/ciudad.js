@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { hoja } from './texturas.js?v=202611212233';
+import { hoja } from './texturas.js?v=202611212237';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -564,7 +564,7 @@ export function construirCiudad(escena, mundo) {
   const mats = {};
   for (const est in ESTILO_FACH) {
     const p = FACH[ESTILO_FACH[est]];
-    mats[est] = new THREE.MeshLambertMaterial({ map: p.textura, vertexColors: true, emissive: '#ffffff', emissiveMap: p.brillo, emissiveIntensity: 0 });
+    mats[est] = new THREE.MeshStandardMaterial({ map: p.textura, vertexColors: true, emissive: '#ffffff', emissiveMap: p.brillo, emissiveIntensity: 0, roughnessMap: p.vidrioMapa, metalnessMap: p.vidrioMapa, roughness: 1, metalness: 1, envMapIntensity: 1.1 });
   }
   mats.liso = new THREE.MeshLambertMaterial({ vertexColors: true });
   salida.materialesVentanas = Object.keys(ESTILO_FACH).map(k => mats[k]);
