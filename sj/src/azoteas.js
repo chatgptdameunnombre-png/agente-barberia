@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { VIENTO } from './ciudad.js?v=202611212344';
+import { VIENTO } from './ciudad.js?v=202611212349';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 const _c = new THREE.Color();
@@ -181,7 +181,7 @@ export function construirAzoteas(juego) {
     const m = new THREE.Mesh(mergeGeometries(lista), mat);
     m.receiveShadow = true; m.castShadow = sombra; escena.add(m); mallas.push(m);
   };
-  for (const T of trozos.values()) { agregar(T.techos, matTecho, false); agregar(T.cosas, matCosas, true); agregar(T.ropa, matRopa, true); }
+  for (const T of trozos.values()) { agregar(T.techos, matTecho, false); agregar(T.cosas, matCosas, false); agregar(T.ropa, matRopa, false); }
   const matLuz = new THREE.MeshBasicMaterial({ color: '#ff2a1a', transparent: true, opacity: 0.4, toneMapped: false });
   if (luces.length) { const m = new THREE.Mesh(mergeGeometries(luces), matLuz); escena.add(m); mallas.push(m); }
   let t = 0;
