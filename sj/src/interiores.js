@@ -1,24 +1,25 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611220050';
-import { hoja } from './texturas.js?v=202611220050';
-import { Peaton } from './peatones.js?v=202611220050';
-import { letrero } from './ciudad.js?v=202611220050';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220050';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220050';
-import { ARTICULOS } from './actividades.js?v=202611220050';
+import { animar } from './persona.js?v=202611220053';
+import { hoja } from './texturas.js?v=202611220053';
+import { Peaton } from './peatones.js?v=202611220053';
+import { letrero } from './ciudad.js?v=202611220053';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220053';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220053';
+import { ARTICULOS } from './actividades.js?v=202611220053';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
 const INT = hoja('assets/interior.jpg', 3, 2, { tam: 512, sinUrl: true });
-const COLOR_ICONO = { tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8' };
-const LETRA = { tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota' };
+const COLOR_ICONO = { tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a' };
+const LETRA = { tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L' };
 const LUGARES_LIBRES = [
   ['ropa', 'BOUTIQUE LA JACARANDA', 'Boutique La Jacaranda', '#2a1440', '#e9c8ff'],
   ['barberia', 'BARBERÍA EL BIGOTE', 'Barbería El Bigote', '#1a1a1a', '#ff6b6b'],
   ['cantina', 'CANTINA LA JACARANDA', 'Cantina La Jacaranda', '#2a1a0e', '#ffb347'],
   ['gimnasio', 'GIMNASIO EL TORO', 'Gimnasio El Toro', '#101a14', '#4fe08a'],
   ['depa', 'DEPARTAMENTOS JACARANDA', 'Tu departamento', '#1a1428', '#d9b3ff'],
-  ['antro', 'ANTRO NEÓN', 'Antro Neón', '#100818', '#ff4fd8']
+  ['antro', 'ANTRO NEÓN', 'Antro Neón', '#100818', '#ff4fd8'],
+  ['arena', 'ARENA JACARANDA · LUCHA LIBRE', 'Arena Jacaranda', '#1a0a0a', '#ffd23a']
 ];
 
 const ROPA_NOMBRES = ['Camisa de cuadros', 'Jersey Perla FC', 'Guayabera blanca', 'Sudadera gris', 'Blusa bordada', 'Chamarra de mezclilla', 'Playera jacaranda', 'Camisa hawaiana'];
@@ -47,6 +48,49 @@ export class Interiores {
     this.elegir();
     this.tiendas.forEach((t, i) => { t.zonas = []; this.construir(t, i); this.puertaFuera(t); });
     this.crearCajeros();
+  }
+
+  animarArena(T, dt) {
+    const A = T.arena, j = this.j, t = (A.t += dt), rz = A.rz;
+    const intenso = A.combate > 0 ? 1 : 0.35;
+    const ang = t * (0.6 + intenso * 0.5);
+    const [r1, r2] = [A.rudo, A.tecnico];
+    if (!A.caida) {
+      r1.grupo.position.set(Math.cos(ang) * 1.3, 1.0, rz + Math.sin(ang) * 1.3); r2.grupo.position.set(-Math.cos(ang) * 1.3, 1.0, rz - Math.sin(ang) * 1.3);
+      r1.grupo.rotation.y = Math.atan2(r2.grupo.position.x - r1.grupo.position.x, r2.grupo.position.z - r1.grupo.position.z); r2.grupo.rotation.y = r1.grupo.rotation.y + Math.PI;
+      for (const [p, k] of [[r1, 0], [r2, 1]]) {
+        animar(p, dt, 1.2, 'puno', false);
+        const golpe = Math.max(0, Math.sin(t * 3.2 + k * Math.PI));
+        p.bd.rotation.set(-1.2 - golpe * 0.6 * intenso, 0, -0.2); p.bi.rotation.set(-1.1, 0, 0.3); p.cd.rotation.x = -1.4 + golpe; p.ci.rotation.x = -1.6;
+        const salto = intenso > 0.5 && Math.sin(t * 0.9 + k * 2) > 0.92 ? Math.sin((t * 0.9 + k * 2) * 6) * 0.25 + 0.6 : 0;
+        p.grupo.position.y = 1.0 + Math.max(0, salto);
+      }
+    }
+    if (A.combate > 0) {
+      A.combate -= dt;
+      if (A.combate <= 0 && A.apuesta) {
+        const gana = Math.random() < 0.47 ? 'rudo' : 'tecnico', perdedor = gana === 'rudo' ? r2 : r1;
+        A.caida = { p: perdedor, t: 0 };
+        j.audio.tono(880, 0.4, 0.2, 'triangle'); j.audio.tono(880, 0.4, 0.2, 'triangle', null, (j.audio.ctx?.currentTime || 0) + 0.5); j.audio.tono(880, 0.6, 0.2, 'triangle', null, (j.audio.ctx?.currentTime || 0) + 1);
+        if (gana === A.apuesta.lado) { j.jugador.dinero += A.apuesta.monto * 2; j.audio.dinero(); j.hud.grande('¡GANÓ EL ' + (gana === 'rudo' ? 'RUDO' : 'TÉCNICO') + '!', 'Cobras $' + A.apuesta.monto * 2, 3); }
+        else j.hud.grande('¡GANÓ EL ' + (gana === 'rudo' ? 'RUDO' : 'TÉCNICO') + '!', 'Perdiste tu apuesta', 3);
+        A.apuesta = null;
+      }
+    }
+    if (A.caida) {
+      A.caida.t += dt; const p = A.caida.p;
+      p.grupo.rotation.x = -Math.min(Math.PI / 2, A.caida.t * 4); p.grupo.position.y = 1.0 + 0.2;
+      if (A.caida.t > 6) { p.grupo.rotation.x = 0; A.caida = null; }
+    }
+    for (const q of A.publico) {
+      const p = q.p, s = Math.sin(t * (2 + intenso * 3) + q.fase);
+      animar(p, dt, 0, 'puno', false);
+      const arriba = intenso > 0.5 && s > 0.2;
+      p.bd.rotation.set(arriba ? -2.8 : -0.3, 0, -0.2); p.bi.rotation.set(arriba ? -2.7 : -0.3, 0, 0.2);
+      p.cuerpo.position.y = arriba ? 0.06 : 0;
+    }
+    A.ruido -= dt;
+    if (A.ruido <= 0) { A.ruido = 0.3; j.audio.ruidoCorto(0.6, 700 + Math.random() * 600, 0.04 + intenso * 0.08, 'bandpass', 0.7); }
   }
 
   animarAntro(T, dt) {
@@ -189,7 +233,7 @@ export class Interiores {
 
   construir(t, i) {
     const j = this.j, esc = j.escena, mundo = j.mundo;
-    const W = t.tipo === 'armeria' ? 12 : 14, L = 11, H = 4;
+    const W = t.tipo === 'armeria' ? 12 : t.tipo === 'arena' ? 22 : 14, L = t.tipo === 'arena' ? 19 : 11, H = t.tipo === 'arena' ? 6.5 : 4;
     const ox = 3000 + (i % 4) * 40, oz = 3000 + Math.floor(i / 4) * 40;
     const g = new THREE.Group(); g.position.set(ox, 0, oz); g.visible = false; esc.add(g);
     t.interior = { g, ox, oz, W, L, H, entrada: new THREE.Vector3(ox, 0, oz + L / 2 - 1.6), salida: new THREE.Vector3(ox, 0, oz + L / 2 - 0.9) };
@@ -288,6 +332,29 @@ export class Interiores {
       t.antro = { baldosas, focos, dj, bailarines, t: 0 };
       t.cajero = this.npc(t, W / 2 - 0.5, 0.5, { cara: 5, ropa: 6 });
       t.interior.mostrador.set(ox + W / 2 - 2.2, 0, oz + 0.5);
+    } else if (t.tipo === 'arena') {
+      const rz = -2.5;
+      caja(6.4, 1.0, 6.4, m('#2a2c34'), 0, 0.5, rz);
+      const lona = new THREE.Mesh(new THREE.PlaneGeometry(6, 6).rotateX(-Math.PI / 2), m('#2a5ab8')); lona.position.set(0, 1.01, rz); g.add(lona);
+      for (const [sx, sz, c] of [[-1, -1, '#c8202e'], [1, 1, '#2a5ab8'], [1, -1, '#f2f2f2'], [-1, 1, '#f2f2f2']]) caja(0.22, 1.6, 0.22, m(c), sx * 3, 1.8, rz + sz * 3, false);
+      for (const y of [1.45, 1.85, 2.25]) { for (const s2 of [-1, 1]) { caja(6, 0.05, 0.05, m(['#c8202e', '#f2f2f2', '#2a5ab8'][Math.round((y - 1.45) / 0.4)]), 0, y, rz + s2 * 3, false); caja(0.05, 0.05, 6, m(['#c8202e', '#f2f2f2', '#2a5ab8'][Math.round((y - 1.45) / 0.4)]), s2 * 3, y, rz, false); } }
+      caja(4, 0.4, 4, m('#1a1a1e', { emissive: '#fff4d0', emissiveIntensity: 0.9 }), 0, H - 0.6, rz, false);
+      for (const s2 of [-1, 1]) for (let f = 0; f < 3; f++) caja(1.2, 0.5 + f * 0.5, 13, m('#3a3a44'), s2 * (6.8 + f * 1.2), 0.25 + f * 0.25, rz + 1, true);
+      const mascara = (p, col, ojos) => { const c = document.createElement('canvas'); c.width = 128; c.height = 64; const x = c.getContext('2d'); x.fillStyle = col; x.fillRect(0, 0, 128, 64); x.fillStyle = ojos; for (const ex of [40, 88]) { x.beginPath(); x.ellipse(ex, 30, 13, 8, 0, 0, 7); x.fill(); } x.strokeStyle = '#ffd23a'; x.lineWidth = 4; x.beginPath(); x.moveTo(64, 0); x.lineTo(64, 20); x.stroke(); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; const k = new THREE.Mesh(new THREE.SphereGeometry(0.155, 16, 12), new THREE.MeshLambertMaterial({ map: tx })); k.position.set(0, 0.06, 0.01); k.scale.set(1, 1.15, 1.08); k.rotation.y = -Math.PI / 2; p.cabeza.add(k); };
+      const rudo = crearPersona({ camisa: '#1a1a1e', pantalon: '#c8202e', ropa: null, fijo: true, sinAccesorios: true, mangaCorta: true, complexion: 1.25 }); mascara(rudo, '#c8202e', '#1a1a1e');
+      const tecnico = crearPersona({ camisa: '#f2f2f2', pantalon: '#2a5ab8', ropa: null, fijo: true, sinAccesorios: true, mangaCorta: true, complexion: 1.1 }); mascara(tecnico, '#c9ced6', '#2a5ab8');
+      for (const p of [rudo, tecnico]) { p.grupo.position.set(0, 1.0, rz); g.add(p.grupo); }
+      const publico = [];
+      for (let k = 0; k < 26; k++) { const s2 = k % 2 ? 1 : -1, f = (k >> 1) % 3, p = crearPersona({ sinAccesorios: k % 3 !== 0, fijo: false }); p.grupo.position.set(s2 * (6.8 + f * 1.2), 0.5 + f * 0.5, rz - 4.5 + ((k >> 1) / 3 | 0) * 1.1 + (Math.random() - 0.5) * 0.3); p.grupo.rotation.y = s2 > 0 ? -Math.PI / 2 : Math.PI / 2; g.add(p.grupo); publico.push({ p, fase: Math.random() * 6 }); }
+      const cartel = (titulo, sub, fondo, x, z, ry, w = 3.2, h = 4.2) => { const c = document.createElement('canvas'); c.width = 256; c.height = 340; const q = c.getContext('2d'); q.fillStyle = fondo; q.fillRect(0, 0, 256, 340); q.fillStyle = '#ffd23a'; q.fillRect(0, 0, 256, 18); q.fillRect(0, 322, 256, 18); q.fillStyle = '#fff'; q.textAlign = 'center'; q.font = '900 34px Impact, Arial Black, sans-serif'; titulo.split('|').forEach((l, i) => q.fillText(l, 128, 90 + i * 44)); q.fillStyle = '#ffd23a'; q.font = '800 22px Arial, sans-serif'; sub.split('|').forEach((l, i) => q.fillText(l, 128, 240 + i * 28)); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; const pl = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tx })); pl.position.set(x, 3.2, z); pl.rotation.y = ry; g.add(pl); };
+      cartel('LUCHA|LIBRE|ESTA NOCHE', 'EL HIJO DEL JACARANDA|VS|EL RUDO DEL NOPAL', '#7a1020', -5, -L / 2 + 0.05, 0);
+      cartel('MÁSCARA|CONTRA|MÁSCARA', 'DOMINGO 8 PM|ARENA JACARANDA', '#10307a', 5, -L / 2 + 0.05, 0);
+      cartel('ARENA|JACARANDA', 'DESDE 1958|CATEDRAL DEL PANCRACIO', '#1a1a1e', -W / 2 + 0.05, -2, Math.PI / 2, 3.6, 4.4);
+      cartel('RUDOS|VS|TÉCNICOS', 'BOLETOS EN|TAQUILLA', '#5a1a7a', W / 2 - 0.05, -2, -Math.PI / 2, 3.6, 4.4);
+      t.arena = { rudo, tecnico, publico, rz, t: 0, combate: 0, apuesta: null, caida: null, ruido: 0 };
+      t.cajero = this.npc(t, -W / 2 + 2.2, L / 2 - 3.2, { cara: 3, ropa: 5 });
+      caja(2.6, 1.1, 0.8, m('#3a1a10'), -W / 2 + 2.2, 0.55, L / 2 - 4.3);
+      t.interior.mostrador.set(ox - W / 2 + 2.2, 0, oz + L / 2 - 5.2);
     } else if (t.tipo === 'gimnasio') {
       caja(W - 0.6, 2.2, 0.05, new THREE.MeshStandardMaterial({ color: '#dfe8f2', metalness: 0.55, roughness: 0.15 }), 0, 1.6, -L / 2 + 0.2, false);
       caja(1.6, 0.45, 0.5, m('#2a2a30'), -4, 0.42, -2.6); caja(0.08, 1.4, 0.08, m('#888'), -4.6, 0.7, -3.2, false); caja(0.08, 1.4, 0.08, m('#888'), -3.4, 0.7, -3.2, false);
@@ -448,6 +515,15 @@ export class Interiores {
       { id: 'jamaica', nombre: 'Agua de jamaica', precio: 25, verbo: 'Tomar', dar: jj => { j.mareo = Math.max(0, (j.mareo || 0) - 25); } },
       { id: 'bailar', nombre: 'Bailar en la pista', precio: 0, verbo: 'Bailar', desc: 'La gente te graba y subes seguidores.', dar: jj => { jj.gesto = { tipo: 'bailar', t: 8 }; j.redes.seguidores += 20 + (Math.random() * 30 | 0); j.redes.publicar('foto', '', { forzar: true }); j.actividades.cerrarTienda(); } }
     ] };
+    if (t.tipo === 'arena') {
+      const apostar = (lado, monto) => jj => { const A = t.arena; if (!A) return; if (A.combate > 0) { j.hud.notificar('info', 'Ya hay una lucha', 'Espera a que termine esta caída.', 3); jj.dinero += monto; return; } A.apuesta = { lado, monto }; A.combate = 14; A.caida = null; j.audio.tono(880, 0.5, 0.18, 'triangle'); j.hud.grande('¡A LA LONA!', 'Apostaste $' + monto + ' al ' + (lado === 'rudo' ? 'Rudo' : 'Técnico'), 2); };
+      return { titulo: 'ARENA JACARANDA', sub: 'LUCHA LIBRE · RUDOS CONTRA TÉCNICOS', articulos: [
+        { id: 'rudo', nombre: 'Apostar $100 al Rudo (rojo)', precio: 100, verbo: 'Apostar', desc: 'Si gana, cobras el doble.', dar: apostar('rudo', 100) },
+        { id: 'tecnico', nombre: 'Apostar $100 al Técnico (azul)', precio: 100, verbo: 'Apostar', desc: 'Si gana, cobras el doble.', dar: apostar('tecnico', 100) },
+        { id: 'cerveza', nombre: 'Cerveza', precio: 35, verbo: 'Tomar', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 10); j.mareo = Math.min(90, (j.mareo || 0) + 18); } },
+        { id: 'torta', nombre: 'Torta ahogada', precio: 55, verbo: 'Comer', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 40); } }
+      ] };
+    }
     if (t.tipo === 'gimnasio') return { titulo: 'GIMNASIO', sub: '', articulos: [
       { id: 'pesas', nombre: 'Pesas: +10 de salud máxima', precio: 120, verbo: 'Entrenar', dar: jj => { jj.saludMax = Math.min(160, jj.saludMax + 10); jj.salud = jj.saludMax; j.hud.grande('+10 SALUD MÁXIMA', 'Ahora tienes ' + jj.saludMax, 2.2, 'exito'); }, tiene: jj => jj.saludMax >= 160 },
       { id: 'caminadora', nombre: 'Caminadora: corres más rápido', precio: 80, verbo: 'Entrenar', dar: jj => { jj.bonoVel = Math.min(0.2, jj.bonoVel + 0.04); j.hud.grande('+4% VELOCIDAD', 'Corres ' + Math.round(jj.bonoVel * 100) + '% más rápido', 2.2, 'exito'); }, tiene: jj => jj.bonoVel >= 0.2 },
@@ -515,6 +591,7 @@ export class Interiores {
       }
     }
     const T = this.dentro;
+    if (T?.arena) this.animarArena(T, dt);
     if (T?.antro) this.animarAntro(T, dt);
     else this.j.audio.antro?.(0);
     if (!T) return;
