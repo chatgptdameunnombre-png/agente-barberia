@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { modeloProtagonista } from './jugador.js?v=202611212142';
-import { animar, sentar } from './persona.js?v=202611212142';
-import { Peaton } from './peatones.js?v=202611212142';
+import { modeloProtagonista, realistaDe } from './jugador.js?v=202611212207';
+import { animar, sentar } from './persona.js?v=202611212207';
+import { Peaton } from './peatones.js?v=202611212207';
 
 const CHARLAS = [
   [['Lucía', '¿Ya viste ese cielo? Esta ciudad de noche no tiene igual.'], ['Matías', 'Por eso no me voy de aquí.']],
@@ -109,6 +109,7 @@ export class Duo {
     animar(this.p, dt, this.vel, this.apunta > 0 ? 'pistola' : 'puno', this.apunta > 0);
     g.position.set(this.pos.x, 0, this.pos.z);
     g.rotation.y = this.yaw;
+    if (!j.sinRealista) realistaDe(this.nombre).actualizarJugador(this.adaptador || (this.adaptador = { juego: j }), dt, this);
   }
 
   girar(a, b, k) { let d = b - a; while (d > Math.PI) d -= 6.283; while (d < -Math.PI) d += 6.283; return a + d * Math.min(1, k * 8); }

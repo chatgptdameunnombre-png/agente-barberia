@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Personajes Santa Jacaranda</title>
+<style>
+  :root { --fondo: #14161c; --panel: rgba(20,22,28,.78); --texto: #f2efe8; --acento: #ff4f9a; --borde: rgba(255,255,255,.12); }
+  html, body { margin: 0; height: 100%; background: var(--fondo); color: var(--texto); font: 500 14px Inter, system-ui, sans-serif; overflow: hidden; }
+  canvas { display: block; }
+  #panel { position: fixed; left: 16px; bottom: 16px; max-width: calc(100vw - 32px); background: var(--panel); border: 1px solid var(--borde); border-radius: 14px; padding: 12px; backdrop-filter: blur(8px); }
+  #panel h1 { font-size: 15px; margin: 0 0 8px; letter-spacing: .04em; }
+  .fila { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  button { background: rgba(255,255,255,.08); color: var(--texto); border: 1px solid var(--borde); border-radius: 9px; padding: 6px 10px; font: inherit; cursor: pointer; }
+  button.on { background: var(--acento); border-color: var(--acento); color: #fff; }
+  #estado { font-size: 12px; opacity: .75; }
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="panel">
+  <h1>PERSONAJES · SANTA JACARANDA</h1>
+  <div class="fila" id="quien"></div>
+  <div class="fila" id="anims"></div>
+  <div id="estado">Cargando…</div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { crearHumano, configurar } from './src/humanos.js?v=202611212207';
+
+const r = new THREE.WebGLRenderer({ antialias: true });
+r.setPixelRatio(Math.min(devicePixelRatio, 2)); r.setSize(innerWidth, innerHeight);
+r.toneMapping = THREE.ACESFilmicToneMapping; r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(r.domElement);
+configurar(r);
+const esc = new THREE.Scene();
+esc.background = new THREE.Color('#2a2f3a'); esc.fog = new THREE.Fog('#2a2f3a', 12, 30);
+esc.environment = new THREE.PMREMGenerator(r).fromScene(new RoomEnvironment(), 0.04).texture;
+const cam = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 0.05, 100);
+cam.position.set(1.9, 1.45, 4.4);
+const ctl = new OrbitControls(cam, r.domElement); ctl.target.set(0, 0.92, 0); ctl.enableDamping = true; ctl.minDistance = 0.6; ctl.maxDistance = 9;
+const sol = new THREE.DirectionalLight('#fff0dc', 2.6); sol.position.set(3, 6, 4); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+Object.assign(sol.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7 }); sol.shadow.bias = -0.0003; sol.shadow.normalBias = 0.02;
+const borde = new THREE.DirectionalLight('#9fc0ff', 1.3); borde.position.set(-4, 3, -3);
+esc.add(sol, borde, new THREE.HemisphereLight('#dfe6ff', '#3a3028', 0.5));
+const piso = new THREE.Mesh(new THREE.CircleGeometry(14, 64).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#3b3d44', roughness: 0.85 }));
+piso.receiveShadow = true; esc.add(piso);
+
+const ANIMS = [['Reposo', 'Idle_Loop'], ['Platicando', 'Idle_Talking_Loop'], ['Caminar', 'Walk_Loop'], ['Trotar', 'Jog_Fwd_Loop'], ['Correr', 'Sprint_Loop'], ['Agachado', 'Crouch_Idle_Loop'], ['Rodar', 'Roll'], ['Golpe', 'Punch_Cross'], ['Pistola', 'Pistol_Idle_Loop'], ['Disparar', 'Pistol_Shoot'], ['Manejar', 'Driving_Loop'], ['Sentado', 'Sitting_Idle_Loop'], ['Bailar', 'Dance_Loop'], ['Morir', 'Death01']];
+const PERS = [['Matías', 'matias'], ['Lucía', 'lucia'], ['Don Chuy', 'chuy'], ['Todos', 'todos']];
+const GENTE = ['matias', 'lucia', 'chuy', 'peaton1', 'peaton2', 'peaton3', 'peaton4', 'peaton5', 'peaton6', 'peaton7', 'peaton8', 'peaton9', 'peaton10'];
+const grupoTodos = new THREE.Group();
+let actual = null, clip = 'Idle_Loop', nombre = 'matias';
+const cache = {};
+const unaVez = c => c === 'Death01' || c === 'Roll' || c.startsWith('Punch') || c === 'Pistol_Shoot' ? 1 : Infinity;
+const estado = document.getElementById('estado');
+
+async function mostrar(n) {
+  nombre = n; estado.textContent = 'Cargando…';
+  if (actual) esc.remove(actual.grupo);
+  esc.remove(grupoTodos);
+  if (n === 'todos') {
+    actual = null;
+    if (!grupoTodos.children.length) {
+      const hs = await Promise.all(GENTE.map(g => crearHumano(g).catch(() => null)));
+      const anims = ['Idle_Loop', 'Idle_Talking_Loop', 'Walk_Loop', 'Idle_Loop', 'Dance_Loop', 'Idle_Talking_Loop', 'Jog_Fwd_Loop'];
+      hs.filter(Boolean).forEach((h, i) => { const fila = i < 7 ? 0 : 1, col = fila ? i - 7 : i, n2 = fila ? 6 : 7; h.grupo.position.set((col - (n2 - 1) / 2) * 0.95, 0, -fila * 1.6); h.tocar(anims[i % anims.length], 0); h.mixer.setTime(Math.random() * 3); grupoTodos.add(h.grupo); grupoTodos.userData.lista = (grupoTodos.userData.lista || []).concat(h); });
+    }
+    esc.add(grupoTodos); cam.position.set(0, 2.2, 8.5); ctl.target.set(0, 0.9, -0.8);
+    estado.textContent = grupoTodos.children.length + ' personas · arrastra para girar'; pintar(); return;
+  }
+  cam.position.set(1.9, 1.45, 4.4); ctl.target.set(0, 0.92, 0);
+  const t0 = performance.now();
+  actual = cache[n] || (cache[n] = await crearHumano(n));
+  esc.add(actual.grupo); actual.tocar(clip, 0, unaVez(clip), true);
+  estado.textContent = 'Arrastra para girar · rueda para acercar';
+  pintar();
+}
+function pintar() {
+  document.getElementById('quien').innerHTML = PERS.map(([t, k]) => `<button data-p="${k}" class="${k === nombre ? 'on' : ''}">${t}</button>`).join('');
+  document.getElementById('anims').innerHTML = ANIMS.map(([t, k]) => `<button data-a="${k}" class="${k === clip ? 'on' : ''}">${t}</button>`).join('');
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.p) mostrar(b.dataset.p);
+  if (b.dataset.a && actual) { clip = b.dataset.a; actual.tocar(clip, 0.3, unaVez(clip), true); pintar(); }
+});
+addEventListener('resize', () => { cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); r.setSize(innerWidth, innerHeight); });
+const reloj = new THREE.Clock();
+r.setAnimationLoop(() => { const dt = Math.min(0.05, reloj.getDelta()); actual?.actualizar(dt); if (grupoTodos.parent) for (const h of grupoTodos.userData.lista || []) h.actualizar(dt); ctl.update(); r.render(esc, cam); });
+pintar(); mostrar('matias');
+</script>
+</body>
+</html>

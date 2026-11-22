@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar } from './persona.js?v=202611212142';
+import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar } from './persona.js?v=202611212207';
 
 export const ARMAS = {
   puno: { nombre: 'PUÑOS', tipo: 'golpe', daño: 14, cadencia: 0.42, alcance: 1.7, empuje: 3, cargador: 0 },
@@ -30,6 +30,10 @@ export const CATEGORIAS = [
   { id: 'lanzables', nombre: 'LANZABLES', armas: ['granada', 'molotov'] }
 ];
 export const tieneArma = (j, k) => { const s = j.armas[k]; return !!s && (ARMAS[k].tipo !== 'lanzar' || s.reserva > 0); };
+
+import { Realista } from './realista.js?v=202611212207';
+export const REALISTAS = {};
+export function realistaDe(nombre) { const k = nombre === 'Lucía' ? 'lucia' : nombre === 'Matías' ? 'matias' : nombre; return REALISTAS[k] || (REALISTAS[k] = new Realista(k)); }
 
 export const PROTAS = {
   'Matías': { base: { piel: '#b07650', camisa: '#f4f1ea', pantalon: '#22304d', pelo: '#15100c', gorra: '#7a2f3a', colorSombrero: '#3a2a1a' }, chamarra: '#7a2f3a', estilo: { cara: 0, ropa: null, estiloPelo: 'corto', barba: 'barba' } },
@@ -134,6 +138,11 @@ export class Jugador {
   }
 
   actualizar(dt, ent, camYaw) {
+    this.actualizarBase(dt, ent, camYaw);
+    if (!this.juego.sinRealista) realistaDe(this.personaje).actualizarJugador(this, dt);
+  }
+
+  actualizarBase(dt, ent, camYaw) {
     const j = this.juego;
     if (this.muerto && this.arrestado) {
       this.muerto += dt;
