@@ -44,6 +44,7 @@ export class Feria {
       sh.fragmentShader = 'uniform float tiempo;\nuniform float brillo;\nvarying float vFase;\n' + sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n  float on = step(0.5, fract(tiempo * 0.9 + vFase / 6.0));\n  diffuseColor.rgb *= mix(0.55, 2.2 * (0.45 + 0.55 * on), brillo);');
     };
     this.rueda.add(new THREE.Mesh(fg, mf));
+    this.carrusel(B.cx - 13, B.cz - 9);
     this.canastas = [];
     const colores = ['#c8202e', '#2a62b8', '#f2c14e', '#3a8f5c', '#7a3ab0', '#ff7a1a'];
     for (let k = 0; k < 16; k++) {
@@ -53,6 +54,34 @@ export class Feria {
       const palo = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.6, 5), acero); palo.position.y = -0.1; g.add(palo);
       g.position.set(Math.cos(a) * R, Math.sin(a) * R, 0); this.rueda.add(g); this.canastas.push(g);
     }
+  }
+
+  carrusel(x, z) {
+    const j = this.j, g = new THREE.Group(); g.position.set(x, 0, z); j.escena.add(g);
+    const blanco = new THREE.MeshStandardMaterial({ color: '#f4f2ec', roughness: 0.5 }), oro = new THREE.MeshStandardMaterial({ color: '#d8b04a', metalness: 0.7, roughness: 0.3 });
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(5, 5.2, 0.4, 32), new THREE.MeshStandardMaterial({ color: '#c8202e', roughness: 0.6 })); base.position.y = 0.35; base.receiveShadow = true; g.add(base);
+    const eje = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 4, 16), oro); eje.position.y = 2.4; g.add(eje);
+    const c = document.createElement('canvas'); c.width = 512; c.height = 64; const x2 = c.getContext('2d');
+    for (let k = 0; k < 16; k++) { x2.fillStyle = k % 2 ? '#c8202e' : '#f4f2ec'; x2.fillRect(k * 32, 0, 32, 64); }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping;
+    const techo = new THREE.Mesh(new THREE.ConeGeometry(5.6, 2.2, 32, 1, true), new THREE.MeshStandardMaterial({ map: t, side: THREE.DoubleSide, roughness: 0.6 })); techo.position.y = 5.3; g.add(techo);
+    const faldon = new THREE.Mesh(new THREE.CylinderGeometry(5.6, 5.6, 0.6, 32, 1, true), new THREE.MeshStandardMaterial({ map: t, side: THREE.DoubleSide, roughness: 0.6 })); faldon.position.y = 3.95; g.add(faldon);
+    const punta = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 8), oro); punta.position.y = 6.5; g.add(punta);
+    this.giraCarr = new THREE.Group(); this.giraCarr.position.y = 0.55; g.add(this.giraCarr);
+    this.caballos = [];
+    const colores = ['#f4f2ec', '#8a5a3a', '#2a2c30', '#e8c87a'];
+    for (let k = 0; k < 12; k++) {
+      const a = k / 12 * Math.PI * 2, r = k % 2 ? 3.6 : 2.6, h = new THREE.Group();
+      const mat = new THREE.MeshStandardMaterial({ color: colores[k % 4], roughness: 0.4 });
+      const cuerpo = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 0.7, 4, 10).rotateZ(Math.PI / 2), mat); h.add(cuerpo);
+      const cuello = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.35, 4, 8), mat); cuello.position.set(0.42, 0.25, 0); cuello.rotation.z = -0.6; h.add(cuello);
+      const cab = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.16, 0.16), mat); cab.position.set(0.62, 0.42, 0); cab.rotation.z = -0.3; h.add(cab);
+      for (const [px, pz] of [[0.3, 0.1], [0.3, -0.1], [-0.3, 0.1], [-0.3, -0.1]]) { const pata = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.5, 5), mat); pata.position.set(px, -0.35, pz); pata.rotation.z = px > 0 ? -0.5 : 0.5; h.add(pata); }
+      const silla = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.06, 0.32), new THREE.MeshStandardMaterial({ color: '#c8202e' })); silla.position.set(0, 0.24, 0); h.add(silla);
+      const tubo = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 3.4, 6), oro); tubo.position.y = 0.6; h.add(tubo);
+      h.position.set(Math.cos(a) * r, 1.0, Math.sin(a) * r); h.rotation.y = -a; this.giraCarr.add(h); this.caballos.push({ h, fase: k * 0.9 });
+    }
+    j.mundo.agregar(x - 4, z - 4, x + 4, z + 4, 1);
   }
 
   cerca() { const J = this.j.jugador; if (!this.rueda || this.paseo || J.coche || J.interior) return false; return Math.hypot(J.pos.x - this.entrada.x, J.pos.z - this.entrada.z) < 3; }
@@ -85,5 +114,6 @@ export class Feria {
     if (this.paseo) { this.paseo.giro += dt * vel; if (this.paseo.giro >= Math.PI * 2) this.bajar(); }
     for (const g of this.canastas) g.rotation.z = -this.rueda.rotation.z;
     this.tiempo.value += dt; this.brillo.value = noche;
+    if (this.giraCarr) { this.giraCarr.rotation.y += dt * 0.6; for (const c of this.caballos) c.h.position.y = 1.0 + Math.sin(this.tiempo.value * 2.2 + c.fase) * 0.28; }
   }
 }
