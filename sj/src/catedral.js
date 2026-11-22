@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { BANQUETA } from './ciudad.js?v=202611220053';
+import { BANQUETA } from './ciudad.js?v=202611220058';
 
 const _c = new THREE.Color();
 function teñir(geo, hex) { _c.set(hex); const n = geo.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([_c.r, _c.g, _c.b], i * 3); geo.setAttribute('color', new THREE.BufferAttribute(a, 3)); return geo; }
@@ -51,8 +51,19 @@ export function adornarCatedral(juego) {
     const manM = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.95, 0.04).translate(0, 0.45, 0), manH.material); manM.position.set(tx, 26, tf + 0.06); escena.add(manM);
     relojes.push({ manH, manM });
   }
+  let ultimaHora = null;
+  const centro = new THREE.Vector3(cx, 0, fz);
+  const campanadas = (n) => {
+    const a = juego.audio; if (!a?.ctx) return;
+    const d = juego.jugador.posicion.distanceTo(centro); if (d > 380) return;
+    const v = 0.16 * Math.max(0.08, 1 - d / 380), t0 = a.ctx.currentTime + 0.1;
+    for (let k = 0; k < n; k++) { const t = t0 + k * 1.6; a.tono(392, 3.2, v, 'sine', null, t); a.tono(784 * 1.19, 2.0, v * 0.45, 'sine', null, t); a.tono(196, 3.6, v * 0.5, 'triangle', null, t); }
+  };
   return {
     actualizar(hora, noche) {
+      const h = Math.floor(hora);
+      if (ultimaHora !== null && h !== ultimaHora && h >= 7 && h <= 22) campanadas(h % 12 || 12);
+      ultimaHora = h;
       matR.emissiveIntensity = noche * 0.6;
       for (const r of relojes) { r.manH.rotation.z = -((hora % 12) / 12) * Math.PI * 2; r.manM.rotation.z = -((hora % 1)) * Math.PI * 2; }
     }
