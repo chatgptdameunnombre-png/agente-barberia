@@ -1,11 +1,13 @@
 import * as THREE from 'three';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220250';
+import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220251';
 
 const NEGRO = new THREE.MeshStandardMaterial({ color: '#141418', roughness: 0.55 });
 const PLATA = new THREE.MeshStandardMaterial({ color: '#d8dce2', roughness: 0.25, metalness: 0.9 });
 const MADERA = new THREE.MeshStandardMaterial({ color: '#8a5a32', roughness: 0.6 });
 const LATON = new THREE.MeshStandardMaterial({ color: '#d8b050', roughness: 0.3, metalness: 0.85 });
 const SERENATA = [[72, 2], [74, 1], [76, 1], [77, 2], [76, 1], [74, 1], [72, 2], [69, 2], [0, 1], [71, 1], [72, 1], [74, 1], [76, 3], [74, 1], [72, 1], [71, 1], [69, 3], [0, 1], [67, 1], [69, 1], [71, 1], [72, 2], [74, 1], [76, 1], [77, 2], [76, 1], [74, 1], [72, 4], [0, 2]];
+let _halo = null;
+const HALO = () => { if (_halo) return _halo; const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,230,180,0.5)'); gr.addColorStop(1, 'rgba(255,220,160,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return (_halo = new THREE.CanvasTexture(c)); };
 const MELODIA = [[67, 1], [72, 1], [76, 1], [79, 2], [77, 1], [76, 1], [74, 1], [72, 2], [0, 1], [69, 1], [72, 1], [77, 1], [81, 2], [79, 1], [77, 1], [76, 1], [74, 2], [0, 1], [76, 1], [74, 1], [72, 1], [71, 1], [72, 1], [74, 1], [76, 2], [72, 1], [67, 2], [0, 1]];
 const BAJO = [48, 55, 52, 55, 53, 57, 53, 55, 50, 55, 53, 55, 48, 55, 52, 48];
 const hz = n => 440 * Math.pow(2, (n - 69) / 12);
@@ -69,6 +71,9 @@ export class Ambulantes {
     const palo = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 2.1), NEGRO); palo.position.set(0, 1.25, 0);
     const olla = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.2, 0.28, 14), PLATA); olla.position.set(-0.4, 1.3, 0);
     g.add(caja, franja, sombrilla, palo, olla);
+    const foco = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), new THREE.MeshBasicMaterial({ color: '#8a8578', toneMapped: false })); foco.position.set(0.2, 2.05, 0); g.add(foco);
+    const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.2, 4), NEGRO); cable.position.set(0.2, 2.17, 0); g.add(cable);
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: HALO(), color: '#ffcf8a', transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })); halo.position.set(0.2, 2.05, 0); halo.scale.setScalar(2.4); g.add(halo);
     let trompo = null;
     if (tipo === 'tacos') {
       trompo = new THREE.Group(); trompo.position.set(0.42, 1.15, 0.05);
@@ -92,7 +97,7 @@ export class Ambulantes {
     const v = crearPersona({ camisa: '#f2f2f0', ropa: null, fijo: true, sinAccesorios: true, gorra: tipo === 'tacos' ? '#c8402a' : undefined, falda: false });
     v.grupo.position.set(x, 0, z - 0.85); j.escena.add(v.grupo);
     for (const sx of [-0.7, 0.7]) j.ciudad.bancas?.push({ x: x + sx, z: z + 1.35, yaw: Math.PI, ocupante: null, pie: true, comida: tipo });
-    this.puestos.push({ x, z: z + 0.85, tipo, v, trompo, nombre: tipo === 'elotes' ? 'Elotes Doña Mari' : 'Tacos El Güero', fase: Math.random() * 6 });
+    this.puestos.push({ x, z: z + 0.85, tipo, v, trompo, foco, halo, nombre: tipo === 'elotes' ? 'Elotes Doña Mari' : 'Tacos El Güero', fase: Math.random() * 6 });
   }
 
   cerca() {
@@ -146,7 +151,8 @@ export class Ambulantes {
       else if (m.tipo === 'violin') { P.bi.rotation.set(-1.3, -0.4, 0.2); P.ci.rotation.x = -1.6; P.bd.rotation.set(-1.1 + b * 0.25, 0.4, -0.3); P.cd.rotation.x = -0.9; P.cabeza.rotation.z = 0.25; }
       else { P.bi.rotation.set(-0.9, -0.5, 0.1); P.ci.rotation.x = -1.2; P.bd.rotation.set(-0.55 + b * 0.12, 0.2, -0.15); P.cd.rotation.x = -1.3; }
     }
-    for (const q of this.puestos) { const d = Math.hypot(q.x - jp.x, q.z - jp.z); if (d > 70) continue; if (q.trompo) q.trompo.children[0].rotation.y += dt * 1.2; animar(q.v, dt, 0, 'puno', false); nivelDetalle(q.v, d < 45); if (Math.sin(t * 0.7 + q.fase) > 0.6) { q.v.bd.rotation.set(-1.2, 0, -0.2); q.v.cd.rotation.x = -1.2 + Math.sin(t * 8) * 0.3; } }
+    const noche = j.ambiente.noche || 0;
+    for (const q of this.puestos) { if (q.foco) { q.foco.material.color.set(noche > 0.25 ? '#fff0c0' : '#8a8578'); q.halo.material.opacity = noche * 0.65; } const d = Math.hypot(q.x - jp.x, q.z - jp.z); if (d > 70) continue; if (q.trompo) q.trompo.children[0].rotation.y += dt * 1.2; animar(q.v, dt, 0, 'puno', false); nivelDetalle(q.v, d < 45); if (Math.sin(t * 0.7 + q.fase) > 0.6) { q.v.bd.rotation.set(-1.2, 0, -0.2); q.v.cd.rotation.x = -1.2 + Math.sin(t * 8) * 0.3; } }
     this.musica(dMin);
     if (this.cerca()) j.hud.pista('E', (this.cerca().tipo === 'elotes' ? 'Comprar elote · $35' : 'Comprar tacos · $45'));
     else if (this.mariachiCerca()) j.hud.pista('E', 'Pedir una canción · $60');
