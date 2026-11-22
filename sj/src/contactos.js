@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220239';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220239';
-import { Peaton } from './peatones.js?v=202611220239';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220241';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220241';
+import { Peaton } from './peatones.js?v=202611220241';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -611,7 +611,7 @@ export const CONTACTOS = {
           }
           if (m.paso === 2) { m.objetivo('Escapa al <b>Taller de Don Chuy</b>.' + (j.policia.estrellas ? ' <b>Pierde a la policía</b> antes de llegar.' : '')); if (m.dentro(1, j.jugador.posicion, 1.4) && !j.policia.estrellas) return 'ok'; }
         },
-        fin(m) { m.j.redes?.publicar?.('explosion', '', { forzar: true }); m.j.hud.dialogos([['Doña Rosario', 'El golpe del año y nadie sabe quién fue. Eres mi mejor inversión.'], ['Don Chuy', 'Mijo… ¿tú tuviste algo que ver con lo del banco? Mejor no me digas.']]); }
+        fin(m) { m.j.noticias?.avisar('banco'); m.j.redes?.publicar?.('explosion', '', { forzar: true }); m.j.hud.dialogos([['Doña Rosario', 'El golpe del año y nadie sabe quién fue. Eres mi mejor inversión.'], ['Don Chuy', 'Mijo… ¿tú tuviste algo que ver con lo del banco? Mejor no me digas.']]); }
       }
     ]
   },
@@ -732,7 +732,7 @@ export const CONTACTOS = {
           if (m.paso === 1) { m.objetivo('Recoge la <b>máscara de gala</b>.'); if (m.mascara.tomado) { m.paso = 2; const L = m.lugarC('luchador'); m.marcar(1, L.x, L.z, 3, 2.5, '#4a8dff'); } }
           if (m.paso === 2) { m.objetivo('Regrésale la máscara al <b>Hijo del Jacaranda</b> en la Arena.' + (j.policia.estrellas ? ' <b>Pierde a la policía.</b>' : '')); if (llegar(m, 1) && !j.policia.estrellas) return 'ok'; }
         },
-        fin(m) { m.j.hud.dialogos([['El Hijo del Jacaranda', '¡Mi máscara! La hizo mi abuelo con hilo de plata. Eres un técnico de corazón, hermano.']]); }
+        fin(m) { m.j.noticias?.avisar('luchador'); m.j.hud.dialogos([['El Hijo del Jacaranda', '¡Mi máscara! La hizo mi abuelo con hilo de plata. Eres un técnico de corazón, hermano.']]); }
       },
       {
         titulo: 'EL CINTURÓN DE CAMPEÓN', premio: 2600,

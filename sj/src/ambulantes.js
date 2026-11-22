@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220239';
+import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220241';
 
 const NEGRO = new THREE.MeshStandardMaterial({ color: '#141418', roughness: 0.55 });
 const PLATA = new THREE.MeshStandardMaterial({ color: '#d8dce2', roughness: 0.25, metalness: 0.9 });
@@ -126,6 +126,7 @@ export class Ambulantes {
     j.hud.burbuja?.({ pos: this.mariachis[0].p.grupo.position, y: 0 }, ['¡Con mucho gusto, joven!', '¡Ahí le va una de las buenas!', '¡Para usted, jefe!'][Math.random() * 3 | 0]);
     for (const q of j.peatones) if (!q.muerto && q.tipo === 'civil' && q.pos.distanceTo(J.pos) < 14 && (q.estado === 'pasear' || q.estado === 'quieto')) { q.estado = 'quieto'; q.volverPasear = q.t + 8; q.yaw = Math.atan2(this.mariachis[0].x - q.pos.x, this.mariachis[0].z - q.pos.z); }
     j.estadisticas?.sumar?.('serenatas', 1);
+    j.noticias?.avisar('serenata');
     return true;
   }
 

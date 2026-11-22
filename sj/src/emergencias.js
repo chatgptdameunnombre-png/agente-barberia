@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { puntoCalleAleatorio } from './vehiculos.js?v=202611220239';
+import { puntoCalleAleatorio } from './vehiculos.js?v=202611220241';
 
 export class Emergencias {
   constructor(juego) { this.j = juego; this.espera = 90 + Math.random() * 90; this.activa = null; }
@@ -61,6 +61,7 @@ export class Persecuciones {
     const c = j.nuevoTrafico({ x: p.x - fx * 14, z: p.z - fz * 14, yaw: p.yaw }, 'policia');
     c.conductor = 'cazador'; c.presa = f; c.sirena = true; c.vx = fx * 12; c.vz = fz * 12; f.vx = fx * 16; f.vz = fz * 16;
     this.activa = { fugitivo: f, cazador: c, t: 0, atrapado: 0 };
+    this.j.noticias?.avisar('persecucion');
   }
 }
 

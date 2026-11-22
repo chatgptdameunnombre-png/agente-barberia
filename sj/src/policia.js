@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611220239';
-import { Peaton } from './peatones.js?v=202611220239';
-import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220239';
+import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611220241';
+import { Peaton } from './peatones.js?v=202611220241';
+import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220241';
 
 const MAX_COCHES = [0, 1, 2, 3, 4, 5];
 
@@ -21,6 +21,7 @@ export class Policia {
   }
 
   subir(n) {
+    if (n >= 4 && (this.estrellas || 0) < 4) this.juego.noticias?.avisar('estrellas');
     const antes = this.estrellas;
     this.estrellas = Math.min(5, Math.max(this.estrellas, n));
     if (this.estrellas > antes) { this.sinVer = 0; this.juego.audio?.alerta(); }

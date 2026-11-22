@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611220239';
-import { hoja } from './texturas.js?v=202611220239';
-import { Peaton } from './peatones.js?v=202611220239';
-import { letrero } from './ciudad.js?v=202611220239';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220239';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220239';
-import { ARTICULOS } from './actividades.js?v=202611220239';
+import { animar } from './persona.js?v=202611220241';
+import { hoja } from './texturas.js?v=202611220241';
+import { Peaton } from './peatones.js?v=202611220241';
+import { letrero } from './ciudad.js?v=202611220241';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220241';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220241';
+import { ARTICULOS } from './actividades.js?v=202611220241';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
@@ -72,7 +72,7 @@ export class Interiores {
         const gana = Math.random() < 0.47 ? 'rudo' : 'tecnico', perdedor = gana === 'rudo' ? r2 : r1;
         A.caida = { p: perdedor, t: 0 };
         j.audio.tono(880, 0.4, 0.2, 'triangle'); j.audio.tono(880, 0.4, 0.2, 'triangle', null, (j.audio.ctx?.currentTime || 0) + 0.5); j.audio.tono(880, 0.6, 0.2, 'triangle', null, (j.audio.ctx?.currentTime || 0) + 1);
-        if (gana === A.apuesta.lado) { j.jugador.dinero += A.apuesta.monto * 2; j.audio.dinero(); j.hud.grande('¡GANÓ EL ' + (gana === 'rudo' ? 'RUDO' : 'TÉCNICO') + '!', 'Cobras $' + A.apuesta.monto * 2, 3); }
+        if (gana === A.apuesta.lado) { j.noticias?.avisar('arena'); j.jugador.dinero += A.apuesta.monto * 2; j.audio.dinero(); j.hud.grande('¡GANÓ EL ' + (gana === 'rudo' ? 'RUDO' : 'TÉCNICO') + '!', 'Cobras $' + A.apuesta.monto * 2, 3); }
         else j.hud.grande('¡GANÓ EL ' + (gana === 'rudo' ? 'RUDO' : 'TÉCNICO') + '!', 'Perdiste tu apuesta', 3);
         A.apuesta = null;
       }

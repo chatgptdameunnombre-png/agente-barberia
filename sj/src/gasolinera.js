@@ -183,6 +183,7 @@ export class Gasolinera {
           b.m.material.color.set('#2a2622'); b.m.material.map = null; b.m.material.needsUpdate = true; b.m.scale.set(1, 0.55, 1); b.m.position.y = 0.15 + 0.6;
           this.onda(b.x, b.z, 9);
           this.j.policia?.subir?.(Math.max(2, this.j.policia.estrellas || 0));
+          this.j.noticias?.avisar('gasolinera');
         }
       }
       if (b.muerta) {
