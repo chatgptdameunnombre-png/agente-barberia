@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611212330';
-import { hoja } from './texturas.js?v=202611212330';
-import { Peaton } from './peatones.js?v=202611212330';
-import { letrero } from './ciudad.js?v=202611212330';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611212330';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611212330';
-import { ARTICULOS } from './actividades.js?v=202611212330';
+import { animar } from './persona.js?v=202611212336';
+import { hoja } from './texturas.js?v=202611212336';
+import { Peaton } from './peatones.js?v=202611212336';
+import { letrero } from './ciudad.js?v=202611212336';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611212336';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611212336';
+import { ARTICULOS } from './actividades.js?v=202611212336';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
@@ -124,6 +124,7 @@ export class Interiores {
       }
       lista.push(t);
     }
+    if (c.gasolinera) { const G = c.gasolinera, px = G.cx + 7, pz = G.iz0 + 11.5; lista.push({ tipo: 'tienda', nombre: 'Súper 24', letrero: 0, rot: 0, fx: 0, fz: 1, fachada: { x: px, z: pz }, puerta: new THREE.Vector3(px, 0, pz + 1.3), robadaHasta: 0 }); }
     const a = c.lugares.armeria;
     lista.push({ tipo: 'armeria', nombre: 'Armería del Valle', rot: 0, fx: 0, fz: 1, fachada: { x: a.x, z: a.z - 1.6 }, puerta: new THREE.Vector3(a.x, 0, a.z), robadaHasta: 0 });
     this.tiendas = lista;

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611212330';
-import { hoja } from './texturas.js?v=202611212330';
+import { construirEstadio } from './estadio.js?v=202611212336';
+import { hoja } from './texturas.js?v=202611212336';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -216,7 +216,7 @@ function teñir(geo, color) {
 }
 
 class Obra {
-  constructor(mundo) { this.mundo = mundo; this.pilas = {}; }
+  constructor(mundo) { this.mundo = mundo; this.pilas = {}; this.grandes = []; }
   pila(n) { return this.pilas[n] || (this.pilas[n] = []); }
   caja(estilo, x, z, w, d, h, color, y0 = 0.15, choca = true, rotY = 0) {
     const geo = new THREE.BoxGeometry(w, h, d);
@@ -234,6 +234,7 @@ class Obra {
     geo.translate(x, y0 + h / 2, z);
     this.pila(estilo).push(geo);
     if (choca) this.mundo.agregar(x - w / 2, z - d / 2, x + w / 2, z + d / 2, y0 + h);
+    if (estilo === 'liso' && choca && !rotY && h >= 7.5 && w >= 8 && d >= 8) this.grandes.push({ x, z, w, d, h, y0 });
     return geo;
   }
   forma(estilo, geo, color, x, y, z) {
@@ -576,7 +577,29 @@ export function construirCiudad(escena, mundo) {
     mats[est] = new THREE.MeshStandardMaterial({ map: p.textura, vertexColors: true, emissive: '#ffffff', emissiveMap: p.brillo, emissiveIntensity: 0, roughnessMap: p.vidrioMapa, metalnessMap: p.vidrioMapa, roughness: 1, metalness: 1, envMapIntensity: 1.1 });
   }
   mats.liso = new THREE.MeshLambertMaterial({ vertexColors: true });
+  {
+    const N = 256, cv = document.createElement('canvas'); cv.width = cv.height = N; const g = cv.getContext('2d');
+    g.fillStyle = '#808080'; g.fillRect(0, 0, N, N);
+    for (let i = 0; i < 1400; i++) {
+      const x = Math.random() * N, y = Math.random() * N, r = 2 + Math.random() * 14, v = Math.random() < 0.5 ? 0 : 255;
+      for (const dx of [-N, 0, N]) for (const dy of [-N, 0, N]) { const gr = g.createRadialGradient(x + dx, y + dy, 0, x + dx, y + dy, r); gr.addColorStop(0, `rgba(${v},${v},${v},${0.05 + Math.random() * 0.06})`); gr.addColorStop(1, `rgba(${v},${v},${v},0)`); g.fillStyle = gr; g.fillRect(x + dx - r, y + dy - r, r * 2, r * 2); }
+    }
+    for (let i = 0; i < 9000; i++) { const v = Math.random() < 0.5 ? 40 : 220; g.fillStyle = `rgba(${v},${v},${v},${Math.random() * 0.18})`; g.fillRect(Math.random() * N, Math.random() * N, 1, 1); }
+    const tex = new THREE.CanvasTexture(cv); tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    mats.liso.onBeforeCompile = sh => {
+      sh.uniforms.tAplanado = { value: tex };
+      sh.vertexShader = 'varying vec3 vMundoL;\nvarying vec3 vNormalL;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vMundoL = (modelMatrix * vec4(transformed, 1.0)).xyz;\n  vNormalL = normalize(mat3(modelMatrix) * objectNormal);');
+      sh.fragmentShader = 'uniform sampler2D tAplanado;\nvarying vec3 vMundoL;\nvarying vec3 vNormalL;\n' + sh.fragmentShader.replace('#include <color_fragment>', `#include <color_fragment>
+  vec3 nA = abs(normalize(vNormalL));
+  vec2 uvA = nA.y > 0.6 ? vMundoL.xz : (nA.x > nA.z ? vMundoL.zy : vMundoL.xy);
+  float tA = texture2D(tAplanado, uvA * 0.31).r * 0.65 + texture2D(tAplanado, uvA * 0.071).r * 0.35;
+  tA = clamp((tA - 0.5) * 3.2 + 0.5, 0.0, 1.0);
+  diffuseColor.rgb *= mix(0.84, 1.1, tA);
+  diffuseColor.rgb *= mix(0.72, 1.0, smoothstep(0.1, 1.7, vMundoL.y)) * (nA.y > 0.6 ? 1.0 : mix(0.93, 1.0, smoothstep(0.0, 0.25, fract(vMundoL.y / 3.4))));`);
+    };
+  }
   salida.materialesVentanas = Object.keys(ESTILO_FACH).map(k => mats[k]);
+  salida.lisosGrandes = obra.grandes;
   salida.mallas = [];
   for (const est in obra.pilas) {
     const lista = obra.pilas[est].map(g => g.index ? g.toNonIndexed() : g);
