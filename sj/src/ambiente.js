@@ -168,7 +168,8 @@ export class Ambiente {
     this.ciudad.halos.material.opacity = this.noche * 0.55;
     this.ciudad.focoMat.color.set(this.noche > 0.2 ? '#ffe7a8' : '#d8d8d0');
     this.estrellas.material.opacity = Math.max(0, this.noche - L) * 0.9;
-    this.ciudad.cerros.color.set('#6f8a6a').lerp(horiz, 0.55);
+    this.ciudad.estadio?.actualizar(this.noche);
+    this.ciudad.cerros.color.set('#8aa07c').lerp(horiz, 0.5).multiplyScalar(0.55 + 0.45 * Math.max(0.15, 1 - this.noche * 0.85));
     if (camara) {
       this.cielo.position.copy(camara.position);
       this.estrellas.position.copy(camara.position);

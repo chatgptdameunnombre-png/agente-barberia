@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611212246';
-import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611212246';
-import { dibujarGlifo } from './iconos.js?v=202611212246';
+import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611212258';
+import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611212258';
+import { dibujarGlifo } from './iconos.js?v=202611212258';
 
 export const ICONOS = {
   taller: { c: '#ffc94a', t: 'llave', n: 'Taller de Don Chuy' },

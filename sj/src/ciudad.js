@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { hoja } from './texturas.js?v=202611212246';
+import { construirEstadio } from './estadio.js?v=202611212258';
+import { hoja } from './texturas.js?v=202611212258';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -361,14 +362,23 @@ export function construirCiudad(escena, mundo) {
     } else if (tipo === 'lago') {
       const m = 6, wx0 = ix0 + m, wx1 = ix1 - m, wz0 = iz0 + m, wz1 = iz1 - m;
       losa(geosPiedra, wx0 - 1.6, wz0 - 1.6, wx1 + 1.6, wz1 + 1.6, 0.2, 3);
-      const agua = new THREE.Mesh(new THREE.PlaneGeometry(wx1 - wx0, wz1 - wz0, 48, 48).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#1f5a72', roughness: 0.08, metalness: 0.35, transparent: true, opacity: 0.9, envMapIntensity: 1.6 }));
+      const agua = new THREE.Mesh(new THREE.PlaneGeometry(wx1 - wx0, wz1 - wz0, 48, 48).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#12404f', roughness: 0.1, metalness: 0.12, transparent: true, opacity: 0.93, envMapIntensity: 1.15 }));
       agua.material.onBeforeCompile = sh => {
         sh.uniforms.tiempo = VIENTO;
-        sh.vertexShader = 'uniform float tiempo;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  transformed.y += sin(position.x * 0.45 + tiempo * 1.6) * 0.05 + cos(position.z * 0.38 + tiempo * 1.2) * 0.05;').replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\n  objectNormal = normalize(vec3(-cos(position.x * 0.45 + tiempo * 1.6) * 0.022, 1.0, sin(position.z * 0.38 + tiempo * 1.2) * 0.019));');
+        sh.vertexShader = 'uniform float tiempo;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  transformed.y += sin(position.x * 0.45 + tiempo * 1.6) * 0.018 + cos(position.z * 0.38 + tiempo * 1.2) * 0.018;').replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\n  objectNormal = normalize(vec3(-cos(position.x * 0.45 + tiempo * 1.6) * 0.022, 1.0, sin(position.z * 0.38 + tiempo * 1.2) * 0.019));');
       };
-      agua.position.set(cx, 0.26, cz); agua.receiveShadow = true; escena.add(agua);
+      {
+        const N = 256, cv = document.createElement('canvas'); cv.width = cv.height = N; const g = cv.getContext('2d'), im = g.createImageData(N, N), alt = new Float32Array(N * N);
+        const ondas = Array.from({ length: 14 }, () => ({ kx: Math.round((Math.random() - 0.5) * 16), kz: Math.round((Math.random() - 0.5) * 16), f: Math.random() * 6.3 }));
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { let h = 0; for (const o of ondas) h += Math.sin((o.kx * x + o.kz * y) / N * 6.2832 + o.f) / (1 + Math.hypot(o.kx, o.kz) * 0.25); alt[y * N + x] = h; }
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const dx = alt[y * N + (x + 1) % N] - alt[y * N + (x + N - 1) % N], dy = alt[((y + 1) % N) * N + x] - alt[((y + N - 1) % N) * N + x], i = (y * N + x) * 4; im.data[i] = 128 - dx * 90; im.data[i + 1] = 128 - dy * 90; im.data[i + 2] = 255; im.data[i + 3] = 255; }
+        g.putImageData(im, 0, 0);
+        const nt = new THREE.CanvasTexture(cv); nt.wrapS = nt.wrapT = THREE.RepeatWrapping; nt.repeat.set((wx1 - wx0) / 9, (wz1 - wz0) / 9);
+        agua.material.normalMap = nt; agua.material.normalScale.set(0.22, 0.22);
+      }
+      agua.position.set(cx, 0.26, cz); agua.receiveShadow = true; escena.add(agua); salida.agua = agua;
       const fondo = new THREE.Mesh(new THREE.PlaneGeometry(wx1 - wx0, wz1 - wz0).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#0d2a33' }));
-      fondo.position.set(cx, 0.21, cz); escena.add(fondo);
+      fondo.position.set(cx, 0.205, cz); escena.add(fondo);
       const muelleZ0 = wz1 - 12;
       obra.caja('liso', cx, (muelleZ0 + wz1 + 1.6) / 2, 3, wz1 + 1.6 - muelleZ0, 0.18, '#8a6a46', 0.3, false);
       for (let k = 0; k < 4; k++) for (const sx of [-1.4, 1.4]) obra.forma('liso', new THREE.CylinderGeometry(0.12, 0.12, 1.2, 8), '#5a4430', cx + sx, 0.3, muelleZ0 + 0.3 + k * 3.6);
@@ -551,14 +561,7 @@ export function construirCiudad(escena, mundo) {
       escena.add(l); salida.letreros.push(l);
       salida.lugares.armeria = { x: cx, z: iz1 + 1.6 };
     } else if (tipo === 'estadio') {
-      const g = new THREE.CylinderGeometry(27, 29, 18, 32, 1, true);
-      obra.forma('liso', g, '#e8e8ee', cx, 9.15, cz);
-      obra.forma('liso', new THREE.CylinderGeometry(22, 22, 0.2, 32), '#3f8f3f', cx, 0.3, cz);
-      obra.forma('liso', new THREE.TorusGeometry(28, 0.8, 6, 32), '#c8102e', cx, 18, cz);
-      mundo.agregar(cx - 27, cz - 27, cx + 27, cz + 27, 18);
-      const l = letrero('ESTADIO JACARANDA', '#c8102e', '#ffffff', 18, 3);
-      l.position.set(cx, 14, cz + 29.3);
-      escena.add(l); salida.letreros.push(l);
+      salida.estadio = construirEstadio(escena, mundo, cx, cz, VIENTO);
       salida.lugares.estadio = { x: cx, z: cz + 31 };
     }
   }
@@ -746,16 +749,16 @@ export function construirCiudad(escena, mundo) {
   salida.focoMat = foco.material;
 
   const cerros = new THREE.Group();
-  const mc = new THREE.MeshLambertMaterial({ color: '#6f8a6a', fog: true, vertexColors: true });
+  const mc = new THREE.MeshLambertMaterial({ color: '#6f8a6a', fog: false, vertexColors: true });
   {
     const hsh = (x, y) => { const v = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return v - Math.floor(v); };
     const ruido = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = hsh(xi, yi), b = hsh(xi + 1, yi), c = hsh(xi, yi + 1), d = hsh(xi + 1, yi + 1); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; };
     const fbm = (x, y) => { let t = 0, amp = 1, f = 1, n = 0; for (let k = 0; k < 6; k++) { const r2 = 1 - Math.abs(ruido(x * f, y * f) * 2 - 1); t += r2 * r2 * amp; n += amp; amp *= 0.5; f *= 2.1; } return t / n; };
-    const g = new THREE.RingGeometry(480, 1150, 288, 40);
+    const g = new THREE.RingGeometry(660, 1300, 288, 40);
     g.rotateX(-Math.PI / 2);
     const P = g.attributes.position, col = new Float32Array(P.count * 3), cc = new THREE.Color();
     for (let i = 0; i < P.count; i++) {
-      const x = P.getX(i), z = P.getZ(i), rr = Math.hypot(x, z), t = (rr - 480) / 670;
+      const x = P.getX(i), z = P.getZ(i), rr = Math.hypot(x, z), t = (rr - 660) / 640;
       const env = Math.sin(Math.min(1, Math.max(0, t)) * Math.PI) * (0.55 + 0.45 * ruido(Math.atan2(z, x) * 3.1 + 7, 2.3));
       const h = Math.pow(fbm(x / 260, z / 260), 1.6) * 260 * env + (t < 0.08 ? -6 : 0);
       P.setY(i, h - 4);
