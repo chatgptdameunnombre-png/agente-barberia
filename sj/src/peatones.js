@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611220214';
+import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611220216';
 
 const _v = new THREE.Vector3();
 
@@ -228,6 +228,8 @@ export class Peaton {
       if (o) { this.proxCharla = this.t + 40 + Math.random() * 40; const T = 6 + Math.random() * 8; this.estado = o.estado = 'charla'; this.con = o; o.con = this; this.charlaT = o.charlaT = T; }
     }
     if (this.habito === 'celular' && this.estado === 'pasear') mover *= 0.8;
+    const graniza = this.tipo === 'civil' && this.estado === 'pasear' && j.granizo?.activo > 0 && !j.jugador.interior && !this.enInterior;
+    if (graniza) mover *= 2.6;
     const d = Math.hypot(dirx, dirz);
     if (d > 0.01) {
       const ya = Math.atan2(dirx, dirz);
@@ -295,7 +297,7 @@ export class Peaton {
       P.cabeza.rotation.x = (habla ? Math.sin(tt * 2.2) * 0.08 : Math.max(0, Math.sin(tt * 1.7)) * 0.12);
       P.cabeza.rotation.y = Math.sin(tt * 0.5) * 0.2;
     }
-    if (this.estado === 'huir' && this.cubre && this.tipo === 'civil') { P.bi.rotation.set(-2.6, 0, 0.5); P.bd.rotation.set(-2.6, 0, -0.5); P.ci.rotation.x = -1.9; P.cd.rotation.x = -1.9; P.cabeza.rotation.x = 0.3; }
+    if (((this.estado === 'huir' && this.cubre) || (this.estado === 'pasear' && j.granizo?.activo > 0 && !this.enInterior)) && this.tipo === 'civil') { P.bi.rotation.set(-2.6, 0, 0.5); P.bd.rotation.set(-2.6, 0, -0.5); P.ci.rotation.x = -1.9; P.cd.rotation.x = -1.9; P.cabeza.rotation.x = 0.3; }
     if (this.golpe > 0) { const k = this.golpe / 0.25; P.cuerpo.rotation.x = -0.3 * k; P.torso.rotation.z = (this.yaw % 1 > 0.5 ? 0.3 : -0.3) * k; P.cabeza.rotation.x = -0.45 * k; P.bi.rotation.z += 0.7 * k; P.bd.rotation.z -= 0.7 * k; }
     this.grupo.position.set(this.pos.x, this.y, this.pos.z);
     this.grupo.rotation.y = this.yaw;
