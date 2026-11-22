@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { BLOQUES, CALLE, linea, rng, LIMITE, tipoBloque } from './ciudad.js?v=202611212336';
+import { BLOQUES, CALLE, linea, rng, LIMITE, tipoBloque } from './ciudad.js?v=202611212344';
 
 const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(1, 1, 1), _e = new THREE.Euler();
 
@@ -105,7 +105,8 @@ export function amueblar(juego) {
   if (transformadores.length) g.add(instancias(mergeGeometries([new THREE.CylinderGeometry(0.28, 0.28, 0.8, 12), new THREE.CylinderGeometry(0.3, 0.3, 0.06, 12).translate(0, 0.42, 0)]), new THREE.MeshStandardMaterial({ color: '#7d8388', roughness: 0.5, metalness: 0.4 }), transformadores));
   if (cables.length) { const cg = mergeGeometries(cables); const cm = new THREE.Mesh(cg, new THREE.MeshBasicMaterial({ color: '#17171a' })); cm.frustumCulled = false; g.add(cm); }
   const rojo = new THREE.MeshStandardMaterial({ color: '#c0262a', roughness: 0.45, metalness: 0.2 });
-  g.add(instancias(mergeGeometries([new THREE.CylinderGeometry(0.13, 0.15, 0.62, 12).translate(0, 0.31, 0), new THREE.SphereGeometry(0.13, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, 0.62, 0), new THREE.CylinderGeometry(0.05, 0.05, 0.38, 8).rotateZ(Math.PI / 2).translate(0, 0.44, 0), new THREE.CylinderGeometry(0.065, 0.065, 0.1, 8).rotateX(Math.PI / 2).translate(0, 0.44, 0.13), new THREE.CylinderGeometry(0.17, 0.17, 0.05, 12).translate(0, 0.03, 0)]), rojo, hidrantes));
+  const imHidrantes = instancias(mergeGeometries([new THREE.CylinderGeometry(0.13, 0.15, 0.62, 12).translate(0, 0.31, 0), new THREE.SphereGeometry(0.13, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, 0.62, 0), new THREE.CylinderGeometry(0.05, 0.05, 0.38, 8).rotateZ(Math.PI / 2).translate(0, 0.44, 0), new THREE.CylinderGeometry(0.065, 0.065, 0.1, 8).rotateX(Math.PI / 2).translate(0, 0.44, 0.13), new THREE.CylinderGeometry(0.17, 0.17, 0.05, 12).translate(0, 0.03, 0)]), rojo, hidrantes);
+  g.add(imHidrantes);
   const tReg = lienzo(128, 128, (c, w) => { c.fillStyle = '#2a2826'; c.beginPath(); c.arc(64, 64, 63, 0, 7); c.fill(); c.strokeStyle = '#4a4744'; c.lineWidth = 6; c.stroke(); c.strokeStyle = '#3c3a37'; c.lineWidth = 3; for (let k = 16; k < 112; k += 12) { c.beginPath(); c.moveTo(k, 20); c.lineTo(k, 108); c.stroke(); } c.fillStyle = '#55524e'; c.font = 'bold 14px sans-serif'; c.textAlign = 'center'; c.fillText('SIAPA', 64, 70); });
   g.add(instancias(new THREE.CircleGeometry(0.42, 20), new THREE.MeshStandardMaterial({ map: tReg, roughness: 0.6, metalness: 0.3, polygonOffset: true, polygonOffsetFactor: -2 }), registros, false));
   const tMancha = lienzo(128, 128, (c) => { const gr = c.createRadialGradient(64, 64, 4, 64, 64, 62); gr.addColorStop(0, 'rgba(10,10,12,0.55)'); gr.addColorStop(0.6, 'rgba(12,12,14,0.25)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = gr; c.fillRect(0, 0, 128, 128); });
@@ -158,5 +159,5 @@ export function amueblar(juego) {
   const imCharcos = instancias(new THREE.PlaneGeometry(1, 1), matCharco, charcos, false); imCharcos.visible = false; g.add(imCharcos);
   juego.charcos = { mat: matCharco, malla: imCharcos };
   escena.add(g);
-  return { grupo: g, postes: postes.length, cables: cables.length, hidrantes: hidrantes.length, registros: registros.length, altos: altos.length, jardineras: jardineras.length, aires: aires.length, grafitis: grafitis.length, manchas: manchas.length };
+  return { grupo: g, hidrantesLista: hidrantes, mallaHidrantes: imHidrantes, postes: postes.length, cables: cables.length, hidrantes: hidrantes.length, registros: registros.length, altos: altos.length, jardineras: jardineras.length, aires: aires.length, grafitis: grafitis.length, manchas: manchas.length };
 }

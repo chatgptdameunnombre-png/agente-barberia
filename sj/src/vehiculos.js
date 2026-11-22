@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611212336';
-import { mat } from './persona.js?v=202611212336';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611212344';
+import { mat } from './persona.js?v=202611212344';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611212336';
+import { hoja } from './texturas.js?v=202611212344';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -583,6 +583,12 @@ export class Coche {
     if (this.rebote > 0) this.rebote = Math.max(0, this.rebote - dt * 0.8);
     this.carro.position.y = -(this.rebote || 0) * Math.sin(performance.now() / 40) * 0.5 + (this.tipo === 'moto' ? Math.max(0, -this.carro.rotation.x) * 0.95 : (this.altura || 0) * 0.06);
     if (this.calavMalla) { this.calavMalla.visible = !!this.frenando && !this.quemado; this.calav.color.set('#ff2436'); }
+    if (this.alarma > 0) {
+      this.alarma -= dt;
+      const on = (this.alarma % 0.6) < 0.3 && !this.quemado;
+      if (this.calavMalla) { this.calavMalla.visible = on; this.calav.color.set('#ffb030'); }
+      if (on !== this.alarmaOn) { this.alarmaOn = on; if (on) { this.alarmaTono = this.alarmaTono === 920 ? 700 : 920; this.juego.audio?.tono(this.alarmaTono, 0.26, 0.16 * (this.juego.audio.dist?.(this.pos) ?? 1), 'square'); } }
+    }
     this.grupo.position.copy(this.pos);
     this.grupo.position.y = this.y;
     this.grupo.rotation.y = this.yaw;
