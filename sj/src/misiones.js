@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611212226';
-import { Coche } from './vehiculos.js?v=202611212226';
-import { Peaton } from './peatones.js?v=202611212226';
-import { CONTACTOS } from './contactos.js?v=202611212226';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611212226';
+import { linea, CARRIL } from './ciudad.js?v=202611212229';
+import { Coche } from './vehiculos.js?v=202611212229';
+import { Peaton } from './peatones.js?v=202611212229';
+import { CONTACTOS } from './contactos.js?v=202611212229';
+import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611212229';
+import { crearHumano } from './humanos.js?v=202611212229';
 
 export function crearMarcador(escena, color) {
   const g = new THREE.Group();
@@ -122,6 +123,12 @@ export class Misiones {
   }
 
   figura(mk, C, p) {
+    if (C.modelo && !this.j.sinRealista) {
+      const g = new THREE.Group(); g.position.set(p.x + 1.5, 0, p.z - 0.9); g.rotation.y = Math.atan2(-1.5, 0.9); this.j.escena.add(g);
+      mk.fig = { grupo: g, yawBase: g.rotation.y, real: true };
+      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); }).catch(() => {});
+      return;
+    }
     if (!C.apariencia) return;
     const f = crearPersona({ ...C.apariencia, fijo: true });
     f.grupo.position.set(p.x + 1.5, 0, p.z - 0.9); f.grupo.rotation.y = Math.atan2(-1.5, 0.9);
@@ -132,6 +139,13 @@ export class Misiones {
     const f = mk.fig, J = this.j.jugador.posicion, dx = J.x - f.grupo.position.x, dz = J.z - f.grupo.position.z, d = Math.hypot(dx, dz);
     f.lejos = d > 110;
     if (f.lejos) { f.grupo.visible = false; return; }
+    if (f.real) {
+      const meta = d < 14 ? Math.atan2(dx, dz) : f.yawBase;
+      let dif = meta - f.grupo.rotation.y; dif = Math.atan2(Math.sin(dif), Math.cos(dif));
+      f.grupo.rotation.y += dif * Math.min(1, dt * 3);
+      if (f.h && d < 60) { f.h.tocar(d < 8 ? 'Idle_Talking_Loop' : 'Idle_Loop', 0.5); f.h.actualizar(dt); }
+      return;
+    }
     nivelDetalle(f, d < 35);
     if (d > 60) return;
     const meta = d < 14 ? Math.atan2(dx, dz) : f.yawBase;

@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611212226';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611212226';
-import { Peaton } from './peatones.js?v=202611212226';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611212229';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611212229';
+import { Peaton } from './peatones.js?v=202611212229';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -33,7 +33,7 @@ const llegar = (m, i, enCoche) => { const j = m.j; if (enCoche === true && !j.ju
 
 export const CONTACTOS = {
   nacho: {
-    nombre: 'Tío Nacho', letra: 'N', color: '#f0a03a', zona: 'Mercado de San Jacinto', requisito: 0,
+    nombre: 'Tío Nacho', letra: 'N', modelo: 'nacho', color: '#f0a03a', zona: 'Mercado de San Jacinto', requisito: 0,
     apariencia: { camisa: '#f2efe6', pantalon: '#4a3a2a', sombrero: true, colorSombrero: '#e8dcc0', complexion: 1.16, edad: 'mayor', barba: 'bigote', mangaCorta: true, mujer: false, peloLargo: false },
     lugar: j => libre(j, j.ciudad.lugares.mercado.x + 6, j.ciudad.lugares.mercado.z + 2),
     lista: [
@@ -105,7 +105,7 @@ export const CONTACTOS = {
     ]
   },
   valeria: {
-    nombre: 'Valeria Luna', letra: 'V', color: '#b46bff', zona: 'Centro Histórico', requisito: 0,
+    nombre: 'Valeria Luna', letra: 'V', modelo: 'valeria', color: '#b46bff', zona: 'Centro Histórico', requisito: 0,
     apariencia: { mujer: true, peloLargo: true, pelo: '#2a1810', camisa: '#b46bff', pantalon: '#1c1c22', aretes: true, collar: true, mangaCorta: true, sombrero: null },
     lugar: j => libre(j, j.ciudad.lugares.plaza.x + 4, j.ciudad.lugares.plaza.z + 4),
     lista: [
@@ -175,7 +175,7 @@ export const CONTACTOS = {
     ]
   },
   guera: {
-    nombre: 'La Güera Reyes', letra: 'G', color: '#e8c25a', zona: 'Zona de Torres', requisito: 2,
+    nombre: 'La Güera Reyes', letra: 'G', modelo: 'guera', color: '#e8c25a', zona: 'Zona de Torres', requisito: 2,
     apariencia: { mujer: true, peloLargo: true, pelo: '#e0c070', camisa: '#141416', pantalon: '#141416', aretes: true, collar: true, lentes: true, reloj: true, sombrero: null },
     lugar: j => libre(j, ix(6) + 10, ix(1) + 22),
     lista: [
@@ -252,7 +252,7 @@ export const CONTACTOS = {
     ]
   },
   ibarra: {
-    nombre: 'Comandante Ibarra', letra: 'I', color: '#4a9bff', zona: 'Comisaría', requisito: 3,
+    nombre: 'Comandante Ibarra', letra: 'I', modelo: 'ibarra', color: '#4a9bff', zona: 'Comisaría', requisito: 3,
     apariencia: { policia: true, camisa: '#1f3f7a', pantalon: '#16213a', gorra: '#13254a', chaleco: '#0f1a30', barba: 'bigote', complexion: 1.12, mujer: false, peloLargo: false, sombrero: null },
     lugar: j => libre(j, j.ciudad.lugares.comisaria.x + 8, j.ciudad.lugares.comisaria.z + 3),
     lista: [
@@ -336,7 +336,7 @@ export const CONTACTOS = {
     ]
   },
   flaco: {
-    nombre: 'El Flaco Arreola', letra: 'F', color: '#ff6a3a', zona: 'Estadio Jacaranda', requisito: 1,
+    nombre: 'El Flaco Arreola', letra: 'F', modelo: 'flaco', color: '#ff6a3a', zona: 'Estadio Jacaranda', requisito: 1,
     apariencia: { camisa: '#ff6a3a', pantalon: '#22304d', gorra: '#111114', complexion: 0.9, mangaCorta: true, barba: 'candado', reloj: true, mujer: false, sombrero: null, peloLargo: false },
     lugar: j => libre(j, j.ciudad.lugares.estadio.x + 22, j.ciudad.lugares.estadio.z - 8),
     lista: [
@@ -428,7 +428,7 @@ export const CONTACTOS = {
     ]
   },
   tomas: {
-    nombre: 'Padre Tomás', letra: 'T', color: '#e8e4d8', zona: 'Catedral', requisito: 0,
+    nombre: 'Padre Tomás', letra: 'T', modelo: 'tomas', color: '#e8e4d8', zona: 'Catedral', requisito: 0,
     apariencia: { camisa: '#121216', pantalon: '#121216', edad: 'mayor', lentes: true, barba: null, mujer: false, sombrero: null, peloLargo: false, mangaCorta: false, complexion: 1.05 },
     lugar: j => libre(j, j.ciudad.lugares.catedral.x + 5, j.ciudad.lugares.catedral.z + 4),
     lista: [
@@ -529,7 +529,7 @@ export const CONTACTOS = {
     ]
   },
   rosario: {
-    nombre: 'Doña Rosario', letra: 'R', color: '#3bd16f', zona: 'Banco Central', requisito: 4,
+    nombre: 'Doña Rosario', letra: 'R', modelo: 'rosario', color: '#3bd16f', zona: 'Banco Central', requisito: 4,
     apariencia: { mujer: true, peloLargo: true, pelo: '#2a1a12', camisa: '#1f4a3a', pantalon: '#1a1a1e', lentes: false, aretes: true, collar: true, reloj: true, sombrero: null, complexion: 0.96 },
     lugar: j => libre(j, j.ciudad.lugares.banco.x - 9, j.ciudad.lugares.banco.z + 4),
     lista: [
