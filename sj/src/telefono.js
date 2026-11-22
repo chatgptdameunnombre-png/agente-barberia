@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611212241';
-import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611212241';
-import { TIPOS } from './vehiculos.js?v=202611212241';
-import { glifoSVG } from './iconos.js?v=202611212241';
-import { TITULOS } from './misiones.js?v=202611212241';
-import { CONTACTOS } from './contactos.js?v=202611212241';
-import { SALIDAS } from './trabajos.js?v=202611212241';
-import { linea } from './ciudad.js?v=202611212241';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611212243';
+import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611212243';
+import { TIPOS } from './vehiculos.js?v=202611212243';
+import { glifoSVG } from './iconos.js?v=202611212243';
+import { TITULOS } from './misiones.js?v=202611212243';
+import { CONTACTOS } from './contactos.js?v=202611212243';
+import { SALIDAS } from './trabajos.js?v=202611212243';
+import { linea } from './ciudad.js?v=202611212243';
 const tarjeta = o => `<div class="tarjeta ${o.mia ? 'mia' : ''}">${o.src ? `<img src="${o.src}" alt="">` : `<i class="foto" style="${o.img}"></i>`}<div class="cuerpo"><b>${o.titulo}</b><small>${o.desc}</small>${o.barras ? `<div class="barras">${o.barras.map(([n, v]) => `<span><em>${n}</em><i style="--v:${Math.min(1, v) * 100}%"></i></span>`).join('')}</div>` : ''}<div class="pie">${o.mia ? `<em class="sello">${o.sello || 'TUYO'}</em>` : `<button data-accion="${o.accion}" type="button">${o.precio}</button>`}</div></div></div>`;
 
 const dinero = n => '$' + Math.floor(n).toLocaleString('es-MX');

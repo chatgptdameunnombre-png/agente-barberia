@@ -143,6 +143,16 @@ export class Ambiente {
     const objetivo = camara ? this.juego.jugador.posicion : new THREE.Vector3();
     const luna = new THREE.Vector3(-sx * 0.8, Math.max(-sy, 0.2), -0.3).normalize();
     const dirLuz = dia ? dirSol : luna;
+    if (!this.luna) {
+      const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+      const gr = g.createRadialGradient(64, 64, 10, 64, 64, 64); gr.addColorStop(0, 'rgba(255,250,235,1)'); gr.addColorStop(0.45, 'rgba(240,236,220,1)'); gr.addColorStop(0.5, 'rgba(220,225,255,0.35)'); gr.addColorStop(1, 'rgba(200,210,255,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+      for (let k = 0; k < 9; k++) { g.fillStyle = 'rgba(170,165,150,0.35)'; g.beginPath(); g.arc(40 + Math.random() * 48, 40 + Math.random() * 48, 3 + Math.random() * 7, 0, 7); g.fill(); }
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+      this.luna = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, fog: false, opacity: 0 }));
+      this.luna.scale.setScalar(70); this.luna.renderOrder = -1; this.juego.escena.add(this.luna);
+    }
+    if (camara) { this.luna.position.copy(camara.position).addScaledVector(luna, 820); this.luna.material.opacity = Math.max(0, Math.min(1, -sy * 4)) * (1 - L * 0.8); }
     const paso = 110 / 4096 * 2;
     const ox = Math.round(objetivo.x / paso) * paso, oz = Math.round(objetivo.z / paso) * paso;
     this.sol.position.set(ox + dirLuz.x * 200, dirLuz.y * 200, oz + dirLuz.z * 200);

@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611212241';
-import { mat } from './persona.js?v=202611212241';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611212243';
+import { mat } from './persona.js?v=202611212243';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611212241';
+import { hoja } from './texturas.js?v=202611212243';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -33,6 +33,8 @@ const matVidrio = new THREE.MeshLambertMaterial({ color: '#4a6a8a', emissive: '#
 const matLlanta = mat('#151515');
 const matRin = mat('#b8bcc2');
 export const matFaro = new THREE.MeshBasicMaterial({ color: '#fff6d8' });
+export const matHaz = new THREE.MeshBasicMaterial({ color: '#fff0cc', transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, map: (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const g = c.getContext('2d'); for (let y = 0; y < 128; y++) { const k = y / 128; const a = Math.pow(1 - k, 1.6) * Math.min(1, k * 6); const gr = g.createLinearGradient(0, 0, 64, 0); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.5, `rgba(255,255,255,${a})`); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; const w = 18 + k * 46; g.fillRect(32 - w / 2, 127 - y, w, 1); } const t = new THREE.CanvasTexture(c); return t; })(), polygonOffset: true, polygonOffsetFactor: -3 });
+const geoHaz = new THREE.PlaneGeometry(4.2, 11).rotateX(-Math.PI / 2);
 export const matCalavera = new THREE.MeshBasicMaterial({ color: '#c0182a' });
 const matRojo = new THREE.MeshBasicMaterial({ color: '#ff1a3a' });
 const matAzul = new THREE.MeshBasicMaterial({ color: '#1a5cff' });
@@ -378,6 +380,7 @@ export function modelo(tipo, color) {
     const vid = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.07), matEspejo); vid.position.set(sx * (t.ancho * 0.43 + 0.1), ye + 0.02, ze - 0.077); vid.rotation.y = Math.PI; carro.add(vid);
   }
   const esc = new THREE.Mesh(geoEscape, matCromo); esc.position.set(t.ancho * 0.3, piso + 0.04, -t.largo / 2 - 0.05); carro.add(esc);
+  const haz = new THREE.Mesh(geoHaz, matHaz); haz.position.set(0, 0.035, t.largo / 2 + 5.4); haz.renderOrder = 2; g.add(haz);
   const silueta = new THREE.Group();
   if (tipo !== 'camioneta' || true) {
     const ropa = new THREE.MeshStandardMaterial({ color: tipo === 'policia' ? '#1f3f7a' : tipo === 'ambulancia' ? '#e8e8e4' : ROPA_C[Math.random() * ROPA_C.length | 0], roughness: 0.85 });
@@ -406,7 +409,7 @@ export function modelo(tipo, color) {
     ruedas.push(ll);
     if (sz > 0) delanteras.push(piv);
   }
-  return { grupo: g, carro, pinta, ruedas, delanteras, barra, partes: [cuerpo, cab, panel], calav, calavMalla: cal, puerta, ventPuerta: vent, silueta };
+  return { haz, grupo: g, carro, pinta, ruedas, delanteras, barra, partes: [cuerpo, cab, panel], calav, calavMalla: cal, puerta, ventPuerta: vent, silueta };
 }
 
 const _p = new THREE.Vector3();
