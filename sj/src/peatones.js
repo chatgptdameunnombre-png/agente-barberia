@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611220129';
+import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611220132';
 
 const _v = new THREE.Vector3();
 
@@ -151,7 +151,7 @@ export class Peaton {
       dirx = obj[0] - this.pos.x; dirz = obj[1] - this.pos.z;
       const d = Math.hypot(dirx, dirz);
       if (d < 0.6) { if (this.tipo === 'civil' && !this.objetivoMision && !this.corredor && !this.limpiador && this.bloque && Math.random() < 0.3 && this.planearCruce()) { dirx = dirz = 0; } else this.indice = (this.indice + this.sentido + 4) % 4; }
-      mover = this.estado === 'pasear' ? (this.corredor ? 3.4 : 1.25) : 0;
+      mover = this.estado === 'pasear' ? (this.corredor ? 3.4 : this.paletero ? 0.85 : 1.25) : 0;
     } else if (this.estado === 'rendido') {
       this.tRendido -= dt;
       dirx = jp.x - this.pos.x; dirz = jp.z - this.pos.z;

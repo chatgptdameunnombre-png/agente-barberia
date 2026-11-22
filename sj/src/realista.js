@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611220129';
+import { crearHumano } from './humanos.js?v=202611220132';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -123,9 +123,10 @@ export class Realista {
   }
 
   ocultarPersona(p) {
-    p.grupo.traverse(o => { if (o.isMesh && !this.esMio(o) && !this.esArma(o, p)) { o.visible = false; o.userData.ocultoPorRealista = true; } });
+    p.grupo.traverse(o => { if (o.isMesh && !this.esMio(o) && !this.esArma(o, p) && !this.esAccesorio(o, p)) { o.visible = false; o.userData.ocultoPorRealista = true; } });
     p.ocultaRealista = true;
   }
+  esAccesorio(o, p) { let q = o; while (q && q !== p.grupo) { if (q.userData.siempreVisible) return true; q = q.parent; } return false; }
   esMio(o) { let q = o; while (q) { if (q === this.grupo) return true; q = q.parent; } return false; }
   esArma(o, p) { let q = o; while (q && q !== p.grupo) { if (this.armas?.includes(q) || q.parent === this.empunadura) return true; q = q.parent; } return false; }
 
