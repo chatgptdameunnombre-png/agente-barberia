@@ -1,5 +1,6 @@
+import { esTaxi } from './vehiculos.js?v=202611220539';
 import * as THREE from 'three';
-import { linea, indiceLinea } from './ciudad.js?v=202611220536';
+import { linea, indiceLinea } from './ciudad.js?v=202611220539';
 
 function aCalle(D) { const lx = linea(indiceLinea(D.x)), lz = linea(indiceLinea(D.z)); return Math.abs(D.x - lx) < Math.abs(D.z - lz) ? new THREE.Vector3(lx + 4, 0, D.z) : new THREE.Vector3(D.x, 0, lz + 4); }
 
@@ -8,7 +9,7 @@ export class TaxiPasajero {
 
   cerca() {
     const j = this.j, J = j.jugador; if (this.viaje || J.coche || J.interior || J.muerto) return null;
-    return j.coches.find(c => c.tipo === 'taxi' && c.conductor === 'ia' && !c.quemado && c.pos.distanceTo(J.pos) < 4) || null;
+    return j.coches.find(c => esTaxi(c) && c.conductor === 'ia' && !c.quemado && c.pos.distanceTo(J.pos) < 4) || null;
   }
 
   pista() {

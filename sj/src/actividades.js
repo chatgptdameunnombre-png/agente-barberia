@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611220536';
-import { ARMAS } from './jugador.js?v=202611220536';
-import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611220536';
+import { esTaxi } from './vehiculos.js?v=202611220539';
+import { linea, CARRIL } from './ciudad.js?v=202611220539';
+import { ARMAS } from './jugador.js?v=202611220539';
+import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611220539';
 const PRODUCTOS = { 'Papitas y refresco': 0, 'Torta de jamón': 1, 'Bebida energética': 2, 'Kilo de tortillas': 3, 'Tacos de canasta': 4, 'Venda y alcohol': 5, 'Botiquín completo': 6, 'Suero': 7, 'Plato de birria': 8, 'Consomé': 9, 'Cinta y pegamento (repara coche)': 10, 'Concha': 11, 'Bolsa de pan dulce': 12, 'Coctel de camarón': 13, 'Tostada de ceviche': 14, 'Cerveza': 15, 'Cerveza de la casa': 15, 'Tequila': 16, 'Agua de jamaica': 17, 'Botana de la casa': 18, 'Chaleco antibalas': 19 };
-import { Peaton } from './peatones.js?v=202611220536';
+import { Peaton } from './peatones.js?v=202611220539';
 
 export class Estadisticas {
   constructor() {
@@ -346,12 +347,12 @@ export class Actividades {
       }
     }
     if (this.taxi) this.actualizarTaxi(dt);
-    else if (c && c.tipo === 'taxi' && !j.misiones.activa) j.hud.pista('T', 'Trabajar de taxista');
+    else if (c && esTaxi(c) && !j.misiones.activa) j.hud.pista('T', 'Trabajar de taxista');
   }
 
   actualizarTaxi(dt) {
     const j = this.j, t = this.taxi, c = j.jugador.coche;
-    if (!c || c.tipo !== 'taxi') { this.terminarTaxi('Te bajaste del taxi.'); return; }
+    if (!c || !esTaxi(c)) { this.terminarTaxi('Te bajaste del taxi.'); return; }
     if (c.quemado) { this.terminarTaxi('El taxi quedó destruido.'); return; }
     if (j.misiones.activa) { this.terminarTaxi('Empezó una misión.'); return; }
     const q = t.pasajero;
