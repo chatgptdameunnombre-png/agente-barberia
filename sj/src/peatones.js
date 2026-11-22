@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611220058';
+import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611220100';
 
 const _v = new THREE.Vector3();
 
