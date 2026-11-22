@@ -101,7 +101,7 @@ function pintarCancha(g, w, h) {
   }
 }
 
-function pintarMarcador(g, w, h) {
+function pintarMarcador(g, w, h, a = 2, b = 1, minuto = "78'") {
   g.fillStyle = '#07090d'; g.fillRect(0, 0, w, h);
   g.fillStyle = '#121620'; for (let y = 0; y < h; y += 4) g.fillRect(0, y, w, 1);
   g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -109,8 +109,8 @@ function pintarMarcador(g, w, h) {
   g.fillStyle = '#fff'; g.font = '900 40px Inter, Arial, sans-serif';
   g.fillText('JACARANDA', 16 + w * 0.19, 48); g.fillText('VISITA', w - 16 - w * 0.19, 48);
   g.fillStyle = '#ffd34a'; g.font = '900 130px Inter, Arial, sans-serif';
-  g.fillText('2', w * 0.3, h * 0.62); g.fillText('1', w * 0.7, h * 0.62);
-  g.fillStyle = '#e8e8e8'; g.font = '700 56px Inter, Arial, sans-serif'; g.fillText("78'", w / 2, h * 0.62);
+  g.fillText(String(a), w * 0.3, h * 0.62); g.fillText(String(b), w * 0.7, h * 0.62);
+  g.fillStyle = '#e8e8e8'; g.font = '700 56px Inter, Arial, sans-serif'; g.fillText(minuto, w / 2, h * 0.62);
   g.fillStyle = '#8fd3ff'; g.font = '600 26px Inter, Arial, sans-serif'; g.fillText('LIGA DE SANTA JACARANDA · JORNADA 14', w / 2, h - 26);
 }
 
@@ -249,7 +249,8 @@ export function construirEstadio(escena, mundo, cx, cz, viento) {
   }
 
   return {
-    grupo,
+    grupo, RE, H,
+    marcador(a, b, minuto) { const c = texM.image, g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height); pintarMarcador(g, c.width, c.height, a, b, minuto); texM.needsUpdate = true; },
     actualizar(noche) {
       matLamp.emissiveIntensity = 0.15 + noche * 3.2;
       matCancha.emissiveIntensity = noche * 0.42;
