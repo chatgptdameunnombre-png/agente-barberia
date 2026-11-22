@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { modeloProtagonista, realistaDe } from './jugador.js?v=202611220100';
-import { animar, sentar } from './persona.js?v=202611220100';
-import { Peaton } from './peatones.js?v=202611220100';
+import { modeloProtagonista, realistaDe } from './jugador.js?v=202611220102';
+import { animar, sentar } from './persona.js?v=202611220102';
+import { Peaton } from './peatones.js?v=202611220102';
 
 const CHARLAS = [
   [['Lucía', '¿Ya viste ese cielo? Esta ciudad de noche no tiene igual.'], ['Matías', 'Por eso no me voy de aquí.']],
