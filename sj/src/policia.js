@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611220526';
-import { Peaton } from './peatones.js?v=202611220526';
-import { Helicoptero } from './helicoptero.js?v=202611220526';
-import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220526';
+import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611220529';
+import { Peaton } from './peatones.js?v=202611220529';
+import { Helicoptero } from './helicoptero.js?v=202611220529';
+import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220529';
 
 const MAX_COCHES = [0, 1, 2, 3, 4, 5];
 
@@ -88,11 +88,13 @@ export class Policia {
     if (vivos < MAX_COCHES[this.estrellas] && this.reaparicion <= 0) {
       const p = puntoCalleAleatorio(jp, 85, 150);
       if (p) {
-        const c = new Coche(j, 'policia', '#f2f4f7', p.x, p.z, p.yaw);
+        const moto = this.estrellas >= 2 && Math.random() < 0.3;
+        const c = new Coche(j, moto ? 'moto' : 'policia', '#f2f4f7', p.x, p.z, p.yaw);
+        if (moto) this.vestirMoto(c);
         c.conductor = 'policia';
         c.ia = nuevaRutaIA(p.x, p.z, p.yaw);
         c.persecucion = true;
-        c.tripulantes = this.estrellas >= 3 ? 2 : 1;
+        c.tripulantes = moto ? 1 : this.estrellas >= 3 ? 2 : 1;
         j.coches.push(c);
         this.unidades.push(c);
       }
@@ -117,6 +119,7 @@ export class Policia {
         }
         u.tripulantes = 0;
         u.conductor = null;
+        if (u.motoPoli && u.piloto) u.piloto.visible = false;
       }
       if (d > 260) { u.quitar(); j.coches.splice(j.coches.indexOf(u), 1); }
     }
@@ -151,6 +154,18 @@ export class Policia {
       j.peatones.push(a); this.agentes.push(a);
     }
     j.hud.notificar('alerta', '¡Retén adelante!', 'La policía cerró la calle. Busca otra salida.', 3.5);
+  }
+
+  vestirMoto(c) {
+    const j = this.juego;
+    if (c.piloto) c.carro.remove(c.piloto);
+    const pp = j.crearPiloto?.({ poli: true });
+    if (pp) { pp.grupo.position.set(0, 0.42, -0.15); c.carro.add(pp.grupo); c.piloto = pp.grupo; c.pilotoP = pp; }
+    const b1 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.1, 0.1)), b2 = b1.clone(); b1.position.set(-0.13, 1.05, -0.78); b2.position.set(0.13, 1.05, -0.78);
+    const asta = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.5, 5), new THREE.MeshStandardMaterial({ color: '#222' })); asta.position.set(0, 0.8, -0.78);
+    const caja = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.3, 0.36), new THREE.MeshStandardMaterial({ color: '#f2f4f7', roughness: 0.4 })); caja.position.set(0, 0.72, -0.62);
+    const franja = new THREE.Mesh(new THREE.BoxGeometry(0.43, 0.06, 0.37), new THREE.MeshStandardMaterial({ color: '#1f4fa8' })); franja.position.set(0, 0.74, -0.62);
+    c.carro.add(b1, b2, asta, caja, franja); c.barra = [b1, b2]; c.motoPoli = true; c.sirena = true;
   }
 
   actualizarHeli(dt, quiere) {

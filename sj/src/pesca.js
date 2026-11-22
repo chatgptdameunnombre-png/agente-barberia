@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { pegarAHueso } from './humanos.js?v=202611220526';
-import { realistaDe } from './jugador.js?v=202611220526';
+import { pegarAHueso } from './humanos.js?v=202611220529';
+import { realistaDe } from './jugador.js?v=202611220529';
 
 const PECES = [['una mojarra', 25, '#c8ccd4', 0.22], ['una carpa', 35, '#d8a040', 0.32], ['un bagre', 45, '#6a6a5a', 0.38], ['un charal', 10, '#e8eef2', 0.12], ['una tilapia', 30, '#9aa8b0', 0.26], ['una bota vieja', 0, '#3a2a1c', 0.25]];
 
