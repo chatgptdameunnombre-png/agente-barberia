@@ -1,4 +1,4 @@
-import { hoja } from './texturas.js?v=202611212313';
+import { hoja } from './texturas.js?v=202611212317';
 const svg = (c, vb = '0 0 64 64') => `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" fill="currentColor">${c}</svg>`;
 
 export const ICONO_ARMA = {

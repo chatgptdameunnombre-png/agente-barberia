@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { linea, LIMITE } from './ciudad.js?v=202611212313';
+import { linea, LIMITE } from './ciudad.js?v=202611212317';
 
 function lienzo(w, h, pintar) {
   const c = document.createElement('canvas'); c.width = w; c.height = h; pintar(c.getContext('2d'), w, h);
@@ -129,6 +129,20 @@ export class TrenLigero {
       }
       return g;
     };
+    this.maquinas = [];
+    const maq = [];
+    const texMaq = lienzo(128, 256, (g, w, h) => { g.fillStyle = '#5b2a86'; g.fillRect(0, 0, w, h); g.fillStyle = '#10141c'; g.fillRect(16, 30, w - 32, 70); g.fillStyle = '#7fe0ff'; g.font = '700 18px Inter, Arial, sans-serif'; g.textAlign = 'center'; g.fillText('BOLETOS', w / 2, 60); g.fillText('$10', w / 2, 86); g.fillStyle = '#f6c431'; g.fillRect(40, 120, 48, 8); g.fillStyle = '#2a2c30'; g.fillRect(30, 170, 68, 30); g.fillStyle = '#ffffff'; g.font = '900 28px Inter, Arial, sans-serif'; g.fillText('L1', w / 2, 240); });
+    const matMaq = new THREE.MeshStandardMaterial({ map: texMaq, roughness: 0.4, metalness: 0.3, emissive: '#ffffff', emissiveMap: texMaq, emissiveIntensity: 0.15 });
+    this.estaciones.forEach((e, i) => {
+      for (const s of [-1, 1]) {
+        const x = X + s * 10.35, z = e.z + 13;
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.7, 0.5), matMaq); m.position.set(x, 1.0, z); m.rotation.y = s > 0 ? -Math.PI / 2 : Math.PI / 2; m.castShadow = true; escena.add(m);
+        maq.push(new THREE.CylinderGeometry(0.07, 0.07, 3.4, 8).translate(x, 1.85, z + 1.2), new THREE.CylinderGeometry(0.42, 0.42, 0.08, 20).rotateZ(Math.PI / 2).rotateY(s > 0 ? 0 : Math.PI).translate(x, 3.45, z + 1.2));
+        this.maquinas.push({ x: x - s * 0.9, z, i });
+      }
+    });
+    const mMaq = new THREE.Mesh(mergeGeometries(maq), new THREE.MeshStandardMaterial({ color: '#5b2a86', roughness: 0.5, metalness: 0.4 })); mMaq.castShadow = true; escena.add(mMaq);
+    this.viaje = null;
     this.trenes = [];
     for (let k = 0; k < 2; k++) {
       const g = new THREE.Group();
@@ -141,21 +155,77 @@ export class TrenLigero {
     }
   }
 
+  destinoDe(i) { return (i + 1) % this.estaciones.length; }
+
+  cerca() {
+    const j = this.j, p = j.jugador.pos;
+    if (this.viaje || j.jugador.coche || j.jugador.interior || j.jugador.muerto) return null;
+    const m = this.maquinas.find(m => Math.hypot(m.x - p.x, m.z - p.z) < 1.7);
+    if (!m) return null;
+    const d = this.estaciones[this.destinoDe(m.i)];
+    return { m, texto: 'Tren ligero · ir a ' + d.nombre.replace('ESTACIÓN ', 'Estación ').replace(/\B[A-ZÁÉÍÓÚ]+/g, x => x.toLowerCase()) + ' ($10)' };
+  }
+
+  marcasMapa() { return this.estaciones.map(e => ({ x: this.X + 10.35, z: e.z + 13, tipo: 'icono', ic: { c: '#5b2a86', t: 'T', n: 'Tren ligero · ' + e.nombre.toLowerCase().replace(/(^|\s)\S/g, x => x.toUpperCase()) } })); }
+
+  viajar() {
+    const c = this.cerca(); if (!c) return false;
+    const j = this.j, jug = j.jugador;
+    if ((j.policia?.estrellas || 0) > 0) { j.hud.notificar('alerta', 'Tren ligero', 'Con la policía encima no te dejan subir.', 4); return true; }
+    if (jug.dinero < 10) { j.hud.notificar('alerta', 'Tren ligero', 'Necesitas $10 para el boleto.', 4); return true; }
+    jug.dinero -= 10; j.audio?.dinero?.();
+    const a = this.estaciones[c.m.i], b = this.estaciones[this.destinoDe(c.m.i)], dir = Math.sign(b.z - a.z) || 1;
+    const t = this.trenes[0];
+    t.s = a.z; t.v = 0; t.dir = dir; t.via = dir; t.espera = 2.2; t.ultima = a; t.expreso = b;
+    this.viaje = { t, a, b, fase: 0, tiempo: 0, cam: null };
+    jug.grupo.visible = false;
+    j.hud.notificar('info', 'Tren ligero · Línea 1', 'Próxima estación: ' + b.nombre.replace('ESTACIÓN ', ''), 5);
+    return true;
+  }
+
+  viajeActualizar(dt) {
+    const v = this.viaje; if (!v) return;
+    const j = this.j, jug = j.jugador, t = v.t;
+    v.tiempo += dt;
+    jug.pos.set(this.X + 9.6, 0, t.s);
+    if (v.fase === 0 && t.espera <= 0 && t.v > 0.5) v.fase = 1;
+    if (v.fase === 1 && t.ultima === v.b && t.espera > 0) {
+      const m = this.maquinas.find(m => m.i === this.estaciones.indexOf(v.b) && m.x > this.X);
+      jug.pos.set(m.x + 0.2, 0, m.z + 1.6); jug.yaw = 0; j.camYaw = Math.PI;
+      jug.grupo.visible = true; t.expreso = null;
+      this.viaje = null;
+      j.hud.notificar('info', 'Llegaste', v.b.nombre.replace('ESTACIÓN ', 'Estación ').replace(/\B[A-ZÁÉÍÓÚ]+/g, x => x.toLowerCase()), 4);
+      j.estadisticas?.sumar?.('viajesTren', 1);
+    }
+  }
+
+  camara(cam, dt) {
+    const v = this.viaje, t = v.t, dir = t.dir;
+    const obj = new THREE.Vector3(this.X + t.via * 1.65 + 13, this.ARRIBA + 5.5, t.s - dir * 15);
+    const mira = new THREE.Vector3(this.X + t.via * 1.65, this.ARRIBA + 2, t.s + dir * 8);
+    if (!v.cam) v.cam = cam.position.clone();
+    v.cam.lerp(obj, Math.min(1, dt * 2.5));
+    cam.position.copy(v.cam); cam.lookAt(mira);
+    if (cam.fov !== 60) { cam.fov = 60; cam.updateProjectionMatrix(); }
+  }
+
   actualizar(dt, noche) {
     this.matLado.emissiveIntensity = noche * 0.85;
     this.matFrente.emissiveIntensity = 0.05 + noche * 0.5;
-    const jp = this.j.jugador.posicion, VMAX = 15;
+    const jp = this.j.jugador.posicion;
     for (const t of this.trenes) {
+      const VMAX = t.expreso ? 22 : 15;
       if (t.espera > 0) {
         t.espera -= dt;
         if (t.espera <= 0 && Math.abs(jp.x - this.X) < 60 && Math.abs(jp.z - t.s) < 80) { this.j.audio?.tono(660, 0.25, 0.08, 'sine'); this.j.audio?.tono(880, 0.35, 0.06, 'sine', null, (this.j.audio?.ctx?.currentTime || 0) + 0.28); }
       } else {
         let freno = Infinity;
-        for (const e of this.estaciones) { const d = (e.z - t.s) * t.dir; if (d > 0.3 && e !== t.ultima) freno = Math.min(freno, d); }
-        const vObj = freno < Infinity ? Math.min(VMAX, Math.sqrt(2 * 1.1 * freno) + 0.3) : VMAX;
-        t.v += Math.max(-2.2 * dt, Math.min(1.2 * dt, vObj - t.v));
+        for (const e of this.estaciones) { if (t.expreso && e !== t.expreso) continue; const d = (e.z - t.s) * t.dir; if (d > 0.3 && e !== t.ultima) freno = Math.min(freno, d); }
+        const fr = t.expreso ? 2.4 : 1.1, ac = t.expreso ? 3 : 1.2;
+        const vObj = freno < Infinity ? Math.min(VMAX, Math.sqrt(2 * fr * freno) + 0.3) : VMAX;
+        t.v += Math.max(-fr * 2 * dt, Math.min(ac * dt, vObj - t.v));
         t.s += t.v * t.dir * dt;
-        const llega = this.estaciones.find(e => e !== t.ultima && Math.abs(e.z - t.s) < 0.6);
+        const llega = this.estaciones.find(e => e !== t.ultima && (!t.expreso || e === t.expreso) && Math.abs(e.z - t.s) < 0.6);
         if (llega) { t.s = llega.z; t.v = 0; t.espera = 9; t.ultima = llega; }
         if (t.dir > 0 ? t.s > this.Z1 - 20 : t.s < this.Z0 + 20) { t.dir *= -1; t.via *= -1; t.ultima = null; t.v = 4; }
       }
