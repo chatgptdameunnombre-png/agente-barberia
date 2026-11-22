@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { hoja } from './texturas.js?v=202611212243';
+import { hoja } from './texturas.js?v=202611212246';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -746,12 +746,44 @@ export function construirCiudad(escena, mundo) {
   salida.focoMat = foco.material;
 
   const cerros = new THREE.Group();
-  const mc = new THREE.MeshLambertMaterial({ color: '#6f8a6a', flatShading: true, fog: true });
-  for (let i = 0; i < 26; i++) {
-    const a = i / 26 * Math.PI * 2 + r() * 0.2, d = 650 + r() * 120;
-    const m = new THREE.Mesh(new THREE.ConeGeometry(90 + r() * 90, 50 + r() * 70, 7), mc);
-    m.position.set(Math.cos(a) * d, 0, Math.sin(a) * d);
-    cerros.add(m);
+  const mc = new THREE.MeshLambertMaterial({ color: '#6f8a6a', fog: true, vertexColors: true });
+  {
+    const hsh = (x, y) => { const v = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return v - Math.floor(v); };
+    const ruido = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = hsh(xi, yi), b = hsh(xi + 1, yi), c = hsh(xi, yi + 1), d = hsh(xi + 1, yi + 1); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; };
+    const fbm = (x, y) => { let t = 0, amp = 1, f = 1, n = 0; for (let k = 0; k < 6; k++) { const r2 = 1 - Math.abs(ruido(x * f, y * f) * 2 - 1); t += r2 * r2 * amp; n += amp; amp *= 0.5; f *= 2.1; } return t / n; };
+    const g = new THREE.RingGeometry(480, 1150, 288, 40);
+    g.rotateX(-Math.PI / 2);
+    const P = g.attributes.position, col = new Float32Array(P.count * 3), cc = new THREE.Color();
+    for (let i = 0; i < P.count; i++) {
+      const x = P.getX(i), z = P.getZ(i), rr = Math.hypot(x, z), t = (rr - 480) / 670;
+      const env = Math.sin(Math.min(1, Math.max(0, t)) * Math.PI) * (0.55 + 0.45 * ruido(Math.atan2(z, x) * 3.1 + 7, 2.3));
+      const h = Math.pow(fbm(x / 260, z / 260), 1.6) * 260 * env + (t < 0.08 ? -6 : 0);
+      P.setY(i, h - 4);
+      const k = Math.min(1, h / 170);
+      cc.set('#5f7a4a').lerp(new THREE.Color('#8a7a5a'), Math.min(1, k * 1.3)).lerp(new THREE.Color('#a89c86'), Math.max(0, k - 0.6) * 1.5);
+      col.set([cc.r, cc.g, cc.b], i * 3);
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    g.computeVertexNormals();
+    const m = new THREE.Mesh(g, mc); m.frustumCulled = false; cerros.add(m);
+  }
+  {
+    const n = 2400, geo = new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0);
+    { const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 2, uv.getY(i) * 1.4); }
+    const tx = FACH[ESTILO_FACH.casa].textura.clone(); tx.needsUpdate = true; tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
+    const mat = new THREE.MeshLambertMaterial({ fog: true, map: tx });
+    const im = new THREE.InstancedMesh(geo, mat, n), M = new THREE.Matrix4(), Q = new THREE.Quaternion(), V = new THREE.Vector3(), E = new THREE.Vector3(), cc = new THREE.Color();
+    const tonos = ['#d8c8b0', '#c8b49a', '#e0d4c0', '#b89c84', '#d0a888', '#bcbcb4', '#e8dcc8', '#a8a49c', '#c89a7a', '#d8d0c0'];
+    let k = 0;
+    while (k < n) {
+      const a = r() * Math.PI * 2, d = 440 + Math.pow(r(), 0.8) * 170, x = Math.cos(a) * d, z = Math.sin(a) * d;
+      if (Math.abs(x) < LIMITE + 30 && Math.abs(z) < LIMITE + 30) continue;
+      const alto = r() < 0.03 ? 14 + r() * 26 : 3.5 + r() * 6.5, ancho = 7 + r() * 12;
+      V.set(x, -0.5, z); E.set(ancho, alto, ancho * (0.6 + r() * 0.8)); Q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.round(a * 4 / Math.PI) * Math.PI / 4 + (r() - 0.5) * 0.2);
+      M.compose(V, Q, E); im.setMatrixAt(k, M); im.setColorAt(k, cc.set(tonos[r() * tonos.length | 0]).multiplyScalar(0.85 + r() * 0.2)); k++;
+    }
+    im.instanceMatrix.needsUpdate = true; im.instanceColor.needsUpdate = true; im.frustumCulled = false;
+    cerros.add(im);
   }
   escena.add(cerros);
   salida.cerros = mc;

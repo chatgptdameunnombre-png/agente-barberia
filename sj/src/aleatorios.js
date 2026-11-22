@@ -1,6 +1,6 @@
-import { esCalle } from './ciudad.js?v=202611212243';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611212243';
-import { Peaton } from './peatones.js?v=202611212243';
+import { esCalle } from './ciudad.js?v=202611212246';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611212246';
+import { Peaton } from './peatones.js?v=202611212246';
 
 const AZUL = '#3fa8ff';
 const banqueta = (j, cerca, a, b) => {
