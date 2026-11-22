@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220108';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220108';
-import { Peaton } from './peatones.js?v=202611220108';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220109';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220109';
+import { Peaton } from './peatones.js?v=202611220109';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -616,7 +616,7 @@ export const CONTACTOS = {
     ]
   },
   chava: {
-    nombre: 'Chava', letra: 'C', modelo: 'chava', color: '#ffb020', zona: 'Gasolinera Jacaranda', requisito: 1,
+    nombre: 'Chava', letra: 'S', modelo: 'chava', color: '#ffb020', zona: 'Gasolinera Jacaranda', requisito: 1,
     apariencia: { camisa: '#c8202e', pantalon: '#4a4c54', sombrero: true, colorSombrero: '#c8202e', complexion: 1.02, barba: 'bigote', mangaCorta: true, mujer: false, peloLargo: false },
     lugar: j => libre(j, j.ciudad.lugares.gasolinera.x - 13, j.ciudad.lugares.gasolinera.z + 5),
     lista: [
