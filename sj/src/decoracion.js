@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { rng, COLORES_CASA } from './ciudad.js?v=202611220529';
+import { rng, COLORES_CASA } from './ciudad.js?v=202611220533';
 
 const LETREROS = [[66, 246], [290, 466], [508, 690], [732, 912], [955, 1106], [1148, 1316], [1356, 1520], [1560, 1722]].map(([a, b]) => [6 / 887, 881 / 887, 1 - b / 1774, 1 - a / 1774]);
 const ESPECTACULARES = [];
@@ -99,7 +99,13 @@ export function decorar(juego) {
       for (let piso = 1; piso * 3.2 + 1 < e.h; piso++) {
         const rot = Math.atan2(fx2, fz2);
         liso.push(color(colocar(new THREE.BoxGeometry(Math.min(2.6, e.w * 0.4), 0.12, 0.7), e.x + fx2 * (e.fondo / 2 + 0.35), piso * 3.2 + 0.2, e.z + fz2 * (e.fondo / 2 + 0.35), rot), '#d8d0c0'));
-        liso.push(color(colocar(new THREE.BoxGeometry(Math.min(2.6, e.w * 0.4), 0.7, 0.05), e.x + fx2 * (e.fondo / 2 + 0.68), piso * 3.2 + 0.6, e.z + fz2 * (e.fondo / 2 + 0.68), rot), '#2a2a2e'));
+        { const bw = Math.min(2.6, e.w * 0.4), bx = e.x + fx2 * (e.fondo / 2 + 0.68), bz = e.z + fz2 * (e.fondo / 2 + 0.68), by = piso * 3.2 + 0.6, lx = fz2, lz = -fx2;
+          liso.push(color(colocar(new THREE.BoxGeometry(bw, 0.05, 0.06), bx, by + 0.33, bz, rot), '#2a2a2e'));
+          liso.push(color(colocar(new THREE.BoxGeometry(bw, 0.04, 0.04), bx, by - 0.3, bz, rot), '#2a2a2e'));
+          const n = Math.max(6, Math.round(bw / 0.16));
+          for (let k = 0; k <= n; k++) { const u = (k / n - 0.5) * (bw - 0.04); liso.push(color(colocar(new THREE.BoxGeometry(0.025, 0.62, 0.025), bx + lx * u, by, bz + lz * u, rot), '#2a2a2e')); }
+          for (const sgn of [-1, 1]) { const ex = bx - fx2 * 0.33 + lx * sgn * (bw / 2 - 0.02), ez = bz - fz2 * 0.33 + lz * sgn * (bw / 2 - 0.02); liso.push(color(colocar(new THREE.BoxGeometry(0.04, 0.05, 0.66), ex, by + 0.33, ez, rot), '#2a2a2e')); }
+        }
       }
     }
   }
