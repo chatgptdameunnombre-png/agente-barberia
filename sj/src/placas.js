@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { linea, BLOQUES, CALLE, LIMITE } from './ciudad.js?v=202611220125';
-import { CALLES_X, CALLES_Z } from './gps.js?v=202611220125';
+import { linea, BLOQUES, CALLE, LIMITE } from './ciudad.js?v=202611220128';
+import { CALLES_X, CALLES_Z } from './gps.js?v=202611220128';
 
 export function placasCalles(juego) {
   const nombres = [...CALLES_X, ...CALLES_Z], F = nombres.length, AL = 72;

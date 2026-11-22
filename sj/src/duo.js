@@ -1,8 +1,16 @@
 import * as THREE from 'three';
-import { modeloProtagonista, realistaDe } from './jugador.js?v=202611220125';
-import { animar, sentar } from './persona.js?v=202611220125';
-import { Peaton } from './peatones.js?v=202611220125';
+import { modeloProtagonista, realistaDe } from './jugador.js?v=202611220128';
+import { animar, sentar } from './persona.js?v=202611220128';
+import { Peaton } from './peatones.js?v=202611220128';
 
+const SENTADOS = [
+  [['A', 'A veces se me olvida que esta ciudad también es bonita.'], ['B', 'Cuando no nos andan correteando, sí lo es.']],
+  [['A', '¿Te acuerdas cuando soñábamos con salir de aquí?'], ['B', 'Ahora no me imagino en otro lado.']],
+  [['A', 'Huele a elote. Ahorita vamos por uno.'], ['B', 'Con todo y chile. Si no, no cuenta.']],
+  [['A', 'Don Chuy dice que el tren antes llegaba hasta el lago.'], ['B', 'Don Chuy dice muchas cosas.']],
+  [['A', 'Cinco minutos y seguimos. Nomás cinco.'], ['B', 'Eso dijiste hace media hora.']],
+  [['A', '¿Viste las jacarandas? Ya están moradas otra vez.'], ['B', 'Es lo único puntual en esta ciudad.']]
+];
 const CHARLAS = [
   [['Lucía', '¿Ya viste ese cielo? Esta ciudad de noche no tiene igual.'], ['Matías', 'Por eso no me voy de aquí.']],
   [['Matías', 'Don Chuy dice que manejo como abuelita.'], ['Lucía', 'Don Chuy es muy amable contigo.']],
@@ -81,11 +89,15 @@ export class Duo {
     }
     g.visible = !jug.interior;
     if (jug.sentado && !this.sentado && !jug.interior && !this.buscarEnemigo()) { let b = j.ciudad.bancas?.find(b => !b.ocupante && !b.pie && Math.hypot(b.x - jug.pos.x, b.z - jug.pos.z) < 3.4); if (!b && !jug.sentado.terraza) { const s = jug.sentado; for (const lado of [-1, 1]) { const x = s.x + Math.cos(s.yaw) * 0.68 * lado, z = s.z - Math.sin(s.yaw) * 0.68 * lado; if (!j.mundo.dentro(x, 0.6, z) && !j.ciudad.arboles?.some?.(t => Math.hypot(t.x - x, t.z - z) < 0.7)) { b = { x, z, yaw: s.yaw, pie: false, virtual: true }; break; } } } if (b) { b.ocupante = this; this.sentado = b; } }
-    if (this.sentado && (!jug.sentado || jug.interior)) { if (this.sentado.ocupante === this) this.sentado.ocupante = null; this.sentado = null; this.sentadoListo = null; }
+    if (this.sentado && (!jug.sentado || jug.interior)) { if (this.sentado.ocupante === this) this.sentado.ocupante = null; this.sentado = null; this.sentadoListo = null; this.tSentado = 0; this.platico = false; }
     if (this.sentado) {
       const b = this.sentado, dx = b.x - this.pos.x, dz = b.z - this.pos.z, d = Math.hypot(dx, dz);
       if (d > 0.35) { this.pos.x += dx / d * 1.6 * dt; this.pos.z += dz / d * 1.6 * dt; this.yaw = this.girar(this.yaw, Math.atan2(dx, dz), dt); this.vel += (1.6 - this.vel) * Math.min(1, dt * 8); this.sentadoListo = null; }
-      else { this.pos.set(b.x, 0, b.z); this.yaw = b.yaw; this.vel = 0; this.sentadoListo = b; }
+      else {
+        this.pos.set(b.x, 0, b.z); this.yaw = b.yaw; this.vel = 0; this.sentadoListo = b;
+        this.tSentado = (this.tSentado || 0) + dt;
+        if (this.tSentado > 4 && !this.platico && !j.misiones.activa && !j.policia.estrellas) { this.platico = true; const ch = SENTADOS[Math.random() * SENTADOS.length | 0], yo = jug.personaje || 'Matías', otro = this.nombre; j.hud.dialogos(ch.map(([q, t]) => [q === 'A' ? otro : yo, t])); }
+      }
       animar(this.p, dt, this.vel, 'puno', false);
       g.position.set(this.pos.x, 0, this.pos.z); g.rotation.y = this.yaw;
       if (!j.sinRealista) realistaDe(this.nombre).actualizarJugador(this.adaptador || (this.adaptador = { juego: j }), dt, this);
