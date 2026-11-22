@@ -1,4 +1,4 @@
-import { Realista } from './realista.js?v=202611220819';
+import { Realista } from './realista.js?v=202611221014';
 
 const CIVILES = ['peaton1', 'peaton3', 'peaton5', 'peaton7'];
 
@@ -25,7 +25,7 @@ export class Pilotos {
     }
     for (const [c, R] of this.usados) {
       const A = R.adaptadorPiloto || (R.adaptadorPiloto = { juego: j });
-      R.actualizarJugador(A, dt, { yaw: c.yaw, p: c.pilotoP, vel: 0, apunta: 0, enMoto: true, sentadoListo: null });
+      R.actualizarJugador(A, dt, { yaw: c.yaw, p: c.pilotoP, vel: 0, apunta: 0, enMoto: true, piloto: true, sentadoListo: null });
     }
   }
 }

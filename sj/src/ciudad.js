@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611220819';
-import { hoja } from './texturas.js?v=202611220819';
+import { construirEstadio } from './estadio.js?v=202611221014';
+import { hoja } from './texturas.js?v=202611221014';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -285,9 +285,12 @@ export function construirCiudad(escena, mundo) {
   const geosBanqueta = [], geosPasto = [], geosPiedra = [];
   const losa = (lista, x0, z0, x1, z1, y, rep = 4) => {
     const g = new THREE.BoxGeometry(x1 - x0, y, z1 - z0);
-    const uv = g.attributes.uv;
-    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * (x1 - x0) / rep, uv.getY(i) * (z1 - z0) / rep);
     g.translate((x0 + x1) / 2, y / 2, (z0 + z1) / 2);
+    const uv = g.attributes.uv, P = g.attributes.position, N = g.attributes.normal;
+    for (let i = 0; i < uv.count; i++) {
+      const nx = Math.abs(N.getX(i)), nz = Math.abs(N.getZ(i)), px = P.getX(i), py = P.getY(i), pz = P.getZ(i);
+      if (nx > 0.5 || nz > 0.5) uv.setXY(i, 0.27 + (nx > 0.5 ? pz : px) * 0.0004, 0.27 + py * 0.02); else uv.setXY(i, px / rep, pz / rep);
+    }
     lista.push(g);
   };
 

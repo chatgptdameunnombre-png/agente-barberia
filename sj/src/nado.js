@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { enLago } from './ciudad.js?v=202611220819';
+import { enLago } from './ciudad.js?v=202611221014';
 
 export class Nado {
   constructor(juego) {

@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220819';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220819';
-import { Peaton } from './peatones.js?v=202611220819';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611221014';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221014';
+import { Peaton } from './peatones.js?v=202611221014';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -292,7 +292,7 @@ export const CONTACTOS = {
         actualizar(m) {
           const j = m.j, c = m.ev;
           if (c.quemado) return 'falla:La evidencia se quemó… y tú con ella en las noticias.';
-          if (m.paso === 0 && j.jugador.coche === c) { m.paso = 1; m.objetivos = []; j.policia.subir(3); const P = j.ciudad.lugares.pintura; m.marcar(1, P.x, P.z, 4, 3, '#4a9bff'); m.colorAntes = c.color; }
+          if (m.paso === 0 && j.jugador.coche === c) { m.paso = 1; m.objetivos = []; j.policia.subir(3); const P = j.ciudad.lugares.pintura; m.marcar(1, P.x, P.z, 4, 3, '#4a9bff'); m.colorAntes = c.color; c.pintarMision = true; }
           if (m.paso === 1) {
             m.objetivo('Pasa la camioneta por la <b>Pintura Express</b>.');
             if (j.jugador.coche === c && (c.color !== m.colorAntes || (m.dentro(1, c.pos, 1) && !j.policia.estrellas))) { m.paso = 2; const t = j.ciudad.lugares.taller; m.marcar(1, t.x, t.z + 6, 4, 3, '#4a9bff'); }
@@ -352,7 +352,7 @@ export const CONTACTOS = {
         actualizar(m) {
           const j = m.j, c = m.dep;
           if (c.quemado) return 'falla:El cliente no paga por chatarra.';
-          if (m.paso === 0 && j.jugador.coche === c) { m.paso = 1; m.objetivos = []; j.policia.subir(1); m.colorAntes = c.color; const P = j.ciudad.lugares.pintura; m.marcar(1, P.x, P.z, 4, 3, '#ff6a3a'); }
+          if (m.paso === 0 && j.jugador.coche === c) { m.paso = 1; m.objetivos = []; j.policia.subir(1); m.colorAntes = c.color; c.pintarMision = true; const P = j.ciudad.lugares.pintura; m.marcar(1, P.x, P.z, 4, 3, '#ff6a3a'); }
           if (m.paso === 1) {
             m.objetivo('Cámbiale el color en la <b>Pintura Express</b>.');
             if (j.jugador.coche === c && c.color !== m.colorAntes) { m.paso = 2; const g = CONTACTOS.flaco.lugar(j); m.marcar(1, g.x, g.z, 4, 3, '#ff6a3a'); }

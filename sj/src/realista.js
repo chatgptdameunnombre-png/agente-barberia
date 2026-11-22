@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano, recorte } from './humanos.js?v=202611220819';
+import { crearHumano, recorte } from './humanos.js?v=202611221014';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -134,6 +134,7 @@ export class Realista {
   esArma(o, p) { let q = o; while (q && q !== p.grupo) { if (this.armas?.includes(q) || q.parent === this.empunadura) return true; q = q.parent; } return false; }
 
   elegirJugador(j, dt) {
+    if (j.anim && this.clips[j.anim.clip]) { const A = j.anim, f = !!A.nuevo; A.nuevo = false; return { base: A.clip, escala: A.escala || 1, veces: A.veces ?? 1, sup: null, supVeces: Infinity, forzarSup: false, forzarBase: f }; }
     const fuego = FUEGO.includes(j.arma), v = j.velocidad || 0;
     let base = 'Idle_Loop', escala = 1, veces = Infinity, sup = null, supVeces = Infinity, forzarSup = false, forzarBase = false;
     if (j.arrestado) base = 'Crouch_Idle_Loop';
@@ -189,14 +190,16 @@ export class Realista {
     if (j.p !== this.p) this.montar(j);
     if (j.muerto && j.muneco && !j.arrestado) { this.seguirMuneco(j.muneco, j.p); return; }
     this.soltarMuneco();
-    this.grupo.position.y = j.coche?.tipo === 'moto' ? 0.34 : j.coche?.tipo === 'lancha' ? 0.18 : 0;
+    const enMoto = j.coche?.tipo === 'moto', piloto = !duo || duo.piloto;
+    this.grupo.position.y = enMoto ? (piloto ? 0.0 : 0.06) : j.coche?.tipo === 'lancha' ? 0.18 : 0;
+    this.grupo.position.z = enMoto && piloto ? 0.06 : 0;
     if (j.muerto && !j.arrestado) this.aplicar({ base: 'Death01', escala: 1, veces: 1 }, dt, 0);
     else this.aplicar(this.elegirJugador(j, dt), dt, j.coche ? 0 : (j.velocidad || 0));
     if (this.empunadura) this.empunadura.visible = !j.nadando;
     this.H.mixer.update(dt);
     this.inclinar(j.yaw, dt, j.coche ? 0 : (j.velocidad || 0));
     const J = j.juego;
-    if (J && !j.coche && !j.muerto && J.camara) { const cy = J.camYaw ?? 0; this._mira = this._mira || new THREE.Vector3(); const P = this.grupo.getWorldPosition(_v); this._mira.set(P.x + Math.sin(cy) * 10, 1.5 + Math.sin(J.camPitch || 0) * 6, P.z + Math.cos(cy) * 10); this.mirar(this._mira, dt, !(j.apunta || j.disparando) && (j.velocidad || 0) < 4.5); }
+    if (J && !j.coche && !j.muerto && !j.anim && J.camara) { const cy = J.camYaw ?? 0; this._mira = this._mira || new THREE.Vector3(); const P = this.grupo.getWorldPosition(_v); this._mira.set(P.x + Math.sin(cy) * 10, 1.5 + Math.sin(J.camPitch || 0) * 6, P.z + Math.cos(cy) * 10); this.mirar(this._mira, dt, !(j.apunta || j.disparando) && (j.velocidad || 0) < 4.5); }
   }
 
   seguirMuneco(M, p) {

@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220819';
-import { mat } from './persona.js?v=202611220819';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611221014';
+import { mat } from './persona.js?v=202611221014';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220819';
+import { hoja } from './texturas.js?v=202611221014';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, vocho: 1, vochotaxi: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, vocho: 8, vochotaxi: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -68,6 +69,18 @@ const PERFIL = {
   deportivo: { capo: 1.4, cabT: -0.3, cabF: 0.02, inclF: 0.85, inclT: 0.78 }
 };
 const cacheGeo = {};
+export const BL = {};
+let BLD = {};
+const soloPN = g => { const b = new THREE.BufferGeometry(); b.setAttribute('position', g.attributes.position); b.setAttribute('normal', g.attributes.normal); b.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2)); if (g.index) b.setIndex(g.index); return b; };
+export async function cargarVehiculos() {
+  try {
+    const [gl, js] = await Promise.all([new GLTFLoader().loadAsync('assets/vehiculos/vehiculos.glb'), fetch('assets/vehiculos/vehiculos.json').then(r => r.json()).catch(() => ({}))]);
+    BLD = js || {};
+    gl.scene.traverse(o => { if (!o.isMesh || !o.name.includes('__')) return; const [t, p] = o.name.split('__'); o.updateWorldMatrix(true, false); const g = soloPN(o.geometry.clone().applyMatrix4(o.matrixWorld)); (BL[t] = BL[t] || {})[p] = g; });
+  } catch (e) { console.warn('vehiculos.glb', e); }
+}
+const matMotor = new THREE.MeshStandardMaterial({ color: '#2b2c30', metalness: 0.7, roughness: 0.4 });
+export const matLuzTrasera = new THREE.MeshStandardMaterial({ color: '#8a0e18', roughness: 0.25, metalness: 0.1, emissive: '#ff1a2a', emissiveIntensity: 0.12 });
 const ni = g => g.index ? g.toNonIndexed() : g;
 
 function extruir(puntos, ancho, bisel = 0.07) {
@@ -132,6 +145,17 @@ function geometrias(tipo) {
   const t = TIPOS[tipo], P = PERFIL[tipo];
   const L = t.largo, H = t.alto, C = t.cabina, A = t.ancho, piso = 0.3;
   const yb = piso, yt = piso + H;
+  const B = BL[tipo];
+  if (B?.pinta && B.vidrio) {
+    const geo = { pinta: B.pinta, vidrio: B.vidrio, trim: B.trim, faros: B.faros, calaveras: B.calaveras, blender: true, datos: BLD[tipo] || {} };
+    if (tipo === 'ambulancia') { const c = new THREE.BoxGeometry(A * 0.98, 1.25, L * 0.56); c.translate(0, yt + 0.58, -L * 0.2); geo.pinta = mergeGeometries([ni(B.pinta), soloPN(ni(c))]); }
+    if (tipo === 'policia') { const b = new THREE.BoxGeometry(A * 1.01, H * 0.5, L * 0.46); b.translate(0, yb + H * 0.45, 0.05); geo.franja = b; }
+    if (tipo === 'taxi') { const b = new THREE.BoxGeometry(A * 1.01, 0.14, L * 0.9); b.translate(0, yb + H * 0.5, 0); geo.franja = b; }
+    if (tipo === 'ambulancia') { const b = new THREE.BoxGeometry(A * 1.005, 0.16, L * 0.97); b.translate(0, yb + H * 0.55, 0); const b2 = new THREE.BoxGeometry(A * 0.99, 0.14, L * 0.57); b2.translate(0, yt + 0.62, -L * 0.2); const cz = new THREE.BoxGeometry(A * 0.995, 0.5, 0.14); cz.translate(0, yt + 0.62, -L * 0.2); const cz2 = new THREE.BoxGeometry(A * 0.995, 0.14, 0.5); cz2.translate(0, yt + 0.62, -L * 0.2); geo.franja = mergeGeometries([b, b2, cz, cz2].map(ni)); }
+    geo.yt = yt; geo.cf = L * P.cabF; geo.cr = L * P.cabT;
+    cacheGeo[tipo] = geo;
+    return geo;
+  }
   const cuerpo = esVocho(tipo) ? [[-L / 2 + 0.16, yb + 0.06], [L / 2 - 0.18, yb + 0.06], [L / 2 - 0.02, yb + 0.18], [L / 2 - 0.06, yb + 0.34], [L / 2 - 0.42, yt - 0.02], [L / 2 - 1.05, yt + 0.06], [-L / 2 + 1.15, yt + 0.1], [-L / 2 + 0.5, yt - 0.02], [-L / 2 + 0.12, yb + 0.3]]
     : tipo === 'camioneta' || tipo === 'ambulancia'
     ? [[-L / 2, yb + 0.05], [L / 2 - 0.05, yb + 0.05], [L / 2, yt - 0.2], [L / 2 - 0.25, yt], [-L / 2 + 0.05, yt], [-L / 2, yt - 0.15]]
@@ -290,6 +314,20 @@ function modeloMoto(color) {
   const g = new THREE.Group(), carro = new THREE.Group(); g.add(carro);
   const pinta = new THREE.MeshStandardMaterial({ color, metalness: 0.4, roughness: 0.3 });
   pinturas.add(pinta);
+  const B = BL.moto;
+  if (B?.pinta) {
+    const add = (geo, mt, sombra = true) => { const k = new THREE.Mesh(geo, mt); k.castShadow = sombra; carro.add(k); return k; };
+    const tanque = add(B.pinta, pinta); add(B.trim, matTrim); add(B.cromo, matCromo); add(B.motor, matMotor); add(B.faro, matFaro, false);
+    const cal = add(B.calavera, new THREE.MeshBasicMaterial({ color: '#a01020' }), false);
+    const h = new THREE.Sprite(matHalo); h.position.set(0, 0.95, 0.9); h.scale.setScalar(1.4); carro.add(h);
+    const ruedas = [], delanteras = [];
+    for (const z of [0.78, -0.72]) {
+      const piv = new THREE.Group(); piv.position.set(0, 0.34, z);
+      const ll = new THREE.Mesh(B.llanta, matLlanta); ll.castShadow = true; ll.add(new THREE.Mesh(B.rin, matRin2));
+      piv.add(ll); carro.add(piv); ruedas.push(ll); if (z > 0) delanteras.push(piv);
+    }
+    return { grupo: g, carro, pinta, ruedas, delanteras, barra: null, partes: [tanque], calav: cal.material, calavMalla: cal };
+  }
   const m = (geo, mt, x, y, z, rx = 0) => { const k = new THREE.Mesh(geo, mt); k.position.set(x, y, z); k.rotation.x = rx; k.castShadow = true; carro.add(k); return k; };
   const tanque = m(new THREE.BoxGeometry(0.34, 0.26, 0.6), pinta, 0, 0.82, 0.25);
   m(new THREE.BoxGeometry(0.3, 0.12, 0.62), matTrim, 0, 0.86, -0.3);
@@ -538,11 +576,18 @@ export function modelo(tipo, color) {
   malla(G.trim, matTrim);
   const calav = new THREE.MeshBasicMaterial({ color: '#a01020' });
   const H = t.alto, piso = 0.3;
-  const df = new THREE.Mesh(new THREE.PlaneGeometry(t.ancho * 0.98, H * 0.72), matsDecal[IDX_FRENTE[tipo]]);
-  df.position.set(0, piso + H * 0.42, t.largo / 2 + 0.125); carro.add(df);
-  const da = new THREE.Mesh(new THREE.PlaneGeometry(t.ancho * 0.96, H * 0.62), matsDecal[IDX_ATRAS[tipo]]);
-  da.position.set(0, piso + H * 0.55, -t.largo / 2 - 0.125); da.rotation.y = Math.PI; carro.add(da);
-  const cal = malla(G.calaveras, calav); cal.castShadow = false; cal.position.z = -0.04; cal.visible = false;
+  let cal;
+  if (G.blender) {
+    const fa = malla(G.faros, matFaro); fa.castShadow = false;
+    const ce = malla(G.calaveras, matLuzTrasera); ce.castShadow = false;
+    cal = malla(G.calaveras, calav); cal.castShadow = false; cal.scale.setScalar(1.004); cal.visible = false;
+  } else {
+    const df = new THREE.Mesh(new THREE.PlaneGeometry(t.ancho * 0.98, H * 0.72), matsDecal[IDX_FRENTE[tipo]]);
+    df.position.set(0, piso + H * 0.42, t.largo / 2 + 0.125); carro.add(df);
+    const da = new THREE.Mesh(new THREE.PlaneGeometry(t.ancho * 0.96, H * 0.62), matsDecal[IDX_ATRAS[tipo]]);
+    da.position.set(0, piso + H * 0.55, -t.largo / 2 - 0.125); da.rotation.y = Math.PI; carro.add(da);
+    cal = malla(G.calaveras, calav); cal.castShadow = false; cal.position.z = -0.04; cal.visible = false;
+  }
   if (G.franja) malla(G.franja, tipo === 'policia' ? mat('#1f4fa8') : tipo === 'ambulancia' ? mat('#c8202e') : mat('#ffffff'));
   let barra = null;
   if (tipo === 'ambulancia') {
@@ -569,7 +614,7 @@ export function modelo(tipo, color) {
     carro.add(h);
   }
   const P = PERFIL[tipo], yb = piso, yt = piso + H, finos = [];
-  for (const sx of [-1, 1]) for (const sz of [1, -1]) {
+  if (!G.blender) for (const sx of [-1, 1]) for (const sz of [1, -1]) {
     const z = sz * t.largo * 0.31;
     const arco = new THREE.Mesh(geoArco, matTrim); arco.position.set(sx * (t.ancho / 2 + 0.012), 0.36, z); arco.rotation.y = Math.PI / 2; carro.add(arco); finos.push(arco);
     const hueco = new THREE.Mesh(geoHueco, matHueco); hueco.position.set(sx * (t.ancho / 2 + 0.006), 0.36, z); hueco.rotation.y = sx * Math.PI / 2; carro.add(hueco);
@@ -585,8 +630,8 @@ export function modelo(tipo, color) {
   for (const sx of [-1, 1]) { const l = linea.clone(); l.position.x = sx * (t.ancho * 0.43); carro.add(l); finos.push(l); }
   if (false) { const pil = new THREE.Mesh(new THREE.BoxGeometry(t.ancho * 0.85, t.cabina * 0.92, 0.09), matTrim); pil.position.set(0, yt + t.cabina * 0.48, zf - largoP - 0.02); carro.add(pil); finos.push(pil); }
   const np = (Math.random() * 8) | 0;
-  const pf = new THREE.Mesh(geoPlaca, matsPlaca[np]); pf.position.set(0, piso + 0.12, t.largo / 2 + 0.14); carro.add(pf);
-  const pt = new THREE.Mesh(geoPlaca, matsPlaca[(np + 3) % 8]); pt.position.set(0, piso + H * 0.32, -t.largo / 2 - 0.14); pt.rotation.y = Math.PI; carro.add(pt); finos.push(pf, pt);
+  const pf = new THREE.Mesh(geoPlaca, matsPlaca[np]); pf.position.set(0, piso + 0.12, G.blender && G.datos.placaF ? G.datos.placaF + 0.045 : t.largo / 2 + 0.14); carro.add(pf);
+  const pt = new THREE.Mesh(geoPlaca, matsPlaca[(np + 3) % 8]); pt.position.set(0, piso + H * 0.32, G.blender && G.datos.placaA ? G.datos.placaA - 0.01 : -t.largo / 2 - 0.14); pt.rotation.y = Math.PI; carro.add(pt); finos.push(pf, pt);
   for (const sx of [-1, 1]) {
     const ze = G.cf + P.inclF * 0.72, ye = yt + 0.1;
     const brazo = new THREE.Mesh(geoEspejo[0], pinta); brazo.position.set(sx * (t.ancho * 0.43), ye, ze); brazo.scale.x = sx; carro.add(brazo);
@@ -617,8 +662,10 @@ export function modelo(tipo, color) {
   for (const [sx, sz] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) {
     const piv = new THREE.Group();
     piv.position.set(sx * (t.ancho / 2 - 0.1), 0.36, sz * t.largo * 0.31);
-    const ll = new THREE.Mesh(geoLlanta, matLlanta); ll.castShadow = true;
-    const rin = new THREE.Mesh(geoRin2, matRin2); ll.add(rin); finos.push(rin);
+    const R = BL.coche;
+    const ll = new THREE.Mesh(R?.llanta || geoLlanta, matLlanta); ll.castShadow = true;
+    const rin = new THREE.Mesh(R?.rin || geoRin2, matRin2); ll.add(rin); finos.push(rin);
+    if (R?.rin && sx < 0) ll.scale.x = -1;
     piv.add(ll);
     g.add(piv);
     ruedas.push(ll);
