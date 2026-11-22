@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Peaton } from './peatones.js?v=202611220506';
+import { Peaton } from './peatones.js?v=202611220509';
 
 function carrito() {
   const g = new THREE.Group();

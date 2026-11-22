@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611220506';
-import { ARMAS } from './jugador.js?v=202611220506';
-import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611220506';
+import { linea, CARRIL } from './ciudad.js?v=202611220509';
+import { ARMAS } from './jugador.js?v=202611220509';
+import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611220509';
 const PRODUCTOS = { 'Papitas y refresco': 0, 'Torta de jamón': 1, 'Bebida energética': 2, 'Kilo de tortillas': 3, 'Tacos de canasta': 4, 'Venda y alcohol': 5, 'Botiquín completo': 6, 'Suero': 7, 'Plato de birria': 8, 'Consomé': 9, 'Cinta y pegamento (repara coche)': 10, 'Concha': 11, 'Bolsa de pan dulce': 12, 'Coctel de camarón': 13, 'Tostada de ceviche': 14, 'Cerveza': 15, 'Cerveza de la casa': 15, 'Tequila': 16, 'Agua de jamaica': 17, 'Botana de la casa': 18, 'Chaleco antibalas': 19 };
-import { Peaton } from './peatones.js?v=202611220506';
+import { Peaton } from './peatones.js?v=202611220509';
 
 export class Estadisticas {
   constructor() {
@@ -19,6 +19,7 @@ export class Estadisticas {
       ['Atropellos', d.atropellos], ['Tiendas robadas', d.robos || 0], ['Veces que perdiste a la policía', d.despistes], ['Máximo de estrellas', d.maxEstrellas ? d.maxEstrellas + ' de 5' : '—'],
       ['Saltos', d.saltos], ['Mejor salto', d.mejorSalto ? d.mejorSalto.toFixed(0) + ' m' : '—'], ['Viajes de taxi', d.viajesTaxi], ['Carreras ganadas', d.carreras || 0], ['Pedidos entregados', d.entregas || 0], ['Criminales detenidos', d.detenidos || 0], ['Pacientes rescatados', d.rescates || 0], ['Encuentros en la calle', d.eventos || 0],
       ['Viajes en tren ligero', d.viajesTren || 0], ['Hidrantes reventados', d.hidrantes || 0], ['Topes que te comiste', d.topes || 0], ['Propinas a limpiaparabrisas', d.propinas || 0], ['Serenatas pedidas', d.serenatas || 0],
+      ['Helicópteros derribados', d.helicopteros || 0], ['Grafitis pintados', d.grafitis || 0], ['Peces sacados', d.peces || 0], ['Perritos regresados', d.perros || 0], ['Llantas cambiadas', d.llantas || 0], ['Lavadas del coche', d.lavados || 0], ['Viajes en camión', d.viajesCamion || 0], ['Bodas que viste', d.bodas || 0],
       ['Jacarandas doradas', d.flores + ' / 12'], ['Muertes', d.muertes], ['Arrestos', d.arrestos], ['Dinero ganado', '$' + Math.round(d.ganado).toLocaleString('es-MX')]
     ];
   }

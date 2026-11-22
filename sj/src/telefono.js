@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220506';
-import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611220506';
-import { TIPOS } from './vehiculos.js?v=202611220506';
-import { glifoSVG } from './iconos.js?v=202611220506';
-import { TITULOS } from './misiones.js?v=202611220506';
-import { CONTACTOS } from './contactos.js?v=202611220506';
-import { SALIDAS } from './trabajos.js?v=202611220506';
-import { linea } from './ciudad.js?v=202611220506';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220509';
+import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611220509';
+import { TIPOS } from './vehiculos.js?v=202611220509';
+import { glifoSVG } from './iconos.js?v=202611220509';
+import { TITULOS } from './misiones.js?v=202611220509';
+import { CONTACTOS } from './contactos.js?v=202611220509';
+import { SALIDAS } from './trabajos.js?v=202611220509';
+import { linea } from './ciudad.js?v=202611220509';
 const tarjeta = o => `<div class="tarjeta ${o.mia ? 'mia' : ''}">${o.src ? `<img src="${o.src}" alt="">` : `<i class="foto" style="${o.img}"></i>`}<div class="cuerpo"><b>${o.titulo}</b><small>${o.desc}</small>${o.barras ? `<div class="barras">${o.barras.map(([n, v]) => `<span><em>${n}</em><i style="--v:${Math.min(1, v) * 100}%"></i></span>`).join('')}</div>` : ''}<div class="pie">${o.mia ? `<em class="sello">${o.sello || 'TUYO'}</em>` : `<button data-accion="${o.accion}" type="button">${o.precio}</button>`}</div></div></div>`;
 
 const dinero = n => '$' + Math.floor(n).toLocaleString('es-MX');
@@ -132,7 +132,9 @@ export class Telefono {
       }).join('');
       const carreras = SALIDAS.map(s => fila('Carrera · ' + s.nombre, T.mejores[s.id] ? 'Tu récord: ' + T.mejores[s.id].toFixed(1) + ' s' : 'Llega en coche a la bandera y presiona T', linea(s.i), linea(s.k), '#3fd2ff')).join('');
       const trabajos = [['Taxista', 'Súbete a un taxi y presiona T'], ['Repartidor', 'Súbete a una moto y presiona T'], ['Vigilante', 'Súbete a una patrulla y presiona T'], ['Paramédico', 'Toma la ambulancia del hospital y presiona T']].map(([a, b], i) => fila(a, b, i === 3 ? L.hospital.x : undefined, i === 3 ? L.hospital.z : undefined, '#4fe08a')).join('');
-      const extra = fila('Jacarandas doradas', `${A.tomadas.size} de 12 encontradas · $250 cada una`, undefined, undefined, '#ffc94a', A.tomadas.size >= 12) + fila('Saltos únicos', `${A.saltosHechos.size} de ${A.rampas.length} · $500 cada uno`, undefined, undefined, '#ffc94a', A.saltosHechos.size >= A.rampas.length) + (L.lago ? fila('Lago Azul', 'Lanchas en el muelle', L.lago.x, L.lago.z, '#3fa8ff') : '');
+      const G = j.placazos, Lg = j.ciudad.lago;
+      const nuevos = (G ? fila('Grafitis del barrio', `${G.hechos.size} de ${G.lugares.length} muros · $300 cada uno`, undefined, undefined, '#ffd23a', G.hechos.size >= G.lugares.length) : '') + (Lg ? fila('Pesca en el muelle', 'Lago Azul · presiona E en la punta del muelle', Lg.muelle.x, Lg.muelle.z0, '#3fb8d8') : '') + (j.lavado?.LX !== undefined ? fila('Autolavado', 'Gasolinera Jacaranda · $15', j.lavado.LX, j.lavado.LZ, '#2a6ec8') : '') + fila('Verbena en la Plaza', 'De 20:00 a 0:30 · banda y baile', L.plaza?.x, L.plaza?.z, '#ff6a8a');
+      const extra = nuevos + fila('Jacarandas doradas', `${A.tomadas.size} de 12 encontradas · $250 cada una`, undefined, undefined, '#ffc94a', A.tomadas.size >= 12) + fila('Saltos únicos', `${A.saltosHechos.size} de ${A.rampas.length} · $500 cada uno`, undefined, undefined, '#ffc94a', A.saltosHechos.size >= A.rampas.length) + (L.lago ? fila('Lago Azul', 'Lanchas en el muelle', L.lago.x, L.lago.z, '#3fa8ff') : '');
       P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Misiones</b></header><div class="lista"><h4>HISTORIA</h4>${chuy}<h4>CONTACTOS</h4>${contactos}<h4>CARRERAS</h4>${carreras}<h4>TRABAJOS</h4>${trabajos}<h4>COLECCIONABLES Y LUGARES</h4>${extra}</div>`;
     } else if (this.vista === 'stats') {
       P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Mi vida</b></header><div class="stats">${j.estadisticas.filas().map(([a, v]) => `<div>${a}</div><div>${v}</div>`).join('')}</div>`;
