@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { tipoBloque, BLOQUES } from './ciudad.js?v=202611220112';
+import { tipoBloque, BLOQUES } from './ciudad.js?v=202611220113';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 const _c = new THREE.Color();
