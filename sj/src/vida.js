@@ -228,3 +228,25 @@ export class Fuentes {
     this.pts.geometry.attributes.position.needsUpdate = true;
   }
 }
+
+export class Malecon {
+  constructor(juego) {
+    this.j = juego; const L = juego.ciudad.lago; if (!L) return;
+    const pts = [], m = 2.2;
+    const lados = [[L.x0 - m, L.z0 - m, L.x1 + m, L.z0 - m], [L.x1 + m, L.z0 - m, L.x1 + m, L.z1 + m], [L.x1 + m, L.z1 + m, L.x0 - m, L.z1 + m], [L.x0 - m, L.z1 + m, L.x0 - m, L.z0 - m]];
+    for (const [a, b, c, d] of lados) { const n = Math.round(Math.hypot(c - a, d - b) / 7); for (let k = 0; k < n; k++) pts.push([a + (c - a) * k / n, b + (d - b) * k / n]); }
+    const M = new THREE.Matrix4(), postes = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.06, 0.08, 2.6, 8).translate(0, 1.3, 0), new THREE.MeshStandardMaterial({ color: '#2a2c30', roughness: 0.5, metalness: 0.6 }), pts.length);
+    this.focos = new THREE.InstancedMesh(new THREE.SphereGeometry(0.2, 10, 8), new THREE.MeshBasicMaterial({ color: '#8a8578', toneMapped: false }), pts.length);
+    pts.forEach(([x, z], i) => { M.makeTranslation(x, 0.2, z); postes.setMatrixAt(i, M); M.makeTranslation(x, 2.95, z); this.focos.setMatrixAt(i, M); });
+    postes.castShadow = true; juego.escena.add(postes, this.focos);
+    const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,240,200,1)'); gr.addColorStop(0.35, 'rgba(255,220,160,0.4)'); gr.addColorStop(1, 'rgba(255,220,160,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(c);
+    this.halos = pts.map(([x, z]) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, color: '#ffd9a0', transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })); s.position.set(x, 3.15, z); s.scale.setScalar(3); juego.escena.add(s); return s; });
+  }
+
+  actualizar(noche) {
+    if (!this.focos) return;
+    this.focos.material.color.set(noche > 0.25 ? '#ffe9b8' : '#8a8578');
+    for (const h of this.halos) h.material.opacity = noche * 0.7;
+  }
+}
