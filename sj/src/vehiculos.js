@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611212317';
-import { mat } from './persona.js?v=202611212317';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611212323';
+import { mat } from './persona.js?v=202611212323';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611212317';
+import { hoja } from './texturas.js?v=202611212323';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -574,6 +574,7 @@ export class Coche {
     this.acel = aceleracion;
     const caballito = this.tipo === 'moto' && this.conductor === 'jugador' && !this.enAire && aceleracion > 7 && fwd > 2 && fwd < 24 ? -Math.min(0.3, (aceleracion - 7) * 0.035) : 0;
     const cabeceo = this.enAire ? -Math.atan2(this.vy, Math.max(4, Math.abs(fwd))) * 0.7 : caballito || Math.max(-0.065, Math.min(0.065, -aceleracion * 0.005));
+    this.juego.baches?.revisar(this, dt);
     if (this.tipo === 'moto' || this.enAire) { this.carro.rotation.x += (cabeceo - this.carro.rotation.x) * Math.min(1, dt * (this.enAire ? 3 : 6)); this.cabV = 0; }
     else { const h = Math.min(dt, 1 / 30); if (!isFinite(this.cabV)) this.cabV = 0; if (!isFinite(this.carro.rotation.x)) this.carro.rotation.x = 0; this.cabV += ((cabeceo - this.carro.rotation.x) * 85 - this.cabV * 8) * h; this.carro.rotation.x += this.cabV * h; }
     if (this.estabaAire && !this.enAire && this.tipo !== 'moto') { this.cabV = (this.cabV || 0) + 0.9; this.alturaV = -1.6; }

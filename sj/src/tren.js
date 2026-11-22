@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { linea, LIMITE } from './ciudad.js?v=202611212317';
+import { linea, LIMITE } from './ciudad.js?v=202611212323';
 
 function lienzo(w, h, pintar) {
   const c = document.createElement('canvas'); c.width = w; c.height = h; pintar(c.getContext('2d'), w, h);
@@ -153,6 +153,15 @@ export class TrenLigero {
       const t = { g, via: k ? -1 : 1, dir: k ? -1 : 1, s: k ? 140 : -260, v: 12, espera: 0, ultima: null, rugido: 0 };
       this.trenes.push(t);
     }
+  }
+
+  desviar(c, tx, tz) {
+    const X = this.X;
+    if (Math.abs(c.pos.x - X) > 9 && Math.abs(tx - X) > 9) return [tx, tz];
+    if (Math.abs(tz - c.pos.z) < Math.abs(tx - c.pos.x) * 1.2 || Math.abs(tz - c.pos.z) < 5) return [tx, tz];
+    if (Math.abs(tx - X) > 3.2) return [tx, tz];
+    const s = Math.sign(c.pos.x - X) || (tz > c.pos.z ? -1 : 1);
+    return [X + s * 4, tz];
   }
 
   destinoDe(i) { return (i + 1) % this.estaciones.length; }
