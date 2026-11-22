@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { rng, COLORES_CASA } from './ciudad.js?v=202611220204';
+import { rng, COLORES_CASA } from './ciudad.js?v=202611220210';
 
 const LETREROS = [[66, 246], [290, 466], [508, 690], [732, 912], [955, 1106], [1148, 1316], [1356, 1520], [1560, 1722]].map(([a, b]) => [6 / 887, 881 / 887, 1 - b / 1774, 1 - a / 1774]);
 const ESPECTACULARES = [];
@@ -145,8 +145,8 @@ export function decorar(juego) {
     for (const n of salida.nubes) {
       n.userData.a += n.userData.v * dt;
       n.position.x = Math.cos(n.userData.a) * n.userData.d; n.position.z = Math.sin(n.userData.a) * n.userData.d;
-      n.material.color.copy(cielo).lerp(_c.set('#ffffff'), 0.7 - noche * 0.5 - lluvia * 0.4);
-      n.material.opacity = 0.55 + lluvia * 0.4 - noche * 0.3;
+      n.material.color.copy(cielo).lerp(_c.set('#ffffff'), Math.max(0, Math.min(1, 0.7 - noche * 0.5 - lluvia * 0.4))).lerp(_c.set('#3a3f4a'), lluvia * 0.5 * (1 - noche * 0.6));
+      n.material.opacity = Math.max(0.15, Math.min(1, 0.55 + lluvia * 0.4 - noche * 0.3));
     }
   };
   return salida;
