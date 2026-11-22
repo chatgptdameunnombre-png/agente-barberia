@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { linea, BLOQUES, CALLE, tipoBloque } from './ciudad.js?v=202611220151';
+import { linea, BLOQUES, CALLE, tipoBloque } from './ciudad.js?v=202611220153';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 
