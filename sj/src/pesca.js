@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { pegarAHueso } from './humanos.js?v=202611220524';
-import { realistaDe } from './jugador.js?v=202611220524';
+import { pegarAHueso } from './humanos.js?v=202611220526';
+import { realistaDe } from './jugador.js?v=202611220526';
 
 const PECES = [['una mojarra', 25, '#c8ccd4', 0.22], ['una carpa', 35, '#d8a040', 0.32], ['un bagre', 45, '#6a6a5a', 0.38], ['un charal', 10, '#e8eef2', 0.12], ['una tilapia', 30, '#9aa8b0', 0.26], ['una bota vieja', 0, '#3a2a1c', 0.25]];
 
@@ -29,6 +29,8 @@ export class Pesca {
     this.punta = new THREE.Object3D(); this.punta.position.set(0, 2.2, 0); this.cana.add(this.punta);
     this.mostrado = null;
   }
+
+  marcasMapa() { return this.punto ? [{ x: this.punto.x, z: this.punto.z, tipo: 'icono', ic: { c: '#3fb8d8', t: 'ancla' }, nombre: 'Pesca en el muelle' }] : []; }
 
   cerca() {
     const J = this.j.jugador; if (!this.punto || this.e || J.coche || J.interior || J.nadando || J.muerto) return false;

@@ -22,6 +22,8 @@ export class Lavado {
     const arriba = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 4.6, 14).rotateZ(Math.PI / 2), mat); arriba.position.set(this.LX, this.Y + 3.3, this.LZ); juego.escena.add(arriba); this.rodillos.push({ m: arriba, eje: 'x', s: 1 });
   }
 
+  marcasMapa() { return this.LX !== undefined ? [{ x: this.LX, z: this.LZ, tipo: 'icono', ic: { c: '#2a6ec8', t: 'coche' }, nombre: 'Autolavado · $15' }] : []; }
+
   dentro(c) { return this.LX !== undefined && Math.abs(c.pos.x - this.LX) < 2.3 && Math.abs(c.pos.z - this.LZ) < 4.6; }
 
   ensuciar(c, dt) {
