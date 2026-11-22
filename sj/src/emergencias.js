@@ -1,4 +1,4 @@
-import { puntoCalleAleatorio } from './vehiculos.js?v=202611220128';
+import { puntoCalleAleatorio } from './vehiculos.js?v=202611220129';
 
 export class Emergencias {
   constructor(juego) { this.j = juego; this.espera = 90 + Math.random() * 90; this.activa = null; }
