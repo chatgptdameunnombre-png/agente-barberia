@@ -186,9 +186,9 @@ export function ponerNovia(h) {
   if (cab) {
     const pts = [[0.1, 0.2], [0.14, 0.12], [0.18, -0.05], [0.24, -0.3], [0.3, -0.62]].map(([r, y]) => new THREE.Vector2(r, y));
     const velo = new THREE.Mesh(new THREE.LatheGeometry(pts, 24, Math.PI * 0.55, Math.PI * 0.9), new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.8, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false }));
-    velo.position.set(0, 0.02, -0.03); cab.add(velo);
+    velo.position.set(0, -0.04, -0.035); cab.add(velo);
     const tiara = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.008, 6, 24, Math.PI), new THREE.MeshStandardMaterial({ color: '#f0e0b0', roughness: 0.25, metalness: 0.8 }));
-    tiara.rotation.set(-0.4, 0, 0); tiara.position.set(0, 0.17, 0.0); cab.add(tiara);
+    tiara.rotation.set(-0.5, 0, 0); tiara.position.set(0, 0.105, 0.015); cab.add(tiara);
   }
   const mano = pegarAHueso(h, 'hand_r');
   if (mano) {

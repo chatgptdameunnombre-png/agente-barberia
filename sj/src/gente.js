@@ -1,5 +1,5 @@
-import { Realista } from './realista.js?v=202611220552';
-import { ponerNovia } from './humanos.js?v=202611220552';
+import { Realista } from './realista.js?v=202611220554';
+import { ponerNovia } from './humanos.js?v=202611220554';
 
 const ADORNOS = { novia: ponerNovia };
 

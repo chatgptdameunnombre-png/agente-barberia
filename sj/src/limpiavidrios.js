@@ -1,5 +1,5 @@
-import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220552';
-import { Peaton } from './peatones.js?v=202611220552';
+import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220554';
+import { Peaton } from './peatones.js?v=202611220554';
 
 const PIDE = ['¿Le limpio el vidrio, jefe?', '¡Se lo dejo como espejo!', 'Nomás una ayudita, patrón.'];
 const GRACIAS = ['¡Gracias, jefe! Que le vaya bonito.', '¡Dios se lo pague!', '¡Ese es mi patrón!'];
