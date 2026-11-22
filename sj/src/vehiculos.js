@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220236';
-import { mat } from './persona.js?v=202611220236';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220237';
+import { mat } from './persona.js?v=202611220237';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220236';
+import { hoja } from './texturas.js?v=202611220237';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -45,6 +45,7 @@ export const matCalavera = new THREE.MeshBasicMaterial({ color: '#c0182a' });
 const matRojo = new THREE.MeshBasicMaterial({ color: '#ff1a3a' });
 const matAzul = new THREE.MeshBasicMaterial({ color: '#1a5cff' });
 const matApagado = mat('#30323a');
+let TEX_TAXI = null;
 const matQuemado = mat('#1b1b1b');
 const _halo = document.createElement('canvas'); _halo.width = _halo.height = 64;
 { const g = _halo.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,240,200,.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); }
@@ -509,7 +510,11 @@ export function modelo(tipo, color) {
     const b2 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.13, 0.26), matAzul); b2.position.set(0.3, y, z);
     carro.add(b1, b2); barra = [b1, b2];
   }
-  if (tipo === 'taxi') { const s = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.18, 0.28), new THREE.MeshBasicMaterial({ color: '#ffe066' })); s.position.set(0, G.yt + t.cabina + 0.16, (G.cf + G.cr + 0.4) / 2); carro.add(s); }
+  if (tipo === 'taxi') {
+    if (!TEX_TAXI) { const c = document.createElement('canvas'); c.width = 256; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#ffe066'; x.fillRect(0, 0, 256, 64); x.fillStyle = '#c8202e'; x.fillRect(0, 0, 256, 8); x.fillRect(0, 56, 256, 8); x.fillStyle = '#1a1a1c'; x.font = '900 34px Inter, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('TAXI · LIBRE', 128, 34); TEX_TAXI = new THREE.CanvasTexture(c); TEX_TAXI.colorSpace = THREE.SRGBColorSpace; }
+    const lado = new THREE.MeshBasicMaterial({ map: TEX_TAXI, toneMapped: false }), liso = new THREE.MeshBasicMaterial({ color: '#ffe066' });
+    const s = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.2, 0.3), [liso, liso, liso, liso, lado, lado]); s.rotation.y = Math.PI / 2; s.position.set(0, G.yt + t.cabina + 0.17, (G.cf + G.cr + 0.4) / 2); carro.add(s);
+  }
   for (const s of [-1, 1]) {
     const h = new THREE.Sprite(matHalo);
     h.position.set(s * (t.ancho / 2 - 0.32), 0.3 + t.alto * 0.62, t.largo / 2 + 0.25);
