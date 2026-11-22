@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611220153';
-import { ARMAS } from './jugador.js?v=202611220153';
-import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611220153';
+import { linea, CARRIL } from './ciudad.js?v=202611220156';
+import { ARMAS } from './jugador.js?v=202611220156';
+import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611220156';
 const PRODUCTOS = { 'Papitas y refresco': 0, 'Torta de jamón': 1, 'Bebida energética': 2, 'Kilo de tortillas': 3, 'Tacos de canasta': 4, 'Venda y alcohol': 5, 'Botiquín completo': 6, 'Suero': 7, 'Plato de birria': 8, 'Consomé': 9, 'Cinta y pegamento (repara coche)': 10, 'Concha': 11, 'Bolsa de pan dulce': 12, 'Coctel de camarón': 13, 'Tostada de ceviche': 14, 'Cerveza': 15, 'Cerveza de la casa': 15, 'Tequila': 16, 'Agua de jamaica': 17, 'Botana de la casa': 18, 'Chaleco antibalas': 19 };
-import { Peaton } from './peatones.js?v=202611220153';
+import { Peaton } from './peatones.js?v=202611220156';
 
 export class Estadisticas {
   constructor() {
@@ -116,7 +116,12 @@ export class Actividades {
   crearRampas() {
     const tex = texturaRampa();
     const mat = new THREE.MeshLambertMaterial({ map: tex });
-    const lado = new THREE.MeshLambertMaterial({ color: '#3a3a40' });
+    const cl = document.createElement('canvas'); cl.width = cl.height = 128; const gl = cl.getContext('2d');
+    gl.fillStyle = '#1c1c1e'; gl.fillRect(0, 0, 128, 128); gl.fillStyle = '#f2c41e';
+    for (let k = -128; k < 256; k += 32) { gl.beginPath(); gl.moveTo(k, 0); gl.lineTo(k + 16, 0); gl.lineTo(k + 16 + 128, 128); gl.lineTo(k + 128, 128); gl.fill(); }
+    for (let i = 0; i < 900; i++) { gl.fillStyle = `rgba(${Math.random() < 0.5 ? '0,0,0' : '255,255,255'},${Math.random() * 0.12})`; gl.fillRect(Math.random() * 128, Math.random() * 128, 2, 2); }
+    const tl = new THREE.CanvasTexture(cl); tl.colorSpace = THREE.SRGBColorSpace; tl.wrapS = tl.wrapT = THREE.RepeatWrapping; tl.repeat.set(1.2, 4);
+    const lado = new THREE.MeshLambertMaterial({ map: tl });
     for (const r of RAMPAS) {
       const largo = 10, ancho = 3.4, alto = 2.4;
       const forma = new THREE.Shape();
