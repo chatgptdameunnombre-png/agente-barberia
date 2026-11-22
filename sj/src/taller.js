@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { modelo } from './vehiculos.js?v=202611220545';
+import { modelo } from './vehiculos.js?v=202611220550';
 
 const _c = new THREE.Color();
 function teñir(geo, hex) {

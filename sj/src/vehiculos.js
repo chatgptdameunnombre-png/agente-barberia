@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220545';
-import { mat } from './persona.js?v=202611220545';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220550';
+import { mat } from './persona.js?v=202611220550';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220545';
+import { hoja } from './texturas.js?v=202611220550';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, vocho: 1, vochotaxi: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, vocho: 8, vochotaxi: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };

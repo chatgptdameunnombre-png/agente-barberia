@@ -250,3 +250,53 @@ export class Malecon {
     for (const h of this.halos) { h.material.opacity = noche * 0.7; h.visible = noche > 0.01; }
   }
 }
+
+export class FuenteMonumento {
+  constructor(juego) {
+    this.j = juego; const L = juego.ciudad.lugares.monumento; if (!L) return;
+    this.c = L; this.chorros = 16; this.porChorro = 55; const n = this.chorros * this.porChorro;
+    this.pos = new Float32Array(n * 3); this.vel = new Float32Array(n * 3); this.vida = new Float32Array(n); this.col = new Float32Array(n * 3).fill(1);
+    const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d');
+    const gr = g.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,0.95)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 32, 32);
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(this.col, 3));
+    this.mat = new THREE.PointsMaterial({ map: new THREE.CanvasTexture(c), size: 0.34, transparent: true, depthWrite: false, vertexColors: true, opacity: 0.85 });
+    this.pts = new THREE.Points(geo, this.mat); this.pts.frustumCulled = false; juego.escena.add(this.pts);
+    for (let i = 0; i < n; i++) { this.vida[i] = Math.random() * 1.2; this.pos[i * 3 + 1] = -50; }
+    const boq = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.08, 0.1, 0.2, 8), new THREE.MeshStandardMaterial({ color: '#8a8e96', metalness: 0.7, roughness: 0.3 }), this.chorros);
+    const o = new THREE.Object3D(); for (let k = 0; k < this.chorros; k++) { const a = k / this.chorros * Math.PI * 2; o.position.set(L.x + Math.cos(a) * 7, 1.15, L.z + Math.sin(a) * 7); o.updateMatrix(); boq.setMatrixAt(k, o.matrix); }
+    juego.escena.add(boq);
+    this.tono = new THREE.Color(1, 1, 1); this.t = 0;
+  }
+
+  actualizar(dt) {
+    if (!this.c) return;
+    const j = this.j, jp = j.jugador.posicion, L = this.c, p = this.pos, v = this.vel, vi = this.vida, cerca = Math.abs(L.x - jp.x) < 120 && Math.abs(L.z - jp.z) < 120;
+    if (!cerca) { if (this.pts.visible) { this.pts.visible = false; } return; }
+    this.pts.visible = true; this.t += dt;
+    const noche = (j.ambiente.noche || 0) > 0.3;
+    const paleta = [[1, 0.35, 0.75], [0.3, 0.85, 1], [1, 0.82, 0.3], [0.45, 1, 0.55]];
+    const destino = noche ? paleta[Math.floor(this.t / 4) % paleta.length] : [0.92, 0.96, 1];
+    this.tono.r += (destino[0] - this.tono.r) * Math.min(1, dt * 2); this.tono.g += (destino[1] - this.tono.g) * Math.min(1, dt * 2); this.tono.b += (destino[2] - this.tono.b) * Math.min(1, dt * 2);
+    this.mat.opacity = noche ? 1 : 0.85; this.mat.blending = noche ? THREE.AdditiveBlending : THREE.NormalBlending;
+    const altura = 6.4 + Math.sin(this.t * 0.8) * 1.4;
+    for (let k = 0; k < this.chorros; k++) {
+      const a = k / this.chorros * Math.PI * 2, bx = L.x + Math.cos(a) * 7, bz = L.z + Math.sin(a) * 7;
+      for (let m = 0; m < this.porChorro; m++) {
+        const i = k * this.porChorro + m;
+        vi[i] -= dt;
+        if (vi[i] <= 0 || p[i * 3 + 1] < 1.1) {
+          const t0 = Math.random() * 1.2, vx = -Math.cos(a) * (2.6 + Math.random() * 0.3), vz = -Math.sin(a) * (2.6 + Math.random() * 0.3), vy = altura + Math.random() * 0.4;
+          vi[i] = 1.6 - t0;
+          p[i * 3] = bx + vx * t0; p[i * 3 + 1] = 1.25 + vy * t0 - 4.9 * t0 * t0; p[i * 3 + 2] = bz + vz * t0;
+          v[i * 3] = vx; v[i * 3 + 1] = vy - 9.8 * t0; v[i * 3 + 2] = vz;
+          if (p[i * 3 + 1] < 1.15) { p[i * 3 + 1] = -50; vi[i] = Math.random() * 0.3; }
+          continue;
+        }
+        v[i * 3 + 1] -= 9.8 * dt;
+        p[i * 3] += v[i * 3] * dt; p[i * 3 + 1] += v[i * 3 + 1] * dt; p[i * 3 + 2] += v[i * 3 + 2] * dt;
+        this.col[i * 3] = this.tono.r; this.col[i * 3 + 1] = this.tono.g; this.col[i * 3 + 2] = this.tono.b;
+      }
+    }
+    this.pts.geometry.attributes.position.needsUpdate = true; this.pts.geometry.attributes.color.needsUpdate = true;
+  }
+}
