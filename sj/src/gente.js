@@ -1,8 +1,8 @@
-import { Realista } from './realista.js?v=202611220258';
+import { Realista } from './realista.js?v=202611220300';
 
 const HOMBRES = ['peaton1', 'peaton3', 'peaton5', 'peaton7', 'peaton9', 'peaton11', 'peaton13', 'peaton15', 'peaton17', 'peaton19'];
 const MUJERES = ['peaton2', 'peaton4', 'peaton6', 'peaton8', 'peaton10', 'peaton12', 'peaton14', 'peaton16', 'peaton18', 'peaton20'];
-const POLIS_H = ['poli1', 'poli2'], POLIS_M = ['poli3'], MATONES = ['maton1', 'maton2'];
+const POLIS_H = ['poli1', 'poli2'], POLIS_M = ['poli3'], MATONES = ['maton1', 'maton2', 'maton3', 'maton4'];
 
 export class Gente {
   constructor(juego, maximo = 18) {
