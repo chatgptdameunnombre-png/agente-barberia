@@ -489,6 +489,23 @@ export function construirCiudad(escena, mundo) {
         const g1 = new THREE.Mesh(mergeGeometries(pila), new THREE.MeshStandardMaterial({ color: '#1c1c1e', roughness: 0.92 })); g1.castShadow = g1.receiveShadow = true; escena.add(g1);
         const g2 = new THREE.Mesh(mergeGeometries(rines), new THREE.MeshStandardMaterial({ color: '#2a2a2c', roughness: 0.95 })); escena.add(g2);
       }
+      {
+        const c = document.createElement('canvas'); c.width = 256; c.height = 256; const g = c.getContext('2d');
+        const gr = g.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#c9ced4'); gr.addColorStop(1, '#9aa1a8'); g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+        for (let y = 0; y < 256; y += 10) { g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(0, y, 256, 2); g.fillStyle = 'rgba(0,0,0,0.28)'; g.fillRect(0, y + 7, 256, 3); }
+        for (let i = 0; i < 1600; i++) { g.fillStyle = `rgba(${Math.random() < 0.6 ? '60,50,40' : '255,255,255'},${Math.random() * 0.1})`; g.fillRect(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 3, 1); }
+        const sucio = g.createLinearGradient(0, 180, 0, 256); sucio.addColorStop(0, 'rgba(70,55,40,0)'); sucio.addColorStop(1, 'rgba(70,55,40,0.45)'); g.fillStyle = sucio; g.fillRect(0, 180, 256, 76);
+        g.fillStyle = 'rgba(30,30,32,0.8)'; g.fillRect(110, 236, 36, 6);
+        const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = THREE.RepeatWrapping; tex.anisotropy = 4;
+        for (const [x, z, w, h, col] of [[ix0 + 18, iz0 + 15.27, 11.6, 4.5, '#aeb4ba'], [ix1 - 9, iz0 + 13.27, 8.6, 3.9, '#c9bfc4']]) {
+          const t = tex.clone(); t.needsUpdate = true; t.repeat.set(Math.round(w / 4), 1);
+          const cortina = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ color: col, map: t, metalness: 0.55, roughness: 0.42 }));
+          cortina.position.set(x, h / 2 + 0.02, z); cortina.receiveShadow = true; escena.add(cortina);
+          const caja = new THREE.Mesh(new THREE.BoxGeometry(w + 0.4, 0.45, 0.5), new THREE.MeshStandardMaterial({ color: '#5c636b', metalness: 0.6, roughness: 0.4 }));
+          caja.position.set(x, h + 0.2, z - 0.05); caja.castShadow = true; escena.add(caja);
+          for (const sx of [-1, 1]) { const riel = new THREE.Mesh(new THREE.BoxGeometry(0.12, h, 0.18), caja.material); riel.position.set(x + sx * (w / 2 + 0.06), h / 2, z - 0.02); escena.add(riel); }
+        }
+      }
       salida.lugares.taller = { x: ix0 + 18, z: iz0 + 21 };
       salida.lugares.pintura = { x: ix1 - 9, z: iz0 + 19 };
       salida.lugares.inicio = { x: ix0 + 26, z: iz0 + 30 };

@@ -148,6 +148,7 @@ export class Jugador {
     }
     if (this.muerto) {
       this.muerto += dt;
+      if (this.muneco) return;
       tumbar(this.p, this.muerto);
       this.grupo.position.set(this.pos.x, 0, this.pos.z);
       return;
@@ -268,6 +269,7 @@ export class Jugador {
   revivir(x, z) {
     this.muerto = 0;
     this.arrestado = false;
+    if (this.muneco) { this.juego.fisica?.soltar(this.muneco, true); this.muneco = null; }
     levantar(this.p);
     this.pos.set(x, 0, z);
     this.salud = this.saludMax;

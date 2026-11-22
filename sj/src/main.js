@@ -29,6 +29,7 @@ import { Aleatorios } from './aleatorios.js';
 import { Ambulantes } from './ambulantes.js';
 import { Semaforos } from './semaforos.js';
 import { Autobuses } from './autobuses.js';
+import { Fisica } from './fisica.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const TRAFICO = 26, PEATONES = 34;
@@ -47,8 +48,8 @@ function texturaHumo() {
 
 class Juego {
   constructor() {
-    this.ajustes = { volumen: 0.8, musica: 0.7, sensibilidad: 1, calidad: 2, flechas: true, invertir: false, fps: false, v: 4 };
-    try { const g = JSON.parse(localStorage.getItem('perla_ajustes') || '{}'); delete g.retro; delete g.v; Object.assign(this.ajustes, g); } catch (e) { }
+    this.ajustes = { volumen: 0.8, musica: 0.7, sensibilidad: 1, calidad: 3, flechas: true, invertir: false, fps: false, v: 5 };
+    try { const g = JSON.parse(localStorage.getItem('perla_ajustes') || '{}'); if ((g.v || 0) < 5 && g.calidad == 2) g.calidad = 3; delete g.retro; delete g.v; Object.assign(this.ajustes, g); } catch (e) { }
     this.lienzo = document.getElementById('lienzo');
     this.renderer = new THREE.WebGLRenderer({ canvas: this.lienzo, antialias: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
@@ -65,6 +66,7 @@ class Juego {
     this.THREE = THREE;
     this.mundo = new Mundo();
     this.ciudad = construirCiudad(this.escena, this.mundo);
+    this.fisica = new Fisica(this);
     this.audio = new Audio(this);
     this.estadisticas = new Estadisticas();
     this.hud = new Hud(this);
@@ -358,6 +360,7 @@ class Juego {
     this.renderer.shadowMap.enabled = q >= 1;
     this.ambiente.sol.castShadow = q >= 1;
     this.post.activo = q >= 2;
+    this.post.nivel(q);
     const pr = q >= 1 ? Math.min(devicePixelRatio || 1, 1.5) : 0.8;
     this.renderer.setPixelRatio(pr);
     this.post.composer.setPixelRatio(pr);
@@ -839,6 +842,7 @@ class Juego {
       const r = this.rayoImpacto(cam.position, dir, a.alcance + desde, j.coche || this.jugador, desde);
       const tb = this.mundo.rayo(boca.x, boca.y, boca.z, r.punto.x, r.punto.y, r.punto.z, 0.2);
       if (tb < 0.97) { r.punto.lerpVectors(boca, r.punto, tb); r.golpe = null; r.tipo = 'pared'; }
+      const pf = this.fisica.balazo(boca, r.punto, a.daño); if (pf && !r.golpe) this.chispa(pf, '#e8dcc0');
       this.trazo(boca, r.punto, n > 1 ? '#ffcf8a' : '#ffe9a8');
       if (r.golpe instanceof Peaton) { r.golpe.recibir(a.daño * (r.tipo === 'cabeza' ? 2.5 : 1), j.pos, 'jugador', { x: dir.x * (n > 1 ? 4 : 2), z: dir.z * (n > 1 ? 4 : 2), y: n > 1 ? 2 : 0 }); this.sangre(r.punto); pego = true; if (r.tipo === 'cabeza' && r.golpe.muerto) this.hud.golpeMira(true); }
       else if (r.golpe instanceof Coche) { if (r.punto.y > 1.05 && Math.random() < 0.25 && !r.golpe.vidrioRoto && r.golpe.partes[1] && r.golpe.tipo !== 'moto') { r.golpe.vidrioRoto = true; r.golpe.partes[1].material = r.golpe.constructor.vidrioRoto || r.golpe.partes[1].material; } r.golpe.dañar(a.daño * 0.45, 'bala', 'jugador'); this.chispa(r.punto, '#ffd27a'); pego = true; if (r.golpe.conductor === 'ia') r.golpe.panico = 6; if (r.golpe.tipo === 'policia' && r.golpe.conductor) this.policia.crimen('herirPoli', r.golpe.pos); }
@@ -934,6 +938,7 @@ class Juego {
       const vel = new THREE.Vector3(Math.cos(a) * v, 5 + Math.random() * 9, Math.sin(a) * v), giro = new THREE.Vector3(Math.random() * 12, Math.random() * 12, Math.random() * 12);
       k.position.set(x, y + 1, z); k.scale.setScalar(0.6 + Math.random() * 1.4);
       E.add(k);
+      if (this.fisica.escombro(k, vel, giro, 5 + Math.random() * 4)) continue;
       this.efectos.push({ vida: 3 + Math.random(), max: 4, malla: k, act: (e, dt) => { vel.y -= 22 * dt; k.position.addScaledVector(vel, dt); if (k.position.y < 0.06) { k.position.y = 0.06; vel.y *= -0.35; vel.x *= 0.6; vel.z *= 0.6; giro.multiplyScalar(0.6); } k.rotation.x += giro.x * dt; k.rotation.y += giro.y * dt; k.rotation.z += giro.z * dt; if (e.vida < 0.5) k.scale.multiplyScalar(1 - dt * 3); }, sinDispose: true });
     }
     const n = 26, pos = new Float32Array(n * 3), vels = [];
@@ -969,6 +974,7 @@ class Juego {
     }
     if (autor === 'jugador') { this.policia.crimen('explosion', new THREE.Vector3(x, 0, z)); this.redes?.publicar('explosion'); }
     this.animales?.asustar(x, z, 50);
+    this.fisica.onda(x, y, z, 13, 10);
   }
 
   trazo(a, b, color) {
@@ -1017,6 +1023,7 @@ class Juego {
     if (j.muerto) return;
     if (j.coche) { const c = j.coche; c.conductor = null; j.pos.set(c.pos.x + c.fz * 1.8, 0, c.pos.z - c.fx * 1.8); j.coche = null; if (c.tipo === 'moto' || c.tipo === 'lancha') this.escena.add(j.grupo); }
     j.muerto = 0.001;
+    if (!j.interior) { j.grupo.position.set(j.pos.x, 0, j.pos.z); j.grupo.visible = true; const a = Math.random() * 6.28; j.muneco = this.fisica.muneco(j.p, { x: Math.cos(a) * 1.2, y: 0.5, z: Math.sin(a) * 1.2 }, 1.2); }
     this.estadisticas.sumar('muertes');
     if (this.actividades.taxi) this.actividades.terminarTaxi('Caíste.');
     this.audio.motor(0, false); this.audio.radioActiva(false);
@@ -1295,6 +1302,7 @@ class Juego {
       if (d < 220 || p.tipo !== 'civil') p.actualizar(dt);
       p.grupo.visible = d < 200;
     }
+    this.fisica.actualizar(dt);
     this.policia.actualizar(dt);
     if (this.policia.estrellas) this.estadisticas.max('maxEstrellas', this.policia.estrellas);
     if (this.estrellasAntes > 0 && this.policia.estrellas === 0 && !j.muerto) this.estadisticas.sumar('despistes');

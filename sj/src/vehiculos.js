@@ -475,15 +475,17 @@ export class Coche {
       const f = this.vx * this.fx + this.vz * this.fz;
       this.vx *= 0.8; this.vz *= 0.8;
       if (golpe > 5) this.dañar((golpe - 5) * 2.2 / this.t.masa, 'choque');
-      if (golpe > 3) this.juego.audio?.choque(golpe, this.pos);
+      if (golpe > 3) { this.juego.audio?.choque(golpe, this.pos); this.cabV = (this.cabV || 0) + Math.min(2.2, golpe * 0.09); this.rolV = (this.rolV || 0) + (Math.random() - 0.5) * Math.min(2.5, golpe * 0.12); this.alturaV = (this.alturaV || 0) + Math.min(1.5, golpe * 0.05); }
       this.ultimoChoque = golpe;
     }
     const vel = this.vel;
     for (const r of this.ruedas) r.rotation.x += this.adelante * dt / 0.36;
     if (this.puerta) { const o = this.puertaObj || 0; this.puertaA = (this.puertaA || 0) + (o - (this.puertaA || 0)) * Math.min(1, dt * 10); this.puerta.rotation.y = -this.puertaA * 1.1; this.ventPuerta.visible = this.puertaA > 0.03; if (this.puertaCierra && (this.puertaCierra -= dt) <= 0) { this.puertaCierra = 0; this.puertaObj = 0; } }
     for (const d of this.delanteras) d.rotation.y = -this.giroSuave * 0.5;
-    const inclinar = this.tipo === 'moto' ? 0.55 : 0.06;
-    this.carro.rotation.z += ((-this.giroSuave * Math.min(1, vel / 20)) * inclinar - this.carro.rotation.z) * Math.min(1, dt * 5);
+    const inclinar = this.tipo === 'moto' ? 0.55 : 0.075 + (this.t.masa || 1) * 0.015;
+    const metaRol = (-this.giroSuave * Math.min(1, vel / 20)) * inclinar;
+    if (this.tipo === 'moto') this.carro.rotation.z += (metaRol - this.carro.rotation.z) * Math.min(1, dt * 5);
+    else { const h = Math.min(dt, 1 / 30); this.rolV = (this.rolV || 0) + ((metaRol - this.carro.rotation.z) * 70 - this.rolV * 7.5) * h; this.carro.rotation.z += this.rolV * h; }
     if (this.piloto) this.piloto.visible = this.conductor === 'ia' || this.conductor === 'rival' || this.conductor === 'policia';
     if (this.silueta) this.silueta.visible = !!this.conductor && !this.quemado && !(this.juego.entrando?.c === this);
     const fwd = this.adelante;
@@ -491,10 +493,14 @@ export class Coche {
     this.fwdPrev = fwd;
     this.acel = aceleracion;
     const caballito = this.tipo === 'moto' && this.conductor === 'jugador' && !this.enAire && aceleracion > 7 && fwd > 2 && fwd < 24 ? -Math.min(0.3, (aceleracion - 7) * 0.035) : 0;
-    const cabeceo = this.enAire ? -Math.atan2(this.vy, Math.max(4, Math.abs(fwd))) * 0.7 : caballito || Math.max(-0.05, Math.min(0.05, -aceleracion * 0.004));
-    this.carro.rotation.x += (cabeceo - this.carro.rotation.x) * Math.min(1, dt * (this.enAire ? 3 : 6));
+    const cabeceo = this.enAire ? -Math.atan2(this.vy, Math.max(4, Math.abs(fwd))) * 0.7 : caballito || Math.max(-0.065, Math.min(0.065, -aceleracion * 0.005));
+    if (this.tipo === 'moto' || this.enAire) { this.carro.rotation.x += (cabeceo - this.carro.rotation.x) * Math.min(1, dt * (this.enAire ? 3 : 6)); this.cabV = 0; }
+    else { const h = Math.min(dt, 1 / 30); this.cabV = (this.cabV || 0) + ((cabeceo - this.carro.rotation.x) * 85 - this.cabV * 8) * h; this.carro.rotation.x += this.cabV * h; }
+    if (this.estabaAire && !this.enAire && this.tipo !== 'moto') { this.cabV = (this.cabV || 0) + 0.9; this.alturaV = -1.6; }
+    this.estabaAire = this.enAire;
+    { const h = Math.min(dt, 1 / 30); this.alturaV = (this.alturaV || 0) + (-(this.altura || 0) * 120 - (this.alturaV || 0) * 9) * h; this.altura = (this.altura || 0) + this.alturaV * h; }
     if (this.rebote > 0) this.rebote = Math.max(0, this.rebote - dt * 0.8);
-    this.carro.position.y = -(this.rebote || 0) * Math.sin(performance.now() / 40) * 0.5 + (this.tipo === 'moto' ? Math.max(0, -this.carro.rotation.x) * 0.95 : 0);
+    this.carro.position.y = -(this.rebote || 0) * Math.sin(performance.now() / 40) * 0.5 + (this.tipo === 'moto' ? Math.max(0, -this.carro.rotation.x) * 0.95 : (this.altura || 0) * 0.06);
     if (this.calavMalla) { this.calavMalla.visible = !!this.frenando && !this.quemado; this.calav.color.set('#ff2436'); }
     this.grupo.position.copy(this.pos);
     this.grupo.position.y = this.y;

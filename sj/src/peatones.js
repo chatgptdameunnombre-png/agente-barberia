@@ -39,7 +39,7 @@ export class Peaton {
     this.grupo.position.copy(this.pos);
     juego.escena.add(this.grupo);
   }
-  quitar() { this.soltarBanca?.(); this.juego.escena.remove(this.grupo); }
+  quitar() { this.soltarBanca?.(); if (this.muneco) { this.juego.fisica?.soltar(this.muneco); this.muneco = null; } this.juego.escena.remove(this.grupo); }
 
   asignarBloque(b) {
     const m = 1.5;
@@ -93,6 +93,14 @@ export class Peaton {
     this.p.manosArriba = false;
     this.lado = 1;
     if (desde) { const dx = this.pos.x - desde.x, dz = this.pos.z - desde.z; if (dx * Math.sin(this.yaw) + dz * Math.cos(this.yaw) > 0) this.lado = -1; }
+    const F = this.juego.fisica;
+    if (F?.listo && !this.p.sentado) {
+      let vel, giro = 1.5;
+      if (this.vuela) { vel = { x: this.vuela.x, y: Math.max(this.vy || 0, 1.5), z: this.vuela.z }; giro = Math.min(9, Math.hypot(vel.x, vel.z) * 0.7 + 2); }
+      else if (desde) { const dx = this.pos.x - desde.x, dz = this.pos.z - desde.z, d = Math.hypot(dx, dz) || 1; vel = { x: dx / d * 1.3, y: 0.3, z: dz / d * 1.3 }; }
+      this.muneco = F.muneco(this.p, vel, giro);
+      if (this.muneco) { this.vuela = null; this.giroAire = 0; this.y = 0; }
+    }
     this.juego.alMorirPeaton?.(this, autor);
   }
 
@@ -105,6 +113,11 @@ export class Peaton {
       if (this.y > 0.05) this.giroAire = (this.giroAire || 0) + dt * Math.min(14, Math.hypot(this.vuela.x, this.vuela.z) * 0.9 + 3);
       if (this.y <= 0) { this.y = 0; if (this.vy < -4 && !this.reboto) { this.vy = -this.vy * 0.28; this.reboto = true; j.audio?.golpe?.(true); } else this.vy = 0; if (Math.hypot(this.vuela.x, this.vuela.z) < 1) this.vuela = null; }
       j.mundo.empujar(this.pos, 0.3);
+    }
+    if (this.muerto && this.muneco) {
+      this.muerto += dt;
+      if (!this.muneco.suelto) { this.pos.x = this.muneco.cadera.x; this.pos.z = this.muneco.cadera.z; }
+      return;
     }
     if (this.muerto) {
       if (this.y > 0.3 && this.giroAire) { volar(this.p, -this.giroAire); this.grupo.position.set(this.pos.x, this.y, this.pos.z); this.grupo.rotation.y = this.yaw; return; }

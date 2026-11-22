@@ -4,6 +4,19 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
+
+class Oclusion extends GTAOPass {
+  overrideVisibility() {
+    const cache = this._visibilityCache;
+    this.scene.traverse(o => {
+      cache.set(o, o.visible);
+      if (o.isPoints || o.isLine || o.isSprite) o.visible = false;
+      else if (o.material && !Array.isArray(o.material) && (o.material.transparent || o.material.alphaTest > 0 || o.material.depthWrite === false)) o.visible = false;
+    });
+  }
+}
 
 const Gradacion = {
   uniforms: {
@@ -42,15 +55,24 @@ export class Post {
     this.renderer = renderer;
     this.composer = new EffectComposer(renderer);
     this.composer.addPass(new RenderPass(escena, camara));
+    this.ao = new Oclusion(escena, camara, innerWidth, innerHeight);
+    this.ao.blendIntensity = 0.85;
+    this.ao.updateGtaoMaterial({ radius: 0.9, distanceExponent: 1.6, thickness: 2.5, scale: 1.1, samples: 12 });
+    this.ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 });
+    this.ao.enabled = false;
+    this.composer.addPass(this.ao);
     this.bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.42, 0.55, 0.86);
     this.composer.addPass(this.bloom);
     this.composer.addPass(new OutputPass());
     this.grado = new ShaderPass(Gradacion);
     this.composer.addPass(this.grado);
+    this.smaa = new SMAAPass(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio());
+    this.composer.addPass(this.smaa);
     this.activo = true;
     this.dolor = 0;
   }
   tamaño(w, h) { this.composer.setSize(w, h); }
+  nivel(q) { this.ao.enabled = q >= 3; this.smaa.enabled = q >= 2; }
   render(dt, estado) {
     const u = this.grado.uniforms;
     this.dolor = Math.max(0, this.dolor - dt * 1.5);

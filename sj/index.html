@@ -543,7 +543,7 @@
     <label class="ajuste">Volumen general<input type="range" min="0" max="1" step="0.05" data-aj="volumen"></label>
     <label class="ajuste">Música de la radio<input type="range" min="0" max="1" step="0.05" data-aj="musica"></label>
     <label class="ajuste">Sensibilidad del mouse<input type="range" min="0.3" max="2.5" step="0.05" data-aj="sensibilidad"></label>
-    <label class="ajuste">Calidad gráfica<select data-aj="calidad"><option value="2">Alta (brillos y sombras)</option><option value="1">Media (sombras)</option><option value="0">Rápida</option></select></label>
+    <label class="ajuste">Calidad gráfica<select data-aj="calidad"><option value="3">Ultra (sombras de contacto y bordes suaves)</option><option value="2">Alta (brillos y sombras)</option><option value="1">Media (sombras)</option><option value="0">Rápida</option></select></label>
     <label class="ajuste">Flechas del GPS en la calle<input type="checkbox" data-aj="flechas"></label>
     <label class="ajuste">Invertir mouse vertical<input type="checkbox" data-aj="invertir"></label>
     <label class="ajuste">Mostrar FPS<input type="checkbox" data-aj="fps"></label>
@@ -578,7 +578,8 @@
 <script type="importmap">
 { "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+    "@dimforge/rapier3d-compat": "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.14.0/rapier.es.js"
 } }
 </script>
 <script type="module" src="src/main.js"></script>
