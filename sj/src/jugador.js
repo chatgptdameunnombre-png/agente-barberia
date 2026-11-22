@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { enLago } from './ciudad.js?v=202611220458';
-import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611220458';
+import { enLago } from './ciudad.js?v=202611220501';
+import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611220501';
 
 export const ARMAS = {
   puno: { nombre: 'PUÑOS', tipo: 'golpe', daño: 14, cadencia: 0.42, alcance: 1.7, empuje: 3, cargador: 0 },
@@ -32,7 +32,7 @@ export const CATEGORIAS = [
 ];
 export const tieneArma = (j, k) => { const s = j.armas[k]; return !!s && (ARMAS[k].tipo !== 'lanzar' || s.reserva > 0); };
 
-import { Realista } from './realista.js?v=202611220458';
+import { Realista } from './realista.js?v=202611220501';
 export const REALISTAS = {};
 export function realistaDe(nombre) { const k = nombre === 'Lucía' ? 'lucia' : nombre === 'Matías' ? 'matias' : nombre; return REALISTAS[k] || (REALISTAS[k] = new Realista(k)); }
 
