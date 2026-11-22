@@ -116,3 +116,44 @@ export class Salpicaduras {
     this.pts.geometry.attributes.position.needsUpdate = true; this.pts.geometry.attributes.tam.needsUpdate = true;
   }
 }
+
+export class Granizo {
+  constructor(juego) {
+    this.j = juego; this.n = 900; this.activo = 0; this.blanco = 0; this.ruido = 0; this.yaDecidido = false;
+    const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d');
+    const gr = g.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.6, 'rgba(235,242,250,0.9)'); gr.addColorStop(1, 'rgba(235,242,250,0)'); g.fillStyle = gr; g.fillRect(0, 0, 32, 32);
+    this.pos = new Float32Array(this.n * 3); this.vel = new Float32Array(this.n * 3);
+    for (let i = 0; i < this.n; i++) this.pos[i * 3 + 1] = -50;
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
+    this.pts = new THREE.Points(geo, new THREE.PointsMaterial({ map: new THREE.CanvasTexture(c), size: 0.09, transparent: true, depthWrite: false, color: '#f2f6fa' }));
+    this.pts.frustumCulled = false; this.pts.visible = false; juego.escena.add(this.pts);
+  }
+
+  actualizar(dt, camara) {
+    const j = this.j, A = j.ambiente, ms = j.ciudad.matsSuelo;
+    if (A.lluvia > 0.55 && !this.yaDecidido) { this.yaDecidido = true; if (Math.random() < 0.35 || this.forzar) { this.activo = 40 + Math.random() * 30; this.forzar = false; j.hud?.notificar?.('info', '¡Granizada!', 'Busca techo, que pega duro.', 3.5); } }
+    if (A.lluvia < 0.2) this.yaDecidido = false;
+    if (this.activo > 0) this.activo -= dt;
+    const on = this.activo > 0 && !j.jugador.interior;
+    this.blanco = Math.max(0, Math.min(1, this.blanco + (on ? dt / 25 : -dt / 90)));
+    if (ms) {
+      const luz = this.blanco * (1 - (A.noche || 0) * 0.7);
+      ms[0].color.lerp(new THREE.Color(0.95, 0.96, 0.98), this.blanco * 0.82); ms[0].emissive?.setRGB(0.4, 0.42, 0.45).multiplyScalar(luz); ms[0].roughness = Math.max(ms[0].roughness, 0.3 + this.blanco * 0.6);
+      if (ms[1]) { ms[1].color.lerp(new THREE.Color(0.96, 0.97, 0.99), this.blanco * 0.75); ms[1].emissive?.setRGB(0.3, 0.31, 0.33).multiplyScalar(luz); }
+    }
+    this.pts.visible = on; if (!on || !camara) return;
+    const cp = camara.position, p = this.pos, v = this.vel;
+    for (let i = 0; i < this.n; i++) {
+      if (p[i * 3 + 1] < -1 || Math.abs(p[i * 3] - cp.x) > 26 || Math.abs(p[i * 3 + 2] - cp.z) > 26) {
+        p[i * 3] = cp.x + (Math.random() - 0.5) * 50; p[i * 3 + 1] = cp.y + 6 + Math.random() * 14; p[i * 3 + 2] = cp.z + (Math.random() - 0.5) * 50;
+        v[i * 3] = (Math.random() - 0.5) * 0.6; v[i * 3 + 1] = -14 - Math.random() * 5; v[i * 3 + 2] = (Math.random() - 0.5) * 0.6; continue;
+      }
+      v[i * 3 + 1] -= 9.8 * dt;
+      p[i * 3] += v[i * 3] * dt; p[i * 3 + 1] += v[i * 3 + 1] * dt; p[i * 3 + 2] += v[i * 3 + 2] * dt;
+      if (p[i * 3 + 1] < 0.18 && v[i * 3 + 1] < 0) { if (Math.abs(v[i * 3 + 1]) > 3) { v[i * 3 + 1] = -v[i * 3 + 1] * 0.25; v[i * 3] += (Math.random() - 0.5) * 1.5; v[i * 3 + 2] += (Math.random() - 0.5) * 1.5; p[i * 3 + 1] = 0.18; } else { v[i * 3 + 1] = 0; v[i * 3] *= 0.9; v[i * 3 + 2] *= 0.9; p[i * 3 + 1] = 0.18 - (Math.random() < 0.02 ? 2 : 0); } }
+    }
+    this.pts.geometry.attributes.position.needsUpdate = true;
+    this.ruido -= dt;
+    if (this.ruido <= 0) { this.ruido = 0.07; j.audio?.ruidoCorto(0.05, 3500 + Math.random() * 2500, 0.05, 'highpass', 1.2); }
+  }
+}
