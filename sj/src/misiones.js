@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611212139';
-import { Coche } from './vehiculos.js?v=202611212139';
-import { Peaton } from './peatones.js?v=202611212139';
-import { CONTACTOS } from './contactos.js?v=202611212139';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611212139';
+import { linea, CARRIL } from './ciudad.js?v=202611212142';
+import { Coche } from './vehiculos.js?v=202611212142';
+import { Peaton } from './peatones.js?v=202611212142';
+import { CONTACTOS } from './contactos.js?v=202611212142';
+import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611212142';
 
 export function crearMarcador(escena, color) {
   const g = new THREE.Group();
@@ -26,7 +26,7 @@ export class Misiones {
   constructor(juego) {
     this.j = juego;
     this.indice = 0;
-    this.otros = { nacho: 0, valeria: 0, guera: 0, ibarra: 0 };
+    this.otros = Object.fromEntries(Object.keys(CONTACTOS).map(k => [k, 0]));
     this.contacto = 'chuy';
     this.marcasC = {};
     this.avisados = {};
