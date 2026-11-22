@@ -188,3 +188,43 @@ export class Arcoiris {
     }
   }
 }
+
+export class Fuentes {
+  constructor(juego) {
+    this.j = juego;
+    this.lista = juego.ciudad.bloques.filter(b => b.tipo === 'parque').map(b => ({ x: b.cx, z: b.cz }));
+    this.porFuente = 260; const n = this.lista.length * this.porFuente;
+    this.pos = new Float32Array(n * 3); this.vel = new Float32Array(n * 3); this.vida = new Float32Array(n);
+    const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d');
+    const gr = g.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,0.95)'); gr.addColorStop(1, 'rgba(220,235,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 32, 32);
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
+    this.pts = new THREE.Points(geo, new THREE.PointsMaterial({ map: new THREE.CanvasTexture(c), size: 0.22, transparent: true, depthWrite: false, color: '#e6f2ff', opacity: 0.85 }));
+    this.pts.frustumCulled = false; juego.escena.add(this.pts);
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 1.6, 12), new THREE.MeshStandardMaterial({ color: '#d8cfbc', roughness: 0.7 }));
+    const plato = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 0.5, 0.3, 16), new THREE.MeshStandardMaterial({ color: '#d8cfbc', roughness: 0.7 }));
+    for (const f of this.lista) { const a = col.clone(); a.position.set(f.x, 1.6, f.z); juego.escena.add(a); const p = plato.clone(); p.position.set(f.x, 2.45, f.z); juego.escena.add(p); }
+    for (let i = 0; i < n; i++) { this.vida[i] = Math.random() * 1.6; this.pos[i * 3 + 1] = -50; }
+  }
+
+  actualizar(dt) {
+    const jp = this.j.jugador.posicion, p = this.pos, v = this.vel, vi = this.vida;
+    this.lista.forEach((F, f) => {
+      const cerca = Math.abs(F.x - jp.x) < 110 && Math.abs(F.z - jp.z) < 110;
+      for (let k = 0; k < this.porFuente; k++) {
+        const i = f * this.porFuente + k;
+        if (!cerca) { p[i * 3 + 1] = -50; continue; }
+        vi[i] -= dt;
+        if (vi[i] <= 0 || p[i * 3 + 1] < 0.85) {
+          vi[i] = 1.2 + Math.random() * 0.4;
+          const alto = k % 3 === 0;
+          if (alto) { p[i * 3] = F.x + (Math.random() - 0.5) * 0.1; p[i * 3 + 1] = 2.7; p[i * 3 + 2] = F.z + (Math.random() - 0.5) * 0.1; v[i * 3] = (Math.random() - 0.5) * 0.5; v[i * 3 + 1] = 5.5 + Math.random(); v[i * 3 + 2] = (Math.random() - 0.5) * 0.5; }
+          else { const a = Math.random() * 6.283; p[i * 3] = F.x + Math.cos(a) * 1.05; p[i * 3 + 1] = 2.5; p[i * 3 + 2] = F.z + Math.sin(a) * 1.05; v[i * 3] = Math.cos(a) * 0.9; v[i * 3 + 1] = 0.6; v[i * 3 + 2] = Math.sin(a) * 0.9; }
+          continue;
+        }
+        v[i * 3 + 1] -= 9.8 * dt;
+        p[i * 3] += v[i * 3] * dt; p[i * 3 + 1] += v[i * 3 + 1] * dt; p[i * 3 + 2] += v[i * 3 + 2] * dt;
+      }
+    });
+    this.pts.geometry.attributes.position.needsUpdate = true;
+  }
+}
