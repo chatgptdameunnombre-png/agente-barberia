@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611220254';
+import { crearHumano } from './humanos.js?v=202611220258';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -290,6 +290,31 @@ export class Realista {
     p.ocultaRealista = false; p.lod = null;
     this.grupo.parent?.remove(this.grupo);
     this.p = null; this.trapo = null; this.base.quitar(0); this.arriba.quitar(0); this.H.mixer.stopAllAction(); this.base.actual = null; this.arriba.actual = null;
+  }
+
+  peinado(estilo) {
+    if (!this.listo) { this.promesa.then(() => this.peinado(estilo)); return; }
+    const PELO = /short0|long0|bob0|ponytail|braid|afro|hair/i;
+    let cab = null; this.raiz.traverse(o => { if (o.isBone && o.name.toLowerCase() === 'head') cab = o; if (o.isMesh && PELO.test([].concat(o.material)[0]?.name || '')) o.visible = estilo !== 'rapado' && estilo !== 'gorra' && estilo !== 'sombrero'; });
+    if (this.accesorio) { this.accesorio.parent?.remove(this.accesorio); this.accesorio = null; }
+    if (!cab || (estilo !== 'gorra' && estilo !== 'sombrero')) return;
+    this.grupo.updateMatrixWorld(true);
+    const qb = cab.getWorldQuaternion(new THREE.Quaternion()), qr = this.grupo.getWorldQuaternion(new THREE.Quaternion()), inv = qb.clone().invert();
+    const f = new THREE.Vector3(0, 0, 1).applyQuaternion(qr).applyQuaternion(inv).normalize(), u0 = new THREE.Vector3(0, 1, 0).applyQuaternion(qr).applyQuaternion(inv);
+    const s = new THREE.Vector3().crossVectors(u0, f).normalize(), u = new THREE.Vector3().crossVectors(f, s).normalize();
+    const g = new THREE.Group(); g.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(s, u, f)); g.scale.setScalar(1 / (cab.getWorldScale(new THREE.Vector3()).x || 1)); cab.add(g);
+    if (estilo === 'gorra') {
+      const mat = new THREE.MeshStandardMaterial({ color: '#1a1a1e', roughness: 0.7 });
+      const copa = new THREE.Mesh(new THREE.SphereGeometry(0.112, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2), mat); copa.scale.set(1, 0.8, 1.1); copa.position.set(0, 0.105, 0.0); g.add(copa);
+      const visera = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.012, 16, 1, false, -Math.PI / 2, Math.PI), mat); visera.scale.set(1, 1, 1.15); visera.position.set(0, 0.11, 0.07); visera.rotation.x = 0.12; g.add(visera);
+    } else {
+      const mat = new THREE.MeshStandardMaterial({ color: '#d9c48a', roughness: 0.85 }), cinta = new THREE.MeshStandardMaterial({ color: '#5a2a1a', roughness: 0.7 });
+      const ala = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.27, 0.015, 28), mat); ala.position.set(0, 0.125, 0.01); g.add(ala);
+      const copa = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.11, 0.13, 20), mat); copa.position.set(0, 0.19, 0.01); g.add(copa);
+      const banda = new THREE.Mesh(new THREE.CylinderGeometry(0.112, 0.112, 0.025, 20), cinta); banda.position.set(0, 0.14, 0.01); g.add(banda);
+    }
+    g.traverse(o => { if (o.isMesh) o.castShadow = true; });
+    this.accesorio = g;
   }
 
   teñirChamarra(color) {
