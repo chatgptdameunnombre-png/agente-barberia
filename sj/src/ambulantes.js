@@ -1,10 +1,11 @@
 import * as THREE from 'three';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220212';
+import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220214';
 
 const NEGRO = new THREE.MeshStandardMaterial({ color: '#141418', roughness: 0.55 });
 const PLATA = new THREE.MeshStandardMaterial({ color: '#d8dce2', roughness: 0.25, metalness: 0.9 });
 const MADERA = new THREE.MeshStandardMaterial({ color: '#8a5a32', roughness: 0.6 });
 const LATON = new THREE.MeshStandardMaterial({ color: '#d8b050', roughness: 0.3, metalness: 0.85 });
+const SERENATA = [[72, 2], [74, 1], [76, 1], [77, 2], [76, 1], [74, 1], [72, 2], [69, 2], [0, 1], [71, 1], [72, 1], [74, 1], [76, 3], [74, 1], [72, 1], [71, 1], [69, 3], [0, 1], [67, 1], [69, 1], [71, 1], [72, 2], [74, 1], [76, 1], [77, 2], [76, 1], [74, 1], [72, 4], [0, 2]];
 const MELODIA = [[67, 1], [72, 1], [76, 1], [79, 2], [77, 1], [76, 1], [74, 1], [72, 2], [0, 1], [69, 1], [72, 1], [77, 1], [81, 2], [79, 1], [77, 1], [76, 1], [74, 2], [0, 1], [76, 1], [74, 1], [72, 1], [71, 1], [72, 1], [74, 1], [76, 2], [72, 1], [67, 2], [0, 1]];
 const BAJO = [48, 55, 52, 55, 53, 57, 53, 55, 50, 55, 53, 55, 48, 55, 52, 48];
 const hz = n => 440 * Math.pow(2, (n - 69) / 12);
@@ -112,8 +113,25 @@ export class Ambulantes {
     return true;
   }
 
+  mariachiCerca() {
+    const J = this.j.jugador; if (J.coche || J.interior || this.serenata > 0) return null;
+    return this.mariachis.find(m => Math.hypot(m.x - J.pos.x, m.z - J.pos.z) < 3.2) || null;
+  }
+
+  pedirCancion() {
+    const j = this.j, J = j.jugador; if (!this.mariachiCerca()) return false;
+    if (J.dinero < 60) { j.hud.notificar('alerta', 'Mariachi', 'Una canción cuesta $60.', 2.5); return true; }
+    J.dinero -= 60; j.hud.popDinero?.(-60); j.audio.compra?.();
+    this.serenata = SERENATA.reduce((s, [, d]) => s + d, 0) * 0.3 + 0.5; this.nota = 0; this.cuenta = 0; this.proxima = 0;
+    j.hud.burbuja?.({ pos: this.mariachis[0].p.grupo.position, y: 0 }, ['¡Con mucho gusto, joven!', '¡Ahí le va una de las buenas!', '¡Para usted, jefe!'][Math.random() * 3 | 0]);
+    for (const q of j.peatones) if (!q.muerto && q.tipo === 'civil' && q.pos.distanceTo(J.pos) < 14 && (q.estado === 'pasear' || q.estado === 'quieto')) { q.estado = 'quieto'; q.volverPasear = q.t + 8; q.yaw = Math.atan2(this.mariachis[0].x - q.pos.x, this.mariachis[0].z - q.pos.z); }
+    j.estadisticas?.sumar?.('serenatas', 1);
+    return true;
+  }
+
   actualizar(dt) {
     const j = this.j, jp = j.jugador.posicion, t = performance.now() / 1000;
+    if (this.serenata > 0) { this.serenata -= dt; if (this.serenata <= 0) { this.nota = 0; this.cuenta = 0; j.hud.burbuja?.({ pos: this.mariachis[0].p.grupo.position, y: 0 }, '¡Gracias, gracias!'); j.audio.ruidoCorto?.(1.4, 1200, 0.12, 'bandpass', 0.6); } }
     let dMin = 1e9;
     for (const m of this.mariachis) {
       const d = Math.hypot(m.x - jp.x, m.z - jp.z); dMin = Math.min(dMin, d);
@@ -130,17 +148,18 @@ export class Ambulantes {
     for (const q of this.puestos) { const d = Math.hypot(q.x - jp.x, q.z - jp.z); if (d > 70) continue; if (q.trompo) q.trompo.children[0].rotation.y += dt * 1.2; animar(q.v, dt, 0, 'puno', false); nivelDetalle(q.v, d < 45); if (Math.sin(t * 0.7 + q.fase) > 0.6) { q.v.bd.rotation.set(-1.2, 0, -0.2); q.v.cd.rotation.x = -1.2 + Math.sin(t * 8) * 0.3; } }
     this.musica(dMin);
     if (this.cerca()) j.hud.pista('E', (this.cerca().tipo === 'elotes' ? 'Comprar elote · $35' : 'Comprar tacos · $45'));
+    else if (this.mariachiCerca()) j.hud.pista('E', 'Pedir una canción · $60');
   }
 
   musica(d) {
     const A = this.j.audio, c = A.ctx;
     if (!c || d > 45 || this.j.overlay) return;
-    const vol = Math.max(0, 1 - d / 45) * 0.12 * (A.volMusica ?? 1);
+    const vol = Math.max(0, 1 - d / 45) * (this.serenata > 0 ? 0.2 : 0.12) * (A.volMusica ?? 1);
     if (vol < 0.004) return;
-    const ahora = c.currentTime, pulso = 0.23;
+    const ahora = c.currentTime, pulso = this.serenata > 0 ? 0.3 : 0.23, TEMA = this.serenata > 0 ? SERENATA : MELODIA;
     if (this.proxima < ahora - 1) this.proxima = ahora + 0.05;
     while (this.proxima < ahora + 0.3) {
-      const [n, dur] = MELODIA[this.nota % MELODIA.length];
+      const [n, dur] = TEMA[this.nota % TEMA.length];
       if (n) { A.tono(hz(n), dur * pulso * 0.95, vol, 'sawtooth', undefined, this.proxima); A.tono(hz(n + 4), dur * pulso * 0.9, vol * 0.45, 'triangle', undefined, this.proxima); }
       const tiempo = Math.floor(this.cuenta = (this.cuenta || 0) + dur);
       for (let k = 0; k < dur; k++) {

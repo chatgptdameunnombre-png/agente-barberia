@@ -1,4 +1,4 @@
-import { Peaton } from './peatones.js?v=202611220212';
+import { Peaton } from './peatones.js?v=202611220214';
 
 export class FilaAntro {
   constructor(juego) { this.j = juego; this.gente = []; this.t = 0; }
