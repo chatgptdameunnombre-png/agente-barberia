@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611212207';
+import { crearHumano } from './humanos.js?v=202611212210';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -163,6 +163,43 @@ export class Realista {
     _v.copy(T.pel0).applyMatrix4(_m);
     const pel = this.huesos.pelvis; pel.parent.updateWorldMatrix(true, false);
     pel.position.copy(pel.parent.worldToLocal(_v.clone()));
+  }
+
+  elegirPeaton(q) {
+    const v = q.vel || 0, fuego = FUEGO.includes(q.arma), e = q.estado;
+    let base = 'Idle_Loop', escala = 1, sup = null, supVeces = Infinity, forzarSup = false;
+    if (e === 'sentado') base = q.banca?.pie ? 'Idle_Loop' : 'Sitting_Idle_Loop';
+    else if (e === 'agachado') base = 'Crouch_Idle_Loop';
+    else if (e === 'charla') base = 'Idle_Talking_Loop';
+    else if (v < 0.2) base = q.habito === 'celular' ? 'Idle_Talking_Loop' : 'Idle_Loop';
+    else if (v < 2.6) base = q.estado === 'pasear' && q.formal ? 'Walk_Formal_Loop' : 'Walk_Loop';
+    else if (v < 5) base = 'Jog_Fwd_Loop';
+    else base = 'Sprint_Loop';
+    if (RITMO[base] && v > 0.2) escala = Math.max(0.6, Math.min(1.7, v / RITMO[base]));
+    if ((e === 'atacar' || e === 'perseguir') && fuego && v < 3) { sup = 'Pistol_Aim_Neutral'; if (q.disparoT > (this.prevDisp ?? 0) + 0.01) { sup = 'Pistol_Shoot'; supVeces = 1; forzarSup = true; } this.prevDisp = q.disparoT || 0; }
+    else if (e === 'atacar' && q.golpeT > 0) { sup = 'Punch_Cross'; supVeces = 1; forzarSup = q.golpeT > (this.prevGolpe ?? 0) + 0.01; this.prevGolpe = q.golpeT; }
+    if (sup && v < 0.2) { base = sup; sup = null; }
+    return { base, escala, veces: UNA_VEZ.has(base) ? 1 : Infinity, sup, supVeces, forzarSup, forzarBase: false };
+  }
+
+  actualizarPeaton(q, dt) {
+    if (!this.listo) return;
+    if (q.p !== this.p) this.montar({ p: q.p });
+    if (q.muerto) { if (q.muneco && !q.muneco.suelto) this.seguirMuneco(q.muneco, q.p); else if (!q.muneco && !this.trapo) { this.aplicar({ base: 'Death01', escala: 1, veces: 1 }); this.H.mixer.update(dt); } return; }
+    this.soltarMuneco();
+    this.aplicar(this.elegirPeaton(q));
+    this.H.mixer.update(dt);
+  }
+
+  liberar() {
+    const p = this.p;
+    if (!p) return;
+    for (const o of this.armas || []) if (o.parent === this.empunadura) { this.empunadura.remove(o); p.md?.add(o); }
+    this.armas = [];
+    p.grupo.traverse(o => { if (o.userData.ocultoPorRealista) { o.visible = true; delete o.userData.ocultoPorRealista; } });
+    p.ocultaRealista = false; p.lod = null;
+    this.grupo.parent?.remove(this.grupo);
+    this.p = null; this.trapo = null; this.base.quitar(0); this.arriba.quitar(0); this.H.mixer.stopAllAction(); this.base.actual = null; this.arriba.actual = null;
   }
 
   soltarMuneco() { if (this.trapo) { this.trapo = null; this.base.actual = null; this.arriba.actual = null; } }

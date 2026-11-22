@@ -1,5 +1,5 @@
-import { ARMAS } from './jugador.js?v=202611212207';
-import { ICONO_ARMA, ICONO, iconoArma, IMG_ARMAS, glifoSVG } from './iconos.js?v=202611212207';
+import { ARMAS } from './jugador.js?v=202611212210';
+import { ICONO_ARMA, ICONO, iconoArma, IMG_ARMAS, glifoSVG } from './iconos.js?v=202611212210';
 
 const $ = id => document.getElementById(id);
 const RETRATO = { 'Don Chuy': 0, 'El Güero': 1, 'Encargado': 2, 'Matón': 3, 'Matías': 4, 'Lucía': 5, 'Cajero': 6, 'Oficial': 7 };

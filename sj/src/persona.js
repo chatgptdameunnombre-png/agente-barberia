@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611212207';
+import { hoja } from './texturas.js?v=202611212210';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const cap = (r, l, y = 0) => { const g = new THREE.CapsuleGeometry(r, l, 3, 10); g.translate(0, y, 0); return g; };
@@ -539,7 +539,7 @@ export function ponerChamarra(p, color) {
 }
 
 export function nivelDetalle(p, cerca) {
-  if (p.lod === cerca) return;
+  if (p.ocultaRealista || p.lod === cerca) return;
   p.lod = cerca;
   for (const d of p.detalles) d.visible = cerca;
   p.cuello.visible = cerca;
