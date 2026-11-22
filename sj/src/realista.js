@@ -1,9 +1,11 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611212220';
+import { crearHumano } from './humanos.js?v=202611212226';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
-const RITMO = { Walk_Loop: 1.35, Jog_Fwd_Loop: 3.3, Sprint_Loop: 6.2, Crouch_Fwd_Loop: 1.3, Walk_Formal_Loop: 1.3 };
+const RITMO = { Walk_Loop: 0.975, Jog_Fwd_Loop: 5.36, Sprint_Loop: 8.25, Crouch_Fwd_Loop: 0.75, Walk_Formal_Loop: 0.975 };
+const LOCO = ['Walk_Loop', 'Jog_Fwd_Loop', 'Sprint_Loop'];
+const _yaw = new THREE.Quaternion(), _eje = new THREE.Vector3();
 const FUEGO = ['pistola', 'subfusil', 'rifle', 'escopeta', 'revolver', 'recortada', 'ametralladora', 'francotirador', 'lanzacohetes'];
 const PARES = [['cuerpo', 'pelvis'], ['torso', 'spine_01'], ['cabeza', 'head'], ['pi', 'thigh_l'], ['ri', 'calf_l'], ['pd', 'thigh_r'], ['rd', 'calf_r'], ['bi', 'upperarm_l'], ['ci', 'lowerarm_l'], ['bd', 'upperarm_r'], ['cd', 'lowerarm_r']];
 const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _v = new THREE.Vector3(), _m = new THREE.Matrix4();
@@ -11,6 +13,43 @@ const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _v = new THREE.
 function partir(clip, filtro, sufijo) {
   const pistas = clip.tracks.filter(t => filtro(t.name.split('.')[0]));
   return new THREE.AnimationClip(clip.name + sufijo, clip.duration, pistas);
+}
+
+class Locomocion {
+  constructor(mixer, clips) { this.mixer = mixer; this.clips = clips; this.acc = {}; this.fase = 0; this.peso = 0; this.meta = 0; }
+  accion(nombre) {
+    let a = this.acc[nombre];
+    if (!a) { a = this.mixer.clipAction(this.clips[nombre]); a.setLoop(THREE.LoopRepeat, Infinity); a.play(); a.setEffectiveTimeScale(0); a.setEffectiveWeight(0); this.acc[nombre] = a; }
+    return a;
+  }
+  pesos(v) {
+    const w = [0, 0, 0];
+    if (v < 2.1) w[0] = 1;
+    else if (v < 3.4) { const t = (v - 2.1) / 1.3; w[0] = 1 - t; w[1] = t; }
+    else if (v < 6.4) w[1] = 1;
+    else if (v < 7.2) { const t = (v - 6.4) / 0.8; w[1] = 1 - t; w[2] = t; }
+    else w[2] = 1;
+    return w;
+  }
+  actualizar(dt, v, inf, activo) {
+    this.meta = activo ? 1 : 0;
+    this.peso = Math.max(0, Math.min(1, this.peso + (this.meta ? 1 : -1) * dt / 0.2));
+    if (this.peso < 0.002 && !activo) { for (const k in this.acc) this.acc[k].setEffectiveWeight(0); return; }
+    const w = this.pesos(Math.max(0.3, v));
+    let ciclo = 0, wt = 0;
+    LOCO.forEach((n, i) => { if (w[i] > 0) { const r = Math.max(0.55, Math.min(1.7, v / RITMO[n])); ciclo += w[i] * this.clips[n].duration / r; wt += w[i]; } });
+    ciclo = ciclo / (wt || 1);
+    if (v > 0.05) this.fase = (this.fase + dt / Math.max(0.2, ciclo)) % 1;
+    LOCO.forEach((n, i) => {
+      for (const sfx of ['', '#inf']) {
+        const nombre = n + sfx, quiero = (sfx === '#inf') === !!inf;
+        if (!this.acc[nombre] && (!quiero || w[i] === 0)) continue;
+        const a = this.accion(nombre);
+        a.time = this.fase * this.clips[nombre].duration;
+        a.setEffectiveWeight(quiero ? w[i] * this.peso : 0);
+      }
+    });
+  }
 }
 
 class Capa {
@@ -43,7 +82,7 @@ export class Realista {
       this.clips[k + '#sup'] = partir(c, n => SUPERIOR.test(n), '#sup');
       this.clips[k + '#inf'] = partir(c, n => !SUPERIOR.test(n), '#inf');
     }
-    this.base = new Capa(H.mixer); this.arriba = new Capa(H.mixer);
+    this.base = new Capa(H.mixer); this.arriba = new Capa(H.mixer); this.loco = new Locomocion(H.mixer, this.clips); this.inclina = 0;
     this.empunadura = new THREE.Group(); this.huesos.hand_r?.add(this.empunadura);
     this.calibrarMano();
     this.listo = true;
@@ -99,8 +138,8 @@ export class Realista {
     else if (j.y > 0.08) base = 'Jump_Loop';
     else if (j.agachado) { base = v > 0.3 ? 'Crouch_Fwd_Loop' : 'Crouch_Idle_Loop'; }
     else if (v < 0.25) base = j.gesto?.tipo === 'bailar' ? 'Dance_Loop' : j.gesto ? 'Idle_Talking_Loop' : 'Idle_Loop';
-    else if (v < 3) base = 'Walk_Loop';
-    else if (v < 5.4) base = 'Jog_Fwd_Loop';
+    else if (v < 2.8) base = 'Walk_Loop';
+    else if (v < 6.8) base = 'Jog_Fwd_Loop';
     else base = 'Sprint_Loop';
     if (!j.rueda) this.rodando = false;
     if (RITMO[base] && v > 0.25) escala = Math.max(0.6, Math.min(1.6, v / RITMO[base]));
@@ -120,12 +159,17 @@ export class Realista {
     return { base, escala, veces, sup, supVeces, forzarSup, forzarBase };
   }
 
-  aplicar(e) {
+  aplicar(e, dt = 0, v = 0) {
     const C = this.clips;
     const usarSup = e.sup && C[e.sup];
-    const nb = usarSup && e.base !== e.sup ? e.base + '#inf' : e.base;
-    const a = this.base.poner(C[nb] || C[e.base] || C.Idle_Loop, 0.2, e.veces, e.forzarBase);
-    if (a && e.veces === Infinity) a.setEffectiveTimeScale(e.escala);
+    const loco = LOCO.includes(e.base);
+    this.loco.actualizar(dt, v, usarSup && e.base !== e.sup, loco);
+    if (loco) this.base.quitar(0.2);
+    else {
+      const nb = usarSup && e.base !== e.sup ? e.base + '#inf' : e.base;
+      const a = this.base.poner(C[nb] || C[e.base] || C.Idle_Loop, 0.2, e.veces, e.forzarBase);
+      if (a && e.veces === Infinity) a.setEffectiveTimeScale(e.escala);
+    }
     if (usarSup && e.base !== e.sup) this.arriba.poner(C[e.sup + '#sup'], 0.12, e.supVeces, e.forzarSup);
     else this.arriba.quitar(0.18);
   }
@@ -137,9 +181,10 @@ export class Realista {
     if (j.muerto && j.muneco && !j.arrestado) { this.seguirMuneco(j.muneco, j.p); return; }
     this.soltarMuneco();
     this.grupo.position.y = j.coche?.tipo === 'moto' ? 0.34 : j.coche?.tipo === 'lancha' ? 0.18 : 0;
-    if (j.muerto && !j.arrestado) this.aplicar({ base: 'Death01', escala: 1, veces: 1 });
-    else this.aplicar(this.elegirJugador(j, dt));
+    if (j.muerto && !j.arrestado) this.aplicar({ base: 'Death01', escala: 1, veces: 1 }, dt, 0);
+    else this.aplicar(this.elegirJugador(j, dt), dt, j.coche ? 0 : (j.velocidad || 0));
     this.H.mixer.update(dt);
+    this.inclinar(j.yaw, dt, j.coche ? 0 : (j.velocidad || 0));
   }
 
   seguirMuneco(M, p) {
@@ -166,6 +211,21 @@ export class Realista {
     pel.position.copy(pel.parent.worldToLocal(_v.clone()));
   }
 
+  inclinar(yaw, dt, v) {
+    if (dt <= 0) return;
+    let d = yaw - (this.yawAnt ?? yaw); d = Math.atan2(Math.sin(d), Math.cos(d)); this.yawAnt = yaw;
+    const giro = d / dt, meta = Math.max(-0.22, Math.min(0.22, -giro * Math.min(1, v / 5) * 0.09));
+    this.inclina += (meta - this.inclina) * Math.min(1, dt * 6);
+    if (Math.abs(this.inclina) < 0.002) return;
+    const pel = this.huesos.pelvis; if (!pel) return;
+    this.grupo.updateWorldMatrix(true, false);
+    _eje.set(0, 0, 1).transformDirection(this.grupo.matrixWorld);
+    _yaw.setFromAxisAngle(_eje, this.inclina);
+    pel.parent.updateWorldMatrix(true, false);
+    pel.getWorldQuaternion(_q); _q.premultiply(_yaw);
+    pel.parent.getWorldQuaternion(_q2); pel.quaternion.copy(_q2.invert().multiply(_q));
+  }
+
   elegirPeaton(q) {
     const v = q.vel || 0, fuego = FUEGO.includes(q.arma), e = q.estado;
     let base = 'Idle_Loop', escala = 1, sup = null, supVeces = Infinity, forzarSup = false;
@@ -173,8 +233,8 @@ export class Realista {
     else if (e === 'agachado') base = 'Crouch_Idle_Loop';
     else if (e === 'charla') base = 'Idle_Talking_Loop';
     else if (v < 0.2) base = q.habito === 'celular' ? 'Idle_Talking_Loop' : 'Idle_Loop';
-    else if (v < 2.6) base = q.estado === 'pasear' && q.formal ? 'Walk_Formal_Loop' : 'Walk_Loop';
-    else if (v < 5) base = 'Jog_Fwd_Loop';
+    else if (v < 2.8) base = 'Walk_Loop';
+    else if (v < 6.8) base = 'Jog_Fwd_Loop';
     else base = 'Sprint_Loop';
     if (RITMO[base] && v > 0.2) escala = Math.max(0.6, Math.min(1.7, v / RITMO[base]));
     if ((e === 'atacar' || e === 'perseguir') && fuego && v < 3) { sup = 'Pistol_Aim_Neutral'; if (q.disparoT > (this.prevDisp ?? 0) + 0.01) { sup = 'Pistol_Shoot'; supVeces = 1; forzarSup = true; } this.prevDisp = q.disparoT || 0; }
@@ -188,8 +248,9 @@ export class Realista {
     if (q.p !== this.p) this.montar({ p: q.p });
     if (q.muerto) { if (q.muneco && !q.muneco.suelto) this.seguirMuneco(q.muneco, q.p); else if (!q.muneco && !this.trapo) { this.aplicar({ base: 'Death01', escala: 1, veces: 1 }); this.H.mixer.update(dt); } return; }
     this.soltarMuneco();
-    this.aplicar(this.elegirPeaton(q));
+    this.aplicar(this.elegirPeaton(q), dt, q.vel || 0);
     this.H.mixer.update(dt);
+    this.inclinar(q.yaw, dt, q.vel || 0);
   }
 
   liberar() {

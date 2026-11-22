@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611212220';
-import { mat } from './persona.js?v=202611212220';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611212226';
+import { mat } from './persona.js?v=202611212226';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611212220';
+import { hoja } from './texturas.js?v=202611212226';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -64,6 +64,53 @@ function extruir(puntos, ancho, bisel = 0.07) {
   return g;
 }
 
+function cascaron(puntos, ancho, o = {}) {
+  const estrecha = o.estrecha ?? 0.14, tumble = o.tumble ?? 0.08, pe = o.p ?? 3.4, n = o.n ?? 46, m = o.m ?? 30;
+  const xs = puntos.map(q => q[0]), x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const bordes = puntos.map((q, i) => [q, puntos[(i + 1) % puntos.length]]);
+  const corte = x => {
+    let lo = Infinity, hi = -Infinity;
+    for (const [a, b] of bordes) {
+      if ((x < Math.min(a[0], b[0])) || (x > Math.max(a[0], b[0])) || a[0] === b[0]) continue;
+      const y = a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]);
+      lo = Math.min(lo, y); hi = Math.max(hi, y);
+    }
+    return lo === Infinity ? null : [lo, hi];
+  };
+  const pos = [], idx = [], secciones = [];
+  for (let i = 0; i <= n; i++) {
+    const u = i / n, x = x0 + (x1 - x0) * (0.5 - Math.cos(u * Math.PI) / 2);
+    const xx = Math.min(x1 - 0.004, Math.max(x0 + 0.004, x)), c = corte(xx);
+    if (!c) continue;
+    const t = Math.abs((xx - (x0 + x1) / 2) / ((x1 - x0) / 2));
+    const w = ancho / 2 * (1 - estrecha * Math.pow(t, 4)) * (i === 0 || i === n ? 0.82 : 1);
+    secciones.push({ x: xx, lo: c[0], hi: c[1], w });
+  }
+  secciones.forEach((S, i) => {
+    const mid = (S.lo + S.hi) / 2, hh = (S.hi - S.lo) / 2;
+    for (let k = 0; k < m; k++) {
+      const a = k / m * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a);
+      const ex = Math.sign(ca) * Math.pow(Math.abs(ca), 2 / pe), ey = Math.sign(sa) * Math.pow(Math.abs(sa), 2 / pe);
+      const w = S.w * (1 - tumble * Math.max(0, ey) * Math.max(0, ey));
+      pos.push(ex * w, mid + ey * hh, S.x);
+    }
+  });
+  const ns = secciones.length;
+  for (let i = 0; i < ns - 1; i++) for (let k = 0; k < m; k++) {
+    const a = i * m + k, b = i * m + (k + 1) % m, c = (i + 1) * m + k, d = (i + 1) * m + (k + 1) % m;
+    idx.push(a, b, c, b, d, c);
+  }
+  for (const [i, inv] of [[0, true], [ns - 1, false]]) {
+    const S = secciones[i], ci = pos.length / 3; pos.push(0, (S.lo + S.hi) / 2, S.x);
+    for (let k = 0; k < m; k++) { const a = i * m + k, b = i * m + (k + 1) % m; if (inv) idx.push(ci, b, a); else idx.push(ci, a, b); }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx); g.computeVertexNormals();
+  const uv = new Float32Array(pos.length / 3 * 2); g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  return g;
+}
+
 function geometrias(tipo) {
   if (cacheGeo[tipo]) return cacheGeo[tipo];
   const t = TIPOS[tipo], P = PERFIL[tipo];
@@ -75,10 +122,11 @@ function geometrias(tipo) {
   const cr = L * P.cabT, cf = L * P.cabF;
   const vidrio = [[cr, yt - 0.02], [cf + P.inclF, yt - 0.02], [cf, yt + C], [cr + P.inclT, yt + C]];
   const techo = [[cr + P.inclT - 0.04, yt + C - 0.05], [cf + 0.04, yt + C - 0.05], [cf - 0.06, yt + C + 0.06], [cr + P.inclT + 0.06, yt + C + 0.06]];
+  const caja = tipo === 'camioneta' || tipo === 'ambulancia';
   const geo = {
-    cuerpo: extruir(cuerpo, A, 0.13),
-    vidrio: extruir(vidrio, A * 0.84, 0.07),
-    techo: extruir(techo, A * 0.86, 0.04)
+    cuerpo: cascaron(cuerpo, A, { estrecha: caja ? 0.06 : 0.13, tumble: 0.05, p: caja ? 5 : 3.6 }),
+    vidrio: cascaron(vidrio, A * 0.86, { estrecha: 0.12, tumble: 0.26, p: 3.2, n: 30 }),
+    techo: cascaron(techo, A * 0.88, { estrecha: 0.1, tumble: 0.18, p: 3, n: 24 })
   };
   const g = mergeGeometries([ni(geo.cuerpo), ni(geo.techo)]);
   const extras = [];
