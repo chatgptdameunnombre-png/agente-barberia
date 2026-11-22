@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611220149';
-import { ARMAS } from './jugador.js?v=202611220149';
-import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611220149';
+import { linea, CARRIL } from './ciudad.js?v=202611220151';
+import { ARMAS } from './jugador.js?v=202611220151';
+import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611220151';
 const PRODUCTOS = { 'Papitas y refresco': 0, 'Torta de jamón': 1, 'Bebida energética': 2, 'Kilo de tortillas': 3, 'Tacos de canasta': 4, 'Venda y alcohol': 5, 'Botiquín completo': 6, 'Suero': 7, 'Plato de birria': 8, 'Consomé': 9, 'Cinta y pegamento (repara coche)': 10, 'Concha': 11, 'Bolsa de pan dulce': 12, 'Coctel de camarón': 13, 'Tostada de ceviche': 14, 'Cerveza': 15, 'Cerveza de la casa': 15, 'Tequila': 16, 'Agua de jamaica': 17, 'Botana de la casa': 18, 'Chaleco antibalas': 19 };
-import { Peaton } from './peatones.js?v=202611220149';
+import { Peaton } from './peatones.js?v=202611220151';
 
 export class Estadisticas {
   constructor() {

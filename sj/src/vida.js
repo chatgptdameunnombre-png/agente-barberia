@@ -157,3 +157,34 @@ export class Granizo {
     if (this.ruido <= 0) { this.ruido = 0.07; j.audio?.ruidoCorto(0.05, 3500 + Math.random() * 2500, 0.05, 'highpass', 1.2); }
   }
 }
+
+export class Arcoiris {
+  constructor(juego) {
+    this.j = juego; this.t = 0; this.llovio = false;
+    const c = document.createElement('canvas'); c.width = 8; c.height = 256; const g = c.getContext('2d');
+    const gr = g.createLinearGradient(0, 0, 0, 256);
+    [[0, 'rgba(255,40,40,0)'], [0.12, 'rgba(255,40,40,0.8)'], [0.26, 'rgba(255,150,30,0.8)'], [0.4, 'rgba(255,240,60,0.8)'], [0.54, 'rgba(70,220,90,0.8)'], [0.68, 'rgba(60,140,255,0.8)'], [0.82, 'rgba(120,70,220,0.75)'], [1, 'rgba(120,70,220,0)']].forEach(([k, col]) => gr.addColorStop(k, col));
+    g.fillStyle = gr; g.fillRect(0, 0, 8, 256);
+    const tex = new THREE.CanvasTexture(c);
+    const geo = new THREE.RingGeometry(520, 590, 96, 1, 0, Math.PI);
+    const uv = geo.attributes.uv, pos = geo.attributes.position;
+    for (let i = 0; i < uv.count; i++) { const r = Math.hypot(pos.getX(i), pos.getY(i)); uv.setXY(i, 0.5, (r - 520) / 70); }
+    this.mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide, fog: false, blending: THREE.AdditiveBlending, toneMapped: false });
+    this.malla = new THREE.Mesh(geo, this.mat); this.malla.visible = false; this.malla.renderOrder = -1; juego.escena.add(this.malla);
+  }
+
+  actualizar(dt, camara) {
+    const A = this.j.ambiente, h = A.hora ?? 12;
+    if (A.lluvia > 0.45) this.llovio = true;
+    if (this.llovio && A.lluvia < 0.15) { this.llovio = false; if (h > 7.5 && h < 17.5 && !A.noche) this.t = 75; }
+    if (this.t > 0) this.t -= dt;
+    const k = this.t > 0 ? Math.min(1, this.t / 10, (75 - this.t) / 8) * 0.55 : 0;
+    this.mat.opacity = k; this.malla.visible = k > 0.01;
+    if (this.malla.visible && camara) {
+      const ang = (h - 6.5) / 13 * Math.PI, sx = Math.cos(ang) * 0.8, sz = 0.45;
+      const d = new THREE.Vector3(-sx, 0, -sz).normalize();
+      this.malla.position.set(camara.position.x + d.x * 700, -60, camara.position.z + d.z * 700);
+      this.malla.lookAt(camara.position.x, -60, camara.position.z);
+    }
+  }
+}

@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220149';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220149';
-import { Peaton } from './peatones.js?v=202611220149';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220151';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220151';
+import { Peaton } from './peatones.js?v=202611220151';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
