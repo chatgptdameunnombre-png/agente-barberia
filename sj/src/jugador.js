@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar } from './persona.js?v=202611212237';
+import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611212241';
 
 export const ARMAS = {
   puno: { nombre: 'PUÑOS', tipo: 'golpe', daño: 14, cadencia: 0.42, alcance: 1.7, empuje: 3, cargador: 0 },
@@ -31,7 +31,7 @@ export const CATEGORIAS = [
 ];
 export const tieneArma = (j, k) => { const s = j.armas[k]; return !!s && (ARMAS[k].tipo !== 'lanzar' || s.reserva > 0); };
 
-import { Realista } from './realista.js?v=202611212237';
+import { Realista } from './realista.js?v=202611212241';
 export const REALISTAS = {};
 export function realistaDe(nombre) { const k = nombre === 'Lucía' ? 'lucia' : nombre === 'Matías' ? 'matias' : nombre; return REALISTAS[k] || (REALISTAS[k] = new Realista(k)); }
 
@@ -82,6 +82,7 @@ export class Jugador {
 
   vestir(cambios) {
     Object.assign(this.estilo, cambios);
+    if ('ropa' in cambios) { const R = realistaDe(this.personaje); const p = cambios.ropa === null ? null : ROPA[cambios.ropa]; R.teñirChamarra(p ? '#' + p.color.getHexString() : null); }
     const viejo = this.grupo, visible = viejo.visible;
     const padre = viejo.parent;
     padre?.remove(viejo);

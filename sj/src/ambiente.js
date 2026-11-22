@@ -115,6 +115,10 @@ export class Ambiente {
     this.neblina = Math.max(manana * (this.diaNeblina ?? (this.diaNeblina = 0.5 + Math.random() * 0.5)), this.lluvia * 0.35);
     if (hm > 12 && hm < 12.1) this.diaNeblina = Math.random() < 0.6 ? 0.4 + Math.random() * 0.6 : 0.1;
     this.lluvia += (this.quiereLluvia - this.lluvia) * Math.min(1, dt * 0.08);
+    this.mojado = (this.mojado || 0) + ((this.lluvia > 0.15 ? 1 : 0) - (this.mojado || 0)) * Math.min(1, dt * (this.lluvia > 0.15 ? 0.25 : 0.02));
+    const W = this.mojado, ms = this.juego.ciudad?.matsSuelo;
+    if (ms) { ms[0].roughness = 0.94 - 0.62 * W; ms[0].color.setScalar(1 - 0.38 * W); ms[0].envMapIntensity = 1 + W * 0.8; if (ms[1]) { ms[1].roughness = 0.95 - 0.5 * W; ms[1].color.setScalar(1 - 0.3 * W); } }
+    const ch = this.juego.charcos; if (ch) { ch.mat.opacity = W * 0.92; ch.malla.visible = W > 0.02; }
     const { a, b, t } = this.muestra(this.hora);
     const lerp = (x, y) => x + (y - x) * t;
     const L = this.lluvia;

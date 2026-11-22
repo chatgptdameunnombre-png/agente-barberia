@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { hoja } from './texturas.js?v=202611212237';
+import { hoja } from './texturas.js?v=202611212241';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -252,7 +252,8 @@ export function construirCiudad(escena, mundo) {
   const banca = (x, z, yaw) => salida.bancas.push({ x, z, yaw, ocupante: null });
 
   const asfalto = texSuelo(0, 170);
-  const piso = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshLambertMaterial({ map: asfalto, color: '#ffffff' }));
+  const piso = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshStandardMaterial({ map: asfalto, color: '#ffffff', roughness: 0.94, metalness: 0 }));
+  salida.matsSuelo = [piso.material];
   piso.rotation.x = -Math.PI / 2;
   piso.receiveShadow = true;
   escena.add(piso);
@@ -271,7 +272,8 @@ export function construirCiudad(escena, mundo) {
   escena.add(marcoAfuera);
 
   const banquetaT = texSuelo(1);
-  const matBanqueta = new THREE.MeshLambertMaterial({ map: banquetaT });
+  const matBanqueta = new THREE.MeshStandardMaterial({ map: banquetaT, roughness: 0.95, metalness: 0 });
+  salida.matsSuelo.push(matBanqueta);
   const matPasto = new THREE.MeshLambertMaterial({ map: pastoT });
   const matPiedra = new THREE.MeshLambertMaterial({ color: '#e8e2da', map: texSuelo(2) });
   const geosBanqueta = [], geosPasto = [], geosPiedra = [];

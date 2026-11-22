@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611212237';
+import { crearHumano } from './humanos.js?v=202611212241';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -185,6 +185,8 @@ export class Realista {
     else this.aplicar(this.elegirJugador(j, dt), dt, j.coche ? 0 : (j.velocidad || 0));
     this.H.mixer.update(dt);
     this.inclinar(j.yaw, dt, j.coche ? 0 : (j.velocidad || 0));
+    const J = j.juego;
+    if (J && !j.coche && !j.muerto && J.camara) { const cy = J.camYaw ?? 0; this._mira = this._mira || new THREE.Vector3(); const P = this.grupo.getWorldPosition(_v); this._mira.set(P.x + Math.sin(cy) * 10, 1.5 + Math.sin(J.camPitch || 0) * 6, P.z + Math.cos(cy) * 10); this.mirar(this._mira, dt, !(j.apunta || j.disparando) && (j.velocidad || 0) < 4.5); }
   }
 
   seguirMuneco(M, p) {
@@ -209,6 +211,27 @@ export class Realista {
     _v.copy(T.pel0).applyMatrix4(_m);
     const pel = this.huesos.pelvis; pel.parent.updateWorldMatrix(true, false);
     pel.position.copy(pel.parent.worldToLocal(_v.clone()));
+  }
+
+  mirar(destino, dt, activo) {
+    this.pesoMira = (this.pesoMira || 0) + ((activo ? 1 : 0) - (this.pesoMira || 0)) * Math.min(1, dt * 4);
+    if (this.pesoMira < 0.01 || !destino) return;
+    const cab = this.huesos.head, cue = this.huesos.neck_01; if (!cab) return;
+    this.grupo.updateWorldMatrix(true, false);
+    const p = cab.getWorldPosition(_v), dx = destino.x - p.x, dz = destino.z - p.z, dy = (destino.y ?? p.y) - p.y;
+    const yawC = Math.atan2(this.grupo.matrixWorld.elements[8], this.grupo.matrixWorld.elements[10]);
+    let rel = Math.atan2(dx, dz) - yawC; rel = Math.atan2(Math.sin(rel), Math.cos(rel));
+    if (Math.abs(rel) > 1.9) { this.pesoMira *= 0.9; return; }
+    rel = Math.max(-1.05, Math.min(1.05, rel)) * this.pesoMira;
+    const pit = Math.max(-0.35, Math.min(0.35, Math.atan2(dy, Math.hypot(dx, dz)))) * this.pesoMira;
+    for (const [b, f] of [[cue, 0.4], [cab, 0.6]]) {
+      if (!b) continue;
+      b.parent.updateWorldMatrix(true, false); b.updateWorldMatrix(false, false);
+      b.getWorldQuaternion(_q);
+      _yaw.setFromAxisAngle(_eje.set(0, 1, 0), rel * f); _q.premultiply(_yaw);
+      _eje.set(Math.cos(yawC + rel), 0, -Math.sin(yawC + rel)); _yaw.setFromAxisAngle(_eje, -pit * f); _q.premultiply(_yaw);
+      b.parent.getWorldQuaternion(_q2); b.quaternion.copy(_q2.invert().multiply(_q)); b.updateMatrixWorld(true);
+    }
   }
 
   inclinar(yaw, dt, v) {
@@ -251,6 +274,8 @@ export class Realista {
     this.aplicar(this.elegirPeaton(q), dt, q.vel || 0);
     this.H.mixer.update(dt);
     this.inclinar(q.yaw, dt, q.vel || 0);
+    const jp = q.juego?.jugador?.posicion;
+    if (jp) { const d = Math.hypot(jp.x - q.pos.x, jp.z - q.pos.z); this._mira = this._mira || new THREE.Vector3(); this._mira.set(jp.x, 1.55, jp.z); this.mirar(this._mira, dt, d < 7 && q.estado !== 'huir' && q.estado !== 'sentado'); }
   }
 
   liberar() {
@@ -262,6 +287,33 @@ export class Realista {
     p.ocultaRealista = false; p.lod = null;
     this.grupo.parent?.remove(this.grupo);
     this.p = null; this.trapo = null; this.base.quitar(0); this.arriba.quitar(0); this.H.mixer.stopAllAction(); this.base.actual = null; this.arriba.actual = null;
+  }
+
+  teñirChamarra(color) {
+    if (!this.listo) { this.promesa.then(() => this.teñirChamarra(color)); return; }
+    let mat = null; this.raiz.traverse(o => { if (o.isMesh && /casualsuit05/.test([].concat(o.material)[0]?.name || '')) mat = [].concat(o.material)[0]; });
+    if (!mat || !mat.map?.image) return;
+    if (!this.mapaOriginal) this.mapaOriginal = mat.map;
+    if (color === null) { if (mat.map !== this.mapaOriginal) { mat.map = this.mapaOriginal; mat.needsUpdate = true; } return; }
+    const img = this.mapaOriginal.image, w = img.width, h = img.height;
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d', { willReadFrequently: true });
+    g.drawImage(img, 0, 0); const d = g.getImageData(0, 0, w, h), px = d.data;
+    const T = new THREE.Color(color), th = {}; T.getHSL(th);
+    const enZona = (x, y, zs) => zs.some(([x0, y0, x1, y1]) => x >= x0 && x <= x1 && y >= y0 && y <= y1);
+    const CAMISA = [[0.58, 0.03, 0.67, 0.30], [0.83, 0.25, 0.95, 0.55], [0.0, 0.11, 0.20, 0.22], [0.60, 0.55, 0.80, 0.62]], JEANS = [[0.0, 0.55, 0.62, 1.0]];
+    const k = new THREE.Color(), hsl = {};
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const u = x / w, v = y / h, q = (y * w + x) * 4;
+      if (enZona(u, v, CAMISA) || enZona(u, v, JEANS)) continue;
+      const r = px[q] / 255, gg = px[q + 1] / 255, b = px[q + 2] / 255, l = Math.max(r, gg, b);
+      if (l < 0.02) continue;
+      k.setRGB(r, gg, b); k.getHSL(hsl);
+      k.setHSL(th.h, th.s * 0.85, Math.min(0.92, th.l * (0.55 + hsl.l * 1.6)));
+      px[q] = k.r * 255; px[q + 1] = k.g * 255; px[q + 2] = k.b * 255;
+    }
+    g.putImageData(d, 0, 0);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.flipY = this.mapaOriginal.flipY; t.anisotropy = 8;
+    mat.map = t; mat.needsUpdate = true;
   }
 
   soltarMuneco() { if (this.trapo) { this.trapo = null; this.base.actual = null; this.arriba.actual = null; } }

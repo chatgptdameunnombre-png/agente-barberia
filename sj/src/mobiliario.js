@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { BLOQUES, CALLE, linea, rng, LIMITE, tipoBloque } from './ciudad.js?v=202611212237';
+import { BLOQUES, CALLE, linea, rng, LIMITE, tipoBloque } from './ciudad.js?v=202611212241';
 
 const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(1, 1, 1), _e = new THREE.Euler();
 
@@ -144,6 +144,19 @@ export function amueblar(juego) {
     for (let k = 0; k < 8; k++) { const t = tG.clone(); t.needsUpdate = true; t.repeat.set(0.25, 0.5); t.offset.set((k % 4) * 0.25, k < 4 ? 0.5 : 0); mats.push(new THREE.MeshStandardMaterial({ map: t, transparent: true, depthWrite: false, roughness: 0.8, polygonOffset: true, polygonOffsetFactor: -2 })); }
     for (const G of grafitis) { const m = new THREE.Mesh(new THREE.PlaneGeometry(G.s, G.s * 0.5), mats[G.k]); m.position.set(G.x, G.y, G.z); m.rotation.y = G.ry; g.add(m); }
   }
+  const charcos = [];
+  for (let k = 0; k < 260; k++) {
+    const i = r() * (BLOQUES + 1) | 0, b = r() * BLOQUES | 0, u = linea(b) + 10 + r() * 60, eje = r() < 0.5;
+    const off = (r() - 0.5) * (CALLE - 2);
+    const x = eje ? u : linea(i) + off, z = eje ? linea(i) + off : u, s = 1.2 + r() * 3.2;
+    if (Math.abs(x) > LIMITE - 2 || Math.abs(z) > LIMITE - 2) continue;
+    charcos.push({ x, y: 0.02, z, rx: -Math.PI / 2, rz: r() * 6, sx: s, sy: s * (0.45 + r() * 0.5) });
+  }
+  const tCharco = lienzo(256, 256, (c) => { const img = c.createImageData(256, 256); for (let y = 0; y < 256; y++) for (let x = 0; x < 256; x++) { const dx = (x - 128) / 128, dy = (y - 128) / 128, d = Math.hypot(dx, dy) + Math.sin(x * 0.08) * 0.08 + Math.cos(y * 0.11 + x * 0.03) * 0.08; const a = Math.max(0, Math.min(1, (0.85 - d) * 5)); const q = (y * 256 + x) * 4; img.data[q] = img.data[q + 1] = img.data[q + 2] = a * 255; img.data[q + 3] = 255; } c.putImageData(img, 0, 0); });
+  tCharco.colorSpace = THREE.NoColorSpace;
+  const matCharco = new THREE.MeshStandardMaterial({ color: '#3a3c40', roughness: 0.04, metalness: 0.0, alphaMap: tCharco, transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, envMapIntensity: 1.6 });
+  const imCharcos = instancias(new THREE.PlaneGeometry(1, 1), matCharco, charcos, false); imCharcos.visible = false; g.add(imCharcos);
+  juego.charcos = { mat: matCharco, malla: imCharcos };
   escena.add(g);
   return { grupo: g, postes: postes.length, cables: cables.length, hidrantes: hidrantes.length, registros: registros.length, altos: altos.length, jardineras: jardineras.length, aires: aires.length, grafitis: grafitis.length, manchas: manchas.length };
 }
