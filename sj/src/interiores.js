@@ -1,18 +1,19 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611221510';
-import { hoja } from './texturas.js?v=202611221510';
-import { Peaton } from './peatones.js?v=202611221510';
-import { letrero } from './ciudad.js?v=202611221510';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611221510';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611221510';
-import { ARTICULOS } from './actividades.js?v=202611221510';
-import { OUTFITS, cambiarOutfit } from './jugador.js?v=202611221510';
+import { animar } from './persona.js?v=202611221719';
+import { hoja } from './texturas.js?v=202611221719';
+import { Peaton } from './peatones.js?v=202611221719';
+import { letrero } from './ciudad.js?v=202611221719';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611221719';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611221719';
+import { ARTICULOS } from './actividades.js?v=202611221719';
+import { OUTFITS, cambiarOutfit } from './jugador.js?v=202611221719';
+import { jugarMaquinita } from './maquinita.js?v=202611221719';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
 const INT = hoja('assets/interior.jpg', 3, 2, { tam: 512, sinUrl: true });
-const COLOR_ICONO = { tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a', mercado: '#ff8a3a', templo: '#f2e6c8' };
-const LETRA = { tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L', mercado: 'M', templo: '+' };
+const COLOR_ICONO = { cine: '#ffcf5a', maquinitas: '#3fd2ff', tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a', mercado: '#ff8a3a', templo: '#f2e6c8' };
+const LETRA = { cine: 'P', maquinitas: 'A', tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L', mercado: 'M', templo: '+' };
 const LUGARES_LIBRES = [
   ['ropa', 'BOUTIQUE LA JACARANDA', 'Boutique La Jacaranda', '#2a1440', '#e9c8ff'],
   ['barberia', 'BARBERÍA EL BIGOTE', 'Barbería El Bigote', '#1a1a1a', '#ff6b6b'],
@@ -20,7 +21,9 @@ const LUGARES_LIBRES = [
   ['gimnasio', 'GIMNASIO EL TORO', 'Gimnasio El Toro', '#101a14', '#4fe08a'],
   ['depa', 'DEPARTAMENTOS JACARANDA', 'Tu departamento', '#1a1428', '#d9b3ff'],
   ['antro', 'ANTRO NEÓN', 'Antro Neón', '#100818', '#ff4fd8'],
-  ['arena', 'ARENA JACARANDA · LUCHA LIBRE', 'Arena Jacaranda', '#1a0a0a', '#ffd23a']
+  ['arena', 'ARENA JACARANDA · LUCHA LIBRE', 'Arena Jacaranda', '#1a0a0a', '#ffd23a'],
+  ['cine', 'CINE JACARANDA', 'Cine Jacaranda', '#1a0a14', '#ffcf5a'],
+  ['maquinitas', 'MAQUINITAS EL PIXEL', 'Maquinitas El Pixel', '#0a0a1a', '#3fd2ff']
 ];
 
 const ROPA_NOMBRES = ['Camisa de cuadros', 'Jersey Perla FC', 'Guayabera blanca', 'Sudadera gris', 'Blusa bordada', 'Chamarra de mezclilla', 'Playera jacaranda', 'Camisa hawaiana'];
@@ -235,7 +238,7 @@ export class Interiores {
 
   zona(t, x, z, art, y = 1.85) {
     const I = t.interior;
-    if (t.tipo !== 'depa') return;
+    if (t.tipo !== 'depa' && t.tipo !== 'gimnasio') return;
     const et = this.etiqueta(art.nombre, art.precio ? '$' + art.precio.toLocaleString('es-MX') : 'GRATIS');
     et.position.set(x, y, z); I.g.add(et);
     const aro = new THREE.Mesh(new THREE.RingGeometry(0.34, 0.44, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#ffc94a', transparent: true, opacity: 0.55, depthWrite: false }));
@@ -263,7 +266,7 @@ export class Interiores {
 
   construir(t, i) {
     const j = this.j, esc = j.escena, mundo = j.mundo;
-    const W = t.tipo === 'armeria' ? 12 : t.tipo === 'arena' ? 22 : t.tipo === 'mercado' ? 24 : t.tipo === 'templo' ? 16 : 14, L = t.tipo === 'arena' ? 19 : t.tipo === 'mercado' ? 20 : t.tipo === 'templo' ? 30 : 11, H = t.tipo === 'arena' ? 6.5 : t.tipo === 'mercado' ? 7 : t.tipo === 'templo' ? 12 : 4;
+    const W = t.tipo === 'cine' ? 16 : t.tipo === 'armeria' ? 12 : t.tipo === 'arena' ? 22 : t.tipo === 'mercado' ? 24 : t.tipo === 'templo' ? 16 : 14, L = t.tipo === 'cine' ? 22 : t.tipo === 'arena' ? 19 : t.tipo === 'mercado' ? 20 : t.tipo === 'templo' ? 30 : 11, H = t.tipo === 'cine' ? 7 : t.tipo === 'arena' ? 6.5 : t.tipo === 'mercado' ? 7 : t.tipo === 'templo' ? 12 : 4;
     const ox = 3000 + (i % 4) * 40, oz = 3000 + Math.floor(i / 4) * 40;
     const g = new THREE.Group(); g.position.set(ox, 0, oz); g.visible = false; esc.add(g);
     t.interior = { g, ox, oz, W, L, H, entrada: new THREE.Vector3(ox, 0, oz + L / 2 - 1.6), salida: new THREE.Vector3(ox, 0, oz + L / 2 - 0.9) };
@@ -435,6 +438,52 @@ export class Interiores {
       t.cajero = this.npc(t, -W / 2 + 2.2, L / 2 - 3.2, { cara: 3, ropa: 5 });
       caja(2.6, 1.1, 0.8, m('#3a1a10'), -W / 2 + 2.2, 0.55, L / 2 - 4.3);
       t.interior.mostrador.set(ox - W / 2 + 2.2, 0, oz + L / 2 - 5.2);
+    } else if (t.tipo === 'cine') {
+      const cv = document.createElement('canvas'); cv.width = 512; cv.height = 224; const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+      caja(14.2, 6.4, 0.2, m('#050506'), 0, 3.9, -L / 2 + 0.12, false);
+      const pant = new THREE.Mesh(new THREE.PlaneGeometry(13, 5.7), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false })); pant.position.set(0, 3.9, -L / 2 + 0.24); g.add(pant);
+      for (const sx of [-1, 1]) caja(1.1, 6.8, 0.35, m('#7a1020'), sx * 7.2, 3.4, -L / 2 + 0.45, false);
+      caja(15.4, 0.55, 1.4, m('#2a1a14'), 0, 0.28, -L / 2 + 0.9);
+      const rojo = m('#8a1a2a'), rojo2 = m('#6a1222'), publico = [];
+      for (let r = 0; r < 8; r++) {
+        const z = -L / 2 + 4.2 + r * 1.55;
+        for (const sx of [-1, 1]) { caja(5.8, 0.45, 0.6, rojo, sx * 3.75, 0.32, z); caja(5.8, 0.75, 0.12, rojo2, sx * 3.75, 0.78, z + 0.32, false); caja(0.06, 0.6, 0.6, m('#2a2a2e'), sx * 6.7, 0.4, z, false); }
+        for (const sx of [-1, 1]) for (let k = 0; k < 6; k++) {
+          if (Math.random() > 0.3 || publico.length > 16) continue;
+          const p = crearPersona({ sinAccesorios: true, fijo: false }); p.grupo.position.set(sx * (1.3 + k * 0.95), 0.08, z + 0.05); p.grupo.rotation.y = Math.PI; sentar(p); p.cuerpo.position.set(0, -0.44, 0.02); g.add(p.grupo); publico.push(p);
+        }
+        caja(0.12, 0.03, 0.12, m('#ffcf5a', { emissive: '#ffcf5a', emissiveIntensity: 1 }), 0.2, 0.02, z, false);
+      }
+      const cartelC = (titulo, sub, fondo, x, z, ry) => { const c = document.createElement('canvas'); c.width = 192; c.height = 288; const q = c.getContext('2d'); q.fillStyle = fondo; q.fillRect(0, 0, 192, 288); q.fillStyle = '#ffcf5a'; q.font = '900 26px Inter, Arial'; q.textAlign = 'center'; titulo.split('|').forEach((l, i) => q.fillText(l, 96, 70 + i * 30)); q.fillStyle = '#fff'; q.font = '700 14px Inter, Arial'; q.fillText(sub, 96, 250); const tt = new THREE.CanvasTexture(c); tt.colorSpace = THREE.SRGBColorSpace; const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 2.1), new THREE.MeshBasicMaterial({ map: tt })); pl.position.set(x, 2.2, z); pl.rotation.y = ry; g.add(pl); };
+      cartelC('EL ÚLTIMO|TACO', 'ESTRENO', '#5a0a1a', -W / 2 + 0.17, 2, Math.PI / 2); cartelC('NOCHE DE|LUCHA', 'PRÓXIMAMENTE', '#0a2a5a', -W / 2 + 0.17, 5, Math.PI / 2); cartelC('JACARANDA|EN FLOR', 'TODA LA FAMILIA', '#3a1a5a', W / 2 - 0.17, 2, -Math.PI / 2);
+      caja(4, 1.1, 0.8, m('#3a1a10'), W / 2 - 3, 0.55, L / 2 - 4.6);
+      caja(0.8, 0.9, 0.6, m('#ffe08a', { emissive: '#ffcf5a', emissiveIntensity: 0.7 }), W / 2 - 1.6, 1.55, L / 2 - 4.6, false);
+      t.cajero = this.npc(t, W / 2 - 3, L / 2 - 5.4, { cara: 2, ropa: 3 });
+      t.interior.mostrador.set(ox + W / 2 - 3, 0, oz + L / 2 - 3.8);
+      t.cine = { cv, tx, x: cv.getContext('2d'), t: 0, cuadro: 0, viendo: false, publico, asiento: new THREE.Vector3(ox, 1.25, oz - L / 2 + 4.2 + 4 * 1.55) };
+    } else if (t.tipo === 'maquinitas') {
+      const alf = document.createElement('canvas'); alf.width = alf.height = 128; const a = alf.getContext('2d'); a.fillStyle = '#0c0c2a'; a.fillRect(0, 0, 128, 128); for (let k = 0; k < 18; k++) { a.strokeStyle = ['#ff4fd8', '#3fd2ff', '#ffd23a'][k % 3]; a.lineWidth = 2; a.beginPath(); const x0 = Math.random() * 128, y0 = Math.random() * 128; a.moveTo(x0, y0); a.bezierCurveTo(x0 + 20, y0 - 20, x0 + 30, y0 + 20, x0 + 46, y0); a.stroke(); }
+      const at = new THREE.CanvasTexture(alf); at.colorSpace = THREE.SRGBColorSpace; at.wrapS = at.wrapT = THREE.RepeatWrapping; at.repeat.set(5, 4);
+      const alfombra = new THREE.Mesh(new THREE.PlaneGeometry(W - 0.4, L - 0.4).rotateX(-Math.PI / 2), m('#ffffff', { map: at })); alfombra.position.y = 0.006; g.add(alfombra);
+      const tipos = ['marcianos', 'carrerita', 'pelea'], pantallas = tipos.map(tp => { const c = document.createElement('canvas'); c.width = 128; c.height = 96; const tt = new THREE.CanvasTexture(c); tt.colorSpace = THREE.SRGBColorSpace; return { tp, c, x: c.getContext('2d'), tt }; });
+      const colores = ['#c8202e', '#2a5ab8', '#2fa04a', '#7a2ab8', '#e0a020', '#c8202e', '#2a5ab8', '#2fa04a'];
+      for (let k = 0; k < 8; k++) {
+        const x = -5.25 + k * 1.5, z = -L / 2 + 0.75, P = pantallas[k % 3];
+        caja(1.05, 2.0, 0.85, m(colores[k]), x, 1.0, z);
+        caja(1.06, 0.28, 0.3, m(colores[k], { emissive: colores[k], emissiveIntensity: 0.9 }), x, 2.12, z + 0.3, false);
+        const sc = new THREE.Mesh(new THREE.PlaneGeometry(0.78, 0.58), new THREE.MeshBasicMaterial({ map: P.tt, toneMapped: false })); sc.position.set(x, 1.5, z + 0.44); sc.rotation.x = -0.18; g.add(sc);
+        const panel = caja(1.0, 0.1, 0.42, m('#1a1a1e'), x, 1.02, z + 0.58, false); panel.rotation.x = 0.25;
+        const pal = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.14, 8), m('#222')); pal.position.set(x - 0.22, 1.12, z + 0.6); g.add(pal);
+        for (let b = 0; b < 3; b++) { const bt = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 6), m(['#ff3b3b', '#ffd23a', '#3fd2ff'][b], { emissive: ['#ff3b3b', '#ffd23a', '#3fd2ff'][b], emissiveIntensity: 0.6 })); bt.position.set(x + 0.05 + b * 0.1, 1.09, z + 0.6); g.add(bt); }
+      }
+      for (const [z, c] of [[-L / 2 + 0.2, '#ff4fd8'], [L / 2 - 0.2, '#3fd2ff']]) caja(W - 0.6, 0.06, 0.04, m(c, { emissive: c, emissiveIntensity: 1.2 }), 0, H - 0.4, z, false);
+      for (const [x, c] of [[-W / 2 + 0.2, '#3fd2ff'], [W / 2 - 0.2, '#ff4fd8']]) caja(0.04, 0.06, L - 0.6, m(c, { emissive: c, emissiveIntensity: 1.2 }), x, H - 0.4, 0, false);
+      caja(3.2, 1.05, 0.7, m('#202028'), W / 2 - 2.6, 0.52, L / 2 - 3.6);
+      for (let k = 0; k < 10; k++) { const pe = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), m(['#ff9ad0', '#9ad0ff', '#ffe08a', '#a8f0b0'][k % 4])); pe.position.set(W / 2 - 3.8 + (k % 5) * 0.55, 1.75 + (k >= 5 ? 0.45 : 0), L / 2 - 3.85); g.add(pe); }
+      caja(3.2, 0.06, 0.5, m('#3a3a44'), W / 2 - 2.6, 1.55, L / 2 - 3.85, false); caja(3.2, 0.06, 0.5, m('#3a3a44'), W / 2 - 2.6, 2.0, L / 2 - 3.85, false);
+      t.cajero = this.npc(t, W / 2 - 2.6, L / 2 - 4.4, { cara: 5, ropa: 6 });
+      t.interior.mostrador.set(ox + W / 2 - 2.6, 0, oz + L / 2 - 2.8);
+      t.maquinitas = { pantallas, t: 0, cuadro: 0 };
     } else if (t.tipo === 'gimnasio') {
       caja(W - 0.6, 2.2, 0.05, new THREE.MeshStandardMaterial({ color: '#dfe8f2', metalness: 0.55, roughness: 0.15 }), 0, 1.6, -L / 2 + 0.2, false);
       caja(1.6, 0.45, 0.5, m('#2a2a30'), -4, 0.42, -2.6); caja(0.08, 1.4, 0.08, m('#888'), -4.6, 0.7, -3.2, false); caja(0.08, 1.4, 0.08, m('#888'), -3.4, 0.7, -3.2, false);
@@ -534,6 +583,133 @@ export class Interiores {
     return t;
   }
 
+  pelicula(C) {
+    const x = C.x, W = 512, H = 224, t = C.t % 48;
+    x.fillStyle = '#05060c'; x.fillRect(0, 0, W, H);
+    const txt = (s, y, tam, col = '#ffffff') => { x.fillStyle = col; x.font = `900 ${tam}px Inter, Arial`; x.textAlign = 'center'; x.fillText(s, W / 2, y); };
+    if (t < 6) { for (let k = 0; k < 50; k++) { x.fillStyle = '#fff'; x.fillRect((k * 97 + t * 8) % W, (k * 53) % H, 2, 2); } txt('EL ÚLTIMO TACO', 110, 44, '#ffcf5a'); txt('una película de Santa Jacaranda', 150, 16, '#cfd6e4'); }
+    else if (t < 24) {
+      const k = t - 6, g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#0a1030'); g.addColorStop(1, '#3a1a4a'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+      x.fillStyle = '#fff6d8'; x.beginPath(); x.arc(420, 50, 22, 0, 6.3); x.fill();
+      for (let c = 0; c < 2; c++) for (let n = 0; n < 16; n++) { const bw = 30 + (n * 17) % 26, bh = 50 + (n * 37) % 90 - c * 30, bx = ((n * 44 - k * (40 + c * 50)) % (W + 80) + W + 80) % (W + 80) - 40; x.fillStyle = c ? '#120a1e' : '#1c1230'; x.fillRect(bx, 170 - bh, bw, bh); }
+      x.fillStyle = '#222'; x.fillRect(0, 170, W, 54); x.fillStyle = '#ffd23a'; for (let n = 0; n < 10; n++) x.fillRect(((n * 70 - k * 260) % W + W) % W, 196, 36, 4);
+      const cx = 260 + Math.sin(k * 1.3) * 30; x.fillStyle = '#c8202e'; x.fillRect(cx, 150, 70, 22); x.fillRect(cx + 14, 138, 40, 14); x.fillStyle = '#111'; x.beginPath(); x.arc(cx + 15, 174, 8, 0, 6.3); x.arc(cx + 55, 174, 8, 0, 6.3); x.fill();
+      const px = 90 + Math.sin(k * 0.9) * 20; x.fillStyle = '#e8e8ec'; x.fillRect(px, 152, 66, 20); x.fillStyle = Math.sin(k * 14) > 0 ? '#ff2a3a' : '#2a5aff'; x.fillRect(px + 22, 144, 22, 8); x.fillStyle = '#111'; x.beginPath(); x.arc(px + 14, 174, 8, 0, 6.3); x.arc(px + 52, 174, 8, 0, 6.3); x.fill();
+    } else if (t < 36) {
+      const k = t - 24; x.fillStyle = '#1a0a0a'; x.fillRect(0, 0, W, H); x.fillStyle = '#2a5ab8'; x.fillRect(80, 150, 352, 20);
+      x.strokeStyle = '#c8202e'; x.lineWidth = 3; for (let n = 0; n < 3; n++) { x.beginPath(); x.moveTo(80, 120 + n * 12); x.lineTo(432, 120 + n * 12); x.stroke(); }
+      for (const [bx, col, fase] of [[200, '#c8202e', 0], [300, '#c9ced6', 2]]) { const y = 100 - Math.max(0, Math.sin(k * 3 + fase)) * 40; x.fillStyle = col; x.fillRect(bx + Math.sin(k * 2 + fase) * 30, y, 26, 50); x.beginPath(); x.arc(bx + 13 + Math.sin(k * 2 + fase) * 30, y - 8, 11, 0, 6.3); x.fill(); }
+      for (let n = 0; n < 60; n++) { x.fillStyle = `hsl(${n * 37 % 360},60%,${40 + Math.sin(k * 6 + n) * 15}%)`; x.beginPath(); x.arc((n * 9) % W, 200 + (n % 3) * 8, 4, 0, 6.3); x.fill(); }
+    } else if (t < 44) {
+      const k = t - 36, g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#f08a5a'); g.addColorStop(1, '#5a2a6a'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+      x.fillStyle = '#2a1a2a'; x.beginPath(); x.ellipse(256, 230, 300, 70, 0, 0, 6.3); x.fill();
+      x.fillStyle = '#3a1a3a'; x.fillRect(330, 110, 8, 60); x.fillStyle = '#9b5fd0'; for (let n = 0; n < 9; n++) { x.beginPath(); x.arc(334 + Math.cos(n) * 24, 100 + Math.sin(n * 2) * 14, 16, 0, 6.3); x.fill(); }
+      x.fillStyle = '#120a14'; for (const bx of [230, 256]) { x.fillRect(bx, 150, 14, 30); x.beginPath(); x.arc(bx + 7, 144, 8, 0, 6.3); x.fill(); }
+      if (k > 4) txt('FIN', 80, 48, `rgba(255,255,255,${Math.min(1, (k - 4) / 2)})`);
+    } else txt('Gracias por venir · Cine Jacaranda', 120, 20, '#ffcf5a');
+    C.tx.needsUpdate = true;
+  }
+
+  animarCine(T, dt) {
+    const C = T.cine, j = this.j, jj = j.jugador; C.t += dt; C.cuadro -= dt;
+    if (C.cuadro <= 0) { C.cuadro = 1 / 18; this.pelicula(C); }
+    if (C.viendo) {
+      jj.pintando = 0.3; jj.grupo.visible = false; C.vt = (C.vt || 0) + dt;
+      if (Math.random() < dt * 0.2) j.audio?.ruidoCorto?.(0.5, 900, 0.05, 'bandpass', 0.8);
+      if (C.vt > 48) this.salirCine();
+    }
+  }
+
+  verCine(t) {
+    const j = this.j, C = t.cine; if (!C || C.viendo) return;
+    j.actividades.cerrarTienda?.(); C.viendo = true; C.vt = 0; C.t = 0; this.viendoCine = t;
+    j.hud.grande('EL ÚLTIMO TACO', 'Disfruta la función', 2);
+  }
+
+  salirCine() {
+    const t = this.viendoCine; if (!t) return;
+    const j = this.j, jj = j.jugador, C = t.cine; C.viendo = false; this.viendoCine = null; jj.pintando = 0; jj.grupo.visible = true;
+    jj.pos.set(C.asiento.x + 0.2, 0, C.asiento.z + 0.8);
+    if (C.vt > 20) { jj.salud = jj.saludMax; j.hud.notificar('ok', 'Cine Jacaranda', 'Saliste relajado: salud al máximo.', 3); j.estadisticas?.sumar?.('peliculas', 1); }
+  }
+
+  camaraCine(cam) {
+    const t = this.viendoCine; if (!t) return false;
+    const C = t.cine, I = t.interior; cam.position.copy(C.asiento); cam.lookAt(I.ox, 3.7, I.oz - I.L / 2); return true;
+  }
+
+  animarMaquinitas(T, dt) {
+    const M = T.maquinitas; M.t += dt; M.cuadro -= dt; if (M.cuadro > 0) return; M.cuadro = 1 / 10;
+    for (const P of M.pantallas) {
+      const x = P.x, t = M.t; x.fillStyle = '#05060f'; x.fillRect(0, 0, 128, 96);
+      if (P.tp === 'marcianos') { for (let k = 0; k < 12; k++) { x.fillStyle = k % 2 ? '#3fd2ff' : '#ff4fd8'; x.fillRect(12 + (k % 6) * 18 + Math.sin(t * 2) * 8, 12 + (k / 6 | 0) * 14, 10, 8); } x.fillStyle = '#ffd23a'; x.fillRect(58 + Math.sin(t * 1.7) * 40, 80, 12, 8); x.fillRect(64 + Math.sin(t * 1.7) * 40, 80 - ((t * 60) % 60), 2, 6); }
+      else if (P.tp === 'carrerita') { x.fillStyle = '#2a2a2a'; x.fillRect(30, 0, 68, 96); x.fillStyle = '#fff'; for (let k = 0; k < 6; k++) x.fillRect(62, ((k * 20 + t * 80) % 120) - 20, 4, 10); x.fillStyle = '#ff5a3a'; x.fillRect(48 + Math.sin(t * 2.3) * 14, 70, 14, 20); x.fillStyle = '#3fd2ff'; x.fillRect(60 + Math.sin(t * 1.1 + 2) * 18, (t * 50) % 110 - 20, 14, 20); }
+      else { x.fillStyle = '#c8202e'; x.fillRect(0, 60, 128, 4); for (const [bx, col, f] of [[40, '#ff3b3b', 0], [80, '#3fd2ff', 2]]) { const y = 40 - Math.max(0, Math.sin(t * 4 + f)) * 14; x.fillStyle = col; x.fillRect(bx + Math.sin(t * 2 + f) * 10, y, 10, 20); } }
+      x.fillStyle = 'rgba(255,255,255,0.06)'; for (let y = 0; y < 96; y += 3) x.fillRect(0, y, 128, 1);
+      P.tt.needsUpdate = true;
+    }
+  }
+
+  entrenar(tipo, t, efecto) {
+    const I = t.interior, P = { pesas: [-4, -1.75, 'PickUp_Table', 1.1], caminadora: [0, -2.55, 'Jog_Fwd_Loop', 1.0], costal: [4, -1.85, 'Punch_Cross', 1.25] }[tipo];
+    this.entreno = { tipo, t: 0, dur: 3.6, efecto, x: I.ox + P[0], z: I.oz + P[1], clip: P[2], escala: P[3], golpe: 0 };
+    const jj = this.j.jugador; jj.anim = { clip: P[2], escala: P[3], veces: Infinity, nuevo: true };
+    this.j.audio?.ui?.(700);
+  }
+
+  animarEntreno(dt) {
+    const E = this.entreno, j = this.j, jj = j.jugador; E.t += dt;
+    jj.pos.set(E.x, 0, E.z); jj.yaw = Math.PI; jj.pintando = 0.3; jj.velocidad = 0;
+    if (E.tipo === 'costal' && this.costal) { E.golpe -= dt; if (E.golpe <= 0) { E.golpe = 0.42; this.costalV = (this.costalV || 0) + 2.6; j.audio?.ruidoCorto?.(0.25, 300, 0.12, 'lowpass', 0.6); } }
+    if (E.tipo === 'pesas' && Math.random() < dt * 1.4) j.audio?.ruidoCorto?.(0.2, 1800, 0.05, 'bandpass', 0.4);
+    if (E.t >= E.dur) { jj.anim = null; jj.pintando = 0; jj.y = 0; this.entreno = null; E.efecto(); }
+  }
+
+  pisoEn(x, z) {
+    const E = this.entreno; if (E?.tipo === 'caminadora' && Math.hypot(x - E.x, z - E.z) < 0.8) return 0.33;
+    const T = this.dentro, A = T?.arena; if (!A?.pelea) return 0;
+    const cx = T.interior.ox, cz = T.interior.oz + A.rz;
+    return Math.abs(x - cx) < 3.1 && Math.abs(z - cz) < 3.1 ? 1.0 : 0;
+  }
+
+  empezarPelea(t) {
+    const j = this.j, jj = j.jugador, A = t.arena, I = t.interior; if (!A || A.pelea) return;
+    j.actividades.cerrarTienda?.();
+    const cx = I.ox, cz = I.oz + A.rz;
+    jj.pos.set(cx - 1.6, 0, cz); jj.y = 1.0; jj.yaw = Math.PI / 2;
+    const r = new Peaton(j, { tipo: 'matón', x: cx + 1.6, z: cz, estado: 'atacar', arma: 'puno', vestido: { camisa: '#1a1a1e', pantalon: '#c8202e', ropa: null } });
+    r.enInterior = t; r.alturaPiso = 1.0; r.y = 1.0; r.salud = 170; r.hostil = true; r.objetivoMision = true; r.luchador = true; r.yaw = -Math.PI / 2;
+    j.peatones.push(r);
+    A.pelea = { r, t: 0, arma: jj.arma, fin: 0 }; jj.arma = 'puno';
+    A.rudo.grupo.visible = A.tecnico.grupo.visible = false;
+    j.audio.tono(880, 0.5, 0.2, 'triangle'); j.hud.grande('¡A LA LONA!', 'Tú contra El Rudo del Nopal', 2.4);
+  }
+
+  actualizarPelea(T, dt) {
+    const j = this.j, jj = j.jugador, A = T.arena, P = A.pelea, I = T.interior, r = P.r; P.t += dt;
+    const cx = I.ox, cz = I.oz + A.rz;
+    for (const q of [jj.pos, r.pos]) { q.x = Math.max(cx - 2.7, Math.min(cx + 2.7, q.x)); q.z = Math.max(cz - 2.7, Math.min(cz + 2.7, q.z)); }
+    if (!P.fin) {
+      r.estado = 'atacar'; r.hostil = true;
+      j.hud.objetivo(`<b>Pelea en el ring</b> · El Rudo: <b>${Math.max(0, Math.round(r.salud))}</b> · Tú: <b>${Math.max(0, Math.round(jj.salud))}</b>`);
+      if (r.salud < 40 || r.muerto) {
+        P.fin = 1; P.gano = true; r.estado = 'agachado'; r.tAgachado = 99; r.hostil = false;
+        jj.dinero += 1000; j.audio.dinero(); j.hud.popDinero?.(1000); j.hud.grande('¡GANASTE!', 'El Rudo se rinde · +$1,000', 3, 'exito');
+        j.estadisticas?.sumar?.('luchas', 1); j.redes?.publicar?.('salto', '', { forzar: true }); j.noticias?.avisar('arena');
+      } else if (jj.salud < jj.saludMax * 0.25 || jj.muerto) {
+        P.fin = 1; P.gano = false; r.estado = 'quieto'; r.hostil = false; jj.salud = Math.max(jj.salud, jj.saludMax * 0.35); jj.muerto = 0;
+        j.hud.grande('¡TE NOQUEARON!', 'El Rudo del Nopal se queda con la noche', 3);
+      }
+    } else {
+      P.fin += dt;
+      if (P.fin > 3.5) {
+        const i = j.peatones.indexOf(r); if (i >= 0) { r.quitar(); j.peatones.splice(i, 1); }
+        jj.arma = P.arma || 'puno'; A.pelea = null; A.rudo.grupo.visible = A.tecnico.grupo.visible = true;
+        jj.pos.set(cx, 0, cz + 4.2); jj.y = 0; j.hud.objetivo(j.misiones.activa ? j.hud.textoMision || '' : '');
+      }
+    }
+  }
+
   npc(t, x, z, vestido) {
     const q = new Peaton(this.j, { x: t.interior.ox + x, z: t.interior.oz + z, estado: 'quieto', vestido });
     q.yaw = 0; q.objetivoMision = true; q.enInterior = t; q.salud = 50;
@@ -548,7 +724,7 @@ export class Interiores {
     const p = this.j.jugador.pos;
     if (!this.dentro) return null;
     const T = this.dentro, M = T.interior.mostrador;
-    if (T.tipo !== 'depa' && M && Math.hypot(p.x - M.x, p.z - M.z) < 2.6) return { mostrador: true };
+    if (T.tipo !== 'depa' && T.tipo !== 'gimnasio' && M && Math.hypot(p.x - M.x, p.z - M.z) < 2.6) return { mostrador: true };
     let mejor = null, md = 0.85;
     for (const z of this.dentro.zonas) { const d = Math.hypot(p.x - z.x, p.z - z.z); if (d < md) { md = d; mejor = z; } }
     return mejor;
@@ -607,6 +783,8 @@ export class Interiores {
 
   salir() {
     const j = this.j, jug = j.jugador, t = this.dentro;
+    if (this.viendoCine) this.salirCine();
+    if (t?.arena?.pelea) { const P = t.arena.pelea, i = j.peatones.indexOf(P.r); if (i >= 0) { P.r.quitar(); j.peatones.splice(i, 1); } jug.arma = P.arma || 'puno'; t.arena.pelea = null; t.arena.rudo.grupo.visible = t.arena.tecnico.grupo.visible = true; }
     this.fundido();
     this.cancelarRobo();
     t.interior.g.visible = false;
@@ -652,16 +830,26 @@ export class Interiores {
     if (t.tipo === 'arena') {
       const apostar = (lado, monto) => jj => { const A = t.arena; if (!A) return; if (A.combate > 0) { j.hud.notificar('info', 'Ya hay una lucha', 'Espera a que termine esta caída.', 3); jj.dinero += monto; return; } A.apuesta = { lado, monto }; A.combate = 14; A.caida = null; j.audio.tono(880, 0.5, 0.18, 'triangle'); j.hud.grande('¡A LA LONA!', 'Apostaste $' + monto + ' al ' + (lado === 'rudo' ? 'Rudo' : 'Técnico'), 2); };
       return { titulo: 'ARENA JACARANDA', sub: 'LUCHA LIBRE · RUDOS CONTRA TÉCNICOS', articulos: [
+        { id: 'pelear', nombre: 'Pelear tú en el ring', precio: 200, verbo: 'Pelear', desc: 'Sube contra El Rudo del Nopal. Si lo rindes, cobras $1,000.', dar: () => this.empezarPelea(t), tiene: () => !!t.arena?.pelea, tieneTxt: 'Ya estás peleando' },
         { id: 'rudo', nombre: 'Apostar $100 al Rudo (rojo)', precio: 100, verbo: 'Apostar', desc: 'Si gana, cobras el doble.', dar: apostar('rudo', 100) },
         { id: 'tecnico', nombre: 'Apostar $100 al Técnico (azul)', precio: 100, verbo: 'Apostar', desc: 'Si gana, cobras el doble.', dar: apostar('tecnico', 100) },
         { id: 'cerveza', nombre: 'Cerveza', precio: 35, verbo: 'Tomar', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 10); j.mareo = Math.min(90, (j.mareo || 0) + 18); } },
         { id: 'torta', nombre: 'Torta ahogada', precio: 55, verbo: 'Comer', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 40); } }
       ] };
     }
+    if (t.tipo === 'cine') return { titulo: 'CINE JACARANDA', sub: 'HOY: EL ÚLTIMO TACO', articulos: [
+      { id: 'boleto', nombre: 'Boleto: ver la función', precio: 40, verbo: 'Entrar', desc: 'Te sientas a ver la película. E para salir.', dar: () => this.verCine(t), tiene: () => !!t.cine?.viendo },
+      { id: 'palomitas', nombre: 'Palomitas con chile', precio: 30, verbo: 'Comer', desc: 'Recupera 25 de salud.', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 25); } },
+      { id: 'refresco', nombre: 'Refresco grande', precio: 20, verbo: 'Tomar', desc: 'Recupera 10 de salud.', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 10); } }
+    ] };
+    if (t.tipo === 'maquinitas') {
+      const jugar = (tp, nombre) => ({ id: 'jugar_' + tp, nombre: 'Jugar ' + nombre, precio: 10, verbo: 'Jugar', desc: 'Atínale 6 veces: cada acierto paga $15 y si haces las 6, $120 más.', dar: () => { j.actividades.cerrarTienda(); setTimeout(() => jugarMaquinita(j, tp, (aciertos, premio) => { if (premio > 0) { j.jugador.dinero += premio; j.hud.popDinero?.(premio); j.audio.dinero(); } if (aciertos >= 0) { j.estadisticas?.sumar?.('maquinitas', 1); j.hud.notificar('ok', 'Maquinitas', aciertos + ' de 6 · ganaste $' + premio, 3); } }), 60); } });
+      return { titulo: 'MAQUINITAS EL PIXEL', sub: 'FICHAS A $10', articulos: [jugar('marcianos', 'Marcianos del Nopal'), jugar('carrerita', 'Carrerita Jacaranda'), jugar('pelea', 'Lucha en pixeles')] };
+    }
     if (t.tipo === 'gimnasio') return { titulo: 'GIMNASIO', sub: '', articulos: [
-      { id: 'pesas', nombre: 'Pesas: +10 de salud máxima', precio: 120, verbo: 'Entrenar', dar: jj => { jj.saludMax = Math.min(160, jj.saludMax + 10); jj.salud = jj.saludMax; j.hud.grande('+10 SALUD MÁXIMA', 'Ahora tienes ' + jj.saludMax, 2.2, 'exito'); }, tiene: jj => jj.saludMax >= 160 },
-      { id: 'caminadora', nombre: 'Caminadora: corres más rápido', precio: 80, verbo: 'Entrenar', dar: jj => { jj.bonoVel = Math.min(0.2, jj.bonoVel + 0.04); j.hud.grande('+4% VELOCIDAD', 'Corres ' + Math.round(jj.bonoVel * 100) + '% más rápido', 2.2, 'exito'); }, tiene: jj => jj.bonoVel >= 0.2 },
-      { id: 'costal', nombre: 'Costal: golpes más fuertes', precio: 80, verbo: 'Entrenar', dar: jj => { jj.bonoGolpe = Math.min(0.6, jj.bonoGolpe + 0.12); j.hud.grande('+12% FUERZA', 'Tus golpes pegan ' + Math.round(jj.bonoGolpe * 100) + '% más', 2.2, 'exito'); if (this.costal) this.costal.rotation.x = 0.4; }, tiene: jj => jj.bonoGolpe >= 0.6 }
+      { id: 'pesas', nombre: 'Pesas: +10 de salud máxima', precio: 120, verbo: 'Entrenar', dar: jj => this.entrenar('pesas', t, () => { jj.saludMax = Math.min(160, jj.saludMax + 10); jj.salud = jj.saludMax; j.hud.grande('+10 SALUD MÁXIMA', 'Ahora tienes ' + jj.saludMax, 2.2, 'exito'); }), tiene: jj => jj.saludMax >= 160 },
+      { id: 'caminadora', nombre: 'Caminadora: corres más rápido', precio: 80, verbo: 'Entrenar', dar: jj => this.entrenar('caminadora', t, () => { jj.bonoVel = Math.min(0.2, jj.bonoVel + 0.04); j.hud.grande('+4% VELOCIDAD', 'Corres ' + Math.round(jj.bonoVel * 100) + '% más rápido', 2.2, 'exito'); }), tiene: jj => jj.bonoVel >= 0.2 },
+      { id: 'costal', nombre: 'Costal: golpes más fuertes', precio: 80, verbo: 'Entrenar', dar: jj => this.entrenar('costal', t, () => { jj.bonoGolpe = Math.min(0.6, jj.bonoGolpe + 0.12); j.hud.grande('+12% FUERZA', 'Tus golpes pegan ' + Math.round(jj.bonoGolpe * 100) + '% más', 2.2, 'exito'); }), tiene: jj => jj.bonoGolpe >= 0.6 }
     ] };
     if (t.tipo === 'depa') return { titulo: 'TU DEPARTAMENTO', sub: '', articulos: [
       { id: 'dormir', nombre: 'Dormir: te cura y guarda', precio: 0, verbo: '', dar: jj => this.dormir() },
@@ -689,7 +877,7 @@ export class Interiores {
     return {
       titulo: t.nombre.toUpperCase(), sub: 'PRECIOS DE BARRIO',
       articulos: comida.map(([n, precio, cura, nitro, repara], k) => ({ id: 'c' + k, nombre: n, precio, desc: repara ? 'Deja tu último coche como nuevo.' : `Recupera ${cura} de salud${nitro ? ' y llena el nitro' : ''}.`, icono: ICONO.ok,
-        dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + cura); if (nitro) j.nitro = 1; if (repara && j.ultimoCoche) j.ultimoCoche.salud = j.ultimoCoche.t.salud; }, tiene: jj => cura > 0 && jj.salud >= jj.saludMax && !nitro, tieneTxt: 'Tu salud está al máximo' }))
+        dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + cura); if (nitro) j.nitro = 1; if (repara && j.ultimoCoche) { j.ultimoCoche.salud = j.ultimoCoche.t.salud; j.ultimoCoche.reparar?.(); } }, tiene: jj => cura > 0 && jj.salud >= jj.saludMax && !nitro, tieneTxt: 'Tu salud está al máximo' }))
     };
   }
 
@@ -725,7 +913,11 @@ export class Interiores {
       }
     }
     const T = this.dentro;
-    if (T?.arena) this.animarArena(T, dt);
+    if (T?.arena) { if (T.arena.pelea) this.actualizarPelea(T, dt); else this.animarArena(T, dt); }
+    if (this.entreno) { if (T?.tipo === 'gimnasio') this.animarEntreno(dt); else this.entreno = null; }
+    if (this.costal) { this.costalV = (this.costalV || 0) - (this.costal.rotation.x || 0) * dt * 30; this.costalV *= 1 - Math.min(1, dt * 2.5); this.costal.rotation.x = (this.costal.rotation.x || 0) + this.costalV * dt; }
+    if (T?.cine) this.animarCine(T, dt);
+    if (T?.maquinitas) this.animarMaquinitas(T, dt);
     if (T?.cantina) this.animarCantina(T, dt);
     if (T?.antro) this.animarAntro(T, dt);
     else this.j.audio.antro?.(0);

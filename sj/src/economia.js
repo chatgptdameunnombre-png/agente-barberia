@@ -1,4 +1,4 @@
-import { Coche, puntoCalleAleatorio, TIPOS } from './vehiculos.js?v=202611221510';
+import { Coche, puntoCalleAleatorio, TIPOS } from './vehiculos.js?v=202611221719';
 
 export const NEGOCIOS = [
   { id: 'depa', nombre: 'Departamento Jacaranda', precio: 6000, renta: 0, desc: 'Tu casa: duerme, cúrate y guarda la partida.' },
@@ -151,6 +151,6 @@ export function aplicarMejoras(c, m) {
   if (m.motor) { c.t.vmax *= 1.18; c.t.acel *= 1.25; }
   if (m.frenos) c.t.freno *= 1.6;
   if (m.blindaje) { c.t.salud = Math.round(base.salud * 1.9); c.t.masa *= 1.25; }
-  c.salud = c.t.salud;
+  c.salud = c.t.salud; c.reparar?.();
   c.mejoras = m;
 }

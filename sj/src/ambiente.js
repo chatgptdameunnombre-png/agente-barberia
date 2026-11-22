@@ -112,8 +112,8 @@ export class Ambiente {
     }
     this.nublado = (this.nublado || 0) + ((this.quiereNublado || 0) - (this.nublado || 0)) * Math.min(1, dt * 0.05);
     const hm = this.hora, manana = hm > 4.8 && hm < 9.5 ? Math.sin((hm - 4.8) / 4.7 * Math.PI) : 0;
-    this.neblina = Math.max(manana * (this.diaNeblina ?? (this.diaNeblina = 0.5 + Math.random() * 0.5)), this.lluvia * 0.35);
-    if (hm > 12 && hm < 12.1) this.diaNeblina = Math.random() < 0.6 ? 0.4 + Math.random() * 0.6 : 0.1;
+    this.neblina = Math.max(manana * (this.diaNeblina ?? (this.diaNeblina = 0.3 + Math.random() * 0.4)), this.lluvia * 0.35);
+    if (hm > 12 && hm < 12.1) this.diaNeblina = Math.random() < 0.5 ? 0.25 + Math.random() * 0.45 : 0.1;
     this.lluvia += (this.quiereLluvia - this.lluvia) * Math.min(1, dt * 0.08);
     this.mojado = (this.mojado || 0) + ((this.lluvia > 0.15 ? 1 : 0) - (this.mojado || 0)) * Math.min(1, dt * (this.lluvia > 0.15 ? 0.25 : 0.02));
     const W = this.mojado, ms = this.juego.ciudad?.matsSuelo;
@@ -127,13 +127,14 @@ export class Ambiente {
     const N = Math.max(L, this.nublado || 0);
     const arriba = this._a.copy(a.arriba).lerp(b.arriba, t).lerp(gris, N * 0.55);
     const horiz = this._b.copy(a.horizonte).lerp(b.horizonte, t).lerp(gris.set('#7a8290').multiplyScalar(0.3 + 0.7 * kDia), N * 0.6);
-    if (this.neblina > 0.01) { horiz.lerp(gris.set('#c9ccd0').multiplyScalar(kDia), this.neblina * 0.55); arriba.lerp(gris.set('#b8c0c8').multiplyScalar(kDia), this.neblina * 0.35); }
+    if (this.neblina > 0.01) { horiz.lerp(gris.set('#c9ccd0').multiplyScalar(kDia), this.neblina * 0.4); arriba.lerp(gris.set('#b8c0c8').multiplyScalar(kDia), this.neblina * 0.25); }
     if (this.relampago > 0) { this.relampago -= dt; const k = Math.max(0, this.relampago) * 3; arriba.lerp(gris.set('#e8ecff'), Math.min(1, k)); horiz.lerp(gris, Math.min(1, k)); }
     this.cieloMat.uniforms.arriba.value.copy(arriba);
     this.cieloMat.uniforms.horizonte.value.copy(horiz);
     this.niebla.color.copy(horiz);
-    this.niebla.near = 150 - L * 110 - (this.neblina || 0) * 125;
-    this.niebla.far = 620 - L * 330 - (this.neblina || 0) * 420;
+    const nb = this.neblina || 0;
+    this.niebla.near = Math.max(50, 160 - L * 70 - nb * 60);
+    this.niebla.far = Math.max(this.niebla.near + 170, 650 - L * 200 - nb * 230);
     const ang = (this.hora - 6.5) / 13 * Math.PI;
     const sx = Math.cos(ang), sy = Math.sin(ang);
     const dirSol = new THREE.Vector3(sx * 0.8, Math.max(sy, -0.3), 0.45).normalize();

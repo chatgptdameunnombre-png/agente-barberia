@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611221510';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221510';
-import { Peaton } from './peatones.js?v=202611221510';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611221719';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221719';
+import { Peaton } from './peatones.js?v=202611221719';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -17,6 +17,16 @@ const matones = (m, x, z, n, armas = ['pistola'], estado = 'quieto') => {
     const a = k / n * Math.PI * 2, p = libre(m.j, x + Math.cos(a) * 5, z + Math.sin(a) * 5);
     const g = new Peaton(m.j, { tipo: 'matón', x: p.x, z: p.z, estado, arma: armas[k % armas.length] });
     g.yaw = Math.random() * 6; m.j.peatones.push(g); m.extra.push(g); l.push(g);
+  }
+  return l;
+};
+const matonesDentro = (m, t, n, armas) => {
+  const I = t.interior, l = [], j = m.j;
+  for (let k = 0; k < n; k++) {
+    const x = I.ox + (Math.random() - 0.5) * (I.W - 3.5), z = I.oz - I.L / 2 + 1.6 + Math.random() * (I.L - 5);
+    const g = new Peaton(j, { tipo: 'matón', x, z, estado: 'atacar', arma: armas[k % armas.length] });
+    g.enInterior = t; g.salud = 80; g.yaw = Math.random() * 6; g.grupo.visible = j.interiores?.dentro === t;
+    j.peatones.push(g); m.extra.push(g); l.push(g);
   }
   return l;
 };
@@ -943,6 +953,184 @@ export const CONTACTOS = {
           }
         },
         fin(m) { m.j.hud.dialogos([['Rigo', '¡Vendido! El cliente hasta se tomó una foto con él. Toma tu comisión.']]); }
+      }
+    ]
+  },
+  lupe: {
+    nombre: 'Doña Lupe', letra: 'U', modelo: 'peaton4', color: '#e86fa8', zona: 'Departamentos Jacaranda', requisito: 2,
+    apariencia: { mujer: true, peloLargo: true, pelo: '#d8d4cc', camisa: '#c86a8a', pantalon: '#3a2a4a', edad: 'mayor', aretes: true, collar: true, lentes: true, sombrero: null, complexion: 1.0 },
+    lugar: j => { const t = j.interiores?.tiendas?.find(q => q.tipo === 'depa'); return t ? libre(j, t.puerta.x + t.fx * 2.6 + t.fz * 2.2, t.puerta.z + t.fz * 2.6 - t.fx * 2.2) : { ...libre(j, j.ciudad.lugares.plaza.x + 20, j.ciudad.lugares.plaza.z + 20), provisional: true }; },
+    lista: [
+      {
+        titulo: 'LA CENA DE ANIVERSARIO', premio: 1800,
+        inicio(m) {
+          const j = m.j, P = j.pesca?.punto || j.ciudad.lugares.lago;
+          m.dialogo([['Doña Lupe', '¡Mis inquilinos favoritos! Hoy cumplo cuarenta años de casada y mi viejo quiere pescado del Lago Azul.'], ['Doña Lupe', 'Pesquen dos en el muelle y llévenlos al Mercado en el camión de la Ruta 7. Allá me lo guisan.']]);
+          m.p0 = j.estadisticas.d.peces || 0; m.marcar(1, P.x, P.z, 2, 2, '#e86fa8');
+          m.objetivo('Pesca <b>2 peces</b> en la punta del muelle del <b>Lago Azul</b> (E).');
+        },
+        actualizar(m) {
+          const j = m.j, d = j.estadisticas.d;
+          if (m.paso === 0) {
+            const n = (d.peces || 0) - m.p0;
+            m.objetivo(`Pesca <b>2 peces</b> en el muelle del <b>Lago Azul</b> · llevas <b>${n}</b>.`);
+            if (n >= 2) { m.paso = 1; m.c0 = d.viajesCamion || 0; const jp = j.jugador.posicion, P = [...(j.autobuses?.paradas || [])].sort((a, b) => Math.hypot(a.x - jp.x, a.z - jp.z) - Math.hypot(b.x - jp.x, b.z - jp.z))[0]; if (P) m.marcar(1, P.x, P.z, 2.5, 2, '#e86fa8'); j.hud.notificar('mision', '¡Ya están los dos!', 'Ahora al camión de la Ruta 7.', 3); }
+          }
+          if (m.paso === 1) {
+            m.objetivo('Súbete al camión <b>Ruta 7</b> en una parada (E cuando llegue) y baja en la siguiente.');
+            if ((d.viajesCamion || 0) > m.c0) { m.paso = 2; const M = j.ciudad.lugares.mercado; m.marcar(1, M.x, M.z, 3, 3, '#e86fa8'); }
+          }
+          if (m.paso === 2) { m.objetivo('Lleva el pescado al <b>Mercado</b>.'); if (m.dentro(1, j.jugador.posicion, 1.5)) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['Doña Lupe', '¡Qué bonito! Mi viejo dice que es el mejor pescado en cuarenta años. Este mes no les cobro la renta… bueno, nomás la mitad.']]); }
+      },
+      {
+        titulo: 'OJOS EN EL CIELO', premio: 4000,
+        inicio(m) {
+          const j = m.j;
+          m.dialogo([['Doña Lupe', 'Ese helicóptero de la policía no deja dormir a nadie con su reflector.'], ['Doña Lupe', 'Les presté el rifle de mi difunto. Bájenlo y que no los agarren, ¿eh?']]);
+          j.jugador.darArma('rifle', 90); m.h0 = j.estadisticas.d.helicopteros || 0; j.policia.subir(4);
+          m.objetivo('Derriba el <b>helicóptero</b> de la policía.');
+        },
+        actualizar(m) {
+          const j = m.j;
+          if (m.paso === 0) {
+            if (j.policia.estrellas < 4) j.policia.subir(4);
+            if ((j.estadisticas.d.helicopteros || 0) > m.h0) { m.paso = 1; j.hud.grande('¡LO BAJASTE!', 'Ahora pierde a la policía', 2.5, 'exito'); }
+          }
+          if (m.paso === 1) { m.objetivo('<b>Pierde a la policía.</b>'); if (!j.policia.estrellas) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['Doña Lupe', 'Por fin una noche en paz. Duerman bien, muchachos.']]); }
+      },
+      {
+        titulo: 'LOS DOS AL RESCATE', premio: 5000,
+        inicio(m) {
+          const j = m.j, T = j.ciudad.lugares.tianguis;
+          m.dialogo([['Doña Lupe', 'Unos maleantes se llevaron a mi sobrino al tianguis.'], ['Doña Lupe', 'Vayan los dos: uno abre camino y el otro termina el trabajo. Confío en ustedes.']]);
+          m.quien0 = j.jugador.personaje; m.otro = m.quien0 === 'Lucía' ? 'Matías' : 'Lucía';
+          m.grupoA = matones(m, T.x - 10, T.z, 3, ['puno', 'pistola']); m.grupoB = matones(m, T.x + 14, T.z + 6, 3, ['pistola', 'escopeta']);
+          m.objetivos = [...m.grupoA];
+          m.objetivo(`<b>${m.quien0}</b>: acaba con los <b>3 de la entrada</b> del tianguis.`);
+        },
+        actualizar(m) {
+          const j = m.j;
+          if (m.paso === 0) { despertar(m, m.grupoA, 35); m.objetivos = m.grupoA.filter(g => !g.muerto); if (!m.objetivos.length) { m.paso = 1; j.hud.grande('¡CAMBIO!', 'Presiona Z para jugar con ' + m.otro, 2.5); } }
+          if (m.paso === 1) { m.objetivos = []; m.objetivo(`Presiona <b>Z</b> para que <b>${m.otro}</b> termine el trabajo.`); if (j.jugador.personaje !== m.quien0) { m.paso = 2; for (const g of m.grupoB) if (!g.muerto) g.estado = 'atacar'; } }
+          if (m.paso === 2) { m.objetivos = m.grupoB.filter(g => !g.muerto); m.objetivo(`<b>${j.jugador.personaje}</b>: acaba con los <b>otros ${m.objetivos.length}</b>.`); if (!m.objetivos.length) { m.paso = 3; const g = CONTACTOS.lupe.lugar(j); m.marcar(1, g.x, g.z, 2, 3, '#e86fa8'); } }
+          if (m.paso === 3) { m.objetivo('Regresen con <b>Doña Lupe</b> con el sobrino a salvo.'); if (llegar(m, 1)) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['Doña Lupe', 'Mi sobrino ya está en casa. Ustedes dos juntos son de temer, ¿eh? Gracias.']]); }
+      }
+    ]
+  },
+  jefa: {
+    nombre: 'Marisol "La Jefa"', letra: 'K', modelo: 'peaton10', color: '#ff3b5a', zona: 'Mercado', requisito: 1,
+    apariencia: { mujer: true, peloLargo: true, pelo: '#120c0a', camisa: '#1a1a1e', pantalon: '#1a1a1e', lentes: true, aretes: true, collar: true, reloj: true, sombrero: null, complexion: 1.0 },
+    lugar: j => { const M = j.ciudad.lugares.mercado; return libre(j, M.x - 18, M.z - 10); },
+    lista: [
+      {
+        titulo: 'ATRACO EN LA TIENDA', premio: 2500,
+        inicio(m) {
+          m.malos = null; m.jefe = null; m.charro = null; m.tienda = null; m.oleada = 0;
+          const j = m.j, jp = j.jugador.posicion;
+          m.dialogo([['Marisol "La Jefa"', 'Unos novatos de los Nopaleros se metieron a una tienda de mi zona y la tienen tomada.'], ['Marisol "La Jefa"', 'Entra y sácalos. Van armados, así que tú también. Toma.']]);
+          j.jugador.darArma('escopeta', 24); j.jugador.darArma('pistola', 60);
+          m.tienda = [...j.interiores.tiendas.filter(t => t.tipo === 'tienda')].sort((a, b) => Math.hypot(a.puerta.x - jp.x, a.puerta.z - jp.z) - Math.hypot(b.puerta.x - jp.x, b.puerta.z - jp.z))[0];
+          m.marcar(1, m.tienda.puerta.x, m.tienda.puerta.z, 2, 3, '#ff3b5a');
+          m.objetivo(`Entra a <b>${m.tienda.nombre}</b> y acaba con los Nopaleros.`);
+        },
+        actualizar(m) {
+          const j = m.j, I = j.interiores;
+          if (m.paso === 0) {
+            if (I.dentro === m.tienda && !m.malos) { m.malos = matonesDentro(m, m.tienda, 5, ['pistola', 'escopeta', 'subfusil']); j.hud.grande('¡ESTÁN ADENTRO!', 'Cúbrete detrás de los anaqueles', 2); }
+            if (m.malos) { m.objetivos = m.malos.filter(g => !g.muerto); m.objetivo(`Acaba con los Nopaleros: quedan <b>${m.objetivos.length}</b>.`); if (!m.objetivos.length) { m.paso = 1; j.policia.subir(3); j.hud.grande('¡LIMPIO!', 'Ya viene la policía', 2.2); } }
+          }
+          if (m.paso === 1) { m.objetivo('Sal de la tienda y <b>pierde a la policía</b>.'); if (!I.dentro && !j.policia.estrellas) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['Marisol "La Jefa"', 'Así se hace. En mi zona nadie entra sin preguntar.']]); }
+      },
+      {
+        titulo: 'AJUSTE EN LA CANTINA', premio: 4000,
+        inicio(m) {
+          m.malos = null; m.jefe = null; m.charro = null; m.tienda = null; m.oleada = 0;
+          const j = m.j;
+          m.dialogo([['Marisol "La Jefa"', 'El Tuerto Salinas se tomó la Cantina La Jacaranda con su gente. Dicen que no le entra ni una bala.'], ['Marisol "La Jefa"', 'Pues que le entren varias. Ahí te va un rifle.']]);
+          j.jugador.darArma('rifle', 90); j.jugador.darArma('granada', 2);
+          m.tienda = j.interiores.tiendas.find(t => t.tipo === 'cantina');
+          m.marcar(1, m.tienda.puerta.x, m.tienda.puerta.z, 2, 3, '#ff3b5a');
+          m.objetivo('Entra a la <b>Cantina La Jacaranda</b> y acaba con <b>El Tuerto</b>.');
+        },
+        actualizar(m) {
+          const j = m.j, I = j.interiores;
+          if (m.paso === 0) {
+            if (I.dentro === m.tienda && !m.malos) {
+              m.malos = matonesDentro(m, m.tienda, 5, ['pistola', 'subfusil', 'escopeta']);
+              m.jefe = matonesDentro(m, m.tienda, 1, ['escopeta'])[0]; m.jefe.salud = 320; m.jefe.jefe = true;
+              j.hud.grande('EL TUERTO SALINAS', '¡Que no salga vivo!', 2.4);
+            }
+            if (m.malos) { m.objetivos = [...m.malos, m.jefe].filter(g => !g.muerto); m.objetivo(m.jefe.muerto ? `Acaba con los que quedan: <b>${m.objetivos.length}</b>.` : `Acaba con <b>El Tuerto</b> (salud ${Math.max(0, Math.round(m.jefe.salud))}) y su gente.`); if (!m.objetivos.length) { m.paso = 1; j.policia.subir(4); } }
+          }
+          if (m.paso === 1) { m.objetivo('Sal de la cantina y <b>pierde a la policía</b> (4 estrellas).'); if (!I.dentro && !j.policia.estrellas) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['Marisol "La Jefa"', 'Se acabó El Tuerto. Ahora la cantina invita… a nosotros.']]); }
+      },
+      {
+        titulo: 'EMBOSCADA EN EL TIANGUIS', premio: 4500,
+        inicio(m) {
+          m.malos = null; m.jefe = null; m.charro = null; m.tienda = null; m.oleada = 0;
+          const j = m.j, T = j.ciudad.lugares.tianguis;
+          m.dialogo([['Marisol "La Jefa"', 'Voy a cobrar la plaza del tianguis y los Nopaleros me quieren emboscar.'], ['Marisol "La Jefa"', 'Llega antes que ellos y aguanta. Van a venir en oleadas.']]);
+          j.jugador.darArma('subfusil', 150); j.jugador.darArma('escopeta', 24);
+          m.marcar(1, T.x, T.z, 6, 2, '#ff3b5a'); m.oleada = 0; m.espera = 0;
+          m.objetivo('Ve al <b>tianguis</b> y prepárate.');
+        },
+        actualizar(m, dt) {
+          const j = m.j, T = j.ciudad.lugares.tianguis, jp = j.jugador.posicion, J = j.jugador;
+          if (m.paso === 0) { if (Math.hypot(jp.x - T.x, jp.z - T.z) < 20) { m.paso = 1; m.ocultar?.(1); m.espera = 2; } return; }
+          if (m.paso === 1) {
+            const vivos = (m.malos || []).filter(g => !g.muerto);
+            m.objetivos = vivos;
+            if (!vivos.length) {
+              if (m.oleada >= 3) { m.paso = 2; j.policia.subir(3); j.hud.grande('¡AGUANTASTE!', 'Ahora pierde a la policía', 2.4, 'exito'); return; }
+              m.espera -= dt;
+              m.objetivo(`Oleada <b>${m.oleada + 1} de 3</b> en camino…`);
+              if (m.espera <= 0) {
+                m.oleada++; J.salud = Math.min(J.saludMax, J.salud + 35); m.malos = [];
+                for (let k = 0; k < 2 + m.oleada; k++) { const a = Math.random() * 6.28; m.malos.push(...matones(m, jp.x + Math.cos(a) * 30, jp.z + Math.sin(a) * 30, 2, ['subfusil', 'escopeta', 'pistola'], 'atacar')); }
+                for (const g of m.malos) g.salud = 70 + m.oleada * 15;
+                m.espera = 5; j.hud.grande('OLEADA ' + m.oleada, 'Vienen ' + m.malos.length + ' Nopaleros', 1.8);
+              }
+            } else m.objetivo(`Oleada <b>${m.oleada} de 3</b> · quedan <b>${vivos.length}</b>.`);
+          }
+          if (m.paso === 2) { m.objetivo('<b>Pierde a la policía.</b>'); if (!j.policia.estrellas) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['Marisol "La Jefa"', 'El tianguis es mío. Te ganaste tu parte, y un lugar en mi mesa.']]); }
+      },
+      {
+        titulo: 'GUERRA EN EL ESTADIO', premio: 9000,
+        inicio(m) {
+          m.malos = null; m.jefe = null; m.charro = null; m.tienda = null; m.oleada = 0;
+          const j = m.j, E = j.ciudad.lugares.estadio;
+          m.dialogo([['Marisol "La Jefa"', 'Se acabó el juego. El jefe de los Nopaleros, El Charro Durán, está en el estacionamiento del estadio.'], ['Marisol "La Jefa"', 'Trae a toda su gente y dos camionetas blindadas. Llévate todo lo que tengas.']]);
+          j.jugador.darArma('rifle', 120); j.jugador.darArma('granada', 4); j.jugador.darArma('lanzacohetes', 3);
+          const p = libre(j, E.x + 40, E.z + 20); m.base = p;
+          m.malos = matones(m, p.x, p.z, 8, ['subfusil', 'escopeta', 'rifle', 'pistola']);
+          m.charro = matones(m, p.x + 3, p.z + 3, 1, ['escopeta'])[0]; m.charro.salud = 420; m.charro.jefe = true;
+          for (const k of [-1, 1]) { const c = coche(m, 'camioneta', '#1a1a1e', { x: p.x + k * 8, z: p.z - 6, yaw: Math.PI / 2 }); c.salud = c.t.salud * 2.5; }
+          m.marcar(1, p.x, p.z, 8, 3, '#ff3b5a');
+          m.objetivo('Ve al <b>estacionamiento del estadio</b> y acaba con <b>El Charro Durán</b>.');
+        },
+        actualizar(m) {
+          const j = m.j;
+          despertar(m, [...m.malos, m.charro], 55);
+          if (m.paso === 0) {
+            m.objetivos = [m.charro, ...m.malos].filter(g => !g.muerto);
+            m.objetivo(m.charro.muerto ? `El Charro cayó. Quedan <b>${m.objetivos.length}</b> de su gente.` : `Acaba con <b>El Charro Durán</b> (salud ${Math.max(0, Math.round(m.charro.salud))}) · gente: <b>${m.malos.filter(g => !g.muerto).length}</b>.`);
+            if (m.charro.muerto && m.malos.filter(g => !g.muerto).length <= 2) { m.paso = 1; j.policia.subir(5); j.hud.grande('¡CAYÓ EL CHARRO!', 'Toda la policía viene por ti', 2.6); }
+          }
+          if (m.paso === 1) { m.objetivo('<b>Pierde a la policía</b> (5 estrellas y helicóptero).'); if (!j.policia.estrellas) return 'ok'; }
+        },
+        fin(m) { m.j.noticias?.avisar('persecucion'); m.j.hud.dialogos([['Marisol "La Jefa"', 'Santa Jacaranda ya tiene dueña. Y tú eres mi mano derecha.']]); }
       }
     ]
   }

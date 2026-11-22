@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611221510';
-import { Peaton } from './peatones.js?v=202611221510';
-import { Helicoptero } from './helicoptero.js?v=202611221510';
-import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611221510';
+import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611221719';
+import { Peaton } from './peatones.js?v=202611221719';
+import { Helicoptero } from './helicoptero.js?v=202611221719';
+import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611221719';
 
-const MAX_COCHES = [0, 1, 2, 3, 4, 5];
+const MAX_COCHES = [0, 2, 3, 4, 6, 7];
 
 export class Policia {
   constructor(juego) {
@@ -72,12 +72,12 @@ export class Policia {
     this.agentes = this.agentes.filter(a => j.peatones.includes(a));
     if (this.estrellas === 0) { this.actualizarHeli(dt, false); return; }
     let visto = !!j.jugador.interior;
-    for (const u of this.unidades) if (!u.quemado && u.pos.distanceTo(jp) < 75) visto = true;
-    for (const a of this.agentes) if (!a.muerto && a.pos.distanceTo(jp) < 50) visto = true;
+    for (const u of this.unidades) if (!u.quemado && u.pos.distanceTo(jp) < 95) visto = true;
+    for (const a of this.agentes) if (!a.muerto && a.pos.distanceTo(jp) < 60) visto = true;
     if (this.helicoptero?.ve) visto = true;
     this.visto = visto;
     if (visto) this.sinVer = 0; else this.sinVer += dt;
-    const limite = 7 + this.estrellas * 3.5;
+    const limite = 10 + this.estrellas * 5;
     if (this.sinVer > limite) {
       this.limpiar();
       j.hud.aviso('Perdiste a la policía.');
@@ -86,7 +86,7 @@ export class Policia {
     this.reaparicion -= dt;
     const vivos = this.unidades.filter(u => !u.quemado).length;
     if (vivos < MAX_COCHES[this.estrellas] && this.reaparicion <= 0) {
-      const p = puntoCalleAleatorio(jp, 85, 150);
+      const p = puntoCalleAleatorio(jp, 70, 130);
       if (p) {
         const moto = this.estrellas >= 2 && Math.random() < 0.3;
         const c = new Coche(j, moto ? 'moto' : 'policia', '#f2f4f7', p.x, p.z, p.yaw);
@@ -98,7 +98,7 @@ export class Policia {
         j.coches.push(c);
         this.unidades.push(c);
       }
-      this.reaparicion = 2.5;
+      this.reaparicion = 1.8;
     }
     for (const c of j.coches) {
       if (c.tipo !== 'policia' || c.conductor !== 'ia' || c.quemado || this.unidades.includes(c)) continue;

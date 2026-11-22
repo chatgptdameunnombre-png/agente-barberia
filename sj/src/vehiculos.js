@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611221510';
-import { mat } from './persona.js?v=202611221510';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611221719';
+import { mat } from './persona.js?v=202611221719';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611221510';
+import { hoja } from './texturas.js?v=202611221719';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, vocho: 1, vochotaxi: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
@@ -153,7 +153,7 @@ function geometrias(tipo) {
   const yb = piso, yt = piso + H;
   const B = BL[tipo] || (esVocho(tipo) ? BL.vocho : null);
   if (B?.pinta && B.vidrio) {
-    const geo = { pinta: B.pinta, vidrio: B.vidrio, trim: B.trim, cromo: B.cromo, faros: B.faros, calaveras: B.calaveras, blender: true, datos: BLD[tipo] || {} };
+    const geo = { pinta: B.pinta, vidrio: B.vidrio, trim: B.trim, cromo: B.cromo, faros: B.faros, calaveras: B.calaveras, defF: B.defF, defA: B.defA, blender: true, datos: BLD[tipo] || {} };
     if (tipo === 'ambulancia') { const c = new THREE.BoxGeometry(A * 0.98, 1.25, L * 0.56); c.translate(0, yt + 0.58, -L * 0.2); geo.pinta = mergeGeometries([ni(B.pinta), soloPN(ni(c))]); }
     if (tipo === 'policia') { const b = new THREE.BoxGeometry(A * 1.01, H * 0.5, L * 0.46); b.translate(0, yb + H * 0.45, 0.05); geo.franja = b; }
     if (tipo === 'taxi') { const b = new THREE.BoxGeometry(A * 1.01, 0.14, L * 0.9); b.translate(0, yb + H * 0.5, 0); geo.franja = b; }
@@ -602,6 +602,7 @@ export function modelo(tipo, color) {
   const cab = malla(G.vidrio, matVidrio2);
   malla(G.trim, matTrim);
   if (G.cromo) malla(G.cromo, matCromo);
+  const defensas = [G.defF ? malla(G.defF, pinta) : null, G.defA ? malla(G.defA, pinta) : null];
   const calav = new THREE.MeshBasicMaterial({ color: '#a01020' });
   const H = t.alto, piso = 0.3;
   let cal;
@@ -654,6 +655,7 @@ export function modelo(tipo, color) {
   const forro = new THREE.Mesh(new THREE.PlaneGeometry(largoP * 0.96, altoP * 0.9).rotateY(-Math.PI / 2).translate(-0.002, yb + 0.1 + altoP / 2, -largoP / 2), matForro); puerta.add(forro);
   const vent = new THREE.Mesh(new THREE.BoxGeometry(0.02, t.cabina * 0.78, largoP * 0.86).translate(-0.03, yt + t.cabina * 0.4, -largoP * 0.5), matVidrio2); puerta.add(vent); vent.visible = false;
   const manija = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.16).translate(0.04, yt - 0.1, -largoP + 0.2), matRin2); puerta.add(manija); finos.push(forro, manija);
+  const puertaP = puerta.clone(); puertaP.position.x = -(t.ancho / 2 + 0.004); puertaP.scale.x = -1; carro.add(puertaP); const ventP = puertaP.children[2]; ventP.visible = false;
   const linea = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.022, Math.max(0.5, zf + 0.3 - G.cr)).translate(0, yt + 0.012, (zf - 0.1 + G.cr) / 2), matCromo);
   for (const sx of [-1, 1]) { const l = linea.clone(); l.position.x = sx * (t.ancho * 0.43); carro.add(l); finos.push(l); }
   if (false) { const pil = new THREE.Mesh(new THREE.BoxGeometry(t.ancho * 0.85, t.cabina * 0.92, 0.09), matTrim); pil.position.set(0, yt + t.cabina * 0.48, zf - largoP - 0.02); carro.add(pil); finos.push(pil); }
@@ -699,7 +701,7 @@ export function modelo(tipo, color) {
     ruedas.push(ll);
     if (sz > 0) delanteras.push(piv);
   }
-  return { haz, grupo: g, carro, pinta, pintaCuerpo, ruedas, delanteras, barra, partes: [cuerpo, cab, panel], calav, calavMalla: cal, puerta, ventPuerta: vent, silueta, finos };
+  return { haz, grupo: g, carro, pinta, pintaCuerpo, ruedas, delanteras, barra, partes: [cuerpo, cab, panel], calav, calavMalla: cal, puerta, ventPuerta: vent, puertaP, ventPuertaP: ventP, silueta, finos, defensas };
 }
 
 const _p = new THREE.Vector3();
@@ -772,6 +774,7 @@ export class Coche {
   manejar(dt, acel, giro, freno, nitro = false) {
     const t = this.t;
     if (this.quemado || this.ahogado) { acel = 0; giro = 0; freno = true; }
+    if (this.ponchadas?.size) { acel *= 0.72; let s = 0; for (const i of this.ponchadas) s += (this.ruedas[i]?.parent?.position.x > 0 ? 1 : -1) * (this.ruedas[i]?.parent?.position.z > 0 ? 1.5 : 1); giro = Math.max(-1, Math.min(1, giro + s * 0.1 * Math.min(1, Math.abs(this.adelante || 0) / 8))); }
     this.frenando = (acel < 0 && this.adelante > 0.5) || freno;
     if (this.enAire) { this.giroSuave += (giro - this.giroSuave) * Math.min(1, dt * 3); this.yaw -= this.giroSuave * 0.6 * dt; this.adelante = this.vx * this.fx + this.vz * this.fz; return; }
     const turbo = nitro && acel > 0 ? 1 : 0;
@@ -855,6 +858,13 @@ export class Coche {
     }
     const vel = this.vel;
     for (const r of this.ruedas) r.rotation.x += this.adelante * dt / 0.36;
+    const J = this.juego, cam = J.camara?.position;
+    if (!this.quemado && this.salud < this.t.salud * 0.45 && J.humo && cam && Math.abs(cam.x - this.pos.x) + Math.abs(cam.z - this.pos.z) < 90) {
+      const k = 1 - this.salud / (this.t.salud * 0.45), fz = this.tipo === 'moto' ? 0.2 : this.t.largo / 2 - 0.7;
+      if (Math.random() < dt * (4 + k * 14)) J.humo(this.pos.x + this.fx * fz + (Math.random() - 0.5) * 0.4, (this.t.alto || 0.6) + 0.45, this.pos.z + this.fz * fz + (Math.random() - 0.5) * 0.4, 0.6 + k * 0.9, k > 0.6 ? '#2a2a2c' : '#8a8a8e', 1.4 + k);
+    }
+    if (this.ponchadas && vel > 6 && Math.random() < dt * 6 && J.chispa) { const i = [...this.ponchadas][0], w = this.ruedas[i]?.getWorldPosition(new THREE.Vector3()); if (w) { w.y = 0.05; J.chispa(w, '#ffd27a'); } }
+    if (this.puertaP) { const o = this.puertaPObj || 0; this.puertaPA = (this.puertaPA || 0) + (o - (this.puertaPA || 0)) * Math.min(1, dt * 10); this.puertaP.rotation.y = this.puertaPA * 1.1; this.ventPuertaP.visible = this.puertaPA > 0.03; if (this.puertaPCierra && (this.puertaPCierra -= dt) <= 0) { this.puertaPCierra = 0; this.puertaPObj = 0; } }
     if (this.puerta) { const o = this.puertaObj || 0; this.puertaA = (this.puertaA || 0) + (o - (this.puertaA || 0)) * Math.min(1, dt * 10); this.puerta.rotation.y = -this.puertaA * 1.1; this.ventPuerta.visible = this.puertaA > 0.03; if (this.puertaCierra && (this.puertaCierra -= dt) <= 0) { this.puertaCierra = 0; this.puertaObj = 0; } }
     for (const d of this.delanteras) d.rotation.y = -this.giroSuave * 0.5;
     const inclinar = this.tipo === 'moto' ? 0.55 : 0.075 + (this.t.masa || 1) * 0.015;
@@ -915,7 +925,27 @@ export class Coche {
     }
     P.needsUpdate = true; cuerpo.geometry.computeVertexNormals();
     this.abollado = (this.abollado || 0) + fuerza;
+    const J = this.juego;
+    if (J.soltarPieza && (fuerza > 8 || this.abollado > 30)) {
+      if (Math.abs(lz) > 0.65 && this.defensas) { const d = this.defensas[lz > 0 ? 0 : 1]; if (d && d.parent === this.carro && (fuerza > 11 || Math.random() < 0.45)) J.soltarPieza(d, this, -lx, -lz); }
+      if (lx > 0.65 && this.puerta && this.puerta.parent === this.carro && (fuerza > 12 || (this.abollado > 45 && Math.random() < 0.5))) { this.puertaSuelta = this.puerta; this.puertaOrig = { p: this.puerta.position.clone(), r: this.puerta.rotation.clone() }; J.soltarPieza(this.puerta, this, 1, 0); this.puerta = null; this.ventPuerta && (this.ventPuerta.visible = false); }
+    }
     if ((fuerza > 10 || this.abollado > 40) && !this.vidrioRoto && this.partes[1]) { this.vidrioRoto = true; this.partes[1].material = matVidrioRoto; this.juego.audio?.ruidoCorto?.(0.3, 3500, 0.15, 'highpass'); for (let n = 0; n < 6; n++) this.juego.chispa?.(new THREE.Vector3(this.pos.x + (Math.random() - 0.5) * 1.5, 1.3, this.pos.z + (Math.random() - 0.5) * 1.5), '#cfe0ea'); }
+  }
+
+  ponchar(i) {
+    const r = this.ruedas[i]; if (!r || this.bici || this.quemado) return false;
+    this.ponchadas = this.ponchadas || new Set(); if (this.ponchadas.has(i)) return false;
+    this.ponchadas.add(i); r.scale.y = r.scale.z = (r.scale.y || 1) * 0.74; r.parent.position.y -= 0.09; this.carro.rotation.z += (r.parent.position.x > 0 ? -1 : 1) * 0.03;
+    this.juego.audio?.ruidoCorto?.(0.5, 900, 0.2, 'lowpass', 0.9);
+    return true;
+  }
+
+  reparar() {
+    const J = this.juego;
+    for (const d of this.defensas || []) if (d && d.parent !== this.carro) { J.recogerPieza?.(d); d.position.set(0, 0, 0); d.quaternion.identity(); d.scale.set(1, 1, 1); this.carro.add(d); }
+    if (this.puertaSuelta) { const d = this.puertaSuelta; J.recogerPieza?.(d); d.position.copy(this.puertaOrig.p); d.rotation.copy(this.puertaOrig.r); d.scale.set(1, 1, 1); this.carro.add(d); this.puerta = d; this.puertaSuelta = null; }
+    if (this.ponchadas) { for (const i of this.ponchadas) { const r = this.ruedas[i]; r.scale.y = r.scale.z = r.scale.x < 0 ? 1 : r.scale.x; r.parent.position.y += 0.09; } this.ponchadas = null; }
   }
 
   dañar(n, causa, autor) {

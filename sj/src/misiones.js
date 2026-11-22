@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611221510';
-import { Coche } from './vehiculos.js?v=202611221510';
-import { Peaton } from './peatones.js?v=202611221510';
-import { CONTACTOS } from './contactos.js?v=202611221510';
-import { crearPersona, animar, nivelDetalle, sombraPersona } from './persona.js?v=202611221510';
-import { crearHumano } from './humanos.js?v=202611221510';
+import { linea, CARRIL } from './ciudad.js?v=202611221719';
+import { Coche } from './vehiculos.js?v=202611221719';
+import { Peaton } from './peatones.js?v=202611221719';
+import { CONTACTOS } from './contactos.js?v=202611221719';
+import { crearPersona, animar, nivelDetalle, sombraPersona } from './persona.js?v=202611221719';
+import { crearHumano } from './humanos.js?v=202611221719';
 
 export function crearMarcador(escena, color) {
   const g = new THREE.Group();
@@ -98,7 +98,7 @@ export class Misiones {
       for (const id in CONTACTOS) {
         const C = CONTACTOS[id], ok = this.disponible(id) && this.esperaReintento <= 0;
         let mk = this.marcasC[id];
-        if (!mk && ok) { mk = this.marcasC[id] = crearMarcador(j.escena, C.color); const p = this.lugarC(id); mk.g.position.set(p.x, 0, p.z); mk.cil.scale.set(1.6, 3, 1.6); mk.aro.scale.set(1.6, 1, 1.6); mk.x = p.x; mk.z = p.z; this.figura(mk, C, p); }
+        if (!mk && ok && !this.lugarC(id).provisional) { mk = this.marcasC[id] = crearMarcador(j.escena, C.color); const p = this.lugarC(id); mk.g.position.set(p.x, 0, p.z); mk.cil.scale.set(1.6, 3, 1.6); mk.aro.scale.set(1.6, 1, 1.6); mk.x = p.x; mk.z = p.z; this.figura(mk, C, p); }
         if (mk?.fig) this.animarFigura(mk, dt);
         if (!mk) continue;
         mk.g.visible = ok;
@@ -126,7 +126,7 @@ export class Misiones {
     if (C.modelo && !this.j.sinRealista) {
       const g = new THREE.Group(); g.position.set(p.x + 1.5, 0, p.z - 0.9); g.rotation.y = Math.atan2(-1.5, 0.9); this.j.escena.add(g);
       mk.fig = { grupo: g, yawBase: g.rotation.y, real: true };
-      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); if (C.mascara) import('./humanos.js?v=202611221510').then(H => H.ponerMascara(h, ...C.mascara)); }).catch(() => {});
+      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); if (C.mascara) import('./humanos.js?v=202611221719').then(H => H.ponerMascara(h, ...C.mascara)); }).catch(() => {});
       return;
     }
     if (!C.apariencia) return;
@@ -158,7 +158,7 @@ export class Misiones {
   }
 
   disponible(id) { const C = CONTACTOS[id]; return this.indice >= C.requisito && this.otros[id] < C.lista.length; }
-  lugarC(id) { return this.cacheLugar?.[id] || ((this.cacheLugar || (this.cacheLugar = {}))[id] = CONTACTOS[id].lugar(this.j)); }
+  lugarC(id) { const c = this.cacheLugar || (this.cacheLugar = {}); if (c[id]) return c[id]; const v = CONTACTOS[id].lugar(this.j); if (!v.provisional) c[id] = v; return v; }
 
   empezar(id = 'chuy') {
     const j = this.j;

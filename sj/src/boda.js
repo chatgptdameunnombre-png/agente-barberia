@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Peaton } from './peatones.js?v=202611221510';
-import { Coche, nuevaRutaIA } from './vehiculos.js?v=202611221510';
+import { Peaton } from './peatones.js?v=202611221719';
+import { Coche, nuevaRutaIA } from './vehiculos.js?v=202611221719';
 
 const VIVAS = ['¡Vivan los novios!', '¡Que se besen!', '¡Felicidades!', '¡Beso, beso, beso!'];
 const al = l => l[Math.random() * l.length | 0];
