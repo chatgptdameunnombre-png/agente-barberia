@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220137';
+import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220139';
 
 const NEGRO = new THREE.MeshStandardMaterial({ color: '#141418', roughness: 0.55 });
 const PLATA = new THREE.MeshStandardMaterial({ color: '#d8dce2', roughness: 0.25, metalness: 0.9 });
@@ -68,6 +68,18 @@ export class Ambulantes {
     const palo = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 2.1), NEGRO); palo.position.set(0, 1.25, 0);
     const olla = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.2, 0.28, 14), PLATA); olla.position.set(-0.4, 1.3, 0);
     g.add(caja, franja, sombrilla, palo, olla);
+    let trompo = null;
+    if (tipo === 'tacos') {
+      trompo = new THREE.Group(); trompo.position.set(0.42, 1.15, 0.05);
+      const carne = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.08, 0.5, 12, 4), new THREE.MeshStandardMaterial({ color: '#b5502a', roughness: 0.8, emissive: '#5a1a08', emissiveIntensity: 0.25 }));
+      { const p = carne.geometry.attributes.position; for (let i = 0; i < p.count; i++) { const f = 1 + Math.sin(p.getY(i) * 30 + Math.atan2(p.getZ(i), p.getX(i)) * 3) * 0.06; p.setX(i, p.getX(i) * f); p.setZ(i, p.getZ(i) * f); } carne.geometry.computeVertexNormals(); }
+      carne.position.y = 0.3; trompo.add(carne);
+      const pina = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), new THREE.MeshStandardMaterial({ color: '#e8b83a', roughness: 0.6 })); pina.scale.y = 1.3; pina.position.y = 0.62; trompo.add(pina);
+      const hoja = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.12, 6), new THREE.MeshStandardMaterial({ color: '#3a8f3a' })); hoja.position.y = 0.74; trompo.add(hoja);
+      const vara = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.9, 6), PLATA); vara.position.y = 0.35; trompo.add(vara);
+      const brasa = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.45), new THREE.MeshBasicMaterial({ color: '#ff7a2a', transparent: true, opacity: 0.55, toneMapped: false })); brasa.position.set(0, 0.3, -0.2); trompo.add(brasa);
+      g.add(trompo);
+    }
     for (const sx of [-0.55, 0.55]) { const r = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.08, 14).rotateZ(Math.PI / 2), NEGRO); r.position.set(sx, 0.22, 0.42); g.add(r); }
     const c = document.createElement('canvas'); c.width = 256; c.height = 64; const cx = c.getContext('2d');
     cx.fillStyle = color; cx.fillRect(0, 0, 256, 64); cx.fillStyle = '#fff'; cx.font = '900 40px Anton, Impact, sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(tipo === 'elotes' ? 'ELOTES' : 'TACOS', 128, 34);
@@ -79,7 +91,7 @@ export class Ambulantes {
     const v = crearPersona({ camisa: '#f2f2f0', ropa: null, fijo: true, sinAccesorios: true, gorra: tipo === 'tacos' ? '#c8402a' : undefined, falda: false });
     v.grupo.position.set(x, 0, z - 0.85); j.escena.add(v.grupo);
     for (const sx of [-0.7, 0.7]) j.ciudad.bancas?.push({ x: x + sx, z: z + 1.35, yaw: Math.PI, ocupante: null, pie: true, comida: tipo });
-    this.puestos.push({ x, z: z + 0.85, tipo, v, nombre: tipo === 'elotes' ? 'Elotes Doña Mari' : 'Tacos El Güero', fase: Math.random() * 6 });
+    this.puestos.push({ x, z: z + 0.85, tipo, v, trompo, nombre: tipo === 'elotes' ? 'Elotes Doña Mari' : 'Tacos El Güero', fase: Math.random() * 6 });
   }
 
   cerca() {
@@ -115,7 +127,7 @@ export class Ambulantes {
       else if (m.tipo === 'violin') { P.bi.rotation.set(-1.3, -0.4, 0.2); P.ci.rotation.x = -1.6; P.bd.rotation.set(-1.1 + b * 0.25, 0.4, -0.3); P.cd.rotation.x = -0.9; P.cabeza.rotation.z = 0.25; }
       else { P.bi.rotation.set(-0.9, -0.5, 0.1); P.ci.rotation.x = -1.2; P.bd.rotation.set(-0.55 + b * 0.12, 0.2, -0.15); P.cd.rotation.x = -1.3; }
     }
-    for (const q of this.puestos) { const d = Math.hypot(q.x - jp.x, q.z - jp.z); if (d > 70) continue; animar(q.v, dt, 0, 'puno', false); nivelDetalle(q.v, d < 45); if (Math.sin(t * 0.7 + q.fase) > 0.6) { q.v.bd.rotation.set(-1.2, 0, -0.2); q.v.cd.rotation.x = -1.2 + Math.sin(t * 8) * 0.3; } }
+    for (const q of this.puestos) { const d = Math.hypot(q.x - jp.x, q.z - jp.z); if (d > 70) continue; if (q.trompo) q.trompo.children[0].rotation.y += dt * 1.2; animar(q.v, dt, 0, 'puno', false); nivelDetalle(q.v, d < 45); if (Math.sin(t * 0.7 + q.fase) > 0.6) { q.v.bd.rotation.set(-1.2, 0, -0.2); q.v.cd.rotation.x = -1.2 + Math.sin(t * 8) * 0.3; } }
     this.musica(dMin);
     if (this.cerca()) j.hud.pista('E', (this.cerca().tipo === 'elotes' ? 'Comprar elote · $35' : 'Comprar tacos · $45'));
   }
