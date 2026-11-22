@@ -1,7 +1,7 @@
-import { linea, BLOQUES } from './ciudad.js?v=202611220009';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220009';
-import { Peaton } from './peatones.js?v=202611220009';
-import { crearMarcador } from './misiones.js?v=202611220009';
+import { linea, BLOQUES } from './ciudad.js?v=202611220013';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220013';
+import { Peaton } from './peatones.js?v=202611220013';
+import { crearMarcador } from './misiones.js?v=202611220013';
 
 const ix = i => linea(i);
 export const SALIDAS = [
