@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611220113';
-import { Peaton } from './peatones.js?v=202611220113';
+import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611220115';
+import { Peaton } from './peatones.js?v=202611220115';
+import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220115';
 
 const MAX_COCHES = [0, 1, 2, 3, 4, 5];
 
@@ -16,6 +17,7 @@ export class Policia {
     this.conHeli = false;
     this.reaparicion = 0;
     this.calor = 0;
+    this.retenes = []; this.tReten = 20;
   }
 
   subir(n) {
@@ -53,7 +55,8 @@ export class Policia {
 
   limpiar() {
     this.estrellas = 0; this.calor = 0; this.sinVer = 0;
-    for (const u of this.unidades) { u.sirena = false; u.conductor = 'ia'; u.ia = nuevaRutaIA(u.pos.x, u.pos.z, u.yaw); u.persecucion = false; }
+    for (const u of this.unidades.concat(this.retenes)) { u.sirena = false; u.conductor = 'ia'; u.ia = nuevaRutaIA(u.pos.x, u.pos.z, u.yaw); u.persecucion = false; u.reten = false; }
+    this.retenes = [];
     this.unidades = [];
     for (const a of this.agentes) { a.estado = 'pasear'; a.retirar = true; a.asignarRutaCercana(); }
     this.agentes = [];
@@ -120,7 +123,32 @@ export class Policia {
       a.estado = 'perseguir';
       if (this.estrellas >= 2 && a.arma === 'pistola' && Math.random() < 0.001) a.arma = this.estrellas >= 4 ? 'subfusil' : 'pistola';
     }
+    this.tReten -= dt;
+    const cj = j.jugador.coche;
+    if (this.estrellas >= 3 && this.tReten <= 0 && cj && cj.vel > 10 && !j.misiones?.activa?.sinReten) { this.tReten = 38 + Math.random() * 20; this.ponerReten(cj); }
+    this.retenes = this.retenes.filter(c => { if (!j.coches.includes(c)) return false; if (c.pos.distanceTo(jp) > 260) { c.quitar(); j.coches.splice(j.coches.indexOf(c), 1); return false; } return true; });
     this.actualizarHeli(dt, this.estrellas >= 4);
+  }
+
+  ponerReten(cj) {
+    const j = this.juego, fx = Math.sin(cj.yaw), fz = Math.cos(cj.yaw), d = 95 + Math.random() * 25;
+    const eje = Math.abs(fx) > Math.abs(fz) ? 'x' : 'z';
+    let x = cj.pos.x + fx * d, z = cj.pos.z + fz * d;
+    if (eje === 'x') { z = linea(indiceLinea(cj.pos.z)); const cx = linea(indiceLinea(x)); if (Math.abs(x - cx) < 14) x = cx + Math.sign(x - cx || 1) * 16; }
+    else { x = linea(indiceLinea(cj.pos.x)); const cz = linea(indiceLinea(z)); if (Math.abs(z - cz) < 14) z = cz + Math.sign(z - cz || 1) * 16; }
+    if (Math.abs(x) > LIMITE - 12 || Math.abs(z) > LIMITE - 12) return;
+    const yaw = eje === 'x' ? 0.18 : Math.PI / 2 + 0.18;
+    for (const lat of [-3.4, 3.4]) {
+      const px = eje === 'x' ? x + (lat > 0 ? 0.8 : -0.8) : x + lat, pz = eje === 'x' ? z + lat : z + (lat > 0 ? 0.8 : -0.8);
+      const c = new Coche(j, 'policia', '#f2f4f7', px, pz, yaw + (lat > 0 ? Math.PI : 0));
+      c.conductor = null; c.sirena = true; c.reten = true; j.coches.push(c); this.retenes.push(c);
+    }
+    for (let k = 0; k < 3; k++) {
+      const ax = eje === 'x' ? x - Math.sign(fx) * 3.5 : x + (k - 1) * 3, az = eje === 'x' ? z + (k - 1) * 3 : z - Math.sign(fz) * 3.5;
+      const a = new Peaton(j, { tipo: 'poli', x: ax, z: az, estado: 'perseguir', arma: k === 1 && this.estrellas >= 4 ? 'escopeta' : 'pistola' });
+      j.peatones.push(a); this.agentes.push(a);
+    }
+    j.hud.notificar('alerta', '¡Retén adelante!', 'La policía cerró la calle. Busca otra salida.', 3.5);
   }
 
   actualizarHeli(dt, quiere) {

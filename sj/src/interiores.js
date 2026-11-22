@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611220113';
-import { hoja } from './texturas.js?v=202611220113';
-import { Peaton } from './peatones.js?v=202611220113';
-import { letrero } from './ciudad.js?v=202611220113';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220113';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220113';
-import { ARTICULOS } from './actividades.js?v=202611220113';
+import { animar } from './persona.js?v=202611220115';
+import { hoja } from './texturas.js?v=202611220115';
+import { Peaton } from './peatones.js?v=202611220115';
+import { letrero } from './ciudad.js?v=202611220115';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220115';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220115';
+import { ARTICULOS } from './actividades.js?v=202611220115';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
