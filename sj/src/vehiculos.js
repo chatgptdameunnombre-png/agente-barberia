@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220202';
-import { mat } from './persona.js?v=202611220202';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220204';
+import { mat } from './persona.js?v=202611220204';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220202';
+import { hoja } from './texturas.js?v=202611220204';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -19,6 +19,8 @@ export const TIPOS = {
   moto: { largo: 2.1, ancho: 0.8, alto: 0.5, cabina: 0, vmax: 50, acel: 17, freno: 26, giro: 3.1, masa: 0.45, salud: 60 },
   ambulancia: { largo: 5.4, ancho: 2.1, alto: 0.8, cabina: 0.62, vmax: 37, acel: 9.5, freno: 18, giro: 1.85, masa: 1.5, salud: 170 },
   bici: { largo: 1.75, ancho: 0.6, alto: 0.45, cabina: 0, vmax: 13.5, acel: 4.8, freno: 13, giro: 3.3, masa: 0.22, salud: 60 },
+  pipa: { largo: 6.8, ancho: 2.35, alto: 1.2, cabina: 0, vmax: 24, acel: 5.5, freno: 13, giro: 1.5, masa: 2.8, salud: 240 },
+  basura: { largo: 7.4, ancho: 2.45, alto: 1.3, cabina: 0, vmax: 20, acel: 4.5, freno: 12, giro: 1.4, masa: 3.2, salud: 320 },
   redilas: { largo: 5.3, ancho: 2.0, alto: 0.8, cabina: 0, vmax: 30, acel: 7.5, freno: 16, giro: 1.75, masa: 1.7, salud: 180 },
   reparto: { largo: 6.6, ancho: 2.3, alto: 1.2, cabina: 0, vmax: 27, acel: 6.5, freno: 14, giro: 1.55, masa: 2.4, salud: 260 },
   autobus: { largo: 10.5, ancho: 2.55, alto: 2.4, cabina: 0, vmax: 20, acel: 4.5, freno: 10, giro: 1.25, masa: 4, salud: 400 },
@@ -391,6 +393,47 @@ function modeloRedilas(color) {
   return { grupo: g, carro, pinta, ruedas, delanteras, barra: null, partes: [cab], calav: cal.material, calavMalla: cal };
 }
 
+function modeloServicio(tipo, color) {
+  const g = new THREE.Group(), carro = new THREE.Group(); g.add(carro);
+  const pinta = new THREE.MeshPhysicalMaterial({ color, metalness: 0.3, roughness: 0.4, clearcoat: 0.7, clearcoatRoughness: 0.15 });
+  pinturas.add(pinta);
+  const L = TIPOS[tipo].largo, A = TIPOS[tipo].ancho, CL = 1.95;
+  const m = (geo, mt, x, y, z) => { const k = new THREE.Mesh(geo, mt); k.position.set(x, y, z); k.castShadow = true; carro.add(k); return k; };
+  const oscuro = new THREE.MeshStandardMaterial({ color: '#2a2c30', roughness: 0.8 });
+  const cab = m(new RoundedBoxGeometry(A - 0.05, 1.75, CL, 3, 0.16), pinta, 0, 1.45, L / 2 - CL / 2);
+  m(new THREE.BoxGeometry(A - 0.25, 0.7, 0.06), matVidrio2, 0, 1.85, L / 2 + 0.01);
+  for (const s of [-1, 1]) m(new THREE.BoxGeometry(0.04, 0.55, 0.9), matVidrio2, s * (A / 2 - 0.02), 1.85, L / 2 - CL / 2 + 0.1);
+  m(new THREE.BoxGeometry(A, 0.35, L - 0.2), oscuro, 0, 0.62, 0);
+  const atras = L - CL - 0.15, zc = -(CL + 0.15) / 2;
+  const c = document.createElement('canvas'); c.width = 512; c.height = 128; const x = c.getContext('2d');
+  if (tipo === 'pipa') {
+    x.fillStyle = '#f2f2ee'; x.fillRect(0, 0, 512, 128); x.fillStyle = '#e2392a'; x.fillRect(0, 84, 512, 22);
+    x.fillStyle = '#1d4f9c'; x.font = '900 52px Inter, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('GAS JALISCO', 256, 46); x.fillStyle = '#ffffff'; x.font = '800 16px Inter, Arial, sans-serif'; x.fillText('GAS L.P. · SERVICIO A DOMICILIO', 256, 96);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    const tanque = m(new THREE.CapsuleGeometry(0.95, atras - 1.9, 6, 20).rotateX(Math.PI / 2), new THREE.MeshStandardMaterial({ map: t, roughness: 0.35, metalness: 0.4 }), 0, 1.85, zc);
+    { const uv = tanque.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getY(i), uv.getX(i)); }
+    m(new THREE.BoxGeometry(0.5, 0.4, 0.5), oscuro, 0, 2.95, zc + 0.8);
+    m(new THREE.CylinderGeometry(0.06, 0.06, 1.2, 8).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#c9a040', metalness: 0.8, roughness: 0.3 }), A / 2 - 0.1, 1.1, zc - 1);
+  } else {
+    x.fillStyle = '#2f7a3a'; x.fillRect(0, 0, 512, 128); x.fillStyle = '#ffffff'; x.font = '900 38px Inter, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('SANTA JACARANDA LIMPIA', 256, 50); x.font = '700 20px Inter, Arial, sans-serif'; x.fillText('RECOLECCIÓN DE BASURA', 256, 96);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    const lado = new THREE.MeshStandardMaterial({ map: t, roughness: 0.6 }), verde = new THREE.MeshStandardMaterial({ color: '#2f7a3a', roughness: 0.6 });
+    m(new THREE.BoxGeometry(A, 2.4, atras - 0.4), [lado, lado, verde, verde, verde, verde], 0, 2.0, zc + 0.2);
+    const tolva = m(new THREE.BoxGeometry(A - 0.1, 1.8, 1.1), new THREE.MeshStandardMaterial({ color: '#d8d8d0', roughness: 0.6 }), 0, 1.9, -L / 2 + 0.55); tolva.rotation.x = 0.25;
+    m(new THREE.CylinderGeometry(0.12, 0.16, 0.25, 10), new THREE.MeshStandardMaterial({ color: '#c9a040', metalness: 0.8, roughness: 0.3 }), A / 2 + 0.12, 2.6, L / 2 - CL - 0.2);
+  }
+  for (const sx of [-1, 1]) { const f = m(new THREE.BoxGeometry(0.32, 0.18, 0.05), matFaro, sx * (A / 2 - 0.3), 1.0, L / 2 + 0.02); f.castShadow = false; }
+  m(new THREE.BoxGeometry(A + 0.06, 0.22, 0.2), matTrim, 0, 0.75, L / 2 + 0.05);
+  const cal = m(new THREE.BoxGeometry(A - 0.4, 0.14, 0.05), new THREE.MeshBasicMaterial({ color: '#a01020' }), 0, 0.9, -L / 2 - 0.02); cal.visible = false;
+  const ruedas = [], delanteras = [];
+  for (const [sx, sz] of [[-1, 0.33], [1, 0.33], [-1, -0.28], [1, -0.28]]) {
+    const piv = new THREE.Group(); piv.position.set(sx * (A / 2 - 0.12), 0.5, sz * L);
+    const ll = new THREE.Mesh(geoLlanta, matLlanta); ll.scale.setScalar(1.4); ll.castShadow = true; ll.add(new THREE.Mesh(geoRin2, matRin2));
+    piv.add(ll); g.add(piv); ruedas.push(ll); if (sz > 0) delanteras.push(piv);
+  }
+  return { grupo: g, carro, pinta, ruedas, delanteras, barra: null, partes: [cab], calav: cal.material, calavMalla: cal };
+}
+
 function modeloLancha(color) {
   const g = new THREE.Group(), carro = new THREE.Group(); g.add(carro);
   const pinta = new THREE.MeshPhysicalMaterial({ color, metalness: 0.2, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.05 });
@@ -419,6 +462,7 @@ export function modelo(tipo, color) {
   if (tipo === 'autobus') return modeloAutobus(color);
   if (tipo === 'reparto') return modeloReparto(color);
   if (tipo === 'redilas') return modeloRedilas(color);
+  if (tipo === 'pipa' || tipo === 'basura') return modeloServicio(tipo, color);
   if (tipo === 'blindado') return modeloBlindado(color);
   const t = TIPOS[tipo];
   const G = geometrias(tipo);
