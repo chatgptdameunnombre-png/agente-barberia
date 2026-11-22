@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220317';
-import { mat } from './persona.js?v=202611220317';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220349';
+import { mat } from './persona.js?v=202611220349';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220317';
+import { hoja } from './texturas.js?v=202611220349';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -521,10 +521,10 @@ export function modelo(tipo, color) {
     h.scale.setScalar(1.6);
     carro.add(h);
   }
-  const P = PERFIL[tipo], yb = piso, yt = piso + H;
+  const P = PERFIL[tipo], yb = piso, yt = piso + H, finos = [];
   for (const sx of [-1, 1]) for (const sz of [1, -1]) {
     const z = sz * t.largo * 0.31;
-    const arco = new THREE.Mesh(geoArco, matTrim); arco.position.set(sx * (t.ancho / 2 + 0.012), 0.36, z); arco.rotation.y = Math.PI / 2; carro.add(arco);
+    const arco = new THREE.Mesh(geoArco, matTrim); arco.position.set(sx * (t.ancho / 2 + 0.012), 0.36, z); arco.rotation.y = Math.PI / 2; carro.add(arco); finos.push(arco);
     const hueco = new THREE.Mesh(geoHueco, matHueco); hueco.position.set(sx * (t.ancho / 2 + 0.006), 0.36, z); hueco.rotation.y = sx * Math.PI / 2; carro.add(hueco);
   }
   const zf = G.cf + P.inclF * 0.62, largoP = Math.min(1.25, (zf - G.cr) * (tipo === 'deportivo' || tipo === 'compacto' ? 0.72 : 0.5));
@@ -533,20 +533,21 @@ export function modelo(tipo, color) {
   const panel = new THREE.Mesh(new THREE.BoxGeometry(0.035, altoP, largoP).translate(0.0175, yb + 0.1 + altoP / 2, -largoP / 2), pinta); panel.castShadow = true; puerta.add(panel);
   const forro = new THREE.Mesh(new THREE.PlaneGeometry(largoP * 0.96, altoP * 0.9).rotateY(-Math.PI / 2).translate(-0.002, yb + 0.1 + altoP / 2, -largoP / 2), matForro); puerta.add(forro);
   const vent = new THREE.Mesh(new THREE.BoxGeometry(0.02, t.cabina * 0.78, largoP * 0.86).translate(-0.03, yt + t.cabina * 0.4, -largoP * 0.5), matVidrio2); puerta.add(vent); vent.visible = false;
-  const manija = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.16).translate(0.04, yt - 0.1, -largoP + 0.2), matRin2); puerta.add(manija);
+  const manija = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.16).translate(0.04, yt - 0.1, -largoP + 0.2), matRin2); puerta.add(manija); finos.push(forro, manija);
   const linea = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.022, Math.max(0.5, zf + 0.3 - G.cr)).translate(0, yt + 0.012, (zf - 0.1 + G.cr) / 2), matCromo);
-  for (const sx of [-1, 1]) { const l = linea.clone(); l.position.x = sx * (t.ancho * 0.43); carro.add(l); }
-  if (tipo !== 'deportivo' && tipo !== 'compacto') { const pil = new THREE.Mesh(new THREE.BoxGeometry(t.ancho * 0.85, t.cabina * 0.92, 0.09), matTrim); pil.position.set(0, yt + t.cabina * 0.48, zf - largoP - 0.02); carro.add(pil); }
+  for (const sx of [-1, 1]) { const l = linea.clone(); l.position.x = sx * (t.ancho * 0.43); carro.add(l); finos.push(l); }
+  if (tipo !== 'deportivo' && tipo !== 'compacto') { const pil = new THREE.Mesh(new THREE.BoxGeometry(t.ancho * 0.85, t.cabina * 0.92, 0.09), matTrim); pil.position.set(0, yt + t.cabina * 0.48, zf - largoP - 0.02); carro.add(pil); finos.push(pil); }
   const np = (Math.random() * 8) | 0;
   const pf = new THREE.Mesh(geoPlaca, matsPlaca[np]); pf.position.set(0, piso + 0.12, t.largo / 2 + 0.14); carro.add(pf);
-  const pt = new THREE.Mesh(geoPlaca, matsPlaca[(np + 3) % 8]); pt.position.set(0, piso + H * 0.32, -t.largo / 2 - 0.14); pt.rotation.y = Math.PI; carro.add(pt);
+  const pt = new THREE.Mesh(geoPlaca, matsPlaca[(np + 3) % 8]); pt.position.set(0, piso + H * 0.32, -t.largo / 2 - 0.14); pt.rotation.y = Math.PI; carro.add(pt); finos.push(pf, pt);
   for (const sx of [-1, 1]) {
     const ze = G.cf + P.inclF * 0.72, ye = yt + 0.1;
     const brazo = new THREE.Mesh(geoEspejo[0], pinta); brazo.position.set(sx * (t.ancho * 0.43), ye, ze); brazo.scale.x = sx; carro.add(brazo);
     const caja = new THREE.Mesh(geoEspejo[1], pinta); caja.position.set(sx * (t.ancho * 0.43), ye, ze); caja.scale.x = sx; caja.castShadow = true; carro.add(caja);
     const vid = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.07), matEspejo); vid.position.set(sx * (t.ancho * 0.43 + 0.1), ye + 0.02, ze - 0.077); vid.rotation.y = Math.PI; carro.add(vid);
+    finos.push(brazo, caja, vid);
   }
-  const esc = new THREE.Mesh(geoEscape, matCromo); esc.position.set(t.ancho * 0.3, piso + 0.04, -t.largo / 2 - 0.05); carro.add(esc);
+  const esc = new THREE.Mesh(geoEscape, matCromo); esc.position.set(t.ancho * 0.3, piso + 0.04, -t.largo / 2 - 0.05); carro.add(esc); finos.push(esc);
   const haz = new THREE.Mesh(geoHaz, matHaz); haz.position.set(0, 0.035, t.largo / 2 + 5.4); haz.renderOrder = 2; g.add(haz);
   const silueta = new THREE.Group();
   if (tipo !== 'camioneta' || true) {
@@ -563,26 +564,27 @@ export function modelo(tipo, color) {
     const asiento2 = asiento.clone(); asiento2.position.x = -sx;
     silueta.add(torso, cabeza, pelo, b1, b2);
     carro.add(silueta, vol, asiento, asiento2);
-    silueta.visible = false;
+    silueta.visible = false; finos.push(vol, asiento, asiento2, ...silueta.children);
   }
   const ruedas = [], delanteras = [];
   for (const [sx, sz] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) {
     const piv = new THREE.Group();
     piv.position.set(sx * (t.ancho / 2 - 0.1), 0.36, sz * t.largo * 0.31);
     const ll = new THREE.Mesh(geoLlanta, matLlanta); ll.castShadow = true;
-    ll.add(new THREE.Mesh(geoRin2, matRin2));
+    const rin = new THREE.Mesh(geoRin2, matRin2); ll.add(rin); finos.push(rin);
     piv.add(ll);
     g.add(piv);
     ruedas.push(ll);
     if (sz > 0) delanteras.push(piv);
   }
-  return { haz, grupo: g, carro, pinta, ruedas, delanteras, barra, partes: [cuerpo, cab, panel], calav, calavMalla: cal, puerta, ventPuerta: vent, silueta };
+  return { haz, grupo: g, carro, pinta, ruedas, delanteras, barra, partes: [cuerpo, cab, panel], calav, calavMalla: cal, puerta, ventPuerta: vent, silueta, finos };
 }
 
 const _p = new THREE.Vector3();
 
 export class Coche {
   static vidrioRoto = matVidrioRoto;
+  detalle(cerca) { if (!this.finos || this.cerca === cerca) return; this.cerca = cerca; for (const o of this.finos) o.visible = cerca; }
   constructor(juego, tipo, color, x, z, yaw) {
     this.juego = juego;
     this.bici = tipo === 'bici';

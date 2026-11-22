@@ -12,6 +12,7 @@ const GENERALES = [
 ];
 
 const EVENTOS = {
+  helicoptero: ['Se desploma un helicóptero de la policía en Santa Jacaranda. La tripulación salió con vida; buscan al responsable.', 'Derriban la unidad aérea SJ-07. El comandante Ibarra promete dar con quien lo hizo.'],
   gasolinera: ['¡Explosión en la Gasolinera Jacaranda! Bomberos trabajan en la zona. Se desconoce el responsable.', 'Testigos dicen que las bombas de gasolina volaron una tras otra. La policía busca a un sospechoso.'],
   banco: ['Asaltan el Banco de Occidente: se llevan la bóveda completa. La policía no tiene pistas.', '"Nunca vi algo así", dice el gerente del banco tras el golpe del año.'],
   persecucion: ['Persecución a toda velocidad por las calles de Santa Jacaranda. La policía pide precaución.', 'Un conductor huyó de la policía y dejó varios coches dañados.'],

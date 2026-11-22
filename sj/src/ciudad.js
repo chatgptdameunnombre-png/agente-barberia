@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611220317';
-import { hoja } from './texturas.js?v=202611220317';
+import { construirEstadio } from './estadio.js?v=202611220349';
+import { hoja } from './texturas.js?v=202611220349';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -48,6 +48,7 @@ export class Mundo {
     return c;
   }
   celda(x, z) { return this.hash.get(Math.floor(x / 20) * 1000 + Math.floor(z / 20)) || VACIO; }
+  alturaEn(x, z) { let h = 0; for (const c of this.celda(x, z)) if (x > c.minx && x < c.maxx && z > c.minz && z < c.maxz && c.h > h && c.h < 200) h = c.h; return h; }
   empujar(p, r, alto = 0) {
     let choque = null;
     const x0 = Math.floor((p.x - r) / 20), x1 = Math.floor((p.x + r) / 20);

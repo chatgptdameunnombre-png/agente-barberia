@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { BANQUETA } from './ciudad.js?v=202611220317';
+import { BANQUETA } from './ciudad.js?v=202611220349';
 
 const _c = new THREE.Color();
 function teñir(geo, hex) { _c.set(hex); const n = geo.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([_c.r, _c.g, _c.b], i * 3); geo.setAttribute('color', new THREE.BufferAttribute(a, 3)); return geo; }
@@ -60,6 +60,7 @@ export function adornarCatedral(juego) {
     for (let k = 0; k < n; k++) { const t = t0 + k * 1.6; a.tono(392, 3.2, v, 'sine', null, t); a.tono(784 * 1.19, 2.0, v * 0.45, 'sine', null, t); a.tono(196, 3.6, v * 0.5, 'triangle', null, t); }
   };
   return {
+    campanadas, puerta: new THREE.Vector3(cx, 0, iz1 - 12 + 3.3),
     actualizar(hora, noche) {
       const h = Math.floor(hora);
       if (ultimaHora !== null && h !== ultimaHora && h >= 7 && h <= 22) campanadas(h % 12 || 12);

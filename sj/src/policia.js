@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611220317';
-import { Peaton } from './peatones.js?v=202611220317';
-import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220317';
+import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611220349';
+import { Peaton } from './peatones.js?v=202611220349';
+import { Helicoptero } from './helicoptero.js?v=202611220349';
+import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220349';
 
 const MAX_COCHES = [0, 1, 2, 3, 4, 5];
 
@@ -14,7 +15,7 @@ export class Policia {
     this.unidades = [];
     this.agentes = [];
     this.helicoptero = null;
-    this.conHeli = false;
+    this.conHeli = true;
     this.reaparicion = 0;
     this.calor = 0;
     this.retenes = []; this.tReten = 20;
@@ -73,7 +74,7 @@ export class Policia {
     let visto = !!j.jugador.interior;
     for (const u of this.unidades) if (!u.quemado && u.pos.distanceTo(jp) < 75) visto = true;
     for (const a of this.agentes) if (!a.muerto && a.pos.distanceTo(jp) < 50) visto = true;
-    if (this.helicoptero && !this.helicoptero.retirar && Math.hypot(this.helicoptero.pos.x - jp.x, this.helicoptero.pos.z - jp.z) < 60) visto = true;
+    if (this.helicoptero?.ve) visto = true;
     this.visto = visto;
     if (visto) this.sinVer = 0; else this.sinVer += dt;
     const limite = 7 + this.estrellas * 3.5;
@@ -154,53 +155,12 @@ export class Policia {
 
   actualizarHeli(dt, quiere) {
     const j = this.juego;
-    const jp = j.jugador.posicion;
-    if (quiere && !this.helicoptero && this.conHeli) {
-      this.helicoptero = crearHeli(j);
-      this.helicoptero.pos.set(jp.x + 180, 45, jp.z + 120);
+    if (quiere && !this.helicoptero && this.conHeli && !j.jugador.interior) {
+      const jp = j.jugador.posicion, a = Math.random() * Math.PI * 2;
+      this.helicoptero = new Helicoptero(j, jp.x + Math.cos(a) * 200, jp.z + Math.sin(a) * 200);
     }
     const h = this.helicoptero;
     if (!h) return;
-    if (!quiere) h.retirar = true;
-    h.t += dt;
-    let tx, tz, ty;
-    if (h.retirar) { tx = h.pos.x + 80; tz = h.pos.z + 80; ty = 70; }
-    else { tx = jp.x + Math.cos(h.t * 0.35) * 28; tz = jp.z + Math.sin(h.t * 0.35) * 28; ty = 32; }
-    const dx = tx - h.pos.x, dz = tz - h.pos.z, d = Math.hypot(dx, dz);
-    const v = Math.min(d, 28) * dt * (h.retirar ? 1.5 : 1);
-    if (d > 0.1) { h.pos.x += dx / d * v; h.pos.z += dz / d * v; }
-    h.pos.y += (ty - h.pos.y) * dt;
-    h.grupo.position.copy(h.pos);
-    h.grupo.rotation.y = Math.atan2(jp.x - h.pos.x, jp.z - h.pos.z);
-    h.grupo.rotation.x = 0.12;
-    h.helice.rotation.y += dt * 40;
-    h.cola.rotation.x += dt * 50;
-    h.foco.position.set(jp.x, 0.08, jp.z);
-    h.foco.visible = !h.retirar && j.ambiente.noche > 0.3;
-    if (!h.retirar && this.estrellas >= 5 && !j.jugador.muerto) {
-      h.cadencia = (h.cadencia || 2) - dt;
-      if (h.cadencia <= 0) { h.cadencia = 0.18; h.rafaga = (h.rafaga || 0) + 1; if (h.rafaga > 6) { h.rafaga = 0; h.cadencia = 2.5; } j.disparoDesde(h.pos, jp, 6, 0.35, 'heli'); }
-    }
-    if (h.retirar && Math.hypot(h.pos.x - jp.x, h.pos.z - jp.z) > 300) {
-      j.escena.remove(h.grupo); j.escena.remove(h.foco);
-      this.helicoptero = null;
-    }
+    if (!h.actualizar(dt, quiere)) { h.quitar(); this.helicoptero = null; }
   }
-}
-
-function crearHeli(j) {
-  const g = new THREE.Group();
-  const m = c => new THREE.MeshLambertMaterial({ color: c });
-  const cuerpo = new THREE.Mesh(new THREE.SphereGeometry(1.7, 10, 8), m('#1d2b4a')); cuerpo.scale.set(1, 0.9, 1.6); g.add(cuerpo);
-  const vid = new THREE.Mesh(new THREE.SphereGeometry(1.2, 10, 8), m('#9cc6e8')); vid.position.set(0, 0.3, 1.4); vid.scale.set(1, 0.8, 0.8); g.add(vid);
-  const colaB = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 5), m('#1d2b4a')); colaB.position.set(0, 0.3, -4); g.add(colaB);
-  const helice = new THREE.Mesh(new THREE.BoxGeometry(9, 0.08, 0.35), m('#222')); helice.position.y = 1.7;
-  const h2 = helice.clone(); h2.rotation.y = Math.PI / 2; helice.add(h2); g.add(helice);
-  const cola = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.6, 0.2), m('#222')); cola.position.set(0.25, 0.5, -6.4); g.add(cola);
-  for (const s of [-1, 1]) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 3.2), m('#333')); p.position.set(s * 1.1, -1.6, 0); g.add(p); }
-  const luz = new THREE.Mesh(new THREE.SphereGeometry(0.25), new THREE.MeshBasicMaterial({ color: '#ff3040' })); luz.position.set(0, -1.2, -1); g.add(luz);
-  j.escena.add(g);
-  const foco = new THREE.Mesh(new THREE.CircleGeometry(6, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#fffbe0', transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false }));
-  j.escena.add(foco);
-  return { grupo: g, helice, cola, foco, pos: new THREE.Vector3(), t: 0, retirar: false };
 }

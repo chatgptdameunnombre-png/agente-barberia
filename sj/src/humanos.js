@@ -24,7 +24,7 @@ export function configurar(renderer) { ANISO = renderer.capabilities.getMaxAniso
 function prepararMateriales(raiz) {
   raiz.traverse(o => {
     if (!o.isMesh) return;
-    o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false;
+    o.castShadow = !/eyebrow|eyelash|low-poly|high-poly|teeth|tongue/i.test(o.name); o.receiveShadow = true; o.frustumCulled = false;
     const lista = [].concat(o.material).map(m => {
       for (const k of ['map', 'normalMap', 'roughnessMap', 'aoMap']) if (m[k]) { m[k].anisotropy = ANISO; m[k].needsUpdate = true; }
       if (PELUDO.test(m.name)) { m.transparent = false; m.alphaTest = 0.35; m.alphaToCoverage = true; m.side = THREE.DoubleSide; m.depthWrite = true; m.roughness = 0.6; return m; }
@@ -96,9 +96,19 @@ export async function cargarModelo(nombre) {
   return promesa;
 }
 
+function acotar(raiz) {
+  let base = null, r0 = 0;
+  raiz.traverse(o => { if (o.isSkinnedMesh) { const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); if (g.boundingSphere.radius > r0) { r0 = g.boundingSphere.radius; base = o; } } });
+  if (!base) return;
+  raiz.traverse(o => { if (o.isSkinnedMesh && o.parent === base.parent) { o.boundingSphere = base.geometry.boundingSphere.clone(); o.boundingSphere.radius *= 2.2; o.frustumCulled = true; o.userData.acotado = true; } });
+}
+
+export function recorte(H, si) { H.raiz.traverse(o => { if (o.userData.acotado) o.frustumCulled = si; }); }
+
 export async function crearHumano(nombre) {
   const M = await cargarModelo(nombre);
   const raiz = clonar(M.escena);
+  acotar(raiz);
   const mixer = new THREE.AnimationMixer(raiz);
   const acciones = {};
   const H = { grupo: new THREE.Group(), raiz, mixer, clips: M.clips, actual: null };
@@ -137,4 +147,54 @@ export function ponerMascara(h, color = '#c9ced6', borde = '#2a5ab8') {
   const boca = new THREE.Mesh(new THREE.CircleGeometry(0.022, 14), matB); boca.scale.set(1.4, 0.6, 1); boca.position.set(0, -0.005, 0.1425); g.add(boca);
   g.traverse(o => { if (o.isMesh) o.castShadow = true; });
   return g;
+}
+
+function pegarAHueso(h, nombre) {
+  let b = null; h.raiz.traverse(o => { if (o.isBone && o.name.toLowerCase() === nombre) b = o; });
+  if (!b) return null;
+  h.grupo.updateMatrixWorld(true);
+  const qb = b.getWorldQuaternion(new THREE.Quaternion()), qr = h.grupo.getWorldQuaternion(new THREE.Quaternion()), inv = qb.clone().invert();
+  const f = new THREE.Vector3(0, 0, 1).applyQuaternion(qr).applyQuaternion(inv).normalize();
+  const u0 = new THREE.Vector3(0, 1, 0).applyQuaternion(qr).applyQuaternion(inv);
+  const s = new THREE.Vector3().crossVectors(u0, f).normalize(), u = new THREE.Vector3().crossVectors(f, s).normalize();
+  const ws = b.getWorldScale(new THREE.Vector3()).x || 1;
+  const g = new THREE.Group(); g.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(s, u, f)); g.scale.setScalar(1 / ws); b.add(g);
+  const pb = b.getWorldPosition(new THREE.Vector3()), pr = h.grupo.getWorldPosition(new THREE.Vector3());
+  g.userData.alto = (pb.y - pr.y) / (h.grupo.getWorldScale(new THREE.Vector3()).y || 1);
+  return g;
+}
+
+export function ponerNovia(h) {
+  const blanco = new THREE.MeshStandardMaterial({ color: '#f7f3ea', roughness: 0.62, side: THREE.DoubleSide });
+  const cad = pegarAHueso(h, 'pelvis');
+  if (cad) {
+    const piso = -(cad.userData.alto || 0.95);
+    const pts = [[0.165, 0.1], [0.2, 0.0], [0.25, -0.18], [0.33, -0.42], [0.43, -0.68], [0.52, piso + 0.12], [0.56, piso + 0.02]].map(([r, y]) => new THREE.Vector2(r, y));
+    const geo = new THREE.LatheGeometry(pts, 40);
+    const P = geo.attributes.position;
+    for (let i = 0; i < P.count; i++) {
+      const x = P.getX(i), y = P.getY(i), z = P.getZ(i), a = Math.atan2(x, z), k = Math.max(0, -y) / Math.max(0.5, -piso);
+      const pl = 1 + Math.sin(a * 14) * 0.035 * k;
+      P.setXYZ(i, x * pl, y, z * pl * (z < 0 ? 1 + k * k * 0.55 : 1));
+    }
+    geo.computeVertexNormals();
+    const falda = new THREE.Mesh(geo, blanco); cad.add(falda);
+    const cinta = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.018, 6, 28).rotateX(Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#e8d6a8', roughness: 0.4, metalness: 0.3 })); cinta.position.y = 0.09; cad.add(cinta);
+    falda.castShadow = true;
+  }
+  const cab = pegarAHueso(h, 'head');
+  if (cab) {
+    const pts = [[0.1, 0.2], [0.14, 0.12], [0.18, -0.05], [0.24, -0.3], [0.3, -0.62]].map(([r, y]) => new THREE.Vector2(r, y));
+    const velo = new THREE.Mesh(new THREE.LatheGeometry(pts, 24, Math.PI * 0.55, Math.PI * 0.9), new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.8, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false }));
+    velo.position.set(0, 0.02, -0.03); cab.add(velo);
+    const tiara = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.008, 6, 24, Math.PI), new THREE.MeshStandardMaterial({ color: '#f0e0b0', roughness: 0.25, metalness: 0.8 }));
+    tiara.rotation.set(-0.4, 0, 0); tiara.position.set(0, 0.17, 0.0); cab.add(tiara);
+  }
+  const mano = pegarAHueso(h, 'hand_r');
+  if (mano) {
+    const r = new THREE.Group(); r.position.set(0, -0.06, 0.07); mano.add(r);
+    r.add(new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.012, 0.16, 6).translate(0, -0.06, 0), new THREE.MeshStandardMaterial({ color: '#4a7a3a', roughness: 0.8 })));
+    const cols = ['#ffffff', '#f6d8e0', '#e86a8a', '#ffffff', '#f2e8c8'];
+    for (let k = 0; k < 14; k++) { const a = k * 2.4, rr = k < 1 ? 0 : 0.035 + (k % 3) * 0.018; const f = new THREE.Mesh(new THREE.SphereGeometry(0.026, 8, 6), new THREE.MeshStandardMaterial({ color: cols[k % cols.length], roughness: 0.7 })); f.position.set(Math.cos(a) * rr, 0.04 - rr * 0.4, Math.sin(a) * rr); r.add(f); }
+  }
 }

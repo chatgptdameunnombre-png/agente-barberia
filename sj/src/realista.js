@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611220317';
+import { crearHumano, recorte } from './humanos.js?v=202611220349';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -193,6 +193,7 @@ export class Realista {
 
   seguirMuneco(M, p) {
     if (!this.trapo) {
+      recorte(this.H, false);
       this.raiz.updateMatrixWorld(true); p.grupo.updateMatrixWorld(true);
       const pares = [];
       for (const [a, b] of PARES) { const o = p[a], h = this.huesos[b]; if (o && h) pares.push({ o, h, qo: o.getWorldQuaternion(new THREE.Quaternion()), qh: h.getWorldQuaternion(new THREE.Quaternion()) }); }
@@ -258,11 +259,12 @@ export class Realista {
     if (e === 'sentado') base = q.banca?.pie ? 'Idle_Loop' : 'Sitting_Idle_Loop';
     else if (e === 'agachado') base = 'Crouch_Idle_Loop';
     else if (e === 'charla' || (q.limpiando && v < 0.2)) base = 'Idle_Talking_Loop';
-    else if (v < 0.2) base = q.habito === 'celular' ? 'Idle_Talking_Loop' : 'Idle_Loop';
-    else if (v < 2.8) base = 'Walk_Loop';
+    else if (v < 0.2) base = q.anim || (q.habito === 'celular' ? 'Idle_Talking_Loop' : 'Idle_Loop');
+    else if (v < 2.8) base = q.formal ? 'Walk_Formal_Loop' : 'Walk_Loop';
     else if (v < 6.8) base = 'Jog_Fwd_Loop';
     else base = 'Sprint_Loop';
-    if (RITMO[base] && v > 0.2) escala = Math.max(0.6, Math.min(1.7, v / RITMO[base]));
+    if (base === 'Walk_Formal_Loop') escala = Math.max(0.6, Math.min(1.5, v / 1.05));
+    else if (RITMO[base] && v > 0.2) escala = Math.max(0.6, Math.min(1.7, v / RITMO[base]));
     if ((e === 'atacar' || e === 'perseguir') && fuego && v < 3) { sup = 'Pistol_Aim_Neutral'; if (q.disparoT > (this.prevDisp ?? 0) + 0.01) { sup = 'Pistol_Shoot'; supVeces = 1; forzarSup = true; } this.prevDisp = q.disparoT || 0; }
     else if (e === 'atacar' && q.golpeT > 0) { sup = 'Punch_Cross'; supVeces = 1; forzarSup = q.golpeT > (this.prevGolpe ?? 0) + 0.01; this.prevGolpe = q.golpeT; }
     if (sup && v < 0.2) { base = sup; sup = null; }
@@ -289,7 +291,7 @@ export class Realista {
     p.grupo.traverse(o => { if (o.userData.ocultoPorRealista) { o.visible = true; delete o.userData.ocultoPorRealista; } });
     p.ocultaRealista = false; p.lod = null;
     this.grupo.parent?.remove(this.grupo);
-    this.p = null; this.trapo = null; this.base.quitar(0); this.arriba.quitar(0); this.H.mixer.stopAllAction(); this.base.actual = null; this.arriba.actual = null;
+    this.p = null; if (this.trapo) recorte(this.H, true); this.trapo = null; this.base.quitar(0); this.arriba.quitar(0); this.H.mixer.stopAllAction(); this.base.actual = null; this.arriba.actual = null;
   }
 
   peinado(estilo) {
@@ -344,5 +346,5 @@ export class Realista {
     mat.map = t; mat.needsUpdate = true;
   }
 
-  soltarMuneco() { if (this.trapo) { this.trapo = null; this.base.actual = null; this.arriba.actual = null; } }
+  soltarMuneco() { if (this.trapo) { recorte(this.H, true); this.trapo = null; this.base.actual = null; this.arriba.actual = null; } }
 }

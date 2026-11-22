@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220317';
+import { hoja } from './texturas.js?v=202611220349';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const cap = (r, l, y = 0) => { const g = new THREE.CapsuleGeometry(r, l, 3, 10); g.translate(0, y, 0); return g; };
@@ -453,7 +453,7 @@ export function crearPersona(o = {}) {
   const hueso = (x, y, z, padre) => { const b = new THREE.Bone(); b.position.set(x, y, z); padre.add(b); return b; };
   const conPiel = (geo, mats, b1, b2) => {
     const m = new THREE.SkinnedMesh(geo, mats);
-    m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false;
+    m.castShadow = true; m.receiveShadow = true; m.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0.85, 0), 1.6);
     cuerpo.add(m); g.updateMatrixWorld(true);
     m.bind(new THREE.Skeleton([b1, b2]), m.matrixWorld);
     return m;

@@ -1,4 +1,7 @@
-import { Realista } from './realista.js?v=202611220317';
+import { Realista } from './realista.js?v=202611220349';
+import { ponerNovia } from './humanos.js?v=202611220349';
+
+const ADORNOS = { novia: ponerNovia };
 
 const HOMBRES = ['peaton1', 'peaton3', 'peaton5', 'peaton7', 'peaton9', 'peaton11', 'peaton13', 'peaton15', 'peaton17', 'peaton19'];
 const MUJERES = ['peaton2', 'peaton4', 'peaton6', 'peaton8', 'peaton10', 'peaton12', 'peaton14', 'peaton16', 'peaton18', 'peaton20'];
@@ -9,11 +12,12 @@ export class Gente {
     this.j = juego; this.maximo = maximo; this.libres = { h: [], m: [], ph: [], pm: [], t: [] }; this.usados = new Map(); this.t = 0; this.cuenta = 0;
   }
 
-  clase(q) { return q.tipo === 'poli' ? (q.p.mujer ? 'pm' : 'ph') : q.tipo === 'matón' ? 't' : q.p.mujer ? 'm' : 'h'; }
+  clase(q) { if (q.modelo) return 'x:' + q.modelo; return q.tipo === 'poli' ? (q.p.mujer ? 'pm' : 'ph') : q.tipo === 'matón' ? 't' : q.p.mujer ? 'm' : 'h'; }
 
   pedir(clase) {
-    const lista = this.libres[clase];
+    const lista = this.libres[clase] || (this.libres[clase] = []);
     if (lista.length) return lista.pop();
+    if (clase.startsWith('x:')) { const n = clase.slice(2), R = new Realista(n); R.clase = clase; if (ADORNOS[n]) R.promesa.then(() => ADORNOS[n](R.H)); return R; }
     const nombres = { h: HOMBRES, m: MUJERES, ph: POLIS_H, pm: POLIS_M, t: MATONES }[clase];
     this.cuenta++;
     const R = new Realista(nombres[this.cuenta % nombres.length]); R.clase = clase;
