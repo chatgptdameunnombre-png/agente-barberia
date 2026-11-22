@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { linea, LIMITE } from './ciudad.js?v=202611220210';
+import { linea, LIMITE } from './ciudad.js?v=202611220212';
 
 function lienzo(w, h, pintar) {
   const c = document.createElement('canvas'); c.width = w; c.height = h; pintar(c.getContext('2d'), w, h);
@@ -8,16 +8,26 @@ function lienzo(w, h, pintar) {
 }
 
 function pintarCostado(g, w, h, ventanas) {
+  if (ventanas) {
+    g.fillStyle = '#000000'; g.fillRect(0, 0, w, h);
+    for (let k = 0; k < 9; k++) {
+      const x = 12 + k * w / 9, ww = w / 9 - 24;
+      g.fillStyle = '#fff1cf'; g.fillRect(x, h * 0.26, ww, h * 0.32);
+      const n = Math.random() < 0.3 ? 0 : Math.random() < 0.6 ? 1 : 2;
+      for (let q = 0; q < n; q++) {
+        const px = x + ww * (n === 1 ? 0.3 + Math.random() * 0.4 : q ? 0.72 : 0.25), base = h * 0.58, alto = h * (0.13 + Math.random() * 0.05);
+        g.fillStyle = 'rgba(60,46,40,0.9)';
+        g.beginPath(); g.ellipse(px, base, 15, alto * 0.55, 0, Math.PI, 0); g.fill();
+        g.beginPath(); g.ellipse(px, base - alto * 0.72, 7, 8.5, 0, 0, 7); g.fill();
+      }
+    }
+    return;
+  }
   g.fillStyle = '#eef0f2'; g.fillRect(0, 0, w, h);
   g.fillStyle = '#3a3d44'; g.fillRect(0, h * 0.86, w, h * 0.14);
   g.fillStyle = '#5b2a86'; g.fillRect(0, h * 0.7, w, h * 0.07);
   g.fillStyle = '#b5122e'; g.fillRect(0, h * 0.77, w, h * 0.035);
-  g.fillStyle = ventanas ? '#1a2430' : '#26303c'; g.fillRect(0, h * 0.24, w, h * 0.36);
-  if (ventanas) {
-    g.fillStyle = '#fff1cf';
-    for (let k = 0; k < 9; k++) { const x = 12 + k * w / 9; g.fillRect(x, h * 0.26, w / 9 - 24, h * 0.32); }
-    return;
-  }
+  g.fillStyle = '#26303c'; g.fillRect(0, h * 0.24, w, h * 0.36);
   g.fillStyle = 'rgba(150,180,210,0.35)';
   for (let k = 0; k < 9; k++) { const x = 12 + k * w / 9; g.beginPath(); g.moveTo(x, h * 0.26); g.lineTo(x + 40, h * 0.26); g.lineTo(x + 10, h * 0.58); g.lineTo(x, h * 0.58); g.fill(); }
   g.fillStyle = '#d7dade'; for (let k = 0; k <= 9; k++) g.fillRect(k * w / 9 - 6, h * 0.24, 12, h * 0.36);
