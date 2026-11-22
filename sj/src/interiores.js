@@ -1,17 +1,17 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611220241';
-import { hoja } from './texturas.js?v=202611220241';
-import { Peaton } from './peatones.js?v=202611220241';
-import { letrero } from './ciudad.js?v=202611220241';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220241';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220241';
-import { ARTICULOS } from './actividades.js?v=202611220241';
+import { animar } from './persona.js?v=202611220244';
+import { hoja } from './texturas.js?v=202611220244';
+import { Peaton } from './peatones.js?v=202611220244';
+import { letrero } from './ciudad.js?v=202611220244';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220244';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220244';
+import { ARTICULOS } from './actividades.js?v=202611220244';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
 const INT = hoja('assets/interior.jpg', 3, 2, { tam: 512, sinUrl: true });
-const COLOR_ICONO = { tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a' };
-const LETRA = { tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L' };
+const COLOR_ICONO = { tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a', mercado: '#ff8a3a' };
+const LETRA = { tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L', mercado: 'M' };
 const LUGARES_LIBRES = [
   ['ropa', 'BOUTIQUE LA JACARANDA', 'Boutique La Jacaranda', '#2a1440', '#e9c8ff'],
   ['barberia', 'BARBERÍA EL BIGOTE', 'Barbería El Bigote', '#1a1a1a', '#ff6b6b'],
@@ -168,6 +168,7 @@ export class Interiores {
       }
       lista.push(t);
     }
+    { const Bm = c.bloques.find(b => b.tipo === 'mercado'); if (Bm) lista.push({ tipo: 'mercado', nombre: 'Mercado de San Jacinto', rot: 0, fx: 0, fz: 1, fachada: { x: Bm.cx - 3.4, z: Bm.cz + 23.2 }, puerta: new THREE.Vector3(Bm.cx - 3.4, 0, Bm.cz + 24.6), robadaHasta: 0 }); }
     if (c.gasolinera) { const G = c.gasolinera, px = G.cx + 7, pz = G.iz0 + 11.5; lista.push({ tipo: 'tienda', nombre: 'Súper 24', letrero: 0, rot: 0, fx: 0, fz: 1, fachada: { x: px, z: pz }, puerta: new THREE.Vector3(px, 0, pz + 1.3), robadaHasta: 0 }); }
     const a = c.lugares.armeria;
     lista.push({ tipo: 'armeria', nombre: 'Armería del Valle', rot: 0, fx: 0, fz: 1, fachada: { x: a.x, z: a.z - 1.6 }, puerta: new THREE.Vector3(a.x, 0, a.z), robadaHasta: 0 });
@@ -233,7 +234,7 @@ export class Interiores {
 
   construir(t, i) {
     const j = this.j, esc = j.escena, mundo = j.mundo;
-    const W = t.tipo === 'armeria' ? 12 : t.tipo === 'arena' ? 22 : 14, L = t.tipo === 'arena' ? 19 : 11, H = t.tipo === 'arena' ? 6.5 : 4;
+    const W = t.tipo === 'armeria' ? 12 : t.tipo === 'arena' ? 22 : t.tipo === 'mercado' ? 24 : 14, L = t.tipo === 'arena' ? 19 : t.tipo === 'mercado' ? 20 : 11, H = t.tipo === 'arena' ? 6.5 : t.tipo === 'mercado' ? 7 : 4;
     const ox = 3000 + (i % 4) * 40, oz = 3000 + Math.floor(i / 4) * 40;
     const g = new THREE.Group(); g.position.set(ox, 0, oz); g.visible = false; esc.add(g);
     t.interior = { g, ox, oz, W, L, H, entrada: new THREE.Vector3(ox, 0, oz + L / 2 - 1.6), salida: new THREE.Vector3(ox, 0, oz + L / 2 - 0.9) };
@@ -243,7 +244,7 @@ export class Interiores {
     const piso = new THREE.Mesh(new THREE.PlaneGeometry(W, L), t.tipo === 'tienda' ? m('#d8d0c8', { map: repetir(INT[2].textura, W / 3, L / 3) }) : t.tipo === 'barberia' ? m('#ddd', { map: this.ajedrez() }) : m(t.tipo === 'armeria' ? '#3a3632' : '#8a7060'));
     piso.rotation.x = -Math.PI / 2; g.add(piso);
     const techo = new THREE.Mesh(new THREE.PlaneGeometry(W, L), m('#f2efe8')); techo.rotation.x = Math.PI / 2; techo.position.y = H; g.add(techo);
-    const pared = t.tipo === 'tienda' ? m('#e0d8d0', { map: repetir(INT[3].textura, W / 4, 1) }) : m(t.tipo === 'ropa' ? '#c9a3c4' : t.tipo === 'barberia' ? '#b8ad98' : '#5a5650');
+    const pared = t.tipo === 'tienda' ? m('#e0d8d0', { map: repetir(INT[3].textura, W / 4, 1) }) : m(t.tipo === 'ropa' ? '#c9a3c4' : t.tipo === 'barberia' ? '#b8ad98' : t.tipo === 'mercado' ? '#e8dcc4' : '#5a5650');
     caja(W, H, 0.3, pared, 0, H / 2, -L / 2);
     caja(W, H, 0.3, pared, 0, H / 2, L / 2);
     caja(0.3, H, L, pared, -W / 2, H / 2, 0);
@@ -332,6 +333,34 @@ export class Interiores {
       t.antro = { baldosas, focos, dj, bailarines, t: 0 };
       t.cajero = this.npc(t, W / 2 - 0.5, 0.5, { cara: 5, ropa: 6 });
       t.interior.mostrador.set(ox + W / 2 - 2.2, 0, oz + 0.5);
+    } else if (t.tipo === 'mercado') {
+      const azulejo = m('#3a8f6a'); caja(W - 0.4, 1.4, 0.05, azulejo, 0, 0.7, -L / 2 + 0.18, false); caja(0.05, 1.4, L - 0.4, azulejo, -W / 2 + 0.18, 0.7, 0, false); caja(0.05, 1.4, L - 0.4, azulejo, W / 2 - 0.18, 0.7, 0, false);
+      for (const x of [-W / 3, 0, W / 3]) for (const z of [-L / 3, L / 6]) caja(2.4, 0.06, 0.5, m('#fff', { emissive: '#fff4d8', emissiveIntensity: 1 }), x, H - 0.04, z, false);
+      const lonas = ['#e8317a', '#2a7de0', '#ff7a1a', '#f2c14e', '#2fbf71', '#7a3ab0'];
+      const fruta = ['#ff8a1a', '#d8202e', '#f2d23a', '#6ab83a', '#ff5a3a', '#7a2a6a'];
+      let n = 0;
+      for (const x of [-8, -2.5, 2.5, 8]) for (const z of [-6, 0.5]) {
+        n++;
+        caja(3.6, 0.95, 1.6, m('#8a6a4a'), x, 0.48, z);
+        caja(3.7, 0.06, 1.7, m('#c9b08a'), x, 0.98, z, false);
+        const l = caja(4, 0.08, 2.2, m(lonas[n % lonas.length]), x, 2.6, z, false); l.rotation.x = 0.12;
+        for (const sx of [-1.8, 1.8]) caja(0.06, 2.6, 0.06, m('#7a7f86'), x + sx, 1.3, z - 0.9, false);
+        const tipoP = n % 4;
+        for (let k = 0; k < 10; k++) {
+          const px = x - 1.5 + (k % 5) * 0.75, pz = z - 0.35 + Math.floor(k / 5) * 0.7;
+          if (tipoP === 0) { const f = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), m(fruta[k % fruta.length])); f.position.set(px, 1.12, pz); g.add(f); }
+          else if (tipoP === 1) { const f = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.12, 0.35), m(['#b84a3a', '#d87a6a', '#a03a2a'][k % 3])); f.position.set(px, 1.07, pz); g.add(f); }
+          else if (tipoP === 2) { const f = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 8), m(['#e8317a', '#f2c14e', '#ffffff', '#d8202e'][k % 4])); f.position.set(px, 1.25, pz); f.rotation.x = Math.PI; g.add(f); }
+          else { const f = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.12, 0.3, 10), m(['#c9a040', '#7a4a2a', '#3a8f3a'][k % 3])); f.position.set(px, 1.15, pz); g.add(f); }
+        }
+        if (n % 2) this.npc(t, x, z - 1.3, { cara: (n * 2) % 8, ropa: n % 7, mangaCorta: true });
+      }
+      caja(5.5, 1.05, 1.2, m('#7a3a2a'), 0, 0.52, -L / 2 + 2.2);
+      const fonda = letrero('FONDA DOÑA CHUY · BIRRIA Y TORTAS AHOGADAS', '#7a2a1a', '#ffe2a0', 9, 0.9); fonda.position.set(0, 3.6, -L / 2 + 0.17); g.add(fonda);
+      for (let k = 0; k < 4; k++) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.6, 10), m('#c8202e')); b.position.set(-2 + k * 1.3, 0.3, -L / 2 + 3.4); g.add(b); }
+      for (let k = 0; k < 6; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.52), m(lonas[k % lonas.length], { side: THREE.DoubleSide })); pp.position.set(-10 + k * 4, H - 1.2, 0); g.add(pp); }
+      t.cajero = this.npc(t, 0, -L / 2 + 1.2, { cara: 4, ropa: null, camisa: '#f2efe6', mujer: true, peloLargo: true });
+      t.interior.mostrador.set(ox, 0, oz - L / 2 + 3.4);
     } else if (t.tipo === 'arena') {
       const rz = -2.5;
       caja(6.4, 1.0, 6.4, m('#2a2c34'), 0, 0.5, rz);
@@ -514,6 +543,12 @@ export class Interiores {
       { id: 'tequila', nombre: 'Tequila', precio: 70, verbo: 'Tomar', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 15); j.mareo = Math.min(90, (j.mareo || 0) + 35); } },
       { id: 'jamaica', nombre: 'Agua de jamaica', precio: 25, verbo: 'Tomar', dar: jj => { j.mareo = Math.max(0, (j.mareo || 0) - 25); } },
       { id: 'bailar', nombre: 'Bailar en la pista', precio: 0, verbo: 'Bailar', desc: 'La gente te graba y subes seguidores.', dar: jj => { jj.gesto = { tipo: 'bailar', t: 8 }; j.redes.seguidores += 20 + (Math.random() * 30 | 0); j.redes.publicar('foto', '', { forzar: true }); j.actividades.cerrarTienda(); } }
+    ] };
+    if (t.tipo === 'mercado') return { titulo: 'MERCADO DE SAN JACINTO', sub: 'FONDA DOÑA CHUY', articulos: [
+      { id: 'birria', nombre: 'Plato de birria', precio: 70, verbo: 'Comer', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 60); } },
+      { id: 'torta', nombre: 'Torta ahogada', precio: 55, verbo: 'Comer', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 45); } },
+      { id: 'jugo', nombre: 'Jugo de naranja', precio: 25, verbo: 'Tomar', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 20); } },
+      { id: 'tejuino', nombre: 'Tejuino con nieve de limón', precio: 30, verbo: 'Tomar', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 25); j.mareo = Math.max(0, (j.mareo || 0) - 15); } }
     ] };
     if (t.tipo === 'arena') {
       const apostar = (lado, monto) => jj => { const A = t.arena; if (!A) return; if (A.combate > 0) { j.hud.notificar('info', 'Ya hay una lucha', 'Espera a que termine esta caída.', 3); jj.dinero += monto; return; } A.apuesta = { lado, monto }; A.combate = 14; A.caida = null; j.audio.tono(880, 0.5, 0.18, 'triangle'); j.hud.grande('¡A LA LONA!', 'Apostaste $' + monto + ' al ' + (lado === 'rudo' ? 'Rudo' : 'Técnico'), 2); };
