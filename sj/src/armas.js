@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { ARMAS, CATEGORIAS, tieneArma } from './jugador.js?v=202611212210';
-import { iconoArma, IMG_ARMAS, IMG_ARMAS2 } from './iconos.js?v=202611212210';
+import { ARMAS, CATEGORIAS, tieneArma } from './jugador.js?v=202611212220';
+import { iconoArma, IMG_ARMAS, IMG_ARMAS2 } from './iconos.js?v=202611212220';
 
 export class Rueda {
   constructor(juego) {

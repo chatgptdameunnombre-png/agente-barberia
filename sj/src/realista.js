@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611212210';
+import { crearHumano } from './humanos.js?v=202611212220';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -64,12 +64,13 @@ export class Realista {
     for (const o of this.armas || []) if (o.parent === this.empunadura) { this.empunadura.remove(o); if (this.p && this.p.md) this.p.md.add(o); }
     this.p = p;
     if (this.grupo.parent !== p.grupo) p.grupo.add(this.grupo);
-    this.ocultarPersona(p);
     this.armas = [];
+    const manos = new Set(p.manos || []);
     for (const k of Object.keys(p)) {
       const o = p[k];
-      if (o && o.isObject3D && o.parent === p.md && k !== 'md') this.armas.push(o);
+      if (o && o.isObject3D && o.parent === p.md && k !== 'md' && !manos.has(o) && !this.armas.includes(o)) this.armas.push(o);
     }
+    this.ocultarPersona(p);
     if (this.armas.length) {
       const g = p.grupo; g.updateMatrixWorld(true);
       const prevA = p.bd.rotation.clone(), prevC = p.cd.rotation.x;
@@ -87,7 +88,7 @@ export class Realista {
     p.ocultaRealista = true;
   }
   esMio(o) { let q = o; while (q) { if (q === this.grupo) return true; q = q.parent; } return false; }
-  esArma(o, p) { let q = o; while (q && q !== p.grupo) { if (q.parent === p.md || q.parent === this.empunadura) return true; q = q.parent; } return false; }
+  esArma(o, p) { let q = o; while (q && q !== p.grupo) { if (this.armas?.includes(q) || q.parent === this.empunadura) return true; q = q.parent; } return false; }
 
   elegirJugador(j, dt) {
     const fuego = FUEGO.includes(j.arma), v = j.velocidad || 0;
