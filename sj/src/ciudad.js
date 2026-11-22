@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611212355';
-import { hoja } from './texturas.js?v=202611212355';
+import { construirEstadio } from './estadio.js?v=202611212359';
+import { hoja } from './texturas.js?v=202611212359';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -533,6 +533,9 @@ export function construirCiudad(escena, mundo) {
       l.position.set(cx, 22.6, iz0 + 25.3);
       escena.add(l); salida.letreros.push(l);
       salida.lugares.hospital = { x: cx, z: iz0 + 30 };
+      salida.hospitalLote = { cx, iz0, ix0, ix1, iz1 };
+      salida.estacionados.push({ x: cx - 17, z: iz0 + 33, yaw: 0, tipo: 'ambulancia' }, { x: cx - 12.5, z: iz0 + 33, yaw: 0, tipo: 'ambulancia' });
+      for (const k of [0, 2, 3, 5]) salida.estacionados.push({ x: cx - 21 + k * 3.2, z: iz0 + 44, yaw: Math.PI, tipo: ['sedan', 'compacto', 'camioneta', 'sedan'][k % 4], color: ['#2e5a8a', '#d8d4cc', '#8a2a26', '#3a6a44', '#6a6e72', '#2a2c30'][k] });
     } else if (tipo === 'comisaria') {
       obra.caja('oficina', cx, iz0 + 12, 40, 18, 12, '#dfe7f2');
       obra.caja('liso', cx, iz0 + 21.2, 40, 0.4, 2, '#2556a8', 9.5, false);
@@ -541,6 +544,9 @@ export function construirCiudad(escena, mundo) {
       escena.add(l); salida.letreros.push(l);
       obra.caja('liso', cx - 14, iz1 - 10, 12, 16, 8, '#b9c6d6');
       salida.lugares.comisaria = { x: cx, z: iz0 + 26 };
+      salida.comisariaLote = { cx, iz0, ix0, ix1, iz1 };
+      for (const k of [0, 1, 3]) salida.estacionados.push({ x: cx + 4 + k * 3.2, z: iz0 + 41, yaw: 0, tipo: 'policia' });
+      salida.estacionados.push({ x: cx + 4 + 5 * 3.2, z: iz0 + 41, yaw: 0, tipo: 'camioneta', color: '#2a2c30' });
       salida.estacionados.push({ x: cx - 6, z: iz0 + 30, yaw: Math.PI / 2, tipo: 'policia' }, { x: cx + 6, z: iz0 + 30, yaw: Math.PI / 2, tipo: 'policia' });
     } else if (tipo === 'banco') {
       const fz = iz1 - 20;

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { linea, CALLE, BANQUETA, VIENTO } from './ciudad.js?v=202611212355';
+import { linea, CALLE, BANQUETA, VIENTO } from './ciudad.js?v=202611212359';
 
 function texPapel() {
   const W = 128, H = 160, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
