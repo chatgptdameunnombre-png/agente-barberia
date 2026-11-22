@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220227';
-import { mat } from './persona.js?v=202611220227';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220233';
+import { mat } from './persona.js?v=202611220233';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220227';
+import { hoja } from './texturas.js?v=202611220233';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -19,6 +19,7 @@ export const TIPOS = {
   moto: { largo: 2.1, ancho: 0.8, alto: 0.5, cabina: 0, vmax: 50, acel: 17, freno: 26, giro: 3.1, masa: 0.45, salud: 60 },
   ambulancia: { largo: 5.4, ancho: 2.1, alto: 0.8, cabina: 0.62, vmax: 37, acel: 9.5, freno: 18, giro: 1.85, masa: 1.5, salud: 170 },
   bici: { largo: 1.75, ancho: 0.6, alto: 0.45, cabina: 0, vmax: 13.5, acel: 4.8, freno: 13, giro: 3.3, masa: 0.22, salud: 60 },
+  bomberos: { largo: 7.6, ancho: 2.45, alto: 1.3, cabina: 0, vmax: 30, acel: 7, freno: 15, giro: 1.45, masa: 3.4, salud: 400 },
   pipa: { largo: 6.8, ancho: 2.35, alto: 1.2, cabina: 0, vmax: 24, acel: 5.5, freno: 13, giro: 1.5, masa: 2.8, salud: 240 },
   basura: { largo: 7.4, ancho: 2.45, alto: 1.3, cabina: 0, vmax: 20, acel: 4.5, freno: 12, giro: 1.4, masa: 3.2, salud: 320 },
   redilas: { largo: 5.3, ancho: 2.0, alto: 0.8, cabina: 0, vmax: 30, acel: 7.5, freno: 16, giro: 1.75, masa: 1.7, salud: 180 },
@@ -405,6 +406,7 @@ function modeloServicio(tipo, color) {
   for (const s of [-1, 1]) m(new THREE.BoxGeometry(0.04, 0.55, 0.9), matVidrio2, s * (A / 2 - 0.02), 1.85, L / 2 - CL / 2 + 0.1);
   m(new THREE.BoxGeometry(A, 0.35, L - 0.2), oscuro, 0, 0.62, 0);
   const atras = L - CL - 0.15, zc = -(CL + 0.15) / 2;
+  let barra = null;
   const c = document.createElement('canvas'); c.width = 512; c.height = 128; const x = c.getContext('2d');
   if (tipo === 'pipa') {
     x.fillStyle = '#f2f2ee'; x.fillRect(0, 0, 512, 128); x.fillStyle = '#e2392a'; x.fillRect(0, 84, 512, 22);
@@ -414,6 +416,17 @@ function modeloServicio(tipo, color) {
     { const uv = tanque.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getY(i), uv.getX(i)); }
     m(new THREE.BoxGeometry(0.5, 0.4, 0.5), oscuro, 0, 2.95, zc + 0.8);
     m(new THREE.CylinderGeometry(0.06, 0.06, 1.2, 8).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#c9a040', metalness: 0.8, roughness: 0.3 }), A / 2 - 0.1, 1.1, zc - 1);
+  } else if (tipo === 'bomberos') {
+    x.fillStyle = '#c8202e'; x.fillRect(0, 0, 512, 128); x.fillStyle = '#f4f2ec'; x.fillRect(0, 90, 512, 10); x.fillStyle = '#f2c14e'; x.fillRect(0, 104, 512, 8);
+    x.fillStyle = '#ffffff'; x.font = '900 46px Inter, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('BOMBEROS', 256, 40); x.font = '800 18px Inter, Arial, sans-serif'; x.fillText('SANTA JACARANDA', 256, 74);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    const lado = new THREE.MeshStandardMaterial({ map: t, roughness: 0.5 }), rojo = new THREE.MeshStandardMaterial({ color: '#c8202e', roughness: 0.5 });
+    m(new THREE.BoxGeometry(A, 1.7, atras - 0.2), [lado, lado, rojo, rojo, rojo, rojo], 0, 1.6, zc + 0.1);
+    const acero = new THREE.MeshStandardMaterial({ color: '#c9ced4', metalness: 0.7, roughness: 0.3 });
+    for (const s of [-0.45, 0.45]) m(new THREE.BoxGeometry(0.08, 0.08, atras + 0.6), acero, s, 2.62, zc + 0.3);
+    for (let k = 0; k < 9; k++) m(new THREE.BoxGeometry(0.9, 0.05, 0.05), acero, 0, 2.62, zc - atras / 2 + 0.2 + k * (atras + 0.2) / 9);
+    m(new THREE.CylinderGeometry(0.16, 0.2, 0.5, 10), acero, 0, 2.75, zc + atras / 2 - 0.4);
+    barra = []; for (const s of [-1, 1]) barra.push(m(new THREE.BoxGeometry(0.7, 0.16, 0.3), matApagado, s * 0.45, 2.42, L / 2 - CL / 2));
   } else {
     x.fillStyle = '#2f7a3a'; x.fillRect(0, 0, 512, 128); x.fillStyle = '#ffffff'; x.font = '900 38px Inter, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('SANTA JACARANDA LIMPIA', 256, 50); x.font = '700 20px Inter, Arial, sans-serif'; x.fillText('RECOLECCIÓN DE BASURA', 256, 96);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
@@ -431,7 +444,7 @@ function modeloServicio(tipo, color) {
     const ll = new THREE.Mesh(geoLlanta, matLlanta); ll.scale.setScalar(1.4); ll.castShadow = true; ll.add(new THREE.Mesh(geoRin2, matRin2));
     piv.add(ll); g.add(piv); ruedas.push(ll); if (sz > 0) delanteras.push(piv);
   }
-  return { grupo: g, carro, pinta, ruedas, delanteras, barra: null, partes: [cab], calav: cal.material, calavMalla: cal };
+  return { grupo: g, carro, pinta, ruedas, delanteras, barra, partes: [cab], calav: cal.material, calavMalla: cal };
 }
 
 function modeloLancha(color) {
@@ -462,7 +475,7 @@ export function modelo(tipo, color) {
   if (tipo === 'autobus') return modeloAutobus(color);
   if (tipo === 'reparto') return modeloReparto(color);
   if (tipo === 'redilas') return modeloRedilas(color);
-  if (tipo === 'pipa' || tipo === 'basura') return modeloServicio(tipo, color);
+  if (tipo === 'pipa' || tipo === 'basura' || tipo === 'bomberos') return modeloServicio(tipo, color);
   if (tipo === 'blindado') return modeloBlindado(color);
   const t = TIPOS[tipo];
   const G = geometrias(tipo);
@@ -745,7 +758,7 @@ export class Coche {
     if (this.barra) {
       const on = this.sirena && (performance.now() / 160 | 0) % 2;
       this.barra[0].material = (this.sirena && on) ? matRojo : matApagado;
-      this.barra[1].material = (this.sirena && !on) ? (this.tipo === 'ambulancia' ? matRojo : matAzul) : matApagado;
+      this.barra[1].material = (this.sirena && !on) ? (this.tipo === 'ambulancia' || this.tipo === 'bomberos' ? matRojo : matAzul) : matApagado;
     }
   }
 
