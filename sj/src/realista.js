@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611220119';
+import { crearHumano } from './humanos.js?v=202611220125';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -177,7 +177,7 @@ export class Realista {
 
   actualizarJugador(j, dt, duo = null) {
     if (!this.listo) return;
-    if (duo) Object.assign(j, { p: duo.p, velocidad: duo.vel, apunta: duo.apunta > 0, disparando: false, arma: duo.apunta > 0 ? 'pistola' : 'puno', coche: duo.enMoto ? { tipo: 'moto' } : null, muerto: 0, y: 0, rueda: null, agachado: false, golpeT: 0, recargando: 0, gesto: null });
+    if (duo) Object.assign(j, { yaw: duo.yaw, sentado: duo.sentadoListo || null, p: duo.p, velocidad: duo.vel, apunta: duo.apunta > 0, disparando: false, arma: duo.apunta > 0 ? 'pistola' : 'puno', coche: duo.enMoto ? { tipo: 'moto' } : null, muerto: 0, y: 0, rueda: null, agachado: false, golpeT: 0, recargando: 0, gesto: null });
     if (j.p !== this.p) this.montar(j);
     if (j.muerto && j.muneco && !j.arrestado) { this.seguirMuneco(j.muneco, j.p); return; }
     this.soltarMuneco();
@@ -236,7 +236,8 @@ export class Realista {
   }
 
   inclinar(yaw, dt, v) {
-    if (dt <= 0) return;
+    if (!isFinite(this.inclina)) this.inclina = 0;
+    if (dt <= 0 || !isFinite(yaw)) return;
     let d = yaw - (this.yawAnt ?? yaw); d = Math.atan2(Math.sin(d), Math.cos(d)); this.yawAnt = yaw;
     const giro = d / dt, meta = Math.max(-0.22, Math.min(0.22, -giro * Math.min(1, v / 5) * 0.09));
     this.inclina += (meta - this.inclina) * Math.min(1, dt * 6);

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { modeloProtagonista, realistaDe } from './jugador.js?v=202611220119';
-import { animar, sentar } from './persona.js?v=202611220119';
-import { Peaton } from './peatones.js?v=202611220119';
+import { modeloProtagonista, realistaDe } from './jugador.js?v=202611220125';
+import { animar, sentar } from './persona.js?v=202611220125';
+import { Peaton } from './peatones.js?v=202611220125';
 
 const CHARLAS = [
   [['Lucía', '¿Ya viste ese cielo? Esta ciudad de noche no tiene igual.'], ['Matías', 'Por eso no me voy de aquí.']],
@@ -80,6 +80,17 @@ export class Duo {
       this.enCoche = null;
     }
     g.visible = !jug.interior;
+    if (jug.sentado && !this.sentado && !jug.interior && !this.buscarEnemigo()) { let b = j.ciudad.bancas?.find(b => !b.ocupante && !b.pie && Math.hypot(b.x - jug.pos.x, b.z - jug.pos.z) < 3.4); if (!b && !jug.sentado.terraza) { const s = jug.sentado; for (const lado of [-1, 1]) { const x = s.x + Math.cos(s.yaw) * 0.68 * lado, z = s.z - Math.sin(s.yaw) * 0.68 * lado; if (!j.mundo.dentro(x, 0.6, z) && !j.ciudad.arboles?.some?.(t => Math.hypot(t.x - x, t.z - z) < 0.7)) { b = { x, z, yaw: s.yaw, pie: false, virtual: true }; break; } } } if (b) { b.ocupante = this; this.sentado = b; } }
+    if (this.sentado && (!jug.sentado || jug.interior)) { if (this.sentado.ocupante === this) this.sentado.ocupante = null; this.sentado = null; this.sentadoListo = null; }
+    if (this.sentado) {
+      const b = this.sentado, dx = b.x - this.pos.x, dz = b.z - this.pos.z, d = Math.hypot(dx, dz);
+      if (d > 0.35) { this.pos.x += dx / d * 1.6 * dt; this.pos.z += dz / d * 1.6 * dt; this.yaw = this.girar(this.yaw, Math.atan2(dx, dz), dt); this.vel += (1.6 - this.vel) * Math.min(1, dt * 8); this.sentadoListo = null; }
+      else { this.pos.set(b.x, 0, b.z); this.yaw = b.yaw; this.vel = 0; this.sentadoListo = b; }
+      animar(this.p, dt, this.vel, 'puno', false);
+      g.position.set(this.pos.x, 0, this.pos.z); g.rotation.y = this.yaw;
+      if (!j.sinRealista) realistaDe(this.nombre).actualizarJugador(this.adaptador || (this.adaptador = { juego: j }), dt, this);
+      return;
+    }
     const meta = jug.interior ? jug.interior.puerta : jug.pos;
     const fx = Math.sin(jug.yaw), fz = Math.cos(jug.yaw);
     const tx = jug.interior ? meta.x + jug.interior.fz * 1.2 : meta.x - fx * 1.8 - fz * 1.3, tz = jug.interior ? meta.z - jug.interior.fx * 1.2 : meta.z - fz * 1.8 + fx * 1.3;
