@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611220033';
-import { hoja } from './texturas.js?v=202611220033';
+import { construirEstadio } from './estadio.js?v=202611220036';
+import { hoja } from './texturas.js?v=202611220036';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -470,16 +470,7 @@ export function construirCiudad(escena, mundo) {
       for (let i = 0; i < 6; i++) obra.caja('liso', cx - 17 + i * 6.8, cz + 23.2, 3, 0.4, 4.5, '#3c2a20', 0.15, false);
       salida.lugares.mercado = { x: cx, z: iz1 + 1.2 };
     } else if (tipo === 'tianguis') {
-      const colores = ['#ff4f9a', '#ffc94a', '#3fb6ff', '#7be07b', '#ff7a3a', '#a77bff'];
-      for (let fx = 0; fx < 4; fx++) for (let fz = 0; fz < 5; fz++) {
-        const x = ix0 + 8 + fx * 12.5, z = iz0 + 6 + fz * 10.5;
-        obra.caja('liso', x, z, 3.4, 2.6, 1, '#8a6a4a', 0.17, true);
-        for (const [dx, dz] of [[-1.6, -1.2], [1.6, -1.2], [-1.6, 1.2], [1.6, 1.2]]) obra.forma('liso', new THREE.BoxGeometry(0.1, 2.6, 0.1), '#555', x + dx, 1.45, z + dz);
-        const lona = new THREE.BoxGeometry(4, 0.1, 3.2);
-        lona.rotateX(0.18);
-        obra.forma('liso', lona, colores[(fx + fz * 2) % colores.length], x, 2.85, z);
-      }
-      salida.lugares.tianguis = { x: cx, z: cz };
+      salida.lugares.tianguis = { x: cx, z: cz + 2 };
     } else if (tipo === 'taller') {
       obra.caja('oficina', ix0 + 18, iz0 + 8, 30, 14, 7, '#a9b6c2');
       obra.caja('liso', ix0 + 18, iz0 + 15.1, 12, 0.3, 4.6, '#2b2f33', 0.15, false);

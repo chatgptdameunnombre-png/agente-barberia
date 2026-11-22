@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { linea, indiceLinea, BLOQUES, LIMITE, CALLE } from './ciudad.js?v=202611220033';
+import { linea, indiceLinea, BLOQUES, LIMITE, CALLE } from './ciudad.js?v=202611220036';
 
 export const CALLES_X = ['Periférico Poniente', 'Calle Agave', 'Av. Jacarandas', 'Calle Tapatía', 'Av. Santa Jacaranda', 'Calle Mariachi', 'Av. Las Torres', 'Calle Tequesquite', 'Periférico Oriente'];
 export const CALLES_Z = ['Periférico Norte', 'Calle Birria', 'Av. Los Arcos', 'Calle Tejuino', 'Calzada del Valle', 'Calle Nopal', 'Av. Tianguis', 'Calle Cantarito', 'Periférico Sur'];
