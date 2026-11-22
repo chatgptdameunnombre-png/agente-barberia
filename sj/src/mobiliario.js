@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { BLOQUES, CALLE, linea, rng, LIMITE, tipoBloque } from './ciudad.js?v=202611220402';
+import { BLOQUES, CALLE, linea, rng, LIMITE, tipoBloque } from './ciudad.js?v=202611220415';
 
 const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(1, 1, 1), _e = new THREE.Euler();
 
@@ -34,7 +34,7 @@ export function amueblar(juego) {
       const x = eje === 'x' ? u : v, z = eje === 'x' ? v : u;
       if (Math.abs(x) > LIMITE - 2 || Math.abs(z) > LIMITE - 2 || !libre(x, z)) { cadena.push(null); continue; }
       const ry = eje === 'x' ? 0 : Math.PI / 2;
-      const P = { x, z, ry, eje, lado }; postes.push(P); cadena.push(P);
+      const P = { x, z, ry, eje, lado, t, i }; postes.push(P); cadena.push(P);
       mundo.agregar(x - 0.16, z - 0.16, x + 0.16, z + 0.16, 8.6);
       if (r() < 0.22) transformadores.push({ x: x - (eje === 'z' ? lado * 0.32 : 0), y: 6.3, z: z - (eje === 'x' ? lado * 0.32 : 0) });
       const hx = eje === 'x' ? u + 12 : linea(i) - lado * borde, hz = eje === 'x' ? linea(i) - lado * borde : u + 12;
@@ -159,5 +159,5 @@ export function amueblar(juego) {
   const imCharcos = instancias(new THREE.PlaneGeometry(1, 1), matCharco, charcos, false); imCharcos.visible = false; g.add(imCharcos);
   juego.charcos = { mat: matCharco, malla: imCharcos };
   escena.add(g);
-  return { grupo: g, hidrantesLista: hidrantes, mallaHidrantes: imHidrantes, postes: postes.length, cables: cables.length, hidrantes: hidrantes.length, registros: registros.length, altos: altos.length, jardineras: jardineras.length, aires: aires.length, grafitis: grafitis.length, manchas: manchas.length };
+  return { grupo: g, postesLista: postes, hidrantesLista: hidrantes, mallaHidrantes: imHidrantes, postes: postes.length, cables: cables.length, hidrantes: hidrantes.length, registros: registros.length, altos: altos.length, jardineras: jardineras.length, aires: aires.length, grafitis: grafitis.length, manchas: manchas.length };
 }

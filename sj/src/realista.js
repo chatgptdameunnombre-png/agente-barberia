@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano, recorte } from './humanos.js?v=202611220402';
+import { crearHumano, recorte } from './humanos.js?v=202611220415';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -20,6 +20,7 @@ class Locomocion {
   accion(nombre) {
     let a = this.acc[nombre];
     if (!a) { a = this.mixer.clipAction(this.clips[nombre]); a.setLoop(THREE.LoopRepeat, Infinity); a.play(); a.setEffectiveTimeScale(0); a.setEffectiveWeight(0); this.acc[nombre] = a; }
+    else if (!a.isScheduled()) { a.play(); a.setEffectiveTimeScale(0); }
     return a;
   }
   pesos(v) {
@@ -138,6 +139,7 @@ export class Realista {
     else if (j.coche) base = 'Driving_Loop';
     else if (j.rueda) { base = 'Roll'; veces = 1; forzarBase = !this.rodando; this.rodando = true; }
     else if (j.reparando > 0) base = 'Fixing_Kneeling';
+    else if (j.pintando > 0) base = 'Spell_Simple_Idle_Loop';
     else if (j.nadando) { base = v > 0.3 ? 'Swim_Fwd_Loop' : 'Swim_Idle_Loop'; if (v > 0.3) escala = Math.max(0.7, Math.min(1.6, v / 1.9)); }
     else if (j.y > 0.08) base = 'Jump_Loop';
     else if (j.agachado) { base = v > 0.3 ? 'Crouch_Fwd_Loop' : 'Crouch_Idle_Loop'; }

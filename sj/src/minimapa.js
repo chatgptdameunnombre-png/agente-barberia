@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611220402';
-import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611220402';
-import { dibujarGlifo } from './iconos.js?v=202611220402';
+import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611220415';
+import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611220415';
+import { dibujarGlifo } from './iconos.js?v=202611220415';
 
 export const ICONOS = {
   taller: { c: '#ffc94a', t: 'llave', n: 'Taller de Don Chuy' },
@@ -160,6 +160,7 @@ export class Minimapa {
     for (const m of j.trabajos?.marcasMapa() || []) l.push(m);
     for (const m of j.aleatorios?.marcasMapa() || []) l.push(m);
     for (const m of j.tren?.marcasMapa() || []) l.push(m);
+    for (const m of j.placazos?.marcasMapa() || []) l.push(m);
     if (j.duo && !j.jugador.coche) l.push({ x: j.duo.pos.x, z: j.duo.pos.z, tipo: 'aliado' });
     const d = j.gps.destino;
     if (d) l.push({ x: d.x, z: d.z, tipo: 'pin', color: '#b46bff' });

@@ -247,6 +247,6 @@ export class Malecon {
   actualizar(noche) {
     if (!this.focos) return;
     this.focos.material.color.set(noche > 0.25 ? '#ffe9b8' : '#8a8578');
-    for (const h of this.halos) h.material.opacity = noche * 0.7;
+    for (const h of this.halos) { h.material.opacity = noche * 0.7; h.visible = noche > 0.01; }
   }
 }

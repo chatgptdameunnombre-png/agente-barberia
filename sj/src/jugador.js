@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { enLago } from './ciudad.js?v=202611220402';
-import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611220402';
+import { enLago } from './ciudad.js?v=202611220415';
+import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611220415';
 
 export const ARMAS = {
   puno: { nombre: 'PUÑOS', tipo: 'golpe', daño: 14, cadencia: 0.42, alcance: 1.7, empuje: 3, cargador: 0 },
@@ -32,7 +32,7 @@ export const CATEGORIAS = [
 ];
 export const tieneArma = (j, k) => { const s = j.armas[k]; return !!s && (ARMAS[k].tipo !== 'lanzar' || s.reserva > 0); };
 
-import { Realista } from './realista.js?v=202611220402';
+import { Realista } from './realista.js?v=202611220415';
 export const REALISTAS = {};
 export function realistaDe(nombre) { const k = nombre === 'Lucía' ? 'lucia' : nombre === 'Matías' ? 'matias' : nombre; return REALISTAS[k] || (REALISTAS[k] = new Realista(k)); }
 
@@ -184,7 +184,7 @@ export class Jugador {
     }
     if (this.coche) { this.grupo.visible = this.coche.tipo === 'moto' || this.coche.tipo === 'lancha'; if (this.coche.tipo === 'moto') montar(this.p, this.coche, dt); else if (this.coche.tipo === 'lancha') { sentar(this.p); this.p.bd.rotation.set(-1.2, 0, 0.1); this.p.bi.rotation.set(-1.1, 0, -0.1); this.p.cabeza.rotation.y = -this.coche.giroSuave * 0.3; } return; }
     this.grupo.visible = true;
-    if (this.reparando > 0) { this.reparando -= dt; ent = { x: 0, y: 0, correr: false, saltar: false }; }
+    if (this.reparando > 0 || this.pintando > 0) { if (this.reparando > 0) this.reparando -= dt; if (this.pintando > 0) this.pintando -= dt; ent = { x: 0, y: 0, correr: false, saltar: false }; }
     const correr = ent.correr ? 1 : 0;
     let mx = 0, mz = 0;
     const fx = Math.sin(camYaw), fz = Math.cos(camYaw), rx = -fz, rz = fx;
