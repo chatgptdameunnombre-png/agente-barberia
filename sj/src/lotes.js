@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { VIENTO } from './ciudad.js?v=202611220036';
+import { VIENTO } from './ciudad.js?v=202611220038';
 
 function lienzo(w, h, pintar) { const c = document.createElement('canvas'); c.width = w; c.height = h; pintar(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 
@@ -60,4 +60,22 @@ export function decorarLotes(juego) {
   if (lineas.length) escena.add(new THREE.Mesh(mergeGeometries(lineas), matLinea));
   if (acero.length) { const m = new THREE.Mesh(mergeGeometries(acero.map(g => g.index ? g.toNonIndexed() : g)), matAcero); m.castShadow = true; escena.add(m); }
   return { bandera, pista };
+}
+
+export function frenteMercado(juego) {
+  const L = juego.ciudad.bloques.find(b => b.tipo === 'mercado'); if (!L) return null;
+  const cx = L.cx, cz = L.cz, escena = juego.escena;
+  const tex = lienzo(256, 384, (g, w, h) => {
+    const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#3a2a1c'); gr.addColorStop(0.5, '#6a4a2a'); gr.addColorStop(1, '#2a2018'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    for (let k = 0; k < 5; k++) { const x = 20 + k * 52, y = 60 + (k % 2) * 10; g.fillStyle = '#ffe2a0'; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); const hl = g.createRadialGradient(x, y, 0, x, y, 40); hl.addColorStop(0, 'rgba(255,220,150,0.45)'); hl.addColorStop(1, 'rgba(255,220,150,0)'); g.fillStyle = hl; g.fillRect(x - 40, y - 40, 80, 80); g.strokeStyle = '#1a1410'; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, y - 6); g.stroke(); }
+    const cols = ['#ff8a1a', '#d8202e', '#f2d23a', '#6ab83a', '#e8317a', '#2a7de0'];
+    for (const [y, s] of [[230, 1], [290, 1.25]]) for (let k = 0; k < 7; k++) { g.fillStyle = '#5a3a22'; g.fillRect(k * 40 - 6, y, 34 * s, 40 * s); for (let q = 0; q < 6; q++) { g.fillStyle = cols[(k + q) % cols.length]; g.beginPath(); g.arc(k * 40 + q * 5, y - 4, 4 * s, 0, 7); g.fill(); } }
+    for (let k = 0; k < 4; k++) { const x = 30 + k * 62, y = 250 + (k % 2) * 30; g.fillStyle = 'rgba(20,16,12,0.85)'; g.beginPath(); g.ellipse(x, y - 40, 9, 11, 0, 0, 7); g.fill(); g.fillRect(x - 12, y - 30, 24, 50); }
+    g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(0, h - 30, w, 30);
+  });
+  const mat = new THREE.MeshStandardMaterial({ map: tex, emissive: '#ffffff', emissiveMap: tex, emissiveIntensity: 0.35, roughness: 0.9 });
+  for (let i = 0; i < 6; i++) { const p = new THREE.Mesh(new THREE.PlaneGeometry(2.9, 4.4), mat); p.position.set(cx - 17 + i * 6.8, 0.15 + 2.2, cz + 23.42); escena.add(p); }
+  const letr = new THREE.Mesh(new THREE.PlaneGeometry(14, 1.5), new THREE.MeshBasicMaterial({ map: lienzo(1024, 110, (g, w, h) => { g.fillStyle = '#f2e6c8'; g.fillRect(0, 0, w, h); g.strokeStyle = '#7a2a1a'; g.lineWidth = 8; g.strokeRect(6, 6, w - 12, h - 12); g.fillStyle = '#7a2a1a'; g.font = '900 62px Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('MERCADO DE SAN JACINTO', w / 2, h / 2 + 4); }) }));
+  letr.position.set(cx, 7.6, cz + 23.45); escena.add(letr);
+  return { mat };
 }
