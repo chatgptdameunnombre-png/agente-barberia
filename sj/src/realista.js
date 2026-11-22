@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611220115';
+import { crearHumano } from './humanos.js?v=202611220119';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -133,6 +133,7 @@ export class Realista {
     const fuego = FUEGO.includes(j.arma), v = j.velocidad || 0;
     let base = 'Idle_Loop', escala = 1, veces = Infinity, sup = null, supVeces = Infinity, forzarSup = false, forzarBase = false;
     if (j.arrestado) base = 'Crouch_Idle_Loop';
+    else if (j.sentado) base = j.sentado.pie ? 'Idle_Loop' : 'Sitting_Idle_Loop';
     else if (j.coche) base = 'Driving_Loop';
     else if (j.rueda) { base = 'Roll'; veces = 1; forzarBase = !this.rodando; this.rodando = true; }
     else if (j.y > 0.08) base = 'Jump_Loop';

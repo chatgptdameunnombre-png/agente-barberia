@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611220115';
+import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611220119';
 
 export const ARMAS = {
   puno: { nombre: 'PUÑOS', tipo: 'golpe', daño: 14, cadencia: 0.42, alcance: 1.7, empuje: 3, cargador: 0 },
@@ -31,7 +31,7 @@ export const CATEGORIAS = [
 ];
 export const tieneArma = (j, k) => { const s = j.armas[k]; return !!s && (ARMAS[k].tipo !== 'lanzar' || s.reserva > 0); };
 
-import { Realista } from './realista.js?v=202611220115';
+import { Realista } from './realista.js?v=202611220119';
 export const REALISTAS = {};
 export function realistaDe(nombre) { const k = nombre === 'Lucía' ? 'lucia' : nombre === 'Matías' ? 'matias' : nombre; return REALISTAS[k] || (REALISTAS[k] = new Realista(k)); }
 
@@ -138,7 +138,24 @@ export class Jugador {
     if (this.salud <= 0) { this.salud = 0; this.juego.morirJugador(); }
   }
 
+  bancaCerca() {
+    if (this.coche || this.muerto || this.interior || this.sentado) return null;
+    return this.juego.ciudad.bancas?.find(b => !b.ocupante && !b.pie && Math.hypot(b.x - this.pos.x, b.z - this.pos.z) < 1.4) || null;
+  }
+
+  sentarse(b) { this.sentado = b; b.ocupante = this; this.pos.set(b.x, 0, b.z); this.yaw = b.yaw; this.velocidad = 0; }
+
+  levantarse() { const b = this.sentado; if (!b) return; if (b.ocupante === this) b.ocupante = null; this.sentado = null; this.pos.x += Math.sin(b.yaw) * 0.6; this.pos.z += Math.cos(b.yaw) * 0.6; }
+
   actualizar(dt, ent, camYaw) {
+    if (this.sentado && (ent?.x || ent?.y || this.muerto || this.coche || this.interior)) this.levantarse();
+    if (this.sentado) {
+      const b = this.sentado; this.pos.set(b.x, 0, b.z); this.yaw = b.yaw; this.velocidad = 0;
+      this.salud = Math.min(this.saludMax || 100, this.salud + dt * 1.5);
+      this.grupo.position.copy(this.pos); this.grupo.rotation.y = this.yaw;
+      if (!this.juego.sinRealista) realistaDe(this.personaje).actualizarJugador(this, dt);
+      return;
+    }
     this.actualizarBase(dt, ent, camYaw);
     if (!this.juego.sinRealista) realistaDe(this.personaje).actualizarJugador(this, dt);
   }
