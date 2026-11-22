@@ -1,8 +1,9 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611212045';
-import { Coche } from './vehiculos.js?v=202611212045';
-import { Peaton } from './peatones.js?v=202611212045';
-import { CONTACTOS } from './contactos.js?v=202611212045';
+import { linea, CARRIL } from './ciudad.js?v=202611212139';
+import { Coche } from './vehiculos.js?v=202611212139';
+import { Peaton } from './peatones.js?v=202611212139';
+import { CONTACTOS } from './contactos.js?v=202611212139';
+import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611212139';
 
 export function crearMarcador(escena, color) {
   const g = new THREE.Group();
@@ -96,9 +97,11 @@ export class Misiones {
       for (const id in CONTACTOS) {
         const C = CONTACTOS[id], ok = this.disponible(id) && this.esperaReintento <= 0;
         let mk = this.marcasC[id];
-        if (!mk && ok) { mk = this.marcasC[id] = crearMarcador(j.escena, C.color); const p = this.lugarC(id); mk.g.position.set(p.x, 0, p.z); mk.cil.scale.set(1.6, 3, 1.6); mk.aro.scale.set(1.6, 1, 1.6); mk.x = p.x; mk.z = p.z; }
+        if (!mk && ok) { mk = this.marcasC[id] = crearMarcador(j.escena, C.color); const p = this.lugarC(id); mk.g.position.set(p.x, 0, p.z); mk.cil.scale.set(1.6, 3, 1.6); mk.aro.scale.set(1.6, 1, 1.6); mk.x = p.x; mk.z = p.z; this.figura(mk, C, p); }
+        if (mk?.fig) this.animarFigura(mk, dt);
         if (!mk) continue;
         mk.g.visible = ok;
+        if (mk.fig) mk.fig.grupo.visible = this.otros[id] < C.lista.length && !mk.fig.lejos;
         if (!ok) continue;
         mk.flecha.position.y = 4.5 + Math.sin(t * 3) * 0.3; mk.flecha.rotation.y += dt * 2;
         if (!this.avisados[id] && this.otros[id] === 0) { this.avisados[id] = true; if (C.requisito > 0) j.hud.notificar('mision', 'Nuevo contacto: ' + C.nombre, `Te espera en ${C.zona}. Búscalo con la letra ${C.letra} en el mapa.`, 6); }
@@ -106,7 +109,7 @@ export class Misiones {
       }
       return;
     }
-    for (const id in this.marcasC) this.marcasC[id].g.visible = false;
+    for (const id in this.marcasC) { const mk = this.marcasC[id]; mk.g.visible = false; if (mk.fig) { mk.fig.grupo.visible = this.contacto !== id && this.otros[id] < CONTACTOS[id].lista.length && !mk.fig.lejos; this.animarFigura(mk, dt); if (this.contacto === id) mk.fig.grupo.visible = false; } }
     if (this.reloj !== null) {
       this.reloj -= dt;
       j.hud.temporizador(this.reloj);
@@ -116,6 +119,27 @@ export class Misiones {
     const r = this.activa.actualizar(this, dt);
     if (r === 'ok') this.completar();
     else if (typeof r === 'string' && r.startsWith('falla')) this.fallar(r.slice(6));
+  }
+
+  figura(mk, C, p) {
+    if (!C.apariencia) return;
+    const f = crearPersona({ ...C.apariencia, fijo: true });
+    f.grupo.position.set(p.x + 1.5, 0, p.z - 0.9); f.grupo.rotation.y = Math.atan2(-1.5, 0.9);
+    this.j.escena.add(f.grupo); mk.fig = f; f.yawBase = f.grupo.rotation.y;
+  }
+
+  animarFigura(mk, dt) {
+    const f = mk.fig, J = this.j.jugador.posicion, dx = J.x - f.grupo.position.x, dz = J.z - f.grupo.position.z, d = Math.hypot(dx, dz);
+    f.lejos = d > 110;
+    if (f.lejos) { f.grupo.visible = false; return; }
+    nivelDetalle(f, d < 35);
+    if (d > 60) return;
+    const meta = d < 14 ? Math.atan2(dx, dz) : f.yawBase;
+    let dif = meta - f.grupo.rotation.y; dif = Math.atan2(Math.sin(dif), Math.cos(dif));
+    f.grupo.rotation.y += dif * Math.min(1, dt * 3);
+    f.habla = d < 6; f.expresion = null;
+    animar(f, dt, 0, 'puno', false);
+    if (d < 10) { const t = performance.now() / 1000; f.bd.rotation.set(-0.5 + Math.sin(t * 2.1) * 0.25, 0, -0.25); f.cd.rotation.x = -1.1 + Math.sin(t * 3.3) * 0.2; }
   }
 
   disponible(id) { const C = CONTACTOS[id]; return this.indice >= C.requisito && this.otros[id] < C.lista.length; }

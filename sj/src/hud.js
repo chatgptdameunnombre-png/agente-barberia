@@ -1,5 +1,5 @@
-import { ARMAS } from './jugador.js?v=202611212045';
-import { ICONO_ARMA, ICONO, iconoArma, IMG_ARMAS, glifoSVG } from './iconos.js?v=202611212045';
+import { ARMAS } from './jugador.js?v=202611212139';
+import { ICONO_ARMA, ICONO, iconoArma, IMG_ARMAS, glifoSVG } from './iconos.js?v=202611212139';
 
 const $ = id => document.getElementById(id);
 const RETRATO = { 'Don Chuy': 0, 'El Güero': 1, 'Encargado': 2, 'Matón': 3, 'Matías': 4, 'Lucía': 5, 'Cajero': 6, 'Oficial': 7 };
@@ -52,8 +52,10 @@ export class Hud {
     if (!l) { d.classList.remove('on'); return; }
     const r = d.querySelector('.retrato');
     const i = RETRATO[l[0]], i2 = RETRATO2[l[0]];
-    r.classList.toggle('nada', i === undefined && i2 === undefined);
-    if (i2 !== undefined) { r.style.backgroundImage = 'url(assets/contactos.jpg)'; r.style.backgroundSize = '400% 100%'; r.style.backgroundPosition = `${i2 * 33.333}% 0%`; }
+    const i3 = i === undefined && i2 === undefined ? window.__juego?.retrato?.(l[0]) : null;
+    r.classList.toggle('nada', i === undefined && i2 === undefined && !i3);
+    if (i3) { r.style.backgroundImage = `url(${i3})`; r.style.backgroundSize = 'cover'; r.style.backgroundPosition = 'center'; }
+    else if (i2 !== undefined) { r.style.backgroundImage = 'url(assets/contactos.jpg)'; r.style.backgroundSize = '400% 100%'; r.style.backgroundPosition = `${i2 * 33.333}% 0%`; }
     else if (i !== undefined) { r.style.backgroundImage = ''; r.style.backgroundSize = ''; r.style.backgroundPosition = `${(i % 4) * 33.333}% ${Math.floor(i / 4) * 100}%`; }
     d.querySelector('b').textContent = l[0] || 'Aviso';
     d.querySelector('p').innerHTML = l[1];

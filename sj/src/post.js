@@ -8,6 +8,7 @@ import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 
 class Oclusion extends GTAOPass {
+  setSize(w, h) { super.setSize(Math.max(1, w * 0.5 | 0), Math.max(1, h * 0.5 | 0)); }
   overrideVisibility() {
     const cache = this._visibilityCache;
     this.scene.traverse(o => {
@@ -57,8 +58,8 @@ export class Post {
     this.composer.addPass(new RenderPass(escena, camara));
     this.ao = new Oclusion(escena, camara, innerWidth, innerHeight);
     this.ao.blendIntensity = 0.85;
-    this.ao.updateGtaoMaterial({ radius: 0.9, distanceExponent: 1.6, thickness: 2.5, scale: 1.1, samples: 12 });
-    this.ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 });
+    this.ao.updateGtaoMaterial({ radius: 0.9, distanceExponent: 1.6, thickness: 2.5, scale: 1.1, samples: 8 });
+    this.ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 4, rings: 2, samples: 8 });
     this.ao.enabled = false;
     this.composer.addPass(this.ao);
     this.bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.42, 0.55, 0.86);
@@ -72,7 +73,16 @@ export class Post {
     this.dolor = 0;
   }
   tamaño(w, h) { this.composer.setSize(w, h); }
-  nivel(q) { this.ao.enabled = q >= 3; this.smaa.enabled = q >= 2; }
+  nivel(q) { this.ao.enabled = q >= 3 && !this.aoApagado; this.smaa.enabled = q >= 2; }
+  vigilar(dt, q) {
+    if (q < 3 || this.aoApagado) return false;
+    this.cuadros = (this.cuadros || 0) + 1; this.tiempo = (this.tiempo || 0) + dt;
+    if (this.tiempo < 2) return false;
+    const fps = this.cuadros / this.tiempo; this.cuadros = 0; this.tiempo = 0;
+    this.lentos = fps < 38 ? (this.lentos || 0) + 1 : 0;
+    if (this.lentos >= 3) { this.aoApagado = true; this.ao.enabled = false; return true; }
+    return false;
+  }
   render(dt, estado) {
     const u = this.grado.uniforms;
     this.dolor = Math.max(0, this.dolor - dt * 1.5);

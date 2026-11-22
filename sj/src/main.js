@@ -1,35 +1,36 @@
 import * as THREE from 'three';
-import { Mundo, construirCiudad, LIMITE, esCalle, VIENTO, linea } from './ciudad.js?v=202611212045';
-import { Coche, nuevaRutaIA, objetivoIA, dirigir, puntoCalleAleatorio, matFaro, matCalavera, matHalo } from './vehiculos.js?v=202611212045';
-import { Peaton } from './peatones.js?v=202611212045';
-import { Jugador, ARMAS } from './jugador.js?v=202611212045';
-import { Policia } from './policia.js?v=202611212045';
-import { Ambiente } from './ambiente.js?v=202611212045';
-import { Audio } from './audio.js?v=202611212045';
-import { Minimapa } from './minimapa.js?v=202611212045';
-import { Misiones } from './misiones.js?v=202611212045';
-import { Hud } from './hud.js?v=202611212045';
-import { GPS, zona, calle } from './gps.js?v=202611212045';
-import { Rueda, Granadas } from './armas.js?v=202611212045';
-import { Actividades, Estadisticas } from './actividades.js?v=202611212045';
-import { decorar } from './decoracion.js?v=202611212045';
-import { Post } from './post.js?v=202611212045';
-import { ORDEN } from './jugador.js?v=202611212045';
-import { pinturas, matsDecal, modelo as modeloCoche, TIPOS } from './vehiculos.js?v=202611212045';
-import { Interiores } from './interiores.js?v=202611212045';
-import { crearPersona, sentar, montar } from './persona.js?v=202611212045';
-import { Animales } from './animales.js?v=202611212045';
-import { Duo } from './duo.js?v=202611212045';
-import { Telefono } from './telefono.js?v=202611212045';
-import { Redes } from './redes.js?v=202611212045';
-import { Eventos } from './eventos.js?v=202611212045';
-import { Economia } from './economia.js?v=202611212045';
-import { Trabajos } from './trabajos.js?v=202611212045';
-import { Aleatorios } from './aleatorios.js?v=202611212045';
-import { Ambulantes } from './ambulantes.js?v=202611212045';
-import { Semaforos } from './semaforos.js?v=202611212045';
-import { Autobuses } from './autobuses.js?v=202611212045';
-import { Fisica } from './fisica.js?v=202611212045';
+import { Mundo, construirCiudad, LIMITE, esCalle, VIENTO, linea } from './ciudad.js?v=202611212139';
+import { Coche, nuevaRutaIA, objetivoIA, dirigir, puntoCalleAleatorio, matFaro, matCalavera, matHalo } from './vehiculos.js?v=202611212139';
+import { Peaton } from './peatones.js?v=202611212139';
+import { Jugador, ARMAS } from './jugador.js?v=202611212139';
+import { Policia } from './policia.js?v=202611212139';
+import { Ambiente } from './ambiente.js?v=202611212139';
+import { Audio } from './audio.js?v=202611212139';
+import { Minimapa } from './minimapa.js?v=202611212139';
+import { Misiones } from './misiones.js?v=202611212139';
+import { Hud } from './hud.js?v=202611212139';
+import { GPS, zona, calle } from './gps.js?v=202611212139';
+import { Rueda, Granadas } from './armas.js?v=202611212139';
+import { Actividades, Estadisticas } from './actividades.js?v=202611212139';
+import { decorar } from './decoracion.js?v=202611212139';
+import { Post } from './post.js?v=202611212139';
+import { ORDEN } from './jugador.js?v=202611212139';
+import { pinturas, matsDecal, modelo as modeloCoche, TIPOS } from './vehiculos.js?v=202611212139';
+import { Interiores } from './interiores.js?v=202611212139';
+import { crearPersona, sentar, montar } from './persona.js?v=202611212139';
+import { Animales } from './animales.js?v=202611212139';
+import { Duo } from './duo.js?v=202611212139';
+import { Telefono } from './telefono.js?v=202611212139';
+import { Redes } from './redes.js?v=202611212139';
+import { Eventos } from './eventos.js?v=202611212139';
+import { Economia } from './economia.js?v=202611212139';
+import { Trabajos } from './trabajos.js?v=202611212139';
+import { Aleatorios } from './aleatorios.js?v=202611212139';
+import { Ambulantes } from './ambulantes.js?v=202611212139';
+import { Semaforos } from './semaforos.js?v=202611212139';
+import { Autobuses } from './autobuses.js?v=202611212139';
+import { Fisica } from './fisica.js?v=202611212139';
+import { CONTACTOS } from './contactos.js?v=202611212139';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const TRAFICO = 26, PEATONES = 34;
@@ -503,7 +504,7 @@ class Juego {
     };
   }
 
-  distanciaLibre(c, rango, ignorarCoches) {
+  distanciaLibre(c, rango, ignorarCoches, ignorarTodo = false) {
     const fx = c.fx, fz = c.fz, rx = -fz, rz = fx;
     let m = rango;
     const ver = (x, z, ancho, rad) => {
@@ -514,6 +515,7 @@ class Juego {
       if (l < ancho) m = Math.min(m, a - rad - c.t.largo / 2);
     };
     if (!ignorarCoches) for (const o of this.coches) if (o !== c) ver(o.pos.x, o.pos.z, 2.3, o.t.largo / 2);
+    if (ignorarTodo) return m;
     const jp = this.jugador.posicion;
     if (this.jugador.coche) ver(jp.x, jp.z, 2.3, this.jugador.coche.t.largo / 2);
     else ver(jp.x, jp.z, 1.6, 0.4);
@@ -547,7 +549,8 @@ class Juego {
       let v = o.lento ? 6 : 12.5;
       if (Math.abs(a) > 0.7) v = 4.5;
       if (c.ignorar > 0) c.ignorar -= dt;
-      const libre = this.distanciaLibre(c, 18, c.ignorar > 0);
+      if (c.rodeo > 0) c.rodeo -= dt;
+      const libre = this.distanciaLibre(c, 18, c.ignorar > 0, c.rodeo > 0);
       if (libre < 16) v = Math.min(v, Math.max(0, (libre - 2.5) * 1.1));
       const RI = c.ia, along = (c.pos.x - linea(RI.ix)) * RI.dx + (c.pos.z - linea(RI.iz)) * RI.dz;
       const luz = this.semaforos.estado(RI.ix, RI.iz, RI.dx !== 0 ? 'x' : 'z');
@@ -556,8 +559,17 @@ class Juego {
       if (v < 1 && libre < 16 && !c.enRojo) c.espera = (c.espera || 0) + dt; else c.espera = 0;
       if (c.espera > 2.5 + (c.id || 0) % 3) { c.espera = 0; c.ignorar = 2.2; }
       if (c.panico > 0) { c.panico -= dt; v *= 1.7; }
-      if (v < 1) { c.manejar(dt, c.adelante > 0.3 ? -1 : 0, dirigir(c, o.x, o.z).giro, false); c.atorado = 0; }
-      else this.conducirHacia(c, dt, o.x, o.z, v);
+      c.trabado = Math.abs(c.adelante || 0) < 1.5 && !c.enRojo ? (c.trabado || 0) + dt : Math.max(0, (c.trabado || 0) - dt * 0.7);
+      if (c.trabado > 4 && libre < 8 && !(c.pito > 0)) {
+        c.pito = 4; if (c.pos.distanceTo(jug.posicion) < 40) this.audio.claxon();
+        for (const q of this.peatones) if (!q.muerto && Math.abs(q.pos.x - c.pos.x) + Math.abs(q.pos.z - c.pos.z) < 12) q.asustar(c.pos.x, c.pos.z, 0.8);
+      }
+      if (c.pito > 0) c.pito -= dt;
+      if (c.trabado > 6 && !(c.rodeo > 0)) { c.rodeo = 3.5; c.ignorar = 3.5; c.trabado = 3; }
+      let ox = o.x, oz = o.z;
+      if (c.rodeo > 0) { ox -= c.fz * 3.4; oz += c.fx * 3.4; v = Math.max(v, 5); }
+      if (v < 1) { c.manejar(dt, c.adelante > 0.3 ? -1 : 0, dirigir(c, ox, oz).giro, false); c.atorado = 0; }
+      else this.conducirHacia(c, dt, ox, oz, v);
     } else if (c.conductor === 'policia') {
       const jp = jug.posicion;
       const d = c.pos.distanceTo(jp);
@@ -1130,7 +1142,8 @@ class Juego {
       const visible = ((c.pos.x - p.x) * fwdx + (c.pos.z - p.z) * fwdz) / (d || 1) > 0.2 && d < 140;
       if (c.conductor === 'ia') trafico++;
       if (c.quemado) { c.quemado += 0.5; if ((c.quemado > 45 && !visible) || d > 220) { c.quitar(); this.coches.splice(i, 1); } continue; }
-      if (c.conductor === 'ia' && d > 200 && !visible) {
+      if (c.conductor === 'ia' && (d > 200 || (c.trabado > 16 && d > 45)) && !visible) {
+        c.trabado = 0; c.rodeo = 0;
         const q = puntoCalleAleatorio(p, 95, 170);
         if (q && Math.hypot(q.x - p.x, q.z - p.z) > 0) {
           const vis = ((q.x - p.x) * fwdx + (q.z - p.z) * fwdz) / Math.hypot(q.x - p.x, q.z - p.z) > 0.3;
@@ -1393,6 +1406,7 @@ class Juego {
     if (this.fotosPendientes?.length && this.yaInicio && !this.foto && !this.jugador.interior && (this.marcoFoto = (this.marcoFoto || 0) + 1) % 20 === 0) { const u = this.fotoCiudad(); if (u) this.fotosPendientes.shift()(u); }
     if (this.overlay && !this.pausado && this.yaInicio) { const jp = this.jugador.posicion; let s = 0; for (const c of this.coches) if (c.sirena && c.tipo === 'policia' && !c.quemado) s = Math.max(s, 1 - c.pos.distanceTo(jp) / 140); this.audio.sirena(Math.max(0, s), 0.55); }
     if (this.overlay === 'mapa') { this.marcoMapa = (this.marcoMapa || 0) + 1; if (this.marcoMapa % 2 === 0) this.minimapa.dibujarGrande(); }
+    if (this.post.activo && !this.foto && this.post.vigilar(real, +this.ajustes.calidad)) this.hud.notificar('info', 'Calidad ajustada', 'Apagué las sombras de contacto para que el juego vaya fluido.', 4);
     if (this.post.activo && !this.foto) this.post.render(dt, { salud: this.jugador.salud, muerto: !!this.jugador.muerto, turbo: !!this.jugador.coche?.turbo, rapido: this.jugador.coche ? Math.min(1, Math.max(0, (this.jugador.coche.vel - 25) / 25)) : 0, noche: this.ambiente.noche });
     else if (this.post.activo) this.post.render(0.016, { salud: 100, muerto: false, turbo: false, rapido: 0, noche: this.ambiente.noche });
     else this.renderer.render(this.escena, this.camara);
@@ -1508,6 +1522,29 @@ class Juego {
     R.setPixelRatio(pr); R.setSize(antes.x, antes.y, false);
     piso.geometry.dispose(); piso.material.dispose();
     return (this.fotosAuto[clave] = c.toDataURL('image/jpeg', 0.86));
+  }
+
+  retrato(nombre) {
+    this.retratos = this.retratos || {};
+    if (nombre in this.retratos) return this.retratos[nombre];
+    const C = Object.values(CONTACTOS).find(c => c.nombre === nombre);
+    if (!C?.apariencia) return (this.retratos[nombre] = null);
+    const R = this.renderer, esc = new THREE.Scene(), ancho = 256, alto = 256;
+    esc.environment = this.escena.environment; esc.background = new THREE.Color(C.color).multiplyScalar(0.22);
+    const p = crearPersona({ ...C.apariencia, fijo: true }); esc.add(p.grupo); p.grupo.updateMatrixWorld(true);
+    const sol = new THREE.DirectionalLight('#fff1e0', 2.6); sol.position.set(1.2, 2.4, 2.2);
+    const borde = new THREE.DirectionalLight(C.color, 2.2); borde.position.set(-2, 2, -1.5);
+    esc.add(sol, borde, new THREE.HemisphereLight('#e8eeff', '#3a302a', 0.7));
+    const h = p.cabeza.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, 0.12, 0));
+    const cam = new THREE.PerspectiveCamera(24, 1, 0.05, 20); cam.position.set(h.x + 0.25, h.y + 0.04, h.z + 1.05); cam.lookAt(h.x, h.y - 0.05, h.z);
+    const antes = R.getSize(new THREE.Vector2()), pr = R.getPixelRatio();
+    R.setPixelRatio(1); R.setSize(ancho, alto, false);
+    R.render(esc, cam);
+    const c = document.createElement('canvas'); c.width = ancho; c.height = alto;
+    const g = c.getContext('2d'); g.drawImage(R.domElement, 0, 0, ancho, alto, 0, 0, ancho, alto);
+    const v = g.createRadialGradient(ancho / 2, alto / 2, alto * 0.35, ancho / 2, alto / 2, ancho * 0.72); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.5)'); g.fillStyle = v; g.fillRect(0, 0, ancho, alto);
+    R.setPixelRatio(pr); R.setSize(antes.x, antes.y, false);
+    return (this.retratos[nombre] = c.toDataURL('image/jpeg', 0.88));
   }
 
   fotoCiudad() {

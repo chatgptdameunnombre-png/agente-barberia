@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mat } from './persona.js?v=202611212045';
+import { mat } from './persona.js?v=202611212139';
 
 const COLORES_PERRO = ['#c89a5a', '#3a2a1e', '#f0e6d6', '#8a6a4a', '#1c1c1c', '#d8b070'];
 
@@ -83,6 +83,25 @@ export class Animales {
     if (Math.random() < 0.3) this.j.audio.aleteo?.();
   }
 
+  crearCorrea() {
+    const g = new THREE.Group(), mat = this._matCorrea || (this._matCorrea = new THREE.MeshStandardMaterial({ color: '#c8202e', roughness: 0.6 }));
+    const geo = this._geoCorrea || (this._geoCorrea = new THREE.CylinderGeometry(0.008, 0.008, 1, 6).translate(0, 0.5, 0));
+    for (let i = 0; i < 4; i++) { const m = new THREE.Mesh(geo, mat); m.castShadow = true; g.add(m); }
+    g.frustumCulled = false;
+    return g;
+  }
+
+  tenderCorrea(g, a, b) {
+    const L = a.distanceTo(b), floja = Math.max(0.02, 1.25 - L) * 0.35, n = g.children.length, p0 = this._p0 || (this._p0 = new THREE.Vector3()), p1 = this._p1 || (this._p1 = new THREE.Vector3()), d = this._d || (this._d = new THREE.Vector3()), Y = this._Y || (this._Y = new THREE.Vector3(0, 1, 0));
+    for (let i = 0; i < n; i++) {
+      const t0 = i / n, t1 = (i + 1) / n;
+      p0.lerpVectors(a, b, t0); p0.y -= Math.sin(t0 * Math.PI) * floja;
+      p1.lerpVectors(a, b, t1); p1.y -= Math.sin(t1 * Math.PI) * floja;
+      const m = g.children[i]; d.subVectors(p1, p0);
+      m.position.copy(p0); m.scale.set(1, Math.max(0.001, d.length()), 1); m.quaternion.setFromUnitVectors(Y, d.normalize());
+    }
+  }
+
   actualizar(dt) {
     const j = this.j, jug = j.jugador, jp = jug.posicion;
     for (const p of this.perros) {
@@ -129,12 +148,12 @@ export class Animales {
       p.g.position.copy(p.pos); p.g.rotation.y = p.yaw;
       if (!p.dueno && !p.sigue && d < 90 && d > 35 && Math.random() < dt * 0.05) {
         const o = j.peatones.find(q => q.tipo === 'civil' && q.estado === 'pasear' && !q.corredor && !q.objetivoMision && !this.perros.some(x => x.dueno === q) && Math.abs(q.pos.x - p.pos.x) + Math.abs(q.pos.z - p.pos.z) < 40);
-        if (o) { p.dueno = o; p.pos.set(o.pos.x - 1, 0, o.pos.z); p.correa = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), new THREE.LineBasicMaterial({ color: '#c8202e' })); p.correa.frustumCulled = false; j.escena.add(p.correa); }
+        if (o) { p.dueno = o; p.pos.set(o.pos.x - 1, 0, o.pos.z); p.correa = this.crearCorrea(); j.escena.add(p.correa); }
       }
       if (p.correa && p.dueno) {
-        const a = p.correa.geometry.attributes.position, mano = this._v || (this._v = new THREE.Vector3());
-        p.dueno.p.mi.getWorldPosition(mano); a.setXYZ(0, mano.x, mano.y - 0.05, mano.z);
-        p.collar.getWorldPosition(mano); a.setXYZ(1, mano.x, mano.y, mano.z); a.needsUpdate = true;
+        const mano = this._v || (this._v = new THREE.Vector3()), collar = this._v2 || (this._v2 = new THREE.Vector3());
+        p.dueno.p.mi.getWorldPosition(mano); mano.y -= 0.06; p.collar.getWorldPosition(collar);
+        this.tenderCorrea(p.correa, mano, collar);
         p.dueno.p.bi.rotation.set(-0.45, 0, 0.25); p.dueno.p.ci.rotation.x = -0.6;
       }
       for (const c of j.coches) {

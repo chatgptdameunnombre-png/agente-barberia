@@ -183,8 +183,9 @@ export class Fisica {
 
   sincronizarCoches() {
     const vivos = new Set();
+    const JP = this.j.jugador.posicion;
     for (const c of this.j.coches) {
-      if (!c.t || c.tipo === 'lancha') continue;
+      if (!c.t || c.tipo === 'lancha' || Math.abs(c.pos.x - JP.x) + Math.abs(c.pos.z - JP.z) > 110) continue;
       vivos.add(c);
       let b = this.coches.get(c);
       const alto = (c.t.alto || 0.6) + (c.t.cabina || 0.4) + 0.35;
@@ -201,7 +202,7 @@ export class Fisica {
     if (jp0(this.j)) for (const q of this.j.peatones) {
       if (q.muerto || q.enInterior || q.vuela) continue;
       const P = this.j.jugador.posicion, d = Math.abs(q.pos.x - P.x) + Math.abs(q.pos.z - P.z);
-      if (d > 70) continue;
+      if (d > 34) continue;
       vistos.add(q);
       let b = this.gente.get(q);
       if (!b) { b = this.mundo.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(q.pos.x, 0.85, q.pos.z)); this.mundo.createCollider(RAPIER.ColliderDesc.capsule(0.5, 0.25).setCollisionGroups(grupo(COCHE, OBJETO | ESCOMBRO)), b); this.gente.set(q, b); }
