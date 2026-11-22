@@ -1,4 +1,4 @@
-import { Coche, puntoCalleAleatorio, TIPOS } from './vehiculos.js?v=202611220542';
+import { Coche, puntoCalleAleatorio, TIPOS } from './vehiculos.js?v=202611220545';
 
 export const NEGOCIOS = [
   { id: 'depa', nombre: 'Departamento Jacaranda', precio: 6000, renta: 0, desc: 'Tu casa: duerme, cúrate y guarda la partida.' },
