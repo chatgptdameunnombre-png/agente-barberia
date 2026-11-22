@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611212359';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611212359';
-import { Peaton } from './peatones.js?v=202611212359';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220003';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220003';
+import { Peaton } from './peatones.js?v=202611220003';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -612,6 +612,96 @@ export const CONTACTOS = {
           if (m.paso === 2) { m.objetivo('Escapa al <b>Taller de Don Chuy</b>.' + (j.policia.estrellas ? ' <b>Pierde a la policía</b> antes de llegar.' : '')); if (m.dentro(1, j.jugador.posicion, 1.4) && !j.policia.estrellas) return 'ok'; }
         },
         fin(m) { m.j.redes?.publicar?.('explosion', '', { forzar: true }); m.j.hud.dialogos([['Doña Rosario', 'El golpe del año y nadie sabe quién fue. Eres mi mejor inversión.'], ['Don Chuy', 'Mijo… ¿tú tuviste algo que ver con lo del banco? Mejor no me digas.']]); }
+      }
+    ]
+  },
+  chava: {
+    nombre: 'Chava', letra: 'C', modelo: 'chava', color: '#ffb020', zona: 'Gasolinera Jacaranda', requisito: 1,
+    apariencia: { camisa: '#c8202e', pantalon: '#4a4c54', sombrero: true, colorSombrero: '#c8202e', complexion: 1.02, barba: 'bigote', mangaCorta: true, mujer: false, peloLargo: false },
+    lugar: j => libre(j, j.ciudad.lugares.gasolinera.x - 13, j.ciudad.lugares.gasolinera.z + 5),
+    lista: [
+      {
+        titulo: 'LA CAMIONETA DE LA GASOLINERA', premio: 1600,
+        inicio(m) {
+          const j = m.j, G = j.ciudad.lugares.gasolinera;
+          m.dialogo([['Chava', '¡Qué onda! Unos chavos se llevaron la camioneta de reparto de la gasolinera mientras yo despachaba.'], ['Chava', 'Si el patrón se entera, me corre. Tráemela entera, porfa.']]);
+          const pt = puntoCalleAleatorio(G, 120, 260) || { x: G.x - 150, z: G.z, yaw: 0 };
+          m.camion = coche(m, 'reparto', '#f2f2ee', pt, true); m.objetivos = [m.camion];
+          m.objetivo('Encuentra el <b>camión de reparto</b> robado y quítaselo al ratero.');
+        },
+        actualizar(m) {
+          const j = m.j, c = m.camion, G = j.ciudad.lugares.gasolinera;
+          if (c.quemado) return 'falla:La camioneta quedó destruida.';
+          if (m.paso === 0) {
+            c.panico = c.pos.distanceTo(j.jugador.posicion) < 30 ? 999 : 0;
+            if (c.pos.distanceTo(j.jugador.posicion) > 380) return 'falla:El ratero se escapó con la camioneta.';
+            if (j.jugador.coche === c) { m.paso = 1; m.objetivos = []; m.marcar(1, G.x, G.z, 5, 2.5, '#ffb020'); }
+          }
+          if (m.paso === 1) {
+            m.objetivo('Lleva la camioneta a la <b>Gasolinera Jacaranda</b>.' + (c.salud < c.t.salud * 0.5 ? ' <b>¡Cuídala!</b>' : ''));
+            if (j.jugador.coche === c && m.dentro(1, c.pos, 1) && c.vel < 5) return 'ok';
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['Chava', '¡Eres un ídolo! Ten, de mi propina de toda la semana. Y si un día necesitas gasolina, aquí estoy.']]); }
+      },
+      {
+        titulo: 'EL CARTERISTA DEL TREN', premio: 2400,
+        inicio(m) {
+          const j = m.j, T = j.tren;
+          m.dialogo([['Chava', 'A mi carnal le bajaron la cartera en el tren ligero. Dicen que la banda se baja en la Estación Parque.'], ['Chava', 'Súbete en la Estación Catedral y cáelos cuando se bajen. Van armados, aguas.']]);
+          const mq = T.maquinas.find(q => q.i === 1 && q.x > T.X);
+          m.marcar(1, mq.x, mq.z, 2.5, 3, '#ffb020');
+          m.objetivo('Ve a la <b>Estación Catedral</b> y toma el tren ligero.');
+        },
+        actualizar(m) {
+          const j = m.j, T = j.tren, P = T.maquinas.find(q => q.i === 2 && q.x > T.X);
+          if (m.paso === 0) {
+            if (T.viaje && T.viaje.b === T.estaciones[2]) { m.paso = 1; m.objetivo('Viajas a la <b>Estación Parque</b>…'); }
+            else if (T.viaje) m.objetivo('Ese tren no va a la Estación Parque. Bájate y toma el bueno.');
+            else if (Math.hypot(j.jugador.posicion.x - P.x, j.jugador.posicion.z - P.z) < 20) m.paso = 1;
+          }
+          if (m.paso === 1 && !T.viaje) {
+            m.paso = 2; m.objetivos = [];
+            m.banda = matones(m, P.x + 7, P.z + 5, 3, ['pistola', 'bate', 'pistola'], 'atacar');
+            m.banda.forEach(g => { g.objetivoMision = true; }); m.objetivos = m.banda;
+            j.hud.grande('¡AHÍ ESTÁN!', 'Recupera la cartera', 2);
+          }
+          if (m.paso === 2) {
+            const vivos = m.banda.filter(g => !g.muerto).length;
+            m.objetivo(`Acaba con los <b>carteristas</b>: quedan <b>${vivos}</b>.`);
+            if (!vivos) return 'ok';
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['Chava', 'La cartera completa y hasta la credencial. Mi carnal dice que te debe una.']]); }
+      },
+      {
+        titulo: 'APAGÓN EN EL ESTADIO', premio: 3600,
+        inicio(m) {
+          const j = m.j, E = j.ciudad.lugares.estadio;
+          m.dialogo([['Chava', 'Hoy juega Jacaranda y una banda quiere tumbar las torres de luz para robar en lo oscuro.'], ['Chava', 'Llégale al estadio antes que ellos y sácalos de ahí.']]);
+          j.jugador.darArma('subfusil', 90);
+          m.marcar(1, E.x, E.z, 10, 1, '#ffb020');
+          m.objetivo('Ve al <b>Estadio Jacaranda</b>.');
+        },
+        actualizar(m) {
+          const j = m.j, E = j.ciudad.lugares.estadio, G = j.ciudad.lugares.gasolinera;
+          if (m.paso === 0 && Math.hypot(j.jugador.posicion.x - E.x, j.jugador.posicion.z - E.z) < 70) {
+            m.paso = 1; m.ocultar?.(1);
+            m.banda = [...matones(m, E.x - 14, E.z + 2, 3, ['pistola', 'escopeta']), ...matones(m, E.x + 14, E.z + 2, 3, ['subfusil', 'pistola'])];
+            m.banda.forEach(g => { g.objetivoMision = true; }); m.objetivos = m.banda;
+          }
+          if (m.paso === 1) {
+            despertar(m, m.banda, 45);
+            const vivos = m.banda.filter(g => !g.muerto).length;
+            m.objetivo(`Saca a la banda del estadio: quedan <b>${vivos}</b>.`);
+            if (!vivos) { m.paso = 2; m.objetivos = []; j.policia.subir(Math.max(2, j.policia.estrellas)); m.marcar(1, G.x, G.z, 5, 2.5, '#ffb020'); j.hud.grande('¡ESTADIO SALVADO!', 'Regresa con Chava', 2.2); }
+          }
+          if (m.paso === 2) {
+            m.objetivo('Regresa a la <b>Gasolinera</b>.' + (j.policia.estrellas ? ' <b>Pierde a la policía</b> antes de llegar.' : ''));
+            if (m.dentro(1, j.jugador.posicion, 1.2) && !j.policia.estrellas) return 'ok';
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['Chava', 'Ganamos tres a uno y ni se enteraron de nada. Ya eres leyenda en la gasolinera.']]); }
       }
     ]
   }

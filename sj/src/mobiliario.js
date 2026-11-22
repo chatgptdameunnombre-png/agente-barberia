@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { BLOQUES, CALLE, linea, rng, LIMITE, tipoBloque } from './ciudad.js?v=202611212359';
+import { BLOQUES, CALLE, linea, rng, LIMITE, tipoBloque } from './ciudad.js?v=202611220003';
 
 const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(1, 1, 1), _e = new THREE.Euler();
 
