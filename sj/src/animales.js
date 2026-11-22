@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mat } from './persona.js?v=202611220307';
+import { mat } from './persona.js?v=202611220310';
 
 const COLORES_PERRO = ['#c89a5a', '#3a2a1e', '#f0e6d6', '#8a6a4a', '#1c1c1c', '#d8b070'];
 
@@ -57,7 +57,8 @@ export class Animales {
       this.perros.push(p);
     }
     const L = juego.ciudad.lugares;
-    for (const lugar of [L.plaza, L.catedral, L.monumento, L.mercado, L.tianguis]) {
+    const parques = juego.ciudad.bloques.filter(b => b.tipo === 'parque').map(b => ({ x: b.cx + 6, z: b.cz - 7 }));
+    for (const lugar of [L.plaza, L.catedral, L.monumento, L.mercado, L.tianguis, ...parques]) {
       if (!lugar) continue;
       for (let k = 0; k < 7; k++) {
         const mdl = modeloPaloma();
