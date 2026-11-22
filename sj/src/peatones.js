@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611220003';
+import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611220007';
 
 const _v = new THREE.Vector3();
 
@@ -177,6 +177,9 @@ export class Peaton {
     } else if (this.estado === 'quieto') {
       mover = 0;
       if (this.volverPasear && this.t > this.volverPasear) { this.volverPasear = 0; if (this.ruta) this.estado = 'pasear'; }
+    } else if (this.estado === 'irPunto') {
+      dirx = this.meta.x - this.pos.x; dirz = this.meta.z - this.pos.z; mover = this.metaVel || 1.3;
+      if (Math.hypot(dirx, dirz) < 0.35) { this.estado = 'quieto'; this.llego = true; dirx = dirz = 0; mover = 0; }
     } else if (this.estado === 'irBanca') {
       const b = this.banca; dirx = b.x - this.pos.x; dirz = b.z - this.pos.z; mover = 1.3;
       if (Math.hypot(dirx, dirz) < 0.45) { this.estado = 'sentado'; this.sentadoT = 18 + Math.random() * 35; this.pos.set(b.x, 0, b.z); this.yaw = b.yaw; dirx = dirz = 0; mover = 0; }

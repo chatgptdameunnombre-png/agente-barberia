@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611220003';
+import { crearHumano } from './humanos.js?v=202611220007';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -254,7 +254,7 @@ export class Realista {
     let base = 'Idle_Loop', escala = 1, sup = null, supVeces = Infinity, forzarSup = false;
     if (e === 'sentado') base = q.banca?.pie ? 'Idle_Loop' : 'Sitting_Idle_Loop';
     else if (e === 'agachado') base = 'Crouch_Idle_Loop';
-    else if (e === 'charla') base = 'Idle_Talking_Loop';
+    else if (e === 'charla' || (q.limpiando && v < 0.2)) base = 'Idle_Talking_Loop';
     else if (v < 0.2) base = q.habito === 'celular' ? 'Idle_Talking_Loop' : 'Idle_Loop';
     else if (v < 2.8) base = 'Walk_Loop';
     else if (v < 6.8) base = 'Jog_Fwd_Loop';
