@@ -1,6 +1,6 @@
-import { esCalle } from './ciudad.js?v=202611220349';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220349';
-import { Peaton } from './peatones.js?v=202611220349';
+import { esCalle } from './ciudad.js?v=202611220402';
+import { Coche, puntoCalleAleatorio, nuevaRutaIA } from './vehiculos.js?v=202611220402';
+import { Peaton } from './peatones.js?v=202611220402';
 
 const AZUL = '#3fa8ff';
 const banqueta = (j, cerca, a, b) => {
@@ -24,6 +24,7 @@ export class Aleatorios {
   fin(motivo, premio, publicar) {
     const j = this.j, E = this.e;
     if (!E) return;
+    if (E.tipo === 'llanta') this.arreglar(E.coche);
     this.quitar(E.gente || []);
     if (E.bolsa?.malla && !E.bolsa.tomado) j.escena.remove(E.bolsa.malla);
     this.e = null;
@@ -36,8 +37,20 @@ export class Aleatorios {
 
   empezar(forzado) {
     const j = this.j, jp = j.jugador.posicion;
-    const tipos = j.jugador.coche ? ['aventon', 'asalto', 'bolso'] : ['bolso', 'asalto', 'aventon'];
-    const tipo = forzado || tipos[Math.random() * (j.jugador.coche ? 2 : 3) | 0];
+    const tipos = j.jugador.coche ? ['aventon', 'asalto', 'bolso'] : ['bolso', 'asalto', 'aventon', 'llanta', 'llanta'];
+    const tipo = forzado || tipos[Math.random() * (j.jugador.coche ? 2 : 5) | 0];
+    if (tipo === 'llanta') {
+      const p = puntoCalleAleatorio(jp, 40, 80) || puntoCalleAleatorio(jp, 30, 140); if (!p) return;
+      const c = new Coche(j, Math.random() < 0.5 ? 'sedan' : 'compacto', undefined, p.x, p.z, p.yaw); c.reservado = true; c.vx = c.vz = 0;
+      j.coches.push(c);
+      const r = c.ruedas[3], piv = r.parent; r.scale.y = 0.72; piv.position.y -= 0.08; c.carro.rotation.z = -0.035;
+      const s = banqueta(j, { x: c.pos.x + c.fz * 3, z: c.pos.z - c.fx * 3 }, 0.5, 3) || banqueta(j, p, 2, 6) || { x: p.x + 3, z: p.z };
+      const q = new Peaton(j, { x: s.x, z: s.z, estado: 'quieto' }); q.objetivoMision = true; q.anim = 'Idle_Talking_Loop';
+      j.peatones.push(q);
+      this.e = { tipo, t: 0, chofer: q, coche: c, gente: [q], paso: 0 };
+      j.hud.notificar('gps', 'Llanta ponchada', 'Un conductor necesita ayuda (azul en el mapa).', 4);
+      return;
+    }
     if (tipo === 'bolso') {
       const p = banqueta(j, jp, 35, 60); if (!p) return;
       const v = new Peaton(j, { x: p.x, z: p.z, estado: 'quieto' }); v.objetivoMision = true;
@@ -81,6 +94,30 @@ export class Aleatorios {
     E.t += dt;
     if (E.t > 150 || (E.victima && E.victima.pos.distanceTo(jp) > 260) || (E.pasajero && !E.abordo && E.pasajero.pos.distanceTo(jp) > 260)) { this.fin(null); return; }
     if (j.misiones.activa) { this.fin(null); return; }
+    if (E.tipo === 'llanta') {
+      const c = E.coche, Q = E.chofer;
+      if (!j.coches.includes(c) || c.quemado || jug.coche === c || !j.peatones.includes(Q) || Q.muerto || Q.estado === 'huir') { this.arreglar(c); this.fin(null); return; }
+      if (c.calavMalla) { c.calavMalla.visible = (E.t % 0.8) < 0.4; c.calav.color.set('#ffb030'); }
+      if (E.paso === 0) {
+        Q.yaw = Math.atan2(jp.x - Q.pos.x, jp.z - Q.pos.z);
+        if (!E.saludo && Q.pos.distanceTo(jp) < 9) { E.saludo = true; j.hud.burbuja?.(Q, '¡Joven! ¿Me echa la mano con la llanta?'); }
+        if (Q.pos.distanceTo(jp) > 230) { this.arreglar(c); this.fin(null); }
+      } else if (E.paso === 1) {
+        if (!(jug.reparando > 0)) {
+          this.arreglar(c); E.paso = 2; E.t2 = 0; Q.anim = null;
+          j.hud.burbuja?.(Q, '¡Quedó como nueva! Muchas gracias.');
+          j.estadisticas?.sumar?.('llantas', 1);
+        }
+      } else if (E.paso === 2) {
+        E.t2 += dt;
+        if (E.t2 > 2.2) {
+          const i = j.peatones.indexOf(Q); if (i >= 0) { Q.quitar(); j.peatones.splice(i, 1); }
+          E.gente = []; c.reservado = false; c.conductor = 'ia'; c.ia = nuevaRutaIA(c.pos.x, c.pos.z, c.yaw); if (c.silueta) c.silueta.visible = true;
+          this.fin('Le cambiaste la llanta', 150, true);
+        }
+      }
+      return;
+    }
     if (E.tipo === 'bolso') {
       const L = E.ladron, V = E.victima;
       if (E.paso === 0) {
@@ -130,6 +167,26 @@ export class Aleatorios {
     }
   }
 
+  arreglar(c) {
+    if (!c || c.arreglado) return; c.arreglado = true; c.reservado = false;
+    const r = c.ruedas[3]; r.scale.y = 1; r.parent.position.y += 0.08; c.carro.rotation.z = 0;
+  }
+
+  cercaLlanta() {
+    const E = this.e, J = this.j.jugador;
+    if (!E || E.tipo !== 'llanta' || E.paso !== 0 || J.coche) return false;
+    const c = E.coche, wx = c.pos.x + c.fz * (c.t.ancho / 2 + 0.6) - c.fx * c.t.largo * 0.31, wz = c.pos.z - c.fx * (c.t.ancho / 2 + 0.6) - c.fz * c.t.largo * 0.31;
+    return Math.hypot(J.pos.x - wx, J.pos.z - wz) < 2.4 || c.pos.distanceTo(J.pos) < 2.8;
+  }
+
+  ayudar() {
+    if (!this.cercaLlanta()) return false;
+    const E = this.e, J = this.j.jugador, c = E.coche;
+    J.reparando = 5.5; J.yaw = Math.atan2(c.pos.x - J.pos.x, c.pos.z - J.pos.z); E.paso = 1;
+    this.j.hud.burbuja?.(E.chofer, '¡Gracias! La llave de cruz está en la cajuela.');
+    return true;
+  }
+
   destinoGPS() {
     const E = this.e;
     if (!E) return null;
@@ -141,6 +198,7 @@ export class Aleatorios {
     const E = this.e;
     if (!E) return [];
     if (E.tipo === 'bolso') return E.paso === 0 ? [{ x: E.ladron.pos.x, z: E.ladron.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Ladrón de bolsos' }] : E.paso === 1 ? [{ x: E.bolsa.x, z: E.bolsa.z, tipo: 'objetivo', color: AZUL, texto: 'bolsa', nombre: 'Bolsa robada' }] : [{ x: E.victima.pos.x, z: E.victima.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Dueña de la bolsa' }];
+    if (E.tipo === 'llanta') return E.paso === 0 ? [{ x: E.coche.pos.x, z: E.coche.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Llanta ponchada' }] : [];
     if (E.tipo === 'asalto') return [{ x: E.malo.pos.x, z: E.malo.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Asaltante' }];
     return E.abordo ? [{ x: E.destino.x, z: E.destino.z, tipo: 'objetivo', color: AZUL, texto: 'bandera', nombre: 'Destino del desconocido' }] : [{ x: E.pasajero.pos.x, z: E.pasajero.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Desconocido sin coche' }];
   }

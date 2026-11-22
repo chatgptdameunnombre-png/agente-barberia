@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611220349';
-import { hoja } from './texturas.js?v=202611220349';
+import { construirEstadio } from './estadio.js?v=202611220402';
+import { hoja } from './texturas.js?v=202611220402';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -33,6 +33,8 @@ export function rng(semilla) {
 
 const VACIO = [];
 
+export function enLago(L, x, z, m = 0) { return !!L && x > L.x0 + m && x < L.x1 - m && z > L.z0 + m && z < L.z1 - m && !(Math.abs(x - L.muelle.x) < 1.5 - m && z > L.muelle.z0 + m); }
+
 export class Mundo {
   constructor() { this.cajas = []; this.hash = new Map(); }
   agregar(minx, minz, maxx, maxz, h = 60) {
@@ -49,7 +51,7 @@ export class Mundo {
   }
   celda(x, z) { return this.hash.get(Math.floor(x / 20) * 1000 + Math.floor(z / 20)) || VACIO; }
   alturaEn(x, z) { let h = 0; for (const c of this.celda(x, z)) if (x > c.minx && x < c.maxx && z > c.minz && z < c.maxz && c.h > h && c.h < 200) h = c.h; return h; }
-  empujar(p, r, alto = 0) {
+  empujar(p, r, alto = 0, sinAgua = false) {
     let choque = null;
     const x0 = Math.floor((p.x - r) / 20), x1 = Math.floor((p.x + r) / 20);
     const z0 = Math.floor((p.z - r) / 20), z1 = Math.floor((p.z + r) / 20);
@@ -57,7 +59,7 @@ export class Mundo {
       const l = this.hash.get(cx * 1000 + cz);
       if (!l) continue;
       for (const c of l) {
-        if (alto > c.h) continue;
+        if (alto > c.h || (c.agua && sinAgua)) continue;
         const px = Math.max(c.minx, Math.min(p.x, c.maxx)), pz = Math.max(c.minz, Math.min(p.z, c.maxz));
         let dx = p.x - px, dz = p.z - pz;
         const d2 = dx * dx + dz * dz;
@@ -384,9 +386,9 @@ export function construirCiudad(escena, mundo) {
       const muelleZ0 = wz1 - 12;
       obra.caja('liso', cx, (muelleZ0 + wz1 + 1.6) / 2, 3, wz1 + 1.6 - muelleZ0, 0.18, '#8a6a46', 0.3, false);
       for (let k = 0; k < 4; k++) for (const sx of [-1.4, 1.4]) obra.forma('liso', new THREE.CylinderGeometry(0.12, 0.12, 1.2, 8), '#5a4430', cx + sx, 0.3, muelleZ0 + 0.3 + k * 3.6);
-      mundo.agregar(wx0, wz0, cx - 1.5, wz1, 0.9);
-      mundo.agregar(cx + 1.5, wz0, wx1, wz1, 0.9);
-      mundo.agregar(cx - 1.5, wz0, cx + 1.5, muelleZ0, 0.9);
+      mundo.agregar(wx0, wz0, cx - 1.5, wz1, 0.9).agua = true;
+      mundo.agregar(cx + 1.5, wz0, wx1, wz1, 0.9).agua = true;
+      mundo.agregar(cx - 1.5, wz0, cx + 1.5, muelleZ0, 0.9).agua = true;
       salida.lago = { x0: wx0, x1: wx1, z0: wz0, z1: wz1, muelle: { x: cx, z0: muelleZ0, z1: wz1 } };
       for (const d of [-14, -6, 8, 16]) { banca(wx0 - 2.6, cz + d, -Math.PI / 2); banca(wx1 + 2.6, cz + d, Math.PI / 2); }
       salida.lugares.lago = { x: cx, z: wz1 + 3 };

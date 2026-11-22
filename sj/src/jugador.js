@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611220349';
+import { enLago } from './ciudad.js?v=202611220402';
+import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611220402';
 
 export const ARMAS = {
   puno: { nombre: 'PUÑOS', tipo: 'golpe', daño: 14, cadencia: 0.42, alcance: 1.7, empuje: 3, cargador: 0 },
@@ -31,7 +32,7 @@ export const CATEGORIAS = [
 ];
 export const tieneArma = (j, k) => { const s = j.armas[k]; return !!s && (ARMAS[k].tipo !== 'lanzar' || s.reserva > 0); };
 
-import { Realista } from './realista.js?v=202611220349';
+import { Realista } from './realista.js?v=202611220402';
 export const REALISTAS = {};
 export function realistaDe(nombre) { const k = nombre === 'Lucía' ? 'lucia' : nombre === 'Matías' ? 'matias' : nombre; return REALISTAS[k] || (REALISTAS[k] = new Realista(k)); }
 
@@ -183,6 +184,7 @@ export class Jugador {
     }
     if (this.coche) { this.grupo.visible = this.coche.tipo === 'moto' || this.coche.tipo === 'lancha'; if (this.coche.tipo === 'moto') montar(this.p, this.coche, dt); else if (this.coche.tipo === 'lancha') { sentar(this.p); this.p.bd.rotation.set(-1.2, 0, 0.1); this.p.bi.rotation.set(-1.1, 0, -0.1); this.p.cabeza.rotation.y = -this.coche.giroSuave * 0.3; } return; }
     this.grupo.visible = true;
+    if (this.reparando > 0) { this.reparando -= dt; ent = { x: 0, y: 0, correr: false, saltar: false }; }
     const correr = ent.correr ? 1 : 0;
     let mx = 0, mz = 0;
     const fx = Math.sin(camYaw), fz = Math.cos(camYaw), rx = -fz, rz = fx;
@@ -190,7 +192,9 @@ export class Jugador {
     mz += fz * ent.y + rz * ent.x;
     const m = Math.hypot(mx, mz);
     if (this.agachado && correr) this.agachado = false;
-    const vmax = (this.rueda ? 7.5 : this.agachado ? 1.9 : this.apunta ? 2.6 : (correr ? 7.2 : 4.2)) * (1 + this.bonoVel) * (this.juego.mareo > 20 ? 0.85 : 1);
+    this.nadando = enLago(j.ciudad.lago, this.pos.x, this.pos.z, 0.15);
+    if (this.nadando) { this.agachado = false; this.rueda = null; this.gesto = null; }
+    const vmax = this.nadando ? (correr ? 2.9 : 1.9) : (this.rueda ? 7.5 : this.agachado ? 1.9 : this.apunta ? 2.6 : (correr ? 7.2 : 4.2)) * (1 + this.bonoVel) * (this.juego.mareo > 20 ? 0.85 : 1);
     let objetivo = 0;
     if (this.rueda) { this.rueda.t -= dt; mx = this.rueda.x; mz = this.rueda.z; objetivo = vmax * Math.max(0.3, this.rueda.t / 0.55); if (this.rueda.t <= 0) this.rueda = null; }
     else if (m > 0.01) { mx /= m; mz /= m; objetivo = vmax; }
@@ -210,11 +214,14 @@ export class Jugador {
       while (d > Math.PI) d -= 6.283; while (d < -Math.PI) d += 6.283;
       this.yaw += d * Math.min(1, dt * 20);
     }
-    if (ent.saltar && this.y <= 0.001) { this.vy = 6.4; j.audio?.salto?.(); }
-    this.vy -= 20 * dt;
-    this.y = Math.max(0, this.y + this.vy * dt);
-    if (this.y === 0) this.vy = 0;
-    j.mundo.empujar(this.pos, 0.34, this.y);
+    if (this.nadando) { this.vy = 0; this.y += ((this.velocidad > 0.3 ? 0.235 : 0.08) - this.y) * Math.min(1, dt * 5); }
+    else {
+      if (ent.saltar && this.y <= 0.001) { this.vy = 6.4; j.audio?.salto?.(); }
+      this.vy -= 20 * dt;
+      this.y = Math.max(0, this.y + this.vy * dt);
+      if (this.y === 0) this.vy = 0;
+    }
+    j.mundo.empujar(this.pos, 0.34, this.nadando ? 0 : this.y, true);
     for (const c of j.coches) {
       if (c === this.coche || c === j.entrando?.c) continue;
       const dx = this.pos.x - c.pos.x, dz = this.pos.z - c.pos.z;
@@ -238,7 +245,7 @@ export class Jugador {
     if (this.golpeT > 0) this.golpeT -= dt;
     const giro = angulo(this.yaw - (this.yawPrevio ?? this.yaw)) / Math.max(dt, 0.001);
     this.yawPrevio = this.yaw;
-    const enAire = this.y > 0.05;
+    const enAire = !this.nadando && this.y > 0.05;
     if (this.enAireAntes && !enAire && this.caida < -4) this.p.aterriza = 0.28;
     this.enAireAntes = enAire; this.caida = this.vy;
     animar(this.p, dt, m > 0.01 ? this.velocidad : 0, this.arma, this.apunta || this.disparando, Math.max(-3, Math.min(3, giro)), enAire ? { vy: this.vy } : null);

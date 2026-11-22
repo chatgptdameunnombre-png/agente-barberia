@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220349';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220349';
-import { Peaton } from './peatones.js?v=202611220349';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220402';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220402';
+import { Peaton } from './peatones.js?v=202611220402';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -768,6 +768,92 @@ export const CONTACTOS = {
           if (!vivos) return 'ok';
         },
         fin(m) { m.j.redes?.publicar?.('explosion', '', { forzar: true }); m.j.hud.dialogos([['El Hijo del Jacaranda', 'Rudos a la lona y la afición feliz. Desde hoy tienes lugar en primera fila, hermano.']]); }
+      }
+    ]
+  },
+  neto: {
+    nombre: 'Don Neto', letra: 'D', modelo: 'neto', color: '#3fb8d8', zona: 'Lago Azul', requisito: 1,
+    apariencia: { camisa: '#6a2a30', pantalon: '#3a5a8a', gorra: '#3a6a8a', complexion: 1.05, edad: 'mayor', barba: 'bigote', mangaCorta: false, mujer: false, peloLargo: false, sombrero: null },
+    lugar: j => { const M = j.ciudad.lago.muelle; return libre(j, M.x + 4, M.z1 + 3); },
+    lista: [
+      {
+        titulo: 'LOS ENCARGOS AL AGUA', premio: 1400,
+        inicio(m) {
+          const j = m.j, L = j.ciudad.lago;
+          m.dialogo([['Don Neto', '¡Ah, qué chamacos! Me aventaron al lago las bolsas con los encargos de mis clientes.'], ['Don Neto', 'Yo ya no estoy para nadar, mijo. Sácamelas antes de que se hundan y tráemelas al muelle.']]);
+          m.paq = [];
+          for (let k = 0; k < 4; k++) {
+            let x = 0, z = 0, n = 0;
+            do { x = L.x0 + 4 + Math.random() * (L.x1 - L.x0 - 8); z = L.z0 + 4 + Math.random() * (L.z1 - L.z0 - 8); n++; } while (n < 40 && (Math.abs(x - L.muelle.x) < 4 || m.paq.some(q => Math.hypot(q.x - x, q.z - z) < 7)));
+            const r = j.crearRecogible('sobre', x, z); r.alto = 0.55; r.pos = { x, z }; m.extra.push(r.malla); m.paq.push(r);
+          }
+          m.objetivos = m.paq.slice(); m.reloj = 150;
+          m.objetivo('Nada por las <b>4 bolsas</b> que flotan en el lago.');
+        },
+        actualizar(m) {
+          const j = m.j, M = j.ciudad.lago.muelle, quedan = m.paq.filter(r => !r.tomado);
+          m.objetivos = quedan;
+          if (m.paso === 0) {
+            m.objetivo(`Nada por las bolsas que flotan en el lago: quedan <b>${quedan.length}</b>.`);
+            if (!quedan.length) { m.paso = 1; m.marcar(1, M.x + 4, M.z1 + 3, 2.5, 2.5, '#3fb8d8'); }
+          }
+          if (m.paso === 1) {
+            m.objetivo('Lleva las bolsas a <b>Don Neto</b>, junto al muelle.');
+            if (!j.jugador.nadando && m.dentro(1, j.jugador.pos, 1.5)) return 'ok';
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['Don Neto', '¡Ni una se mojó por dentro! Nadas como bagre, mijo. Toma, por las molestias.']]); }
+      },
+      {
+        titulo: 'LA CAMIONETA DEL COMPADRE', premio: 2600,
+        inicio(m) {
+          const j = m.j, L = j.ciudad.lugares.lago;
+          m.dialogo([['Don Neto', 'Mi compadre Rigo quiere que desaparezca su camioneta vieja. Dice que es para el seguro… yo no pregunto.'], ['Don Neto', 'Échala al lago y sal nadando. Ah, y el vecino ya llamó a la patrulla. Ponte abusado.']]);
+          const pt = puntoCalleAleatorio(L, 150, 260) || { x: L.x + 150, z: L.z, yaw: 0 };
+          m.cam = coche(m, 'camioneta', '#7a6a5a', pt, false); m.objetivos = [m.cam];
+          m.objetivo('Ve por la <b>camioneta del compadre</b>.');
+        },
+        actualizar(m) {
+          const j = m.j, c = m.cam, P = j.policia;
+          if (c.quemado) return 'falla:La camioneta se quemó antes de llegar al lago.';
+          if (m.paso === 0 && j.jugador.coche === c) { m.paso = 1; m.objetivos = []; P.subir(Math.max(2, P.estrellas)); const L = j.ciudad.lago; m.marcar(1, (L.x0 + L.x1) / 2, (L.z0 + L.z1) / 2, 14, 2, '#3fb8d8'); j.hud.grande('¡LA PATRULLA!', 'Échala al lago', 2); }
+          if (m.paso === 1) {
+            m.objetivo('Métete con la camioneta al <b>Lago Azul</b> hasta que se hunda.');
+            if (c.ahogado) { m.paso = 2; m.ocultar(1); }
+          }
+          if (m.paso === 2) {
+            m.objetivo(P.estrellas ? 'Sal del agua y <b>pierde a la policía</b>.' : 'Sal del agua.');
+            if (!j.jugador.nadando && !P.estrellas) return 'ok';
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['Don Neto', 'Dice Rigo que ya cobró. A mí ni me cuentes nada. Toma tu parte.']]); }
+      },
+      {
+        titulo: 'EL MUELLE ES MÍO', premio: 3800,
+        inicio(m) {
+          const j = m.j, M = j.ciudad.lago.muelle;
+          m.dialogo([['Don Neto', 'Unos del Mercado quieren quedarse con mi muelle para vender ahí. Ya vienen en camino.'], ['Don Neto', 'Yo me escondo en la lancha. Que no se queden con lo único que tengo, mijo.']]);
+          m.marcar(1, M.x + 4, M.z1 + 3, 3, 2.5, '#3fb8d8');
+          m.objetivo('Espera a los del Mercado junto al <b>muelle</b>.');
+        },
+        actualizar(m) {
+          const j = m.j, M = j.ciudad.lago.muelle;
+          if (m.paso === 0 && (m.t > 6 || m.dentro(1, j.jugador.posicion, 1))) {
+            m.paso = 1; m.objetivos = [];
+            const L = j.ciudad.lugares.lago;
+            const p1 = puntoCalleAleatorio(L, 18, 45) || { x: L.x + 20, z: L.z + 8, yaw: 0 }, p2 = puntoCalleAleatorio(L, 18, 45) || { x: L.x - 20, z: L.z + 8, yaw: 0 };
+            coche(m, 'camioneta', '#2a2a30', p1, false); coche(m, 'deportivo', '#8a1a20', p2, false);
+            m.malos = matones(m, p1.x, p1.z, 3, ['pistola', 'bate', 'subfusil'], 'atacar').concat(matones(m, p2.x, p2.z, 3, ['pistola', 'escopeta', 'cuchillo'], 'atacar'));
+            m.malos.forEach(g => { g.objetivoMision = true; }); m.objetivos = m.malos;
+            j.hud.grande('¡YA LLEGARON!', 'Defiende el muelle', 2);
+          }
+          if (m.paso === 1) {
+            const vivos = m.malos.filter(g => !g.muerto).length;
+            m.objetivo(`Corre a los del <b>Mercado</b>: quedan <b>${vivos}</b>.`);
+            if (!vivos) return 'ok';
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['Don Neto', 'Ahí quedó claro quién manda en este muelle. Cuando quieras, te llevo a pescar. Gratis.']]); }
       }
     ]
   }

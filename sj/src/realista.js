@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano, recorte } from './humanos.js?v=202611220349';
+import { crearHumano, recorte } from './humanos.js?v=202611220402';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -137,6 +137,8 @@ export class Realista {
     else if (j.sentado) base = j.sentado.pie ? 'Idle_Loop' : 'Sitting_Idle_Loop';
     else if (j.coche) base = 'Driving_Loop';
     else if (j.rueda) { base = 'Roll'; veces = 1; forzarBase = !this.rodando; this.rodando = true; }
+    else if (j.reparando > 0) base = 'Fixing_Kneeling';
+    else if (j.nadando) { base = v > 0.3 ? 'Swim_Fwd_Loop' : 'Swim_Idle_Loop'; if (v > 0.3) escala = Math.max(0.7, Math.min(1.6, v / 1.9)); }
     else if (j.y > 0.08) base = 'Jump_Loop';
     else if (j.agachado) { base = v > 0.3 ? 'Crouch_Fwd_Loop' : 'Crouch_Idle_Loop'; }
     else if (v < 0.25) base = j.gesto?.tipo === 'bailar' ? 'Dance_Loop' : j.gesto ? 'Idle_Talking_Loop' : 'Idle_Loop';
@@ -145,7 +147,7 @@ export class Realista {
     else base = 'Sprint_Loop';
     if (!j.rueda) this.rodando = false;
     if (RITMO[base] && v > 0.25) escala = Math.max(0.6, Math.min(1.6, v / RITMO[base]));
-    if (!j.coche && !j.rueda && !j.arrestado) {
+    if (!j.coche && !j.rueda && !j.arrestado && !j.nadando) {
       if (j.golpeT > 0 && !fuego) {
         if (j.golpeT > (this.prevGolpe ?? 0) + 0.01) forzarSup = true;
         sup = (j.combo || 0) % 2 ? 'Punch_Cross' : 'Punch_Jab'; supVeces = 1;
@@ -185,6 +187,7 @@ export class Realista {
     this.grupo.position.y = j.coche?.tipo === 'moto' ? 0.34 : j.coche?.tipo === 'lancha' ? 0.18 : 0;
     if (j.muerto && !j.arrestado) this.aplicar({ base: 'Death01', escala: 1, veces: 1 }, dt, 0);
     else this.aplicar(this.elegirJugador(j, dt), dt, j.coche ? 0 : (j.velocidad || 0));
+    if (this.empunadura) this.empunadura.visible = !j.nadando;
     this.H.mixer.update(dt);
     this.inclinar(j.yaw, dt, j.coche ? 0 : (j.velocidad || 0));
     const J = j.juego;

@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220349';
-import { mat } from './persona.js?v=202611220349';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220402';
+import { mat } from './persona.js?v=202611220402';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220349';
+import { hoja } from './texturas.js?v=202611220402';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -646,7 +646,7 @@ export class Coche {
 
   manejar(dt, acel, giro, freno, nitro = false) {
     const t = this.t;
-    if (this.quemado) { acel = 0; giro = 0; freno = true; }
+    if (this.quemado || this.ahogado) { acel = 0; giro = 0; freno = true; }
     this.frenando = (acel < 0 && this.adelante > 0.5) || freno;
     if (this.enAire) { this.giroSuave += (giro - this.giroSuave) * Math.min(1, dt * 3); this.yaw -= this.giroSuave * 0.6 * dt; this.adelante = this.vx * this.fx + this.vz * this.fz; return; }
     const turbo = nitro && acel > 0 ? 1 : 0;
@@ -709,7 +709,7 @@ export class Coche {
     for (const s of [1, -1, 0]) {
       _p.set(this.pos.x + this.fx * L * s, 0, this.pos.z + this.fz * L * s);
       const ox = _p.x, oz = _p.z;
-      const n = mundo.empujar(_p, s === 0 ? rad * 1.05 : rad, 0.4 + this.y);
+      const n = mundo.empujar(_p, s === 0 ? rad * 1.05 : rad, 0.4 + this.y, this.conductor === 'jugador');
       if (n) {
         this.pos.x += _p.x - ox; this.pos.z += _p.z - oz;
         const vn = this.vx * n.x + this.vz * n.z;
@@ -760,7 +760,7 @@ export class Coche {
       if (on !== this.alarmaOn) { this.alarmaOn = on; if (on) { this.alarmaTono = this.alarmaTono === 920 ? 700 : 920; this.juego.audio?.tono(this.alarmaTono, 0.26, 0.16 * (this.juego.audio.dist?.(this.pos) ?? 1), 'square'); } }
     }
     this.grupo.position.copy(this.pos);
-    this.grupo.position.y = this.y;
+    this.grupo.position.y = this.y - (this.hundido || 0);
     this.grupo.rotation.y = this.yaw;
     if (this.barra) {
       const on = this.sirena && (performance.now() / 160 | 0) % 2;
