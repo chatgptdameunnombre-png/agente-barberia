@@ -96,14 +96,16 @@ export function hoja(url, cols, rows, opc = {}) {
           const fx = (x / w * CX) % 1, fy = (y / h * CY) % 1;
           const prendida = vidrio ? hash(cx, cy) < (hash(77, cy) < 0.38 ? (hash(cx % 5 < 2 ? 3 : 4, cy) < 0.5 ? 0.85 : 0.6) : 0.05) : hash(cx, cy) < (hash(55, cy) < 0.5 ? 0.62 : 0.14);
           const ventana = vidrio ? (fx > 0.12 && fx < 0.88 && fy > 0.14 && fy < 0.86) : lum < 0.24;
+          const ventanaLuz = vidrio ? ventana : lum < 0.42;
           ov.data[q] = 255; ov.data[q + 1] = ventana ? 26 : 235; ov.data[q + 2] = ventana ? 150 : 0; ov.data[q + 3] = 255;
-          if (ventana && prendida) {
+          if (ventanaLuz && prendida) {
             const t = tonos[Math.floor(hash(cx + 9, cy + 3) * tonos.length)], k = 0.55 + hash(cx + 4, cy + 7) * 0.45;
             o.data[q] = t[0] * k; o.data[q + 1] = t[1] * k; o.data[q + 2] = t[2] * k;
           }
           o.data[q + 3] = 255;
         }
         gb.putImageData(o, 0, 0);
+        { const tmp = document.createElement('canvas'); tmp.width = w; tmp.height = h; const tg = tmp.getContext('2d'); tg.filter = `blur(${Math.max(1, w / 256).toFixed(1)}px)`; tg.drawImage(p.lienzoBrillo, 0, 0); gb.globalCompositeOperation = 'lighter'; gb.globalAlpha = 0.85; gb.drawImage(tmp, 0, 0); gb.globalAlpha = 1; gb.globalCompositeOperation = 'source-over'; }
         p.brillo.needsUpdate = true;
         gv.putImageData(ov, 0, 0); p.vidrioMapa.needsUpdate = true;
       }
