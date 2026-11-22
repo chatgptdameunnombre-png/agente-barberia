@@ -219,6 +219,8 @@ export class Fuentes {
           const alto = k % 3 === 0;
           if (alto) { p[i * 3] = F.x + (Math.random() - 0.5) * 0.1; p[i * 3 + 1] = 2.7; p[i * 3 + 2] = F.z + (Math.random() - 0.5) * 0.1; v[i * 3] = (Math.random() - 0.5) * 0.5; v[i * 3 + 1] = 5.5 + Math.random(); v[i * 3 + 2] = (Math.random() - 0.5) * 0.5; }
           else { const a = Math.random() * 6.283; p[i * 3] = F.x + Math.cos(a) * 1.05; p[i * 3 + 1] = 2.5; p[i * 3 + 2] = F.z + Math.sin(a) * 1.05; v[i * 3] = Math.cos(a) * 0.9; v[i * 3 + 1] = 0.6; v[i * 3 + 2] = Math.sin(a) * 0.9; }
+          const t0 = Math.random() * (alto ? 0.9 : 0.4);
+          p[i * 3] += v[i * 3] * t0; p[i * 3 + 1] += v[i * 3 + 1] * t0 - 4.9 * t0 * t0; p[i * 3 + 2] += v[i * 3 + 2] * t0; v[i * 3 + 1] -= 9.8 * t0; vi[i] -= t0;
           continue;
         }
         v[i * 3 + 1] -= 9.8 * dt;

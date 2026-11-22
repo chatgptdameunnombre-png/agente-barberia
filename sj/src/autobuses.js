@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { linea, CALLE } from './ciudad.js?v=202611220550';
-import { Coche, nuevaRutaIA, objetivoIA, dirigir } from './vehiculos.js?v=202611220550';
-import { Peaton } from './peatones.js?v=202611220550';
+import { linea, CALLE } from './ciudad.js?v=202611220552';
+import { Coche, nuevaRutaIA, objetivoIA, dirigir } from './vehiculos.js?v=202611220552';
+import { Peaton } from './peatones.js?v=202611220552';
 
 const RUTA = [[1, 1], [7, 1], [7, 7], [1, 7]];
 
