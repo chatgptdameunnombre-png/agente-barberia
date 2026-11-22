@@ -1,4 +1,4 @@
-import { Realista } from './realista.js?v=202611220554';
+import { Realista } from './realista.js?v=202611220819';
 
 const CIVILES = ['peaton1', 'peaton3', 'peaton5', 'peaton7'];
 

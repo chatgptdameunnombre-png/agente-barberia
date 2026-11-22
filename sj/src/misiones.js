@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611220554';
-import { Coche } from './vehiculos.js?v=202611220554';
-import { Peaton } from './peatones.js?v=202611220554';
-import { CONTACTOS } from './contactos.js?v=202611220554';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220554';
-import { crearHumano } from './humanos.js?v=202611220554';
+import { linea, CARRIL } from './ciudad.js?v=202611220819';
+import { Coche } from './vehiculos.js?v=202611220819';
+import { Peaton } from './peatones.js?v=202611220819';
+import { CONTACTOS } from './contactos.js?v=202611220819';
+import { crearPersona, animar, nivelDetalle, sombraPersona } from './persona.js?v=202611220819';
+import { crearHumano } from './humanos.js?v=202611220819';
 
 export function crearMarcador(escena, color) {
   const g = new THREE.Group();
@@ -126,7 +126,7 @@ export class Misiones {
     if (C.modelo && !this.j.sinRealista) {
       const g = new THREE.Group(); g.position.set(p.x + 1.5, 0, p.z - 0.9); g.rotation.y = Math.atan2(-1.5, 0.9); this.j.escena.add(g);
       mk.fig = { grupo: g, yawBase: g.rotation.y, real: true };
-      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); if (C.mascara) import('./humanos.js?v=202611220554').then(H => H.ponerMascara(h, ...C.mascara)); }).catch(() => {});
+      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); if (C.mascara) import('./humanos.js?v=202611220819').then(H => H.ponerMascara(h, ...C.mascara)); }).catch(() => {});
       return;
     }
     if (!C.apariencia) return;
@@ -139,6 +139,7 @@ export class Misiones {
     const f = mk.fig, J = this.j.jugador.posicion, dx = J.x - f.grupo.position.x, dz = J.z - f.grupo.position.z, d = Math.hypot(dx, dz);
     f.lejos = d > 110;
     if (f.lejos) { f.grupo.visible = false; return; }
+    sombraPersona(f, d < 55);
     if (f.real) {
       const meta = d < 14 ? Math.atan2(dx, dz) : f.yawBase;
       let dif = meta - f.grupo.rotation.y; dif = Math.atan2(Math.sin(dif), Math.cos(dif));

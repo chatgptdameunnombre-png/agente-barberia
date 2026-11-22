@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220554';
+import { crearPersona, animar, nivelDetalle, sombraPersona } from './persona.js?v=202611220819';
 
 const NEGRO = new THREE.MeshStandardMaterial({ color: '#141418', roughness: 0.55 });
 const PLATA = new THREE.MeshStandardMaterial({ color: '#d8dce2', roughness: 0.25, metalness: 0.9 });
@@ -141,6 +141,7 @@ export class Ambulantes {
     let dMin = 1e9;
     for (const m of this.mariachis) {
       const d = Math.hypot(m.x - jp.x, m.z - jp.z); dMin = Math.min(dMin, d);
+      sombraPersona(m.p, d < 55); m.p.grupo.visible = d < 170;
       if (d > 90) continue;
       const P = m.p; m.fase += dt;
       animar(P, dt, 0, 'puno', false);
@@ -152,7 +153,7 @@ export class Ambulantes {
       else { P.bi.rotation.set(-0.9, -0.5, 0.1); P.ci.rotation.x = -1.2; P.bd.rotation.set(-0.55 + b * 0.12, 0.2, -0.15); P.cd.rotation.x = -1.3; }
     }
     const noche = j.ambiente.noche || 0;
-    for (const q of this.puestos) { if (q.foco) { q.foco.material.color.set(noche > 0.25 ? '#fff0c0' : '#8a8578'); q.halo.material.opacity = noche * 0.65; } const d = Math.hypot(q.x - jp.x, q.z - jp.z); if (d > 70) continue; if (q.trompo) q.trompo.children[0].rotation.y += dt * 1.2; animar(q.v, dt, 0, 'puno', false); nivelDetalle(q.v, d < 45); if (Math.sin(t * 0.7 + q.fase) > 0.6) { q.v.bd.rotation.set(-1.2, 0, -0.2); q.v.cd.rotation.x = -1.2 + Math.sin(t * 8) * 0.3; } }
+    for (const q of this.puestos) { if (q.foco) { q.foco.material.color.set(noche > 0.25 ? '#fff0c0' : '#8a8578'); q.halo.material.opacity = noche * 0.65; } const d = Math.hypot(q.x - jp.x, q.z - jp.z); sombraPersona(q.v, d < 55); if (d > 70) continue; if (q.trompo) q.trompo.children[0].rotation.y += dt * 1.2; animar(q.v, dt, 0, 'puno', false); nivelDetalle(q.v, d < 45); if (Math.sin(t * 0.7 + q.fase) > 0.6) { q.v.bd.rotation.set(-1.2, 0, -0.2); q.v.cd.rotation.x = -1.2 + Math.sin(t * 8) * 0.3; } }
     this.musica(dMin);
     if (this.cerca()) j.hud.pista('E', (this.cerca().tipo === 'elotes' ? 'Comprar elote · $35' : 'Comprar tacos · $45'));
     else if (this.mariachiCerca()) j.hud.pista('E', 'Pedir una canción · $60');

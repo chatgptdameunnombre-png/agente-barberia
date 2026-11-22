@@ -1,10 +1,11 @@
 import * as THREE from 'three';
-import { crearHumano, recorte } from './humanos.js?v=202611220554';
+import { crearHumano, recorte } from './humanos.js?v=202611220819';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
-const RITMO = { Walk_Loop: 0.975, Jog_Fwd_Loop: 5.36, Sprint_Loop: 8.25, Crouch_Fwd_Loop: 0.75, Walk_Formal_Loop: 0.975 };
+export const RITMO = { Walk_Loop: 0.975, Jog_Fwd_Loop: 5.36, Sprint_Loop: 5.6, Crouch_Fwd_Loop: 0.75, Walk_Formal_Loop: 0.975 };
 const LOCO = ['Walk_Loop', 'Jog_Fwd_Loop', 'Sprint_Loop'];
+const MIN_R = { Jog_Fwd_Loop: 0.88, Sprint_Loop: 0.85 };
 const _yaw = new THREE.Quaternion(), _eje = new THREE.Vector3();
 const FUEGO = ['pistola', 'subfusil', 'rifle', 'escopeta', 'revolver', 'recortada', 'ametralladora', 'francotirador', 'lanzacohetes'];
 const PARES = [['cuerpo', 'pelvis'], ['torso', 'spine_01'], ['cabeza', 'head'], ['pi', 'thigh_l'], ['ri', 'calf_l'], ['pd', 'thigh_r'], ['rd', 'calf_r'], ['bi', 'upperarm_l'], ['ci', 'lowerarm_l'], ['bd', 'upperarm_r'], ['cd', 'lowerarm_r']];
@@ -26,9 +27,9 @@ class Locomocion {
   pesos(v) {
     const w = [0, 0, 0];
     if (v < 2.1) w[0] = 1;
-    else if (v < 3.4) { const t = (v - 2.1) / 1.3; w[0] = 1 - t; w[1] = t; }
-    else if (v < 6.4) w[1] = 1;
-    else if (v < 7.2) { const t = (v - 6.4) / 0.8; w[1] = 1 - t; w[2] = t; }
+    else if (v < 3.0) { const t = (v - 2.1) / 0.9; w[0] = 1 - t; w[1] = t; }
+    else if (v < 3.8) w[1] = 1;
+    else if (v < 4.4) { const t = (v - 3.8) / 0.6; w[1] = 1 - t; w[2] = t; }
     else w[2] = 1;
     return w;
   }
@@ -38,7 +39,7 @@ class Locomocion {
     if (this.peso < 0.002 && !activo) { for (const k in this.acc) this.acc[k].setEffectiveWeight(0); return; }
     const w = this.pesos(Math.max(0.3, v));
     let ciclo = 0, wt = 0;
-    LOCO.forEach((n, i) => { if (w[i] > 0) { const r = Math.max(0.55, Math.min(1.7, v / RITMO[n])); ciclo += w[i] * this.clips[n].duration / r; wt += w[i]; } });
+    LOCO.forEach((n, i) => { if (w[i] > 0) { const r = Math.max(MIN_R[n] ?? 0.55, Math.min(1.7, v / RITMO[n])); ciclo += w[i] * this.clips[n].duration / r; wt += w[i]; } });
     ciclo = ciclo / (wt || 1);
     if (v > 0.05) this.fase = (this.fase + dt / Math.max(0.2, ciclo)) % 1;
     LOCO.forEach((n, i) => {
@@ -62,7 +63,7 @@ class Capa {
     if (!a) { a = this.mixer.clipAction(clip); this.acciones.set(clip, a); }
     if (this.actual && this.actual !== a) this.actual.fadeOut(fundido);
     a.reset(); a.setLoop(veces === Infinity ? THREE.LoopRepeat : THREE.LoopOnce, veces); a.clampWhenFinished = veces !== Infinity;
-    a.setEffectiveTimeScale(1); a.setEffectiveWeight(1); a.fadeIn(fundido).play();
+    a.setEffectiveTimeScale(1); a.setEffectiveWeight(1); (fundido > 0 ? a.fadeIn(fundido) : a).play();
     this.actual = a;
     return a;
   }
@@ -101,6 +102,7 @@ export class Realista {
 
   montar(j) {
     this.j = j; const p = j.p;
+    if (this.p !== p) this.fresco = true;
     for (const o of this.armas || []) if (o.parent === this.empunadura) { this.empunadura.remove(o); if (this.p && this.p.md) this.p.md.add(o); }
     this.p = p;
     if (this.grupo.parent !== p.grupo) p.grupo.add(this.grupo);
@@ -168,12 +170,13 @@ export class Realista {
   aplicar(e, dt = 0, v = 0) {
     const C = this.clips;
     const usarSup = e.sup && C[e.sup];
-    const loco = LOCO.includes(e.base);
+    const loco = LOCO.includes(e.base), fresco = this.fresco; this.fresco = false;
+    if (fresco && loco) this.loco.peso = 1;
     this.loco.actualizar(dt, v, usarSup && e.base !== e.sup, loco);
-    if (loco) this.base.quitar(0.2);
+    if (loco) this.base.quitar(fresco ? 0 : 0.2);
     else {
       const nb = usarSup && e.base !== e.sup ? e.base + '#inf' : e.base;
-      const a = this.base.poner(C[nb] || C[e.base] || C.Idle_Loop, 0.2, e.veces, e.forzarBase);
+      const a = this.base.poner(C[nb] || C[e.base] || C.Idle_Loop, fresco ? 0 : 0.2, e.veces, e.forzarBase || fresco);
       if (a && e.veces === Infinity) a.setEffectiveTimeScale(e.escala);
     }
     if (usarSup && e.base !== e.sup) this.arriba.poner(C[e.sup + '#sup'], 0.12, e.supVeces, e.forzarSup);
@@ -326,7 +329,7 @@ export class Realista {
 
   teñirChamarra(color) {
     if (!this.listo) { this.promesa.then(() => this.teñirChamarra(color)); return; }
-    let mat = null; this.raiz.traverse(o => { if (o.isMesh && /casualsuit05/.test([].concat(o.material)[0]?.name || '')) mat = [].concat(o.material)[0]; });
+    let mat = null, jersey = false; this.raiz.traverse(o => { const n = [].concat(o.material)[0]?.name || ''; if (o.isMesh && /casualsuit0[45]/.test(n)) { mat = [].concat(o.material)[0]; jersey = /casualsuit04/.test(n); } });
     if (!mat || !mat.map?.image) return;
     if (!this.mapaOriginal) this.mapaOriginal = mat.map;
     if (color === null) { if (mat.map !== this.mapaOriginal) { mat.map = this.mapaOriginal; mat.needsUpdate = true; } return; }
@@ -339,7 +342,7 @@ export class Realista {
     const k = new THREE.Color(), hsl = {};
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const u = x / w, v = y / h, q = (y * w + x) * 4;
-      if (enZona(u, v, CAMISA) || enZona(u, v, JEANS)) continue;
+      if (jersey ? v > 0.42 : (enZona(u, v, CAMISA) || enZona(u, v, JEANS))) continue;
       const r = px[q] / 255, gg = px[q + 1] / 255, b = px[q + 2] / 255, l = Math.max(r, gg, b);
       if (l < 0.02) continue;
       k.setRGB(r, gg, b); k.getHSL(hsl);

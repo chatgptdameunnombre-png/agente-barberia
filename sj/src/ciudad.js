@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611220554';
-import { hoja } from './texturas.js?v=202611220554';
+import { construirEstadio } from './estadio.js?v=202611220819';
+import { hoja } from './texturas.js?v=202611220819';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -312,7 +312,7 @@ export function construirCiudad(escena, mundo) {
     const empedrado = tipo === 'plaza' || tipo === 'catedral' || tipo === 'monumento';
     losa(geosBanqueta, x0, z0, x1, z1, 0.15);
     if (verde) losa(geosPasto, x0 + BANQUETA, z0 + BANQUETA, x1 - BANQUETA, z1 - BANQUETA, 0.17, 6);
-    if (empedrado) losa(geosPiedra, x0 + BANQUETA, z0 + BANQUETA, x1 - BANQUETA, z1 - BANQUETA, 0.17, 3);
+    if (empedrado) losa(geosPiedra, x0 + BANQUETA, z0 + BANQUETA, x1 - BANQUETA, z1 - BANQUETA, 0.17, 1.8);
     for (const t of [0.12, 0.38, 0.62, 0.88]) {
       if (tipo === 'torres' || tipo === 'estadio' || tipo === 'gasolinera') continue;
       if (r() < 0.6) arbol(x0 + (x1 - x0) * t, z0 + 0.7);
@@ -467,9 +467,13 @@ export function construirCiudad(escena, mundo) {
     } else if (tipo === 'mercado') {
       obra.caja('liso', cx, cz, 46, 46, 9, '#c96f45');
       for (let i = 0; i < 4; i++) {
-        const g = new THREE.CylinderGeometry(5.6, 5.6, 46, 14, 1, false, 0, Math.PI);
+        const g = new THREE.CylinderGeometry(5.6, 5.6, 46, 26, 1, false, 0, Math.PI);
         g.rotateZ(Math.PI / 2); g.rotateY(Math.PI / 2);
-        obra.forma('liso', g, '#7a9db8', cx - 17.25 + i * 11.5, 9.15, cz);
+        const vx = cx - 17.25 + i * 11.5;
+        obra.forma('liso', g, '#6f93ad', vx, 9.15, cz);
+        for (let k = 0; k < 7; k++) obra.forma('liso', new THREE.TorusGeometry(5.66, 0.13, 6, 26, Math.PI), '#e6e1d6', vx, 9.15, cz - 21 + k * 7);
+        obra.forma('liso', new THREE.BoxGeometry(1.4, 0.16, 43), '#2e4656', vx, 14.78, cz);
+        obra.forma('liso', new THREE.BoxGeometry(0.5, 0.5, 46.4), '#e6e1d6', vx - 5.75, 9.2, cz);
       }
       for (let i = 0; i < 6; i++) obra.caja('liso', cx - 17 + i * 6.8, cz + 23.2, 3, 0.4, 4.5, '#3c2a20', 0.15, false);
       salida.lugares.mercado = { x: cx, z: iz1 + 1.2 };

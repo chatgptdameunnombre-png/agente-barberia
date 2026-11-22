@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220554';
+import { hoja } from './texturas.js?v=202611220819';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const cap = (r, l, y = 0) => { const g = new THREE.CapsuleGeometry(r, l, 3, 10); g.translate(0, y, 0); return g; };
@@ -543,6 +543,12 @@ export function nivelDetalle(p, cerca) {
   p.lod = cerca;
   for (const d of p.detalles) d.visible = cerca;
   p.cuello.visible = cerca;
+}
+
+export function sombraPersona(p, si) {
+  if (p.sombraLod === si) return;
+  p.sombraLod = si;
+  p.grupo.traverse(o => { if (!o.isMesh) return; if (!si) { if (o.userData.sOrig === undefined) o.userData.sOrig = o.castShadow; o.castShadow = false; } else if (o.userData.sOrig !== undefined) o.castShadow = o.userData.sOrig; });
 }
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));

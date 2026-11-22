@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220554';
-import { mat } from './persona.js?v=202611220554';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611220819';
+import { mat } from './persona.js?v=202611220819';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611220554';
+import { hoja } from './texturas.js?v=202611220819';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, vocho: 1, vochotaxi: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
 const IDX_ATRAS = { sedan: 8, compacto: 8, vocho: 8, vochotaxi: 8, camioneta: 10, deportivo: 8, taxi: 9, policia: 11, ambulancia: 10 };
@@ -63,7 +63,7 @@ const PERFIL = {
   sedan: { capo: 0.95, cabT: -0.27, cabF: 0.15, inclF: 0.62, inclT: 0.52 },
   taxi: { capo: 0.95, cabT: -0.27, cabF: 0.15, inclF: 0.62, inclT: 0.52 },
   policia: { capo: 0.95, cabT: -0.27, cabF: 0.15, inclF: 0.62, inclT: 0.52 },
-  camioneta: { capo: 0.9, cabT: -0.12, cabF: 0.3, inclF: 0.45, inclT: 0.05 },
+  camioneta: { capo: 0.9, cabT: -0.04, cabF: 0.24, inclF: 0.42, inclT: 0.06 },
   ambulancia: { capo: 1.0, cabT: 0.05, cabF: 0.3, inclF: 0.5, inclT: 0.05 },
   deportivo: { capo: 1.4, cabT: -0.3, cabF: 0.02, inclF: 0.85, inclT: 0.78 }
 };
@@ -146,6 +146,24 @@ function geometrias(tipo) {
     techo: cascaron(techo, A * (esVocho(tipo) ? 0.86 : 0.88), { estrecha: esVocho(tipo) ? 0.3 : 0.1, tumble: esVocho(tipo) ? 0.4 : 0.18, p: esVocho(tipo) ? 2.2 : 3, n: 24 })
   };
   let g = mergeGeometries([ni(geo.cuerpo), ni(geo.techo)]);
+  if (!esVocho(tipo)) {
+    const gh = ni(cascaron(vidrio, A * 0.86, caja ? { estrecha: 0.04, tumble: 0.12, p: 4.6, n: 56, m: 52 } : { estrecha: 0.12, tumble: 0.26, p: 3.2, n: 64, m: 52 }));
+    const Pg = gh.attributes.position, Ng = gh.attributes.normal, nv = Pg.count;
+    const zFb = cf + P.inclF, zRt = cr + P.inclT, yLo = yt + 0.07, yHi = yt + C - 0.075, dos = tipo === 'deportivo' || tipo === 'compacto';
+    const ventana = new Uint8Array(nv);
+    for (let i = 0; i < nv; i++) {
+      const x = Pg.getX(i), y = Pg.getY(i), z = Pg.getZ(i); if (y < yLo || y > yHi) continue;
+      const k = Math.max(0, Math.min(1, (y - yt) / C)), zF = zFb + (cf - zFb) * k, zR = cr + (zRt - cr) * k;
+      const nx = Math.abs(Ng.getX(i));
+      if (nx > 0.6) { if (z > zR + 0.14 && z < zF - 0.14 && (dos || Math.abs(z - ((zR + zF) / 2 - 0.08)) > 0.07)) ventana[i] = 1; }
+      else if (nx < 0.32 && (!caja || z > (zR + zF) / 2 || (Math.abs(x) < A * 0.26 && y > yt + 0.2))) ventana[i] = 1;
+    }
+    const pin = [], vid = [];
+    for (let t = 0; t < nv; t += 3) (ventana[t] && ventana[t + 1] && ventana[t + 2] ? vid : pin).push(t);
+    const sub = (lista, esc) => { const pp = new Float32Array(lista.length * 9), nn = new Float32Array(lista.length * 9); lista.forEach((t, q) => { for (let v = 0; v < 3; v++) for (let c = 0; c < 3; c++) { pp[q * 9 + v * 3 + c] = Pg.array[(t + v) * 3 + c] * (c === 1 ? 1 : esc); nn[q * 9 + v * 3 + c] = Ng.array[(t + v) * 3 + c]; } }); const b = new THREE.BufferGeometry(); b.setAttribute('position', new THREE.BufferAttribute(pp, 3)); b.setAttribute('normal', new THREE.BufferAttribute(nn, 3)); b.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(lista.length * 6), 2)); return b; };
+    g = mergeGeometries([ni(geo.cuerpo), sub(pin, 1)]);
+    geo.vidrio = sub(vid, 1.004);
+  }
   if (esVocho(tipo)) {
     const blanco = gg => { gg = ni(gg); const n = gg.attributes.position.count; gg.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n * 3).fill(1), 3)); return gg; };
     const domo = new THREE.SphereGeometry(1, 40, 18, 0, Math.PI * 2, 0, Math.PI / 2), Pd = domo.attributes.position, col = new Float32Array(Pd.count * 3);
@@ -166,18 +184,22 @@ function geometrias(tipo) {
     extras.push(caja);
   }
   if (esVocho(tipo)) for (const sx of [1, -1]) for (const sz of [1, -1]) { const f = new THREE.CylinderGeometry(0.47, 0.47, 0.3, 18, 1, false, 0, Math.PI).rotateZ(Math.PI / 2).scale(1, 1.05, 1.15); f.translate(sx * (A / 2 - 0.1), 0.38, sz * L * 0.31); extras.push(f); }
+  if (!esVocho(tipo)) for (const sz of [1, -1]) { const def = new THREE.CapsuleGeometry(0.085, A * 0.84, 4, 12).rotateZ(Math.PI / 2).scale(1, 1.15, 0.85); def.translate(0, yb + 0.15, sz * (L / 2 - 0.03)); extras.push(def); }
   if (tipo === 'ambulancia') { const caja = new THREE.BoxGeometry(A * 0.98, 1.25, L * 0.56); caja.translate(0, yt + 0.58, -L * 0.2); extras.push(caja); }
   if (tipo === 'deportivo') { const al = new THREE.BoxGeometry(A * 0.92, 0.06, 0.38); al.translate(0, yt + 0.34, -L / 2 + 0.2); extras.push(al); const p1 = new THREE.BoxGeometry(0.08, 0.3, 0.1); p1.translate(-A * 0.35, yt + 0.17, -L / 2 + 0.25); const p2 = p1.clone(); p2.translate(A * 0.7, 0, 0); extras.push(p1, p2); }
   geo.pinta = extras.length ? mergeGeometries([g, ...extras.map(e => { e = ni(e); if (g.attributes.color && !e.attributes.color) e.setAttribute('color', new THREE.BufferAttribute(new Float32Array(e.attributes.position.count * 3).fill(1), 3)); return e; })]) : g;
   const trim = [];
-  for (const sz of [1, -1]) { const d = new THREE.BoxGeometry(A * 1.0, 0.2, 0.16); d.translate(0, yb + 0.16, sz * (L / 2 - 0.02)); trim.push(d); }
+  for (const sz of [1, -1]) {
+    const lab = new THREE.BoxGeometry(A * 0.92, 0.045, 0.13); lab.translate(0, yb + 0.045, sz * (L / 2 - 0.04)); trim.push(lab);
+    if (!esVocho(tipo)) { const rej = new THREE.BoxGeometry(sz > 0 ? A * 0.42 : A * 0.3, sz > 0 ? 0.11 : 0.05, 0.03); rej.translate(0, yb + H * (sz > 0 ? 0.5 : 0.36), sz * (L / 2 + 0.005)); trim.push(rej); }
+  }
   for (const sx of [1, -1]) { const s1 = new THREE.BoxGeometry(0.06, 0.12, L * 0.62); s1.translate(sx * (A / 2 + 0.01), yb + 0.18, 0); trim.push(s1); const esp = new THREE.BoxGeometry(0.2, 0.1, 0.1); esp.translate(sx * (A / 2 + 0.06), yt + 0.12, cf + 0.25); trim.push(esp); }
   if (tipo === 'camioneta') { const hueco = new THREE.BoxGeometry(A * 0.76, 0.3, L * 0.38); hueco.translate(0, yt + 0.05, -L * 0.24); trim.push(hueco); }
   geo.trim = mergeGeometries(trim.map(ni));
   const faros = [], calav = [];
   for (const sx of [1, -1]) {
-    const f = new THREE.BoxGeometry(0.42, 0.13, 0.06); f.translate(sx * (A / 2 - 0.32), yb + H * 0.62, L / 2 - 0.03); faros.push(f);
-    const c = new THREE.BoxGeometry(0.46, 0.13, 0.06); c.translate(sx * (A / 2 - 0.3), yb + H * 0.72, -L / 2 + 0.02); calav.push(c);
+    const f = new THREE.CapsuleGeometry(0.07, 0.26, 4, 10).rotateZ(Math.PI / 2).scale(1, 1, 0.45); f.translate(sx * (A / 2 - 0.3), yb + H * 0.6, L / 2 - 0.01); faros.push(f);
+    const c = new THREE.CapsuleGeometry(0.065, 0.32, 4, 10).rotateZ(Math.PI / 2).scale(1, 1, 0.45); c.translate(sx * (A / 2 - 0.3), yb + H * 0.7, -L / 2 + 0.01); calav.push(c);
   }
   geo.faros = mergeGeometries(faros.map(ni));
   geo.calaveras = mergeGeometries(calav.map(ni));
@@ -195,7 +217,7 @@ const geoRin2 = (() => {
   for (let k = 0; k < 5; k++) for (const x of [0.12, -0.12]) { const r = new THREE.BoxGeometry(0.03, 0.16, 0.045); r.translate(0, 0.11, 0); r.rotateX(k * Math.PI * 2 / 5 + (x > 0 ? 0 : 0.3)); r.translate(x, 0, 0); p.push(r); }
   return mergeGeometries(p.map(g => g.index ? g.toNonIndexed() : g));
 })();
-const matVidrio2 = new THREE.MeshStandardMaterial({ color: '#1c2a3c', metalness: 0.5, roughness: 0.06, envMapIntensity: 1.5, transparent: true, opacity: 0.72 });
+const matVidrio2 = new THREE.MeshStandardMaterial({ color: '#16202c', metalness: 0.55, roughness: 0.05, envMapIntensity: 1.6, transparent: true, opacity: 0.84 });
 const PIELES_C = ['#c08a62', '#9a6a48', '#d8a888', '#7a5238', '#b07650'];
 const ROPA_C = ['#2a2c34', '#8a2a26', '#e8e4da', '#2e5a8a', '#3a6a44', '#5a3a6a', '#b8962e'];
 const geoTorsoC = new THREE.CapsuleGeometry(0.17, 0.28, 4, 10).scale(1, 1, 0.7);
@@ -561,7 +583,7 @@ export function modelo(tipo, color) {
   const manija = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.16).translate(0.04, yt - 0.1, -largoP + 0.2), matRin2); puerta.add(manija); finos.push(forro, manija);
   const linea = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.022, Math.max(0.5, zf + 0.3 - G.cr)).translate(0, yt + 0.012, (zf - 0.1 + G.cr) / 2), matCromo);
   for (const sx of [-1, 1]) { const l = linea.clone(); l.position.x = sx * (t.ancho * 0.43); carro.add(l); finos.push(l); }
-  if (tipo !== 'deportivo' && tipo !== 'compacto' && !esVocho(tipo)) { const pil = new THREE.Mesh(new THREE.BoxGeometry(t.ancho * 0.85, t.cabina * 0.92, 0.09), matTrim); pil.position.set(0, yt + t.cabina * 0.48, zf - largoP - 0.02); carro.add(pil); finos.push(pil); }
+  if (false) { const pil = new THREE.Mesh(new THREE.BoxGeometry(t.ancho * 0.85, t.cabina * 0.92, 0.09), matTrim); pil.position.set(0, yt + t.cabina * 0.48, zf - largoP - 0.02); carro.add(pil); finos.push(pil); }
   const np = (Math.random() * 8) | 0;
   const pf = new THREE.Mesh(geoPlaca, matsPlaca[np]); pf.position.set(0, piso + 0.12, t.largo / 2 + 0.14); carro.add(pf);
   const pt = new THREE.Mesh(geoPlaca, matsPlaca[(np + 3) % 8]); pt.position.set(0, piso + H * 0.32, -t.largo / 2 - 0.14); pt.rotation.y = Math.PI; carro.add(pt); finos.push(pf, pt);
@@ -609,7 +631,10 @@ const _p = new THREE.Vector3();
 
 export class Coche {
   static vidrioRoto = matVidrioRoto;
-  detalle(cerca) { if (!this.finos || this.cerca === cerca) return; this.cerca = cerca; for (const o of this.finos) o.visible = cerca; }
+  detalle(cerca, sombra = true) {
+    if (this.sombraLod !== sombra) { this.sombraLod = sombra; this.grupo.traverse(o => { if (!o.isMesh) return; if (!sombra) { if (o.userData.sOrig === undefined) o.userData.sOrig = o.castShadow; o.castShadow = false; } else if (o.userData.sOrig !== undefined) o.castShadow = o.userData.sOrig; }); }
+    if (!this.finos || this.cerca === cerca) return; this.cerca = cerca; for (const o of this.finos) o.visible = cerca;
+  }
   constructor(juego, tipo, color, x, z, yaw) {
     this.juego = juego;
     this.bici = tipo === 'bici';

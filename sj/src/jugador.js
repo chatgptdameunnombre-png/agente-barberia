@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { enLago, sobreMuelle } from './ciudad.js?v=202611220554';
-import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611220554';
+import { enLago, sobreMuelle } from './ciudad.js?v=202611220819';
+import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611220819';
 
 export const ARMAS = {
   puno: { nombre: 'PUÑOS', tipo: 'golpe', daño: 14, cadencia: 0.42, alcance: 1.7, empuje: 3, cargador: 0 },
@@ -32,7 +32,7 @@ export const CATEGORIAS = [
 ];
 export const tieneArma = (j, k) => { const s = j.armas[k]; return !!s && (ARMAS[k].tipo !== 'lanzar' || s.reserva > 0); };
 
-import { Realista } from './realista.js?v=202611220554';
+import { Realista } from './realista.js?v=202611220819';
 export const REALISTAS = {};
 export function realistaDe(nombre) { const k = nombre === 'Lucía' ? 'lucia' : nombre === 'Matías' ? 'matias' : nombre; return REALISTAS[k] || (REALISTAS[k] = new Realista(k)); }
 
@@ -194,7 +194,7 @@ export class Jugador {
     if (this.agachado && correr) this.agachado = false;
     this.nadando = enLago(j.ciudad.lago, this.pos.x, this.pos.z, 0.15);
     if (this.nadando) { this.agachado = false; this.rueda = null; this.gesto = null; }
-    const vmax = this.nadando ? (correr ? 2.9 : 1.9) : (this.rueda ? 7.5 : this.agachado ? 1.9 : this.apunta ? 2.6 : (correr ? 7.2 : 4.2)) * (1 + this.bonoVel) * (this.juego.mareo > 20 ? 0.85 : 1);
+    const vmax = this.nadando ? (correr ? 2.9 : 1.9) : (this.rueda ? 7.5 : this.agachado ? 1.9 : this.apunta ? 2.6 : (correr ? 7.2 : 4.6)) * (1 + this.bonoVel) * (this.juego.mareo > 20 ? 0.85 : 1);
     let objetivo = 0;
     if (this.rueda) { this.rueda.t -= dt; mx = this.rueda.x; mz = this.rueda.z; objetivo = vmax * Math.max(0.3, this.rueda.t / 0.55); if (this.rueda.t <= 0) this.rueda = null; }
     else if (m > 0.01) { mx /= m; mz /= m; objetivo = vmax; }

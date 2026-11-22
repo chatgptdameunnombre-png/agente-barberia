@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mat } from './persona.js?v=202611220554';
+import { mat, sombraPersona } from './persona.js?v=202611220819';
 
 const COLORES_PERRO = ['#c89a5a', '#3a2a1e', '#f0e6d6', '#8a6a4a', '#1c1c1c', '#d8b070'];
 
@@ -108,7 +108,8 @@ export class Animales {
     for (const p of this.perros) {
       const d = Math.hypot(p.pos.x - jp.x, p.pos.z - jp.z);
       if (d > 230 && !p.perdido) { const b = j.ciudad.bloques.filter(b => { const e = Math.hypot(b.cx - jp.x, b.cz - jp.z); return e > 60 && e < 140; }); if (b.length) { p.bloque = b[Math.random() * b.length | 0]; p.pos.set(p.bloque.x0 + 1.4, 0, p.bloque.cz); p.muerto = 0; p.cuerpo.rotation.z = 0; p.estado = 'pasear'; } continue; }
-      p.g.visible = d < 160;
+      p.g.visible = d < 130;
+      if (!p.grupo) p.grupo = p.g; sombraPersona(p, d < 45);
       if (p.muerto) { p.muerto += dt; p.cuerpo.rotation.z = Math.min(Math.PI / 2, p.muerto * 6); p.g.position.copy(p.pos); continue; }
       p.t -= dt; p.ladrido -= dt;
       let vx = 0, vz = 0, v = 0;
