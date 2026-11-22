@@ -80,3 +80,39 @@ export class Aves {
     this.malla.instanceMatrix.needsUpdate = true;
   }
 }
+
+export class Salpicaduras {
+  constructor(juego) {
+    this.j = juego; this.n = 500;
+    const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+    g.strokeStyle = 'rgba(235,242,255,0.9)'; g.lineWidth = 3; g.beginPath(); g.ellipse(32, 40, 18, 7, 0, 0, 7); g.stroke();
+    g.fillStyle = 'rgba(235,242,255,0.85)'; for (let k = 0; k < 6; k++) { const a = Math.PI + k / 5 * Math.PI; g.beginPath(); g.arc(32 + Math.cos(a) * 14, 34 + Math.sin(a) * 16, 2.4, 0, 7); g.fill(); }
+    this.pos = new Float32Array(this.n * 3); this.vida = new Float32Array(this.n); this.tam = new Float32Array(this.n);
+    for (let i = 0; i < this.n; i++) { this.vida[i] = Math.random() * 0.3; this.pos[i * 3 + 1] = -50; }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3)); geo.setAttribute('tam', new THREE.BufferAttribute(this.tam, 1));
+    const mat = new THREE.PointsMaterial({ map: new THREE.CanvasTexture(c), size: 1, transparent: true, depthWrite: false, opacity: 0.7 });
+    mat.onBeforeCompile = sh => { sh.vertexShader = 'attribute float tam;\n' + sh.vertexShader.replace('gl_PointSize = size;', 'gl_PointSize = size * tam;'); };
+    this.pts = new THREE.Points(geo, mat); this.pts.frustumCulled = false; juego.escena.add(this.pts);
+  }
+
+  actualizar(dt, lluvia, camara) {
+    const on = lluvia > 0.12 && !this.j.jugador.interior;
+    this.pts.visible = on; if (!on || !camara) return;
+    const bl = this.j.ciudad.bloques, cp = camara.position;
+    const activos = Math.floor(this.n * Math.min(1, lluvia));
+    for (let i = 0; i < this.n; i++) {
+      this.vida[i] -= dt;
+      if (this.vida[i] <= 0) {
+        this.vida[i] = 0.18 + Math.random() * 0.14;
+        if (i >= activos) { this.pos[i * 3 + 1] = -50; continue; }
+        const a = Math.random() * 6.283, r = 1.5 + Math.sqrt(Math.random()) * 24;
+        const x = cp.x + Math.cos(a) * r, z = cp.z + Math.sin(a) * r;
+        const y = bl.some(B => x > B.x0 && x < B.x1 && z > B.z0 && z < B.z1) ? 0.17 : 0.03;
+        this.pos[i * 3] = x; this.pos[i * 3 + 1] = y; this.pos[i * 3 + 2] = z;
+      }
+      const t = 1 - this.vida[i] / 0.32;
+      this.tam[i] = 0.12 + t * 0.28;
+    }
+    this.pts.geometry.attributes.position.needsUpdate = true; this.pts.geometry.attributes.tam.needsUpdate = true;
+  }
+}

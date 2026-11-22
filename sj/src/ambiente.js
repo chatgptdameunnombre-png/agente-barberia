@@ -117,16 +117,17 @@ export class Ambiente {
     this.lluvia += (this.quiereLluvia - this.lluvia) * Math.min(1, dt * 0.08);
     this.mojado = (this.mojado || 0) + ((this.lluvia > 0.15 ? 1 : 0) - (this.mojado || 0)) * Math.min(1, dt * (this.lluvia > 0.15 ? 0.25 : 0.02));
     const W = this.mojado, ms = this.juego.ciudad?.matsSuelo;
-    if (ms) { ms[0].roughness = 0.94 - 0.62 * W; ms[0].color.setScalar(1 - 0.38 * W); ms[0].envMapIntensity = 1 + W * 0.8; if (ms[1]) { ms[1].roughness = 0.95 - 0.5 * W; ms[1].color.setScalar(1 - 0.3 * W); } }
+    if (ms) { ms[0].roughness = 0.94 - 0.56 * W; ms[0].color.setScalar(1 - 0.5 * W); ms[0].envMapIntensity = 1 + W * 0.15; if (ms[1]) { ms[1].roughness = 0.95 - 0.5 * W; ms[1].color.setScalar(1 - 0.3 * W); } }
     const ch = this.juego.charcos; if (ch) { ch.mat.opacity = W * 0.92; ch.malla.visible = W > 0.02; }
     const { a, b, t } = this.muestra(this.hora);
     const lerp = (x, y) => x + (y - x) * t;
     const L = this.lluvia;
-    const gris = this._c.set('#5a6270');
+    const kDia = Math.max(0.1, Math.min(1, (Math.sin((this.hora - 6.5) / 13 * Math.PI) + 0.12) / 0.45));
+    const gris = this._c.set('#5a6270').multiplyScalar(0.35 + 0.65 * kDia);
     const N = Math.max(L, this.nublado || 0);
     const arriba = this._a.copy(a.arriba).lerp(b.arriba, t).lerp(gris, N * 0.55);
-    const horiz = this._b.copy(a.horizonte).lerp(b.horizonte, t).lerp(gris.set('#7a8290'), N * 0.6);
-    if (this.neblina > 0.01) { horiz.lerp(gris.set('#c9ccd0'), this.neblina * 0.55); arriba.lerp(gris.set('#b8c0c8'), this.neblina * 0.35); }
+    const horiz = this._b.copy(a.horizonte).lerp(b.horizonte, t).lerp(gris.set('#7a8290').multiplyScalar(0.3 + 0.7 * kDia), N * 0.6);
+    if (this.neblina > 0.01) { horiz.lerp(gris.set('#c9ccd0').multiplyScalar(kDia), this.neblina * 0.55); arriba.lerp(gris.set('#b8c0c8').multiplyScalar(kDia), this.neblina * 0.35); }
     if (this.relampago > 0) { this.relampago -= dt; const k = Math.max(0, this.relampago) * 3; arriba.lerp(gris.set('#e8ecff'), Math.min(1, k)); horiz.lerp(gris, Math.min(1, k)); }
     this.cieloMat.uniforms.arriba.value.copy(arriba);
     this.cieloMat.uniforms.horizonte.value.copy(horiz);
