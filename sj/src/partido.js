@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar } from './persona.js?v=202611220435';
+import { crearPersona, animar } from './persona.js?v=202611220440';
 
 function texBalon() {
   const c = document.createElement('canvas'); c.width = 128; c.height = 64; const g = c.getContext('2d');

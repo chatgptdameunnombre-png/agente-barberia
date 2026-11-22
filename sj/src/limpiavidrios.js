@@ -1,5 +1,5 @@
-import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220435';
-import { Peaton } from './peatones.js?v=202611220435';
+import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611220440';
+import { Peaton } from './peatones.js?v=202611220440';
 
 const PIDE = ['¿Le limpio el vidrio, jefe?', '¡Se lo dejo como espejo!', 'Nomás una ayudita, patrón.'];
 const GRACIAS = ['¡Gracias, jefe! Que le vaya bonito.', '¡Dios se lo pague!', '¡Ese es mi patrón!'];
@@ -33,7 +33,7 @@ export class Limpiavidrios {
     if (!this.a) {
       const h = j.ambiente.hora ?? 12;
       if (c && c.tipo !== 'moto' && c.tipo !== 'lancha' && c.vel < 0.4 && !j.policia.estrellas && !j.misiones?.activa && h > 7 && h < 20.5) this.quieto += dt; else this.quieto = 0;
-      if (this.quieto > 2.2 && this.espera <= 0 && this.cruceCerca(c.pos)) {
+      if (this.quieto > 2.2 && this.espera <= 0 && !this.j.malabar?.a && this.cruceCerca(c.pos)) {
         this.espera = 50 + Math.random() * 40; this.quieto = 0;
         if (Math.random() < 0.55) this.llegar(c);
       }
