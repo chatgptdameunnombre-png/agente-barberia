@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611220315';
-import { hoja } from './texturas.js?v=202611220315';
-import { Peaton } from './peatones.js?v=202611220315';
-import { letrero } from './ciudad.js?v=202611220315';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220315';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220315';
-import { ARTICULOS } from './actividades.js?v=202611220315';
+import { animar } from './persona.js?v=202611220317';
+import { hoja } from './texturas.js?v=202611220317';
+import { Peaton } from './peatones.js?v=202611220317';
+import { letrero } from './ciudad.js?v=202611220317';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611220317';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611220317';
+import { ARTICULOS } from './actividades.js?v=202611220317';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
@@ -48,6 +48,23 @@ export class Interiores {
     this.elegir();
     this.tiendas.forEach((t, i) => { t.zonas = []; this.construir(t, i); this.puertaFuera(t); });
     this.crearCajeros();
+  }
+
+  animarCantina(T, dt) {
+    const C = T.cantina, A = this.j.audio, c = A.ctx; C.t += dt;
+    for (const q of T.parroquianos) { const P = q.p, s = Math.sin(C.t * 1.3 + q.fase); P.bd.rotation.set(-0.9 + Math.max(0, s) * 0.8, 0, -0.2); P.cd.rotation.x = -1.4; P.cabeza.rotation.x = s * 0.08; }
+    for (const q of T.norteño) { const P = q.p, b = Math.sin(C.t * 6.2 + q.k); animar(P, dt, 0, 'puno', false); P.cuerpo.rotation.y = Math.sin(C.t * 1.5 + q.k) * 0.1; if (q.k === 0) { P.bi.rotation.set(-1.4, -0.5, 0); P.bd.rotation.set(-1.2 + b * 0.2, 0.5, 0); P.ci.rotation.x = P.cd.rotation.x = -1.5; } else { P.bi.rotation.set(-0.9, -0.5, 0.1); P.ci.rotation.x = -1.2; P.bd.rotation.set(-0.55 + b * 0.15, 0.2, -0.15); P.cd.rotation.x = -1.3; } }
+    if (!c) return;
+    const NOTAS = [64, 67, 69, 71, 69, 67, 64, 62, 64, 67, 71, 74, 72, 71, 69, 67], BAJO = [40, 47, 45, 47];
+    const pulso = 0.24, ahora = c.currentTime, vol = 0.07 * (A.volMusica ?? 1);
+    if (C.prox < ahora - 1) C.prox = ahora + 0.05;
+    const hz = n => 440 * Math.pow(2, (n - 69) / 12);
+    while (C.prox < ahora + 0.3) {
+      const n = NOTAS[C.nota % NOTAS.length];
+      A.tono(hz(n), pulso * 0.9, vol, 'square', undefined, C.prox); A.tono(hz(n + 12), pulso * 0.5, vol * 0.4, 'triangle', undefined, C.prox);
+      if (C.nota % 2 === 0) A.tono(hz(BAJO[(C.nota >> 2) % BAJO.length]), pulso * 0.9, vol * 1.1, 'triangle', undefined, C.prox); else A.tono(hz(BAJO[(C.nota >> 2) % BAJO.length] + 19), pulso * 0.3, vol * 0.5, 'square', undefined, C.prox);
+      C.prox += pulso; C.nota++;
+    }
   }
 
   animarArena(T, dt) {
@@ -315,6 +332,11 @@ export class Interiores {
       }
       const rockola = caja(1, 1.8, 0.7, m('#5a1a3a', { emissive: '#ff4f9a', emissiveIntensity: 0.6 }), W / 2 - 0.8, 0.9, 2);
       rockola.material.emissiveIntensity = 0.5;
+      t.parroquianos = [];
+      for (const [x, z] of [[-3.5, 1], [0, 2.2], [3.5, 1]]) for (const a of [0, 2.1]) { const p = crearPersona({ sinAccesorios: Math.random() < 0.5, fijo: false, sombrero: Math.random() < 0.4 }); p.grupo.position.set(x + Math.cos(a) * 1, 0, z + Math.sin(a) * 1); p.grupo.rotation.y = Math.atan2(x - p.grupo.position.x, z - p.grupo.position.z); sentar(p); g.add(p.grupo); t.parroquianos.push({ p, fase: Math.random() * 6 }); }
+      t.norteño = [];
+      for (let k = 0; k < 3; k++) { const p = crearPersona({ camisa: ['#1d3f8a', '#8a2a26', '#f2efe6'][k], pantalon: '#1a1a1e', fijo: true, sinAccesorios: true, sombrero: true }); p.grupo.position.set(-W / 2 + 1.6 + k * 1.1, 0, L / 2 - 2.4); p.grupo.rotation.y = Math.PI * 0.85; g.add(p.grupo); t.norteño.push({ p, k }); }
+      t.cantina = { t: 0, prox: 0, nota: 0 };
       t.cajero = this.npc(t, 0, -L / 2 + 1.3, { cara: 2, ropa: 2 });
       t.interior.mostrador.set(ox, 0, oz - L / 2 + 3.3);
     } else if (t.tipo === 'antro') {
@@ -524,7 +546,7 @@ export class Interiores {
     j.audio.ui(660);
     j.audio.puerta?.();
     j.hud.notificar('tienda', t.nombre, t.tipo === 'tienda' ? (t.robadaHasta > j.reloj ? 'Ya la robaste hace poco: el cajero está alerta.' : 'Párate frente a un producto y presiona E… o apunta al cajero para robarla.') : t.tipo === 'depa' ? 'Tu casa: aquí puedes dormir y guardar.' : 'Párate frente a lo que quieras y presiona E.', 5);
-    if (t.tipo === 'cantina') { j.audio.estacion = 1; j.audio.radioActiva(true); }
+    if (t.tipo === 'cantina') { j.audio.estacion = 0; j.audio.radioActiva(false); }
     if (j.policia.estrellas > 0) j.hud.notificar('alerta', 'La policía te espera afuera', 'Mientras estés aquí no se van a ir.', 4);
   }
 
@@ -649,6 +671,7 @@ export class Interiores {
     }
     const T = this.dentro;
     if (T?.arena) this.animarArena(T, dt);
+    if (T?.cantina) this.animarCantina(T, dt);
     if (T?.antro) this.animarAntro(T, dt);
     else this.j.audio.antro?.(0);
     if (!T) return;
