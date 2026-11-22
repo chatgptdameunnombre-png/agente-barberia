@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220216';
+import { crearPersona, animar, nivelDetalle } from './persona.js?v=202611220221';
 
 const NEGRO = new THREE.MeshStandardMaterial({ color: '#141418', roughness: 0.55 });
 const PLATA = new THREE.MeshStandardMaterial({ color: '#d8dce2', roughness: 0.25, metalness: 0.9 });
