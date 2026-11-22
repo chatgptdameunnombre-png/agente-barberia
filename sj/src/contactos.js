@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220139';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220139';
-import { Peaton } from './peatones.js?v=202611220139';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220145';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220145';
+import { Peaton } from './peatones.js?v=202611220145';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -702,6 +702,72 @@ export const CONTACTOS = {
           }
         },
         fin(m) { m.j.hud.dialogos([['Chava', 'Ganamos tres a uno y ni se enteraron de nada. Ya eres leyenda en la gasolinera.']]); }
+      }
+    ]
+  },
+  luchador: {
+    nombre: 'El Hijo del Jacaranda', letra: 'J', modelo: 'luchador', mascara: ['#c9ced6', '#2a5ab8'], color: '#4a8dff', zona: 'Arena Jacaranda', requisito: 2,
+    apariencia: { camisa: '#1d3f8a', pantalon: '#b8bec8', complexion: 1.3, mangaCorta: true, mujer: false },
+    lugar: j => { const t = j.interiores?.tiendas?.find(t => t.tipo === 'arena'); if (!t) return libre(j, j.ciudad.lugares.plaza.x + 10, j.ciudad.lugares.plaza.z); return libre(j, t.puerta.x + t.fx * 2.5 + t.fz * 2.5, t.puerta.z + t.fz * 2.5 - t.fx * 2.5); },
+    lista: [
+      {
+        titulo: 'LA MÁSCARA ROBADA', premio: 1800,
+        inicio(m) {
+          const j = m.j, T = j.ciudad.lugares.tianguis;
+          m.dialogo([['El Hijo del Jacaranda', '¡Hermano! Unos rudos me robaron mi máscara de gala. Sin ella no puedo luchar el domingo.'], ['El Hijo del Jacaranda', 'Andan presumiéndola en el tianguis. Recupérala, pero sin balazos: entre luchadores se arregla a golpes.']]);
+          j.jugador.darArma('bate', 1);
+          m.banda = matones(m, T.x, T.z, 4, ['bate', 'puno', 'bate', 'cuchillo']);
+          m.banda.forEach(g => { g.objetivoMision = true; }); m.objetivos = m.banda;
+          m.marcar(1, T.x, T.z, 14, 1, '#4a8dff');
+          m.objetivo('Ve al <b>tianguis</b> y quítales la máscara a los rudos.');
+        },
+        actualizar(m) {
+          const j = m.j, T = j.ciudad.lugares.tianguis;
+          if (m.paso === 0) {
+            despertar(m, m.banda, 30);
+            const vivos = m.banda.filter(g => !g.muerto);
+            m.objetivo(`Dales una lección a los rudos: quedan <b>${vivos.length}</b>.`);
+            if (!vivos.length) { m.paso = 1; m.objetivos = []; const u = m.banda[m.banda.length - 1].pos, p = libre(j, u.x, u.z); m.mascara = j.crearRecogible('sobre', p.x, p.z); m.extra.push(m.mascara.malla); m.marcar(1, p.x, p.z, 1.6, 2.5, '#4a8dff'); }
+          }
+          if (m.paso === 1) { m.objetivo('Recoge la <b>máscara de gala</b>.'); if (m.mascara.tomado) { m.paso = 2; const L = m.lugarC('luchador'); m.marcar(1, L.x, L.z, 3, 2.5, '#4a8dff'); } }
+          if (m.paso === 2) { m.objetivo('Regrésale la máscara al <b>Hijo del Jacaranda</b> en la Arena.' + (j.policia.estrellas ? ' <b>Pierde a la policía.</b>' : '')); if (llegar(m, 1) && !j.policia.estrellas) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['El Hijo del Jacaranda', '¡Mi máscara! La hizo mi abuelo con hilo de plata. Eres un técnico de corazón, hermano.']]); }
+      },
+      {
+        titulo: 'EL CINTURÓN DE CAMPEÓN', premio: 2600,
+        inicio(m) {
+          const j = m.j, E = j.ciudad.lugares.estadio;
+          m.dialogo([['El Hijo del Jacaranda', 'El cinturón de campeón está en el estadio, en la exhibición. La función empieza en dos minutos.'], ['El Hijo del Jacaranda', 'Tráelo antes de que suene la campana o me lo quitan por no presentarlo.']]);
+          const p = libre(j, E.x + 6, E.z + 2); m.cinturon = j.crearRecogible('sobre', p.x, p.z); m.extra.push(m.cinturon.malla);
+          m.marcar(1, p.x, p.z, 1.6, 2.5, '#ffd23a'); m.reloj = 120;
+          m.objetivo('Ve por el <b>cinturón</b> al Estadio Jacaranda.');
+        },
+        actualizar(m, dt) {
+          const j = m.j; m.reloj -= dt;
+          if (m.reloj <= 0) return 'falla:Sonó la campana y no llegó el cinturón.';
+          const t = Math.ceil(m.reloj), reloj = ` <b>${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}</b>`;
+          if (m.paso === 0) { m.objetivo('Recoge el <b>cinturón de campeón</b>.' + reloj); if (m.cinturon.tomado) { m.paso = 1; const L = m.lugarC('luchador'); m.marcar(1, L.x, L.z, 3, 2.5, '#4a8dff'); j.hud.grande('¡LO TIENES!', 'Corre a la Arena', 1.8); } }
+          if (m.paso === 1) { m.objetivo('Lleva el cinturón a la <b>Arena Jacaranda</b>.' + reloj); if (llegar(m, 1)) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['El Hijo del Jacaranda', '¡Justo a tiempo! Hoy defiendo el título y lo dedico a ti.']]); }
+      },
+      {
+        titulo: 'EMBOSCADA DE RUDOS', premio: 3400,
+        inicio(m) {
+          const j = m.j, L = m.lugarC('luchador');
+          m.dialogo([['El Hijo del Jacaranda', 'Los rudos no aceptaron la derrota. Están esperándome afuera de la arena con fierros.'], ['El Hijo del Jacaranda', 'Tú y yo, hermano. Como en las luchas de parejas.']]);
+          j.jugador.darArma('pistola', 36);
+          m.banda = matones(m, L.x + 12, L.z + 8, 6, ['pistola', 'bate', 'pistola', 'cuchillo', 'escopeta', 'bate'], 'atacar');
+          m.banda.forEach(g => { g.objetivoMision = true; }); m.objetivos = m.banda;
+          j.hud.grande('¡A LA LONA!', 'Acaba con los rudos', 2);
+        },
+        actualizar(m) {
+          const j = m.j, vivos = m.banda.filter(g => !g.muerto).length;
+          m.objetivo(`Acaba con los <b>rudos</b>: quedan <b>${vivos}</b>.`);
+          if (!vivos) return 'ok';
+        },
+        fin(m) { m.j.redes?.publicar?.('explosion', '', { forzar: true }); m.j.hud.dialogos([['El Hijo del Jacaranda', 'Rudos a la lona y la afición feliz. Desde hoy tienes lugar en primera fila, hermano.']]); }
       }
     ]
   }

@@ -115,3 +115,26 @@ export async function crearHumano(nombre) {
   H.actualizar = dt => mixer.update(dt);
   return H;
 }
+
+export function ponerMascara(h, color = '#c9ced6', borde = '#2a5ab8') {
+  let cab = null; h.raiz.traverse(o => { if (o.isBone && o.name.toLowerCase() === 'head') cab = o; });
+  if (!cab) return null;
+  h.grupo.updateMatrixWorld(true);
+  const qb = cab.getWorldQuaternion(new THREE.Quaternion()), qr = h.grupo.getWorldQuaternion(new THREE.Quaternion()), inv = qb.clone().invert();
+  const f = new THREE.Vector3(0, 0, 1).applyQuaternion(qr).applyQuaternion(inv).normalize();
+  const u0 = new THREE.Vector3(0, 1, 0).applyQuaternion(qr).applyQuaternion(inv);
+  const s = new THREE.Vector3().crossVectors(u0, f).normalize(), u = new THREE.Vector3().crossVectors(f, s).normalize();
+  const ws = cab.getWorldScale(new THREE.Vector3()).x || 1, k = 1 / ws;
+  const g = new THREE.Group(); g.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(s, u, f)); g.scale.setScalar(k); cab.add(g);
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.25 }), matB = new THREE.MeshStandardMaterial({ color: borde, roughness: 0.4 }), blanco = new THREE.MeshBasicMaterial({ color: '#f4f2ec' }), negro = new THREE.MeshBasicMaterial({ color: '#141418' });
+  const cabeza = new THREE.Mesh(new THREE.SphereGeometry(0.118, 20, 16), mat); cabeza.scale.set(1.0, 1.42, 1.12); cabeza.position.set(0, 0.04, 0.012); g.add(cabeza);
+  const cresta = new THREE.Mesh(new THREE.TorusGeometry(0.122, 0.012, 6, 24, Math.PI), matB); cresta.rotation.set(0, Math.PI / 2, 0); cresta.scale.set(1.12, 1.42, 1); cresta.position.set(0, 0.04, 0.012); g.add(cresta);
+  for (const sx of [-1, 1]) {
+    const aro = new THREE.Mesh(new THREE.CircleGeometry(0.03, 16), matB); aro.scale.set(1.25, 0.8, 1); aro.position.set(sx * 0.04, 0.082, 0.1365); aro.rotation.y = sx * 0.28; g.add(aro);
+    const ojo = new THREE.Mesh(new THREE.CircleGeometry(0.02, 14), blanco); ojo.scale.set(1.3, 0.75, 1); ojo.position.set(sx * 0.04, 0.082, 0.1385); ojo.rotation.y = sx * 0.28; g.add(ojo);
+    const pupila = new THREE.Mesh(new THREE.CircleGeometry(0.008, 10), negro); pupila.position.set(sx * 0.039, 0.081, 0.14); pupila.rotation.y = sx * 0.28; g.add(pupila);
+  }
+  const boca = new THREE.Mesh(new THREE.CircleGeometry(0.022, 14), matB); boca.scale.set(1.4, 0.6, 1); boca.position.set(0, -0.005, 0.1425); g.add(boca);
+  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  return g;
+}
