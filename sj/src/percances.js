@@ -1,5 +1,5 @@
-import { Peaton } from './peatones.js?v=202611220513';
-import { puntoCalleAleatorio, nuevaRutaIA } from './vehiculos.js?v=202611220513';
+import { Peaton } from './peatones.js?v=202611220519';
+import { puntoCalleAleatorio, nuevaRutaIA } from './vehiculos.js?v=202611220519';
 
 const A = ['¡Usted se me cerró!', '¡Venía a vuelta de rueda, señor!', '¿Y la direccional qué?', '¡Ahorita le hablo a mi seguro!', '¡Mire nomás cómo me dejó la defensa!'];
 const B = ['¡Usted frenó de golpe!', '¡Ni me vio, joven!', '¡A ver, bájele de volumen!', '¡Yo traía el verde!', '¡Que venga el ajustador!'];
