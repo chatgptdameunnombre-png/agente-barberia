@@ -104,6 +104,7 @@ export class Helicoptero {
     const j = this.j, jp = j.jugador.posicion, a = j.audio, noche = j.ambiente.noche || 0;
     this.t += dt;
     this.cono.visible = this.mancha.visible = false;
+    if (this.estado !== 'vuela') this.ve = false;
     if (this.estado === 'cae') return this.caer(dt);
     if (this.estado === 'restos') { this.restos -= dt; const y = this.pos.y; if (Math.random() < dt * 6) j.humo?.(this.pos.x, y + 0.5, this.pos.z, 2.2, '#2a2826', 3); if (this.restos > 8 && Math.random() < dt * 14) j.humo?.(this.pos.x + (Math.random() - 0.5) * 3, y - 0.4, this.pos.z + (Math.random() - 0.5) * 3, 1.1, '#ff7a24', 0.5); return this.restos > 0; }
     if (!quiere) this.retirar = true;

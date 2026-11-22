@@ -1,6 +1,6 @@
-import { esCalle } from './ciudad.js?v=202611220444';
-import { Coche, puntoCalleAleatorio, nuevaRutaIA } from './vehiculos.js?v=202611220444';
-import { Peaton } from './peatones.js?v=202611220444';
+import { esCalle } from './ciudad.js?v=202611220451';
+import { Coche, puntoCalleAleatorio, nuevaRutaIA } from './vehiculos.js?v=202611220451';
+import { Peaton } from './peatones.js?v=202611220451';
 
 const AZUL = '#3fa8ff';
 const banqueta = (j, cerca, a, b) => {
@@ -25,6 +25,7 @@ export class Aleatorios {
     const j = this.j, E = this.e;
     if (!E) return;
     if (E.tipo === 'llanta') this.arreglar(E.coche);
+    if (E.tipo === 'perro') E.perro.perdido = false;
     this.quitar(E.gente || []);
     if (E.bolsa?.malla && !E.bolsa.tomado) j.escena.remove(E.bolsa.malla);
     this.e = null;
@@ -37,8 +38,22 @@ export class Aleatorios {
 
   empezar(forzado) {
     const j = this.j, jp = j.jugador.posicion;
-    const tipos = j.jugador.coche ? ['aventon', 'asalto', 'bolso'] : ['bolso', 'asalto', 'aventon', 'llanta', 'llanta'];
-    const tipo = forzado || tipos[Math.random() * (j.jugador.coche ? 2 : 5) | 0];
+    const tipos = j.jugador.coche ? ['aventon', 'asalto', 'bolso'] : ['bolso', 'asalto', 'aventon', 'llanta', 'llanta', 'perro', 'perro'];
+    const tipo = forzado || tipos[Math.random() * (j.jugador.coche ? 2 : 7) | 0];
+    if (tipo === 'perro') {
+      const A = j.animales; if (!A?.perros?.length) return;
+      const s = banqueta(j, jp, 25, 50); if (!s) return;
+      const perro = A.perros.filter(q => !q.muerto && !q.dueno && !q.sigue).sort((a, b) => Math.hypot(b.pos.x - jp.x, b.pos.z - jp.z) - Math.hypot(a.pos.x - jp.x, a.pos.z - jp.z))[0]; if (!perro) return;
+      const lejos = j.ciudad.bloques.filter(b => { const e = Math.hypot(b.cx - s.x, b.cz - s.z); return e > 90 && e < 160 && (b.tipo === 'parque' || b.tipo === 'barrio' || b.tipo === 'centro'); });
+      const B = lejos[Math.random() * lejos.length | 0]; if (!B) return;
+      perro.bloque = B; perro.pos.set(B.x0 + 1.4, 0, B.cz); perro.meta = null; perro.perdido = true;
+      const q = new Peaton(j, { x: s.x, z: s.z, estado: 'quieto', vestido: { mujer: true, estiloPelo: 'largo' } }); q.objetivoMision = true; q.anim = 'Idle_Talking_Loop';
+      j.peatones.push(q);
+      const nombre = ['Canelo', 'Firulais', 'Chispa', 'Manchas', 'Galleta'][Math.random() * 5 | 0];
+      this.e = { tipo, t: 0, duena: q, perro, nombre, gente: [q], paso: 0, zona: { x: perro.pos.x + (Math.random() - 0.5) * 30, z: perro.pos.z + (Math.random() - 0.5) * 30 } };
+      j.hud.notificar('gps', 'Perrito perdido', `Una señora busca a su perro ${nombre} (azul en el mapa).`, 4);
+      return;
+    }
     if (tipo === 'llanta') {
       const p = puntoCalleAleatorio(jp, 40, 80) || puntoCalleAleatorio(jp, 30, 140); if (!p) return;
       const c = new Coche(j, Math.random() < 0.5 ? 'sedan' : 'compacto', undefined, p.x, p.z, p.yaw); c.reservado = true; c.vx = c.vz = 0;
@@ -94,6 +109,27 @@ export class Aleatorios {
     E.t += dt;
     if (E.t > 150 || (E.victima && E.victima.pos.distanceTo(jp) > 260) || (E.pasajero && !E.abordo && E.pasajero.pos.distanceTo(jp) > 260)) { this.fin(null); return; }
     if (j.misiones.activa) { this.fin(null); return; }
+    if (E.tipo === 'perro') {
+      const Q = E.duena, P = E.perro, dq = Q.pos.distanceTo(jp), dp = Math.hypot(P.pos.x - jp.x, P.pos.z - jp.z);
+      if (!j.peatones.includes(Q) || Q.muerto || Q.estado === 'huir' || P.muerto) { P.perdido = false; this.fin(null); return; }
+      if (E.paso === 0) {
+        Q.yaw = Math.atan2(jp.x - Q.pos.x, jp.z - Q.pos.z);
+        if (!E.hablo && dq < 9) { E.hablo = true; j.hud.burbuja?.(Q, `¿No ha visto a ${E.nombre}? ¡Se me escapó!`); }
+        if (dp < 3 && !jug.coche) { E.paso = 1; P.sigue = true; P.miedo = 0; j.audio.ladrido?.(P.pos); j.hud.notificar('flor', `¡Encontraste a ${E.nombre}!`, 'Te va a seguir. Llévalo con su dueña.', 3.5); }
+      } else if (E.paso === 1) {
+        if (jug.coche) P.sigue = true;
+        const dpq = Math.hypot(P.pos.x - Q.pos.x, P.pos.z - Q.pos.z);
+        if (dpq < 5 || (dq < 3.5 && dpq < 10)) {
+          P.sigue = false; P.perdido = false; P.dueno = Q; Q.anim = null;
+          if (!P.correa) { P.correa = j.animales.crearCorrea(); j.escena.add(P.correa); }
+          j.hud.burbuja?.(Q, `¡${E.nombre}! ¡Gracias, gracias! Tome, para usted.`);
+          Q.objetivoMision = false; E.gente = []; Q.asignarRutaCercana?.(); Q.estado = Q.ruta ? 'pasear' : 'quieto';
+          j.estadisticas?.sumar?.('perros', 1);
+          this.fin('Regresaste al perrito', 150, true);
+        }
+      }
+      return;
+    }
     if (E.tipo === 'llanta') {
       const c = E.coche, Q = E.chofer;
       if (!j.coches.includes(c) || c.quemado || jug.coche === c || !j.peatones.includes(Q) || Q.muerto || Q.estado === 'huir') { this.arreglar(c); this.fin(null); return; }
@@ -198,6 +234,7 @@ export class Aleatorios {
     const E = this.e;
     if (!E) return [];
     if (E.tipo === 'bolso') return E.paso === 0 ? [{ x: E.ladron.pos.x, z: E.ladron.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Ladrón de bolsos' }] : E.paso === 1 ? [{ x: E.bolsa.x, z: E.bolsa.z, tipo: 'objetivo', color: AZUL, texto: 'bolsa', nombre: 'Bolsa robada' }] : [{ x: E.victima.pos.x, z: E.victima.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Dueña de la bolsa' }];
+    if (E.tipo === 'perro') return E.paso === 0 ? [{ x: E.duena.pos.x, z: E.duena.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Dueña del perrito' }, { x: E.zona.x, z: E.zona.z, tipo: 'pin', color: AZUL, nombre: `Vieron a ${E.nombre} por aquí` }] : [{ x: E.duena.pos.x, z: E.duena.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Lleva al perrito con su dueña' }];
     if (E.tipo === 'llanta') return E.paso === 0 ? [{ x: E.coche.pos.x, z: E.coche.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Llanta ponchada' }] : [];
     if (E.tipo === 'asalto') return [{ x: E.malo.pos.x, z: E.malo.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Asaltante' }];
     return E.abordo ? [{ x: E.destino.x, z: E.destino.z, tipo: 'objetivo', color: AZUL, texto: 'bandera', nombre: 'Destino del desconocido' }] : [{ x: E.pasajero.pos.x, z: E.pasajero.pos.z, tipo: 'objetivo', color: AZUL, texto: 'persona', nombre: 'Desconocido sin coche' }];
