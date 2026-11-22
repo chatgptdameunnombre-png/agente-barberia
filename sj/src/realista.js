@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano, recorte } from './humanos.js?v=202611220501';
+import { crearHumano, recorte } from './humanos.js?v=202611220506';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -141,7 +141,7 @@ export class Realista {
     else if (j.reparando > 0) base = 'Fixing_Kneeling';
     else if (j.pintando > 0) base = 'Spell_Simple_Idle_Loop';
     else if (j.nadando) { base = v > 0.3 ? 'Swim_Fwd_Loop' : 'Swim_Idle_Loop'; if (v > 0.3) escala = Math.max(0.7, Math.min(1.6, v / 1.9)); }
-    else if (j.y > 0.08) base = 'Jump_Loop';
+    else if (j.y - (j.suelo || 0) > 0.08) base = 'Jump_Loop';
     else if (j.agachado) { base = v > 0.3 ? 'Crouch_Fwd_Loop' : 'Crouch_Idle_Loop'; }
     else if (v < 0.25) base = j.gesto?.tipo === 'bailar' ? 'Dance_Loop' : j.gesto ? 'Idle_Talking_Loop' : 'Idle_Loop';
     else if (v < 2.8) base = 'Walk_Loop';

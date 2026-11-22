@@ -1,81 +1,82 @@
 import * as THREE from 'three';
-import { Mundo, construirCiudad, LIMITE, esCalle, VIENTO, linea } from './ciudad.js?v=202611220501';
-import { Coche, nuevaRutaIA, objetivoIA, dirigir, puntoCalleAleatorio, matFaro, matCalavera, matHalo, matHaz } from './vehiculos.js?v=202611220501';
-import { Peaton } from './peatones.js?v=202611220501';
-import { Jugador, ARMAS } from './jugador.js?v=202611220501';
-import { Policia } from './policia.js?v=202611220501';
-import { Ambiente } from './ambiente.js?v=202611220501';
-import { Audio } from './audio.js?v=202611220501';
-import { Minimapa } from './minimapa.js?v=202611220501';
-import { Misiones } from './misiones.js?v=202611220501';
-import { Hud } from './hud.js?v=202611220501';
-import { GPS, zona, calle } from './gps.js?v=202611220501';
-import { Rueda, Granadas } from './armas.js?v=202611220501';
-import { Actividades, Estadisticas } from './actividades.js?v=202611220501';
-import { decorar } from './decoracion.js?v=202611220501';
-import { Post } from './post.js?v=202611220501';
-import { ORDEN } from './jugador.js?v=202611220501';
-import { pinturas, matsDecal, modelo as modeloCoche, TIPOS } from './vehiculos.js?v=202611220501';
-import { Interiores } from './interiores.js?v=202611220501';
-import { crearPersona, sentar, montar } from './persona.js?v=202611220501';
-import { Animales } from './animales.js?v=202611220501';
-import { Duo } from './duo.js?v=202611220501';
-import { Telefono } from './telefono.js?v=202611220501';
-import { Redes } from './redes.js?v=202611220501';
-import { Eventos } from './eventos.js?v=202611220501';
-import { Economia } from './economia.js?v=202611220501';
-import { Trabajos } from './trabajos.js?v=202611220501';
-import { Aleatorios } from './aleatorios.js?v=202611220501';
-import { Ambulantes } from './ambulantes.js?v=202611220501';
-import { Semaforos } from './semaforos.js?v=202611220501';
-import { Autobuses } from './autobuses.js?v=202611220501';
-import { Fisica } from './fisica.js?v=202611220501';
-import { Gente } from './gente.js?v=202611220501';
-import { amueblar } from './mobiliario.js?v=202611220501';
-import { construirAzoteas } from './azoteas.js?v=202611220501';
-import { decorarTaller } from './taller.js?v=202611220501';
-import { TrenLigero } from './tren.js?v=202611220501';
-import { Baches } from './baches.js?v=202611220501';
-import { Aviones } from './aviones.js?v=202611220501';
-import { Gasolinera } from './gasolinera.js?v=202611220501';
-import { ventanasLisas } from './ventanas.js?v=202611220501';
-import { Hidrantes } from './hidrantes.js?v=202611220501';
-import { papelPicado } from './papelpicado.js?v=202611220501';
-import { decorarLotes, frenteMercado } from './lotes.js?v=202611220501';
-import { Limpiavidrios } from './limpiavidrios.js?v=202611220501';
-import { Fuegos } from './fuegos.js?v=202611220501';
-import { Vapor, Aves, Salpicaduras, Granizo, Arcoiris, Fuentes, Malecon } from './vida.js?v=202611220501';
-import { placasCalles } from './placas.js?v=202611220501';
-import { basuraYCasetas } from './basura.js?v=202611220501';
-import { decorarParques } from './parques.js?v=202611220501';
-import { armarTianguis } from './tianguis.js?v=202611220501';
-import { adornarCatedral } from './catedral.js?v=202611220501';
-import { Direccionales } from './direccionales.js?v=202611220501';
-import { Emergencias, SonidosCalle, Persecuciones, Bomberos } from './emergencias.js?v=202611220501';
-import { terrazas } from './terrazas.js?v=202611220501';
-import { Paleteros } from './paleteros.js?v=202611220501';
-import { muralesTren } from './murales.js?v=202611220501';
-import { Partido } from './partido.js?v=202611220501';
-import { FilaAntro } from './fila.js?v=202611220501';
-import { Enojados } from './enojo.js?v=202611220501';
-import { Boda } from './boda.js?v=202611220501';
-import { Nado } from './nado.js?v=202611220501';
-import { alumbrado } from './alumbrado.js?v=202611220501';
-import { Placazos } from './placazos.js?v=202611220501';
-import { Percances } from './percances.js?v=202611220501';
-import { Malabarista } from './malabarista.js?v=202611220501';
-import { Verbena } from './verbena.js?v=202611220501';
-import { adornarKiosco } from './kiosco.js?v=202611220501';
-import { Lavado } from './lavado.js?v=202611220501';
-import { Globos } from './globos.js?v=202611220501';
-import { Rayos } from './rayos.js?v=202611220501';
-import { Feria } from './feria.js?v=202611220501';
-import { Noticias } from './noticias.js?v=202611220501';
-import { Pandillas } from './pandillas.js?v=202611220501';
-import { TaxiPasajero } from './taxis.js?v=202611220501';
-import { afueras } from './afueras.js?v=202611220501';
-import { DonChuy } from './donchuy.js?v=202611220501';
-import { CONTACTOS } from './contactos.js?v=202611220501';
+import { Mundo, construirCiudad, LIMITE, esCalle, VIENTO, linea } from './ciudad.js?v=202611220506';
+import { Coche, nuevaRutaIA, objetivoIA, dirigir, puntoCalleAleatorio, matFaro, matCalavera, matHalo, matHaz } from './vehiculos.js?v=202611220506';
+import { Peaton } from './peatones.js?v=202611220506';
+import { Jugador, ARMAS } from './jugador.js?v=202611220506';
+import { Policia } from './policia.js?v=202611220506';
+import { Ambiente } from './ambiente.js?v=202611220506';
+import { Audio } from './audio.js?v=202611220506';
+import { Minimapa } from './minimapa.js?v=202611220506';
+import { Misiones } from './misiones.js?v=202611220506';
+import { Hud } from './hud.js?v=202611220506';
+import { GPS, zona, calle } from './gps.js?v=202611220506';
+import { Rueda, Granadas } from './armas.js?v=202611220506';
+import { Actividades, Estadisticas } from './actividades.js?v=202611220506';
+import { decorar } from './decoracion.js?v=202611220506';
+import { Post } from './post.js?v=202611220506';
+import { ORDEN } from './jugador.js?v=202611220506';
+import { pinturas, matsDecal, modelo as modeloCoche, TIPOS } from './vehiculos.js?v=202611220506';
+import { Interiores } from './interiores.js?v=202611220506';
+import { crearPersona, sentar, montar } from './persona.js?v=202611220506';
+import { Animales } from './animales.js?v=202611220506';
+import { Duo } from './duo.js?v=202611220506';
+import { Telefono } from './telefono.js?v=202611220506';
+import { Redes } from './redes.js?v=202611220506';
+import { Eventos } from './eventos.js?v=202611220506';
+import { Economia } from './economia.js?v=202611220506';
+import { Trabajos } from './trabajos.js?v=202611220506';
+import { Aleatorios } from './aleatorios.js?v=202611220506';
+import { Ambulantes } from './ambulantes.js?v=202611220506';
+import { Semaforos } from './semaforos.js?v=202611220506';
+import { Autobuses } from './autobuses.js?v=202611220506';
+import { Fisica } from './fisica.js?v=202611220506';
+import { Gente } from './gente.js?v=202611220506';
+import { amueblar } from './mobiliario.js?v=202611220506';
+import { construirAzoteas } from './azoteas.js?v=202611220506';
+import { decorarTaller } from './taller.js?v=202611220506';
+import { TrenLigero } from './tren.js?v=202611220506';
+import { Baches } from './baches.js?v=202611220506';
+import { Aviones } from './aviones.js?v=202611220506';
+import { Gasolinera } from './gasolinera.js?v=202611220506';
+import { ventanasLisas } from './ventanas.js?v=202611220506';
+import { Hidrantes } from './hidrantes.js?v=202611220506';
+import { papelPicado } from './papelpicado.js?v=202611220506';
+import { decorarLotes, frenteMercado } from './lotes.js?v=202611220506';
+import { Limpiavidrios } from './limpiavidrios.js?v=202611220506';
+import { Fuegos } from './fuegos.js?v=202611220506';
+import { Vapor, Aves, Salpicaduras, Granizo, Arcoiris, Fuentes, Malecon } from './vida.js?v=202611220506';
+import { placasCalles } from './placas.js?v=202611220506';
+import { basuraYCasetas } from './basura.js?v=202611220506';
+import { decorarParques } from './parques.js?v=202611220506';
+import { armarTianguis } from './tianguis.js?v=202611220506';
+import { adornarCatedral } from './catedral.js?v=202611220506';
+import { Direccionales } from './direccionales.js?v=202611220506';
+import { Emergencias, SonidosCalle, Persecuciones, Bomberos } from './emergencias.js?v=202611220506';
+import { terrazas } from './terrazas.js?v=202611220506';
+import { Paleteros } from './paleteros.js?v=202611220506';
+import { muralesTren } from './murales.js?v=202611220506';
+import { Partido } from './partido.js?v=202611220506';
+import { FilaAntro } from './fila.js?v=202611220506';
+import { Enojados } from './enojo.js?v=202611220506';
+import { Boda } from './boda.js?v=202611220506';
+import { Nado } from './nado.js?v=202611220506';
+import { alumbrado } from './alumbrado.js?v=202611220506';
+import { Placazos } from './placazos.js?v=202611220506';
+import { Percances } from './percances.js?v=202611220506';
+import { Malabarista } from './malabarista.js?v=202611220506';
+import { Verbena } from './verbena.js?v=202611220506';
+import { adornarKiosco } from './kiosco.js?v=202611220506';
+import { Lavado } from './lavado.js?v=202611220506';
+import { Globos } from './globos.js?v=202611220506';
+import { Pesca } from './pesca.js?v=202611220506';
+import { Rayos } from './rayos.js?v=202611220506';
+import { Feria } from './feria.js?v=202611220506';
+import { Noticias } from './noticias.js?v=202611220506';
+import { Pandillas } from './pandillas.js?v=202611220506';
+import { TaxiPasajero } from './taxis.js?v=202611220506';
+import { afueras } from './afueras.js?v=202611220506';
+import { DonChuy } from './donchuy.js?v=202611220506';
+import { CONTACTOS } from './contactos.js?v=202611220506';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const TRAFICO = 30, PEATONES = 44;
@@ -162,6 +163,7 @@ class Juego {
     this.kiosco = adornarKiosco(this);
     this.lavado = new Lavado(this);
     this.globos = new Globos(this);
+    this.pesca = new Pesca(this);
     this.direccionales = new Direccionales(this);
     this.emergencias = new Emergencias(this);
     this.sonidosCalle = new SonidosCalle(this);
@@ -371,7 +373,9 @@ class Juego {
       if (e.code === 'KeyE' && j.coche && this.limpia?.pagar()) return;
       if (e.code === 'KeyE' && j.coche && this.malabar?.pagar()) return;
       if (e.code === 'KeyF' && !j.interior && !this.entrando) this.iniciarEntrada();
-      if (e.code === 'KeyE' && !j.coche && !this.overlay && this.placazos?.cerca()) this.placazos.empezar();
+      if (e.code === 'KeyE' && !j.coche && !this.overlay && this.pesca?.e) this.pesca.jalar();
+      else if (e.code === 'KeyE' && !j.coche && !this.overlay && this.pesca?.cerca()) this.pesca.empezar();
+      else if (e.code === 'KeyE' && !j.coche && !this.overlay && this.placazos?.cerca()) this.placazos.empezar();
       else if (e.code === 'KeyE' && !j.coche && !this.overlay && this.aleatorios?.cercaLlanta()) this.aleatorios.ayudar();
       else if (e.code === 'KeyE' && !j.coche && !this.overlay && this.ambulantes.cerca()) this.ambulantes.comprar();
       else if (e.code === 'KeyE' && !j.coche && !this.overlay && this.paleteros?.cerca()) this.paleteros.comprar();
@@ -1490,6 +1494,7 @@ class Juego {
     this.kiosco?.actualizar(this.ambiente.noche || 0);
     this.lavado?.actualizar(dt);
     this.globos?.actualizar(dt);
+    this.pesca?.actualizar(dt);
     this.rayos?.actualizar(dt);
     this.feria?.actualizar(dt, this.ambiente.noche);
     this.noticias?.actualizar(dt);
@@ -1586,6 +1591,7 @@ class Juego {
     { const lp = this.limpia?.pista(); if (lp) { this.hud.pista('E', lp); return; } }
     { const mp = this.malabar?.pista(); if (mp) { this.hud.pista('E', mp); return; } }
     if (this.aleatorios?.cercaLlanta()) { this.hud.pista('E', 'Ayudar a cambiar la llanta'); return; }
+    { const pp = this.pesca?.pista(); if (pp) { this.hud.pista('E', pp); return; } }
     if (this.placazos?.cerca()) { this.hud.pista('E', 'Pintar tu grafiti · $300'); return; }
     if (j.sentado) { this.hud.pista('E', 'Levantarte · descansas y recuperas salud'); return; }
     { const pp = this.partido?.pista(); if (pp) { this.hud.pista('E', pp); return; } }
@@ -1745,12 +1751,12 @@ class Juego {
   }
 
   async prepararRetratos() {
-    const { crearHumano } = await import('./humanos.js?v=202611220501');
+    const { crearHumano } = await import('./humanos.js?v=202611220506');
     this.retratos = this.retratos || {};
     for (const C of Object.values(CONTACTOS)) {
       if (!C.modelo || C.letra === 'N' || C.letra === 'V' || C.letra === 'G' || C.letra === 'I') continue;
       try {
-        const h = await crearHumano(C.modelo); h.tocar('Idle_Loop', 0); h.mixer.update(0.5); if (C.mascara) { const H = await import('./humanos.js?v=202611220501'); H.ponerMascara(h, ...C.mascara); }
+        const h = await crearHumano(C.modelo); h.tocar('Idle_Loop', 0); h.mixer.update(0.5); if (C.mascara) { const H = await import('./humanos.js?v=202611220506'); H.ponerMascara(h, ...C.mascara); }
         const R = this.renderer, esc = new THREE.Scene(), ancho = 256, alto = 256;
         esc.environment = this.escena.environment; esc.background = new THREE.Color(C.color).multiplyScalar(0.22);
         esc.add(h.grupo); h.grupo.updateMatrixWorld(true);

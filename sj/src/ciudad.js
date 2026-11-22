@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611220501';
-import { hoja } from './texturas.js?v=202611220501';
+import { construirEstadio } from './estadio.js?v=202611220506';
+import { hoja } from './texturas.js?v=202611220506';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -33,6 +33,7 @@ export function rng(semilla) {
 
 const VACIO = [];
 
+export function sobreMuelle(L, x, z) { return !!L && Math.abs(x - L.muelle.x) < 1.5 && z > L.muelle.z0 - 0.3 && z < L.muelle.z1 + 1.6; }
 export function enLago(L, x, z, m = 0) { return !!L && x > L.x0 + m && x < L.x1 - m && z > L.z0 + m && z < L.z1 - m && !(Math.abs(x - L.muelle.x) < 1.5 - m && z > L.muelle.z0 + m); }
 
 export class Mundo {

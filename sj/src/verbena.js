@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Peaton } from './peatones.js?v=202611220501';
+import { Peaton } from './peatones.js?v=202611220506';
 
 const N = { do: 261.63, re: 293.66, mi: 329.63, fa: 349.23, sol: 392, la: 440, si: 493.88, do2: 523.25, re2: 587.33, mi2: 659.25 };
 const MELODIA = [['mi', 1], ['sol', 1], ['do2', 2], ['si', 1], ['la', 1], ['sol', 2], ['fa', 1], ['la', 1], ['re2', 2], ['do2', 1], ['si', 1], ['la', 2], ['sol', 1], ['mi', 1], ['sol', 1], ['la', 1], ['si', 1], ['re2', 1], ['do2', 2], ['sol', 1], ['mi', 1], ['re', 1], ['fa', 1], ['mi', 2], ['re', 2], ['do', 4]];

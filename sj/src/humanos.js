@@ -149,7 +149,7 @@ export function ponerMascara(h, color = '#c9ced6', borde = '#2a5ab8') {
   return g;
 }
 
-function pegarAHueso(h, nombre) {
+export function pegarAHueso(h, nombre) {
   let b = null; h.raiz.traverse(o => { if (o.isBone && o.name.toLowerCase() === nombre) b = o; });
   if (!b) return null;
   h.grupo.updateMatrixWorld(true);
