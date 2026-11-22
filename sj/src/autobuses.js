@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { linea, CALLE } from './ciudad.js?v=202611220423';
-import { Coche, nuevaRutaIA, objetivoIA, dirigir } from './vehiculos.js?v=202611220423';
-import { Peaton } from './peatones.js?v=202611220423';
+import { linea, CALLE } from './ciudad.js?v=202611220428';
+import { Coche, nuevaRutaIA, objetivoIA, dirigir } from './vehiculos.js?v=202611220428';
+import { Peaton } from './peatones.js?v=202611220428';
 
 const RUTA = [[1, 1], [7, 1], [7, 7], [1, 7]];
 
@@ -77,6 +77,58 @@ export class Autobuses {
       for (let i = this.buses.length - 1; i >= 0; i--) if (this.buses[i].quemado > 20 || !j.coches.includes(this.buses[i])) this.buses.splice(i, 1);
       if (this.buses.length < 2) this.crearBus(Math.random() * 4 | 0);
     }
+  }
+
+  cercaParada() {
+    const j = this.j, J = j.jugador; if (this.viaje || J.coche || J.muerto || J.interior) return null;
+    for (const bus of this.buses) {
+      if (bus.quemado || !(bus.espera > 0.6) || bus.parada < 0) continue;
+      const P = this.paradas[bus.parada];
+      if (Math.hypot(J.pos.x - P.x, J.pos.z - P.z) < 4.5 || bus.pos.distanceTo(J.pos) < 6) return { bus, P };
+    }
+    return null;
+  }
+
+  pista() {
+    if (this.viaje) { const b = this.viaje.bus; return b.espera > 0.6 && b.parada !== this.viaje.desde ? 'Bajarte en esta parada' : 'Viajando en el camión · E para bajarte en la siguiente parada'; }
+    return this.cercaParada() ? 'Subir al camión Ruta 7 · $9' : null;
+  }
+
+  subir() {
+    const j = this.j, J = j.jugador, c = this.cercaParada(); if (!c) return false;
+    if (j.policia.estrellas) { j.hud.notificar('alerta', 'Ruta 7', 'El chofer no te sube con la policía encima.', 3); return true; }
+    if (J.dinero < 9) { j.hud.notificar('alerta', 'Ruta 7', 'El pasaje cuesta $9.', 3); return true; }
+    J.dinero -= 9; j.audio?.dinero?.(); c.bus.espera = Math.max(c.bus.espera, 2.5);
+    this.viaje = { bus: c.bus, desde: c.bus.parada, t: 0, cam: null, bajar: false };
+    J.grupo.visible = false;
+    j.hud.notificar('taxi', 'Ruta 7', 'Pasaje pagado. Te bajas en la siguiente parada (o presiona E en una parada).', 3.5);
+    return true;
+  }
+
+  bajar() {
+    const j = this.j, J = j.jugador, V = this.viaje; if (!V) return;
+    const b = V.bus;
+    if (!(b.espera > 0.3) || b.parada < 0) { V.bajar = true; j.hud.notificar('taxi', 'Ruta 7', '¡Bajan! Te bajas en la siguiente parada.', 2.5); return; }
+    const P = this.paradas[b.parada];
+    J.pos.set(P.x + (Math.random() - 0.5) * 1.5, 0, P.z); j.mundo.empujar(J.pos, 0.4);
+    J.grupo.visible = true; J.yaw = Math.atan2(P.carril.x - P.x, P.carril.z - P.z) + Math.PI;
+    this.viaje = null; j.estadisticas?.sumar?.('viajesCamion', 1);
+  }
+
+  actualizarViaje(dt) {
+    const V = this.viaje; if (!V) return;
+    const j = this.j, b = V.bus; V.t += dt;
+    if (b.quemado || !j.coches.includes(b)) { this.viaje = null; j.jugador.grupo.visible = true; return; }
+    j.jugador.pos.copy(b.pos);
+    if (b.parada >= 0 && b.parada !== V.desde && b.espera > 0.3 && b.espera < 1.6) this.bajar();
+  }
+
+  camara(cam, dt) {
+    const b = this.viaje.bus, obj = new THREE.Vector3(b.pos.x - b.fx * 13 + b.fz * 2, 6.2, b.pos.z - b.fz * 13 - b.fx * 2);
+    if (!this.viaje.cam) this.viaje.cam = cam.position.clone();
+    this.viaje.cam.lerp(obj, Math.min(1, dt * 2.5));
+    cam.position.copy(this.viaje.cam); cam.lookAt(b.pos.x + b.fx * 6, 1.8, b.pos.z + b.fz * 6);
+    if (cam.fov !== 62) { cam.fov = 62; cam.updateProjectionMatrix(); }
   }
 
   conducir(bus, dt) {
