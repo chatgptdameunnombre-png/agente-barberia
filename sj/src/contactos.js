@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220509';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220509';
-import { Peaton } from './peatones.js?v=202611220509';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611220513';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611220513';
+import { Peaton } from './peatones.js?v=202611220513';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -854,6 +854,95 @@ export const CONTACTOS = {
           }
         },
         fin(m) { m.j.hud.dialogos([['Don Neto', 'Ahí quedó claro quién manda en este muelle. Cuando quieras, te llevo a pescar. Gratis.']]); }
+      }
+    ]
+  },
+  rigo: {
+    nombre: 'Rigo', letra: 'O', modelo: 'rigo', color: '#2a8a4a', zona: 'Glorieta del Monumento', requisito: 1,
+    apariencia: { camisa: '#2a5aa8', pantalon: '#3a5a8a', gorra: '#2a8a4a', complexion: 1, mujer: false, peloLargo: false, sombrero: null, mangaCorta: false },
+    lugar: j => libre(j, j.ciudad.lugares.monumento.x + 17, j.ciudad.lugares.monumento.z + 6),
+    lista: [
+      {
+        titulo: 'VOCHOS DE CARRERAS', premio: 1800,
+        inicio(m) {
+          const j = m.j, M = j.ciudad.lugares.monumento, g = k => Math.max(1, Math.min(BLOQUES - 1, Math.round(k / PASO + BLOQUES / 2)));
+          const a = g(M.x), b = g(M.z), A = Math.max(0, a - 1), B = Math.min(BLOQUES, a + 1), C = Math.max(0, b - 1), D = Math.min(BLOQUES, b + 1);
+          const esquinas = [[ix(A), ix(C)], [ix(B), ix(C)], [ix(B), ix(D)], [ix(A), ix(D)]], pts = [];
+          for (let k = 0; k < 4; k++) { const p = esquinas[k], q = esquinas[(k + 1) % 4]; pts.push({ x: (p[0] + q[0]) / 2, z: (p[1] + q[1]) / 2 }, { x: q[0], z: q[1] }); }
+          m.puntos = pts; m.sig = 0;
+          m.dialogo([['Rigo', '¡Qué onda! Los del club de vochos me retaron a una vuelta alrededor de la glorieta.'], ['Rigo', 'Yo no manejo ni a la tienda, así que te presto el mío. El azul cielo. ¡Que no le pase nada!']]);
+          const s = esquinas[0], yaw = Math.atan2(esquinas[1][0] - s[0], esquinas[1][1] - s[1]);
+          m.mio = coche(m, 'vocho', '#7ab0c8', { x: s[0], z: s[1], yaw });
+          m.rivales = [0, 1, 2].map(k => { const c = coche(m, 'vocho', ['#c83a2a', '#e6d6a0', '#3a7a4a'][k], { x: s[0] - Math.sin(yaw) * (6 + k * 6) + Math.cos(yaw) * (k % 2 ? 2 : -2), z: s[1] - Math.cos(yaw) * (6 + k * 6) - Math.sin(yaw) * (k % 2 ? 2 : -2), yaw }); c.t = { ...c.t, vmax: 27 }; return c; });
+          m.objetivos = [m.mio];
+          m.objetivo('Súbete al <b>vocho azul cielo</b> de Rigo.');
+        },
+        actualizar(m) {
+          const j = m.j, c = m.mio;
+          if (c.quemado) return 'falla:El vocho de Rigo quedó hecho chatarra.';
+          if (m.paso === 0 && j.jugador.coche === c) {
+            m.paso = 1; m.objetivos = []; m.reloj = 120;
+            for (const r of m.rivales) { r.conductor = 'rival'; r.rival = { puntos: m.puntos, i: 0 }; }
+            m.marcar(1, m.puntos[0].x, m.puntos[0].z, 7, 3, '#2a8a4a');
+            j.hud.grande('¡ARRANCAN LOS VOCHOS!', 'Una vuelta a la glorieta', 2);
+          }
+          if (m.paso === 1) {
+            if (m.rivales.some(r => r.rival.i >= m.puntos.length)) return 'falla:Un vocho rival llegó primero.';
+            m.objetivo(`Punto <b>${m.sig + 1} de ${m.puntos.length}</b> · no dejes que te rebasen.`);
+            if (j.jugador.coche === c && m.dentro(1, c.pos, 1.4)) {
+              m.sig++; j.audio.dinero?.();
+              if (m.sig >= m.puntos.length) return 'ok';
+              const q = m.puntos[m.sig]; m.marcar(1, q.x, q.z, 7, 3, '#2a8a4a');
+            }
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['Rigo', '¡Ese es mi vocho! Ahora sí, el club me tiene que respetar.']]); }
+      },
+      {
+        titulo: 'EL VOCHO VERDE', premio: 2400,
+        inicio(m) {
+          const j = m.j, jp = j.jugador.posicion;
+          m.dialogo([['Rigo', 'Unos de la colonia se llevaron el vocho verde de mi jefa. Lo tienen en una esquina del barrio.'], ['Rigo', 'Son tres y andan armados. Tráemelo y que no te siga la patrulla.']]);
+          const pt = puntoCalleAleatorio(jp, 160, 280) || { x: jp.x + 160, z: jp.z, yaw: 0 };
+          m.verde = coche(m, 'vocho', '#3a7a4a', pt, false);
+          m.malos = matones(m, pt.x, pt.z, 3, ['pistola', 'bate', 'pistola']); m.objetivos = [m.verde];
+          m.objetivo('Recupera el <b>vocho verde</b>.');
+        },
+        actualizar(m) {
+          const j = m.j, c = m.verde;
+          if (c.quemado) return 'falla:El vocho verde se quemó.';
+          despertar(m, m.malos, 30);
+          if (m.paso === 0 && j.jugador.coche === c) { m.paso = 1; m.objetivos = []; const g = CONTACTOS.rigo.lugar(j); m.marcar(1, g.x, g.z, 4, 3, '#2a8a4a'); }
+          if (m.paso === 1) {
+            m.objetivo('Llévale el vocho a <b>Rigo</b>.' + (j.policia.estrellas ? ' <b>Pierde a la policía primero.</b>' : ''));
+            if (j.jugador.coche === c && m.dentro(1, c.pos, 2) && !j.policia.estrellas) return 'ok';
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['Rigo', 'Mi jefa te manda decir que eres bienvenido a comer cuando quieras. Y esto es de mi parte.']]); }
+      },
+      {
+        titulo: 'LAVADITO Y A TIEMPO', premio: 2000,
+        inicio(m) {
+          const j = m.j, jp = j.jugador.posicion;
+          m.dialogo([['Rigo', 'Vendí un vocho y el cliente lo quiere limpio en la Catedral en menos de cuatro minutos.'], ['Rigo', 'Está todo enlodado. Pásalo por el autolavado de la gasolinera y luego a la Catedral. ¡Vuélale!']]);
+          const pt = puntoCalleAleatorio(jp, 25, 80) || { x: jp.x + 25, z: jp.z, yaw: 0 };
+          m.sucio = coche(m, 'vocho', '#e6d6a0', pt, false); m.sucio.suciedad = 0.85; j.lavado?.ensuciar(m.sucio, 0); m.objetivos = [m.sucio];
+          m.objetivo('Súbete al <b>vocho enlodado</b>.');
+        },
+        actualizar(m) {
+          const j = m.j, c = m.sucio, W = j.lavado;
+          if (c.quemado) return 'falla:El vocho del cliente se quemó.';
+          if (m.paso === 0 && j.jugador.coche === c) { m.paso = 1; m.reloj = 240; m.objetivos = []; if (W?.LX !== undefined) m.marcar(1, W.LX, W.LZ + 7, 3, 3, '#2a6ec8'); }
+          if (m.paso === 1) {
+            m.objetivo('Lleva el vocho al <b>autolavado</b> de la gasolinera y entra despacio.');
+            if ((c.suciedad || 0) < 0.05) { m.paso = 2; const L = j.ciudad.lugares.catedral; m.marcar(1, L.x, L.z + 18, 5, 3, '#2a8a4a'); j.hud.grande('¡RECHINANDO DE LIMPIO!', 'Ahora a la Catedral', 2); }
+          }
+          if (m.paso === 2) {
+            m.objetivo('Entrega el vocho en la <b>Catedral</b>.' + ((c.suciedad || 0) > 0.15 ? ' Se está ensuciando, ¡no te tardes!' : ''));
+            if (j.jugador.coche === c && m.dentro(1, c.pos, 2) && c.vel < 6) return (c.suciedad || 0) > 0.3 ? 'falla:El cliente dijo que así no lo quería.' : 'ok';
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['Rigo', '¡Vendido! El cliente hasta se tomó una foto con él. Toma tu comisión.']]); }
       }
     ]
   }
