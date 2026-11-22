@@ -94,7 +94,7 @@ export function hoja(url, cols, rows, opc = {}) {
           const lum = (rr * 0.3 + gg2 * 0.59 + bb * 0.11) / 255;
           const cx = Math.floor(x / w * CX), cy = Math.floor(y / h * CY);
           const fx = (x / w * CX) % 1, fy = (y / h * CY) % 1;
-          const prendida = hash(cx, cy) < (vidrio ? 0.34 : 0.45);
+          const prendida = vidrio ? hash(cx, cy) < (hash(77, cy) < 0.38 ? (hash(cx % 5 < 2 ? 3 : 4, cy) < 0.5 ? 0.85 : 0.6) : 0.05) : hash(cx, cy) < (hash(55, cy) < 0.5 ? 0.62 : 0.14);
           const ventana = vidrio ? (fx > 0.12 && fx < 0.88 && fy > 0.14 && fy < 0.86) : lum < 0.24;
           ov.data[q] = 255; ov.data[q + 1] = ventana ? 26 : 235; ov.data[q + 2] = ventana ? 150 : 0; ov.data[q + 3] = 255;
           if (ventana && prendida) {

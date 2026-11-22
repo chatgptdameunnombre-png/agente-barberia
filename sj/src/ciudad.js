@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611212323';
-import { hoja } from './texturas.js?v=202611212323';
+import { construirEstadio } from './estadio.js?v=202611212330';
+import { hoja } from './texturas.js?v=202611212330';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -108,7 +108,7 @@ export function esCalle(x, z) {
 const ESPECIALES = {
   '0,0': 'taller', '2,1': 'hospital', '3,3': 'catedral', '4,3': 'plaza', '4,4': 'monumento', '3,4': 'mercado',
   '1,6': 'tianguis', '5,6': 'banco', '6,5': 'comisaria', '5,2': 'lago', '2,5': 'parque', '0,4': 'parque',
-  '7,7': 'estadio', '5,4': 'parque', '2,3': 'armeria'
+  '7,7': 'estadio', '5,4': 'parque', '2,3': 'armeria', '7,5': 'gasolinera'
 };
 
 export function tipoBloque(bx, bz) {
@@ -309,7 +309,7 @@ export function construirCiudad(escena, mundo) {
     if (verde) losa(geosPasto, x0 + BANQUETA, z0 + BANQUETA, x1 - BANQUETA, z1 - BANQUETA, 0.17, 6);
     if (empedrado) losa(geosPiedra, x0 + BANQUETA, z0 + BANQUETA, x1 - BANQUETA, z1 - BANQUETA, 0.17, 3);
     for (const t of [0.12, 0.38, 0.62, 0.88]) {
-      if (tipo === 'torres' || tipo === 'estadio') continue;
+      if (tipo === 'torres' || tipo === 'estadio' || tipo === 'gasolinera') continue;
       if (r() < 0.6) arbol(x0 + (x1 - x0) * t, z0 + 0.7);
       if (r() < 0.6) arbol(x0 + (x1 - x0) * t, z1 - 0.7);
       if (r() < 0.6) arbol(x0 + 0.7, z0 + (z1 - z0) * t);
@@ -554,6 +554,10 @@ export function construirCiudad(escena, mundo) {
       obra.caja('oficina', cx - 15, iz0 + 9, 26, 16, 24, '#e8e4dc');
       obra.caja('oficina', cx + 16, iz0 + 9, 24, 16, 18, '#d8d2c6');
       salida.lugares.banco = { x: cx, z: iz1 + 1.5 };
+    } else if (tipo === 'gasolinera') {
+      salida.gasolinera = { ix0, iz0, ix1, iz1, cx, cz };
+      salida.lugares.gasolinera = { x: cx, z: iz1 - 20 };
+      salida.estacionados.push({ x: cx - 8 + 1.9, z: iz1 - 20, yaw: 0, tipo: 'sedan', color: '#c8c0b0' }, { x: cx + 8 - 1.9, z: iz1 - 20.5, yaw: Math.PI, tipo: 'camioneta', color: '#2a2c30' });
     } else if (tipo === 'armeria') {
       fila('casa', 5, 9, 14, COLORES_CASA);
       const l = letrero('ARMERÍA DEL VALLE', '#1a1d26', '#e2e6ee', 9, 1.6);

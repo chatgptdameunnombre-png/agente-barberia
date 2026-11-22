@@ -1,12 +1,13 @@
 import * as THREE from 'three';
-import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611212323';
-import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611212323';
-import { dibujarGlifo } from './iconos.js?v=202611212323';
+import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611212330';
+import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611212330';
+import { dibujarGlifo } from './iconos.js?v=202611212330';
 
 export const ICONOS = {
   taller: { c: '#ffc94a', t: 'llave', n: 'Taller de Don Chuy' },
   pintura: { c: '#ff4f9a', t: 'chispa', n: 'Pintura Express' },
   armeria: { c: '#e2e6ee', t: 'mira', n: 'Armería del Valle' },
+  gasolinera: { c: '#ffb020', t: 'G', n: 'Gasolinera Jacaranda' },
   hospital: { c: '#ff5a6a', t: 'cruzroja', n: 'Hospital Civil' },
   comisaria: { c: '#4a9bff', t: 'escudo', n: 'Comisaría' },
   banco: { c: '#3bd16f', t: '$', n: 'Banco de Occidente' },

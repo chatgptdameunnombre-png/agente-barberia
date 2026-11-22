@@ -163,7 +163,7 @@ export class Ambiente {
     this.hemi.intensity = lerp(a.amb, b.amb) * (1 - L * 0.25) * 1.9 * (dentro < 0.1 ? 0.18 : dentro < 1 ? 0.55 : 1);
     this.hemi.color.copy(arriba).lerp(gris.set('#ffffff'), 0.5);
     this.noche = Math.max(0, Math.min(1, (0.12 - sy) / 0.3));
-    for (const m of this.ciudad.materialesVentanas) m.emissiveIntensity = this.noche * 0.95 + L * 0.15;
+    for (const m of this.ciudad.materialesVentanas) { m.emissiveIntensity = this.noche * 1.05 + L * 0.15; m.color.setScalar(1 - this.noche * 0.5); }
     this.ciudad.charcoLuz.material.opacity = this.noche * 0.55;
     this.ciudad.halos.material.opacity = this.noche * 0.55;
     this.ciudad.focoMat.color.set(this.noche > 0.2 ? '#ffe7a8' : '#d8d8d0');
