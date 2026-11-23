@@ -1,4 +1,4 @@
-import { hoja } from './texturas.js?v=202611221719';
+import { hoja } from './texturas.js?v=202611221845';
 const svg = (c, vb = '0 0 64 64') => `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" fill="currentColor">${c}</svg>`;
 
 export const ICONO_ARMA = {
@@ -11,6 +11,14 @@ export const ICONO_ARMA = {
   rifle: svg('<path d="M2 28h40l2-4h16v6H48l-2 3H30l-3 4v14c0 1-1 2-2 2h-5c-1 0-2-1-2-2l1-12-10 4c-1 .5-2.4 0-2.8-1L4 36c-.4-1 0-2.2 1-2.6L10 32H2z"/><rect x="31" y="34" width="6" height="16" rx="1.5"/><rect x="24" y="22" width="12" height="4" rx="1"/>'),
   granada: svg('<ellipse cx="30" cy="40" rx="15" ry="17"/><rect x="24" y="15" width="13" height="9" rx="2"/><path d="M37 18c6-4 12-3 15 2" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="52" cy="22" r="4" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M16 36h28M15 44h30M30 24v33" stroke="#0b0d14" stroke-width="2" opacity=".45"/>')
 };
+
+Object.assign(ICONO_ARMA, {
+  katana: svg('<path d="M58 4c1 1 1 3-1 6L28 39l-3-3L54 7c2-2 3-3 4-3z"/><rect x="18" y="35" width="14" height="4" rx="1.5" transform="rotate(45 25 37)"/><path d="M22 42L9 55c-1.5 1.5-3.5 1.5-4.5.5s-1-3 .5-4.5L18 38z"/>'),
+  pistolaOro: '<span style="color:#e6b54a">' + svg('<path d="M8 20h44c2 0 4 2 4 4v6c0 1-1 2-2 2H34l-3 3h-6l-3 20c0 1-1 2-2 2h-8c-1.2 0-2-1-1.8-2.2L14 33H10c-1 0-2-1-2-2z"/><rect x="45" y="15" width="5" height="5" rx="1"/><path d="M16 40l4-6" stroke="#fff6dc" stroke-width="3"/>') + '</span>',
+  taser: svg('<path d="M10 22h34c2 0 3 1 3 3v8H32l-3 3h-5l-3 18c0 1-1 2-2 2h-7c-1 0-2-1-2-2l3-21H10c-1 0-2-1-2-2v-7c0-1 1-2 2-2z"/><rect x="47" y="22" width="9" height="11" rx="1.5"/><path d="M56 27l4-5-2 6 4-1-5 6" stroke="currentColor" stroke-width="2" fill="none"/>'),
+  escopetaAuto: svg('<path d="M2 26h44l3-3h12c1 0 2 1 2 2v6c0 1-1 2-2 2H34l-12 7c-2 1-4 3-5 5l-5 9c-.5 1-1.5 1.5-2.5 1.2L4 53c-1-.4-1.6-1.6-1.1-2.6L10 36H4c-1 0-2-1-2-2z"/><circle cx="36" cy="42" r="9"/><circle cx="36" cy="42" r="3" fill="#0b0d14"/>'),
+  ballesta: svg('<path d="M6 30h40v5H6z"/><path d="M40 6c8 6 12 15 12 26s-4 20-12 26l-3-3c6-5 10-13 10-23s-4-18-10-23z"/><path d="M40 8L20 32l20 24" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 31h50l4 1.5-4 1.5H8z"/><path d="M10 35l-4 14h6l4-14z"/>')
+});
 
 export const ICONO = {
   dinero: svg('<rect x="4" y="16" width="56" height="32" rx="5"/><circle cx="32" cy="32" r="9" fill="#0b0d14"/><text x="32" y="38" font-size="15" font-weight="900" text-anchor="middle" fill="currentColor" font-family="Inter">$</text>'),
@@ -35,6 +43,7 @@ export const IMG_ARMAS2 = hoja('assets/armas2.png', 4, 2, { magenta: true, tam: 
 const ORD2 = ['revolver', 'machete', 'francotirador', 'lanzacohetes', 'molotov', 'recortada', 'ametralladora', 'llave'];
 const FALLA = { revolver: 'pistola', machete: 'cuchillo', francotirador: 'rifle', lanzacohetes: 'rifle', molotov: 'granada', recortada: 'escopeta', ametralladora: 'subfusil', llave: 'bate' };
 export function iconoArma(id) {
+  if (['katana', 'pistolaOro', 'taser', 'escopetaAuto', 'ballesta'].includes(id)) return ICONO_ARMA[id];
   if (ORD2.includes(id)) { const q = IMG_ARMAS2[ORD2.indexOf(id)]; return q && q.listo ? `<img src="${q.url}" alt="">` : (ICONO_ARMA[FALLA[id]] || ''); }
   const p = IMG_ARMAS[ORD.indexOf(id)];
   return p && p.listo ? `<img src="${p.url}" alt="">` : (ICONO_ARMA[id] || '');

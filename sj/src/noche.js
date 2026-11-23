@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { Peaton } from './peatones.js?v=202611221719';
+import { Peaton } from './peatones.js?v=202611221845';
+import { ARMERIAS } from './armerias.js?v=202611221845';
 
 const NEON = {
   cantina: { lineas: ['CANTINA', 'LA JACARANDA'], c1: '#ffb347', c2: '#ff5a3a', flecha: true, w: 3.4, h: 1.25 },
@@ -10,6 +11,7 @@ const NEON = {
   ropa: { lineas: ['BOUTIQUE'], c1: '#e86fa8', c2: '#ffffff', w: 2.6, h: 0.8 },
   cine: { lineas: ['CINE', 'JACARANDA'], c1: '#ffcf5a', c2: '#ff3b5a', w: 3.0, h: 1.3, ciclo: true },
   maquinitas: { lineas: ['MAQUINITAS'], c1: '#3fd2ff', c2: '#ff4fd8', w: 3.0, h: 0.9, ciclo: true },
+  ...Object.fromEntries(Object.entries(ARMERIAS).map(([k, v]) => [k, v.neon])),
   mercado: null, templo: null, depa: { lineas: ['DEPAS', 'JACARANDA'], c1: '#b46bff', c2: '#ffffff', w: 2.4, h: 1.0 }
 };
 

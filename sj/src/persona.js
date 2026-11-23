@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611221719';
+import { hoja } from './texturas.js?v=202611221845';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const cap = (r, l, y = 0) => { const g = new THREE.CapsuleGeometry(r, l, 3, 10); g.translate(0, y, 0); return g; };
@@ -311,6 +311,12 @@ const MADERA2 = new THREE.MeshStandardMaterial({ color: '#b8864e', roughness: 0.
 const HOJA = new THREE.MeshStandardMaterial({ color: '#d0d6de', metalness: 0.9, roughness: 0.18 });
 const VERDE = new THREE.MeshStandardMaterial({ color: '#4a5a32', roughness: 0.7, metalness: 0.2 });
 const PANTALLA = new THREE.MeshBasicMaterial({ color: '#5fa8ff' });
+const ORO = new THREE.MeshStandardMaterial({ color: '#d9a93e', metalness: 1, roughness: 0.22 });
+const NACAR = new THREE.MeshStandardMaterial({ color: '#efe7da', roughness: 0.28, metalness: 0.1 });
+const NEGRO_A = new THREE.MeshStandardMaterial({ color: '#16171a', roughness: 0.5, metalness: 0.35 });
+const AMARILLO = new THREE.MeshStandardMaterial({ color: '#f2c618', roughness: 0.45 });
+const TSUKA = new THREE.MeshStandardMaterial({ color: '#5a1220', roughness: 0.85 });
+const CUERDA = new THREE.MeshStandardMaterial({ color: '#2b1d14', roughness: 0.9 });
 const bx = (x, y, z, px, py, pz, rx = 0) => mover(new THREE.BoxGeometry(x, y, z), px, py, pz, 1, 1, 1, rx);
 const cil = (r1, r2, l, px, py, pz, seg = 10) => mover(new THREE.CylinderGeometry(r1, r2, l, seg), px, py, pz);
 const ARMAS_GEO = {
@@ -329,11 +335,32 @@ const ARMAS_GEO = {
   ametralladora: [[unir(bx(0.05, 0.42, 0.08, 0, -0.15, 0.04), bx(0.03, 0.06, 0.12, 0, -0.02, -0.04, -0.25), bx(0.07, 0.09, 0.08, 0.045, -0.12, -0.02), bx(0.034, 0.22, 0.06, 0, 0.16, 0.03)), MET], [unir(cil(0.015, 0.015, 0.42, 0, -0.56, 0.05), bx(0.012, 0.14, 0.012, 0.03, -0.6, -0.02)), MET2]],
   francotirador: [[unir(bx(0.04, 0.5, 0.07, 0, -0.2, 0.04), bx(0.03, 0.05, 0.1, 0, -0.01, -0.03, -0.25)), MET], [unir(cil(0.01, 0.01, 0.6, 0, -0.72, 0.05), cil(0.022, 0.026, 0.26, 0, -0.22, 0.118), cil(0.028, 0.028, 0.04, 0, -0.36, 0.118)), MET2], [bx(0.044, 0.32, 0.09, 0, 0.18, 0.02), VERDE]],
   lanzacohetes: [[cil(0.06, 0.06, 1.05, 0, -0.22, 0.1, 14), VERDE], [unir(bx(0.03, 0.09, 0.1, 0, -0.02, 0.02, -0.2), cil(0.068, 0.068, 0.08, 0, -0.74, 0.1, 14), cil(0.066, 0.066, 0.06, 0, 0.3, 0.1, 14), bx(0.03, 0.1, 0.06, 0, -0.3, 0.17)), MET]],
+  katana: [[cil(0.016, 0.015, 0.23, 0, -0.02, 0, 8), TSUKA], [unir(cil(0.042, 0.042, 0.008, 0, -0.14, 0, 14), cil(0.018, 0.018, 0.012, 0, 0.1, 0, 8)), ORO], [unir(bx(0.006, 0.42, 0.032, 0, -0.355, 0.006), mover(new THREE.BoxGeometry(0.006, 0.36, 0.028), 0, -0.735, 0.018, 1, 1, 1, -0.07)), HOJA]],
+  pistolaOro: [[unir(bx(0.032, 0.2, 0.04, 0, -0.105, 0.047), bx(0.028, 0.15, 0.026, 0, -0.09, 0.015)), ORO], [bx(0.031, 0.055, 0.105, 0, -0.015, -0.03, -0.28), NACAR], [cil(0.009, 0.009, 0.02, 0, -0.21, 0.047), MET2]],
+  taser: [[bx(0.036, 0.14, 0.05, 0, -0.08, 0.04), AMARILLO], [unir(bx(0.04, 0.045, 0.056, 0, -0.17, 0.04), bx(0.03, 0.055, 0.1, 0, -0.015, -0.03, -0.28)), NEGRO_A]],
+  escopetaAuto: [[unir(bx(0.05, 0.3, 0.08, 0, -0.1, 0.04), bx(0.03, 0.05, 0.1, 0, -0.01, -0.03, -0.25)), MET], [unir(cil(0.016, 0.016, 0.38, 0, -0.44, 0.06), bx(0.012, 0.05, 0.03, 0, -0.62, 0.085)), MET2], [unir(bx(0.052, 0.2, 0.05, 0, -0.36, 0.034), mover(new THREE.CylinderGeometry(0.072, 0.072, 0.06, 16), 0, -0.15, -0.045, 1, 1, 1, 0, 0, Math.PI / 2), bx(0.042, 0.24, 0.07, 0, 0.16, 0.025)), NEGRO_A]],
+  ballesta: [[unir(bx(0.04, 0.5, 0.06, 0, -0.14, 0.03), bx(0.03, 0.05, 0.1, 0, -0.01, -0.03, -0.25)), MADERA], [unir(mover(new THREE.BoxGeometry(0.3, 0.026, 0.022), 0.15, -0.38, 0.06, 1, 1, 1, 0, 0, -0.18), mover(new THREE.BoxGeometry(0.3, 0.026, 0.022), -0.15, -0.38, 0.06, 1, 1, 1, 0, 0, 0.18), bx(0.05, 0.06, 0.04, 0, -0.4, 0.06)), MET], [unir(mover(new THREE.BoxGeometry(0.3, 0.004, 0.004), 0.15, -0.31, 0.06, 1, 1, 1, 0, 0, 0.3), mover(new THREE.BoxGeometry(0.3, 0.004, 0.004), -0.15, -0.31, 0.06, 1, 1, 1, 0, 0, -0.3)), CUERDA], [unir(cil(0.005, 0.005, 0.4, 0, -0.42, 0.072, 6), mover(new THREE.ConeGeometry(0.012, 0.04, 6), 0, -0.64, 0.072, 1, 1, 1, Math.PI)), MADERA2]],
   molotov: [[unir(mover(new THREE.CylinderGeometry(0.036, 0.04, 0.14, 12), 0, -0.07, 0.035), cil(0.012, 0.016, 0.07, 0, -0.17, 0.035)), new THREE.MeshStandardMaterial({ color: '#3f6a3a', roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.75 })], [mover(new THREE.BoxGeometry(0.03, 0.07, 0.02), 0.008, -0.22, 0.035, 1, 1, 1, 0.3), new THREE.MeshStandardMaterial({ color: '#d8742a', roughness: 0.95 })]]
 };
 const ARMAS_MANO = Object.keys(ARMAS_GEO).filter(k => k !== 'telefono');
-const DOS_MANOS = ['subfusil', 'escopeta', 'rifle', 'recortada', 'ametralladora', 'francotirador', 'lanzacohetes'];
-const SIN_APUNTAR = ['puno', 'bate', 'granada', 'cuchillo', 'machete', 'llave', 'molotov'];
+const DOS_MANOS = ['subfusil', 'escopeta', 'rifle', 'recortada', 'ametralladora', 'francotirador', 'lanzacohetes', 'escopetaAuto', 'ballesta'];
+const SIN_APUNTAR = ['puno', 'bate', 'granada', 'cuchillo', 'machete', 'llave', 'molotov', 'katana'];
+
+const SILEN = { pistola: [-0.29, 0.045, 0.16, 0.017], pistolaOro: [-0.3, 0.047, 0.16, 0.017], subfusil: [-0.46, 0.04, 0.18, 0.02], rifle: [-0.88, 0.05, 0.2, 0.02], francotirador: [-1.13, 0.05, 0.22, 0.019] };
+const MAT_SILEN = new THREE.MeshStandardMaterial({ color: '#17181b', metalness: 0.55, roughness: 0.42 });
+export function silenciador(p, arma, si) {
+  const g = p?.[arma], d = SILEN[arma];
+  if (!g || !d) return;
+  let s = g.userData.silen;
+  if (!s) { if (!si) return; s = new THREE.Mesh(cil(d[3], d[3], d[2], 0, d[0], d[1], 12), MAT_SILEN); s.castShadow = true; g.add(s); g.userData.silen = s; }
+  s.visible = !!si;
+}
+
+export function modeloArma(id) {
+  const g = new THREE.Group();
+  for (const [geo, m] of ARMAS_GEO[id] || []) g.add(new THREE.Mesh(geo, m));
+  return g;
+}
 
 function crearArmas(mano) {
   const out = {};

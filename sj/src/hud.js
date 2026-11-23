@@ -1,5 +1,5 @@
-import { ARMAS } from './jugador.js?v=202611221719';
-import { ICONO_ARMA, ICONO, iconoArma, IMG_ARMAS, glifoSVG } from './iconos.js?v=202611221719';
+import { ARMAS } from './jugador.js?v=202611221845';
+import { ICONO_ARMA, ICONO, iconoArma, IMG_ARMAS, glifoSVG } from './iconos.js?v=202611221845';
 
 const $ = id => document.getElementById(id);
 const RETRATO = { 'Don Chuy': 0, 'El Güero': 1, 'Encargado': 2, 'Matón': 3, 'Matías': 4, 'Lucía': 5, 'Cajero': 6, 'Oficial': 7 };
@@ -189,9 +189,10 @@ export class Hud {
     }
     this.e.estrellas.classList.toggle('parpadea', n > 0 && !j.policia.visto);
     this.e.estrellas.classList.toggle('oculto', n === 0);
-    if (jug.arma !== this.armaPrevia) { this.e.icono.innerHTML = iconoArma(jug.arma); this.e.arma.textContent = ARMAS[jug.arma].nombre; this.armaPrevia = jug.arma; }
+    const claveArma = jug.arma + (jug.armas[jug.arma]?.silen ? '+s' : '');
+    if (claveArma !== this.armaPrevia) { this.e.icono.innerHTML = iconoArma(jug.arma); this.e.arma.textContent = ARMAS[jug.arma].nombre + (jug.armas[jug.arma]?.silen ? ' · SILENCIADA' : ''); this.armaPrevia = claveArma; }
     const s = jug.armas[jug.arma], A = ARMAS[jug.arma];
-    document.body.classList.toggle('mirilla', !!(jug.apunta && ARMAS[jug.arma]?.zoom && !jug.coche));
+    document.body.classList.toggle('mirilla', !!(jug.apunta && ARMAS[jug.arma]?.zoom && !ARMAS[jug.arma]?.sinMirilla && !jug.coche));
     const txt = ARMAS[jug.arma]?.tipo === 'lanzar' ? `× ${s?.reserva || 0}` : A.cargador ? (jug.recargando > 0 ? 'RECARGANDO' : `${s.cargador} / ${s.reserva}`) : '';
     if (this.e.balas.textContent !== txt) this.e.balas.textContent = txt;
     this.e.card.classList.toggle('recarga', jug.recargando > 0);

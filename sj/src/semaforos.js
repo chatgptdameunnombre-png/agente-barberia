@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { linea, BLOQUES, CALLE, LIMITE } from './ciudad.js?v=202611221719';
+import { linea, BLOQUES, CALLE, LIMITE } from './ciudad.js?v=202611221845';
 
 const CICLO = 26, VERDE = 10.5, AMBAR = 2;
 

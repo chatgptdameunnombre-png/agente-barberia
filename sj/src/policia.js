@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611221719';
-import { Peaton } from './peatones.js?v=202611221719';
-import { Helicoptero } from './helicoptero.js?v=202611221719';
-import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611221719';
+import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611221845';
+import { Peaton } from './peatones.js?v=202611221845';
+import { Helicoptero } from './helicoptero.js?v=202611221845';
+import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611221845';
 
 const MAX_COCHES = [0, 2, 3, 4, 6, 7];
 
@@ -124,7 +124,7 @@ export class Policia {
       if (d > 260) { u.quitar(); j.coches.splice(j.coches.indexOf(u), 1); }
     }
     for (const a of this.agentes) {
-      if (a.muerto) continue;
+      if (a.muerto || a.estado === 'aturdido') continue;
       a.estado = 'perseguir';
       if (this.estrellas >= 2 && a.arma === 'pistola' && Math.random() < 0.001) a.arma = this.estrellas >= 4 ? 'subfusil' : 'pistola';
     }

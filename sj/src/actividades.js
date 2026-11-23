@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { esTaxi } from './vehiculos.js?v=202611221719';
-import { linea, CARRIL } from './ciudad.js?v=202611221719';
-import { ARMAS } from './jugador.js?v=202611221719';
-import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611221719';
+import { esTaxi } from './vehiculos.js?v=202611221845';
+import { linea, CARRIL } from './ciudad.js?v=202611221845';
+import { ARMAS } from './jugador.js?v=202611221845';
+import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611221845';
 const PRODUCTOS = { 'Papitas y refresco': 0, 'Torta de jamón': 1, 'Bebida energética': 2, 'Kilo de tortillas': 3, 'Tacos de canasta': 4, 'Venda y alcohol': 5, 'Botiquín completo': 6, 'Suero': 7, 'Plato de birria': 8, 'Consomé': 9, 'Cinta y pegamento (repara coche)': 10, 'Concha': 11, 'Bolsa de pan dulce': 12, 'Coctel de camarón': 13, 'Tostada de ceviche': 14, 'Cerveza': 15, 'Cerveza de la casa': 15, 'Tequila': 16, 'Agua de jamaica': 17, 'Botana de la casa': 18, 'Chaleco antibalas': 19 };
-import { Peaton } from './peatones.js?v=202611221719';
+import { Peaton } from './peatones.js?v=202611221845';
 
 export class Estadisticas {
   constructor() {
@@ -51,6 +51,10 @@ export const ARTICULOS = [
   { id: 'lanzacohetes', nombre: 'Lanzacohetes', precio: 9000, desc: 'Vuela coches de un tiro. Incluye 3 cohetes.', dar: j => j.darArma('lanzacohetes', 3), tiene: j => !!j.armas.lanzacohetes },
   { id: 'cohetes', icono: 'lanzacohetes', nombre: 'Cohetes ×3', precio: 1200, desc: 'Para el lanzacohetes.', dar: j => j.darArma('lanzacohetes', 3), requiere: 'lanzacohetes' },
   { id: 'molotov', nombre: 'Bombas molotov ×4', precio: 300, desc: 'Dejan el piso en llamas unos segundos.', dar: j => j.darArma('molotov', 4) },
+  { id: 'sil_pistola', icono: 'pistola', accesorio: true, etiqueta: 'SILENCIADOR', nombre: 'Silenciador para pistola', precio: 600, desc: 'Se enrosca en el cañón. Con él la policía no oye tus disparos y la gente casi no se asusta.', dar: j => { j.armas.pistola.silen = true; }, tiene: j => !!j.armas.pistola?.silen, requiere: 'pistola' },
+  { id: 'sil_subfusil', icono: 'subfusil', accesorio: true, etiqueta: 'SILENCIADOR', nombre: 'Silenciador para subfusil', precio: 900, desc: 'Se enrosca en el cañón. Con él la policía no oye tus disparos y la gente casi no se asusta.', dar: j => { j.armas.subfusil.silen = true; }, tiene: j => !!j.armas.subfusil?.silen, requiere: 'subfusil' },
+  { id: 'sil_rifle', icono: 'rifle', accesorio: true, etiqueta: 'SILENCIADOR', nombre: 'Silenciador para rifle de asalto', precio: 1200, desc: 'Se enrosca en el cañón. Con él la policía no oye tus disparos y la gente casi no se asusta.', dar: j => { j.armas.rifle.silen = true; }, tiene: j => !!j.armas.rifle?.silen, requiere: 'rifle' },
+  { id: 'sil_francotirador', icono: 'francotirador', accesorio: true, etiqueta: 'SILENCIADOR', nombre: 'Silenciador para francotirador', precio: 1500, desc: 'Se enrosca en el cañón. Con él la policía no oye tus disparos y la gente casi no se asusta.', dar: j => { j.armas.francotirador.silen = true; }, tiene: j => !!j.armas.francotirador?.silen, requiere: 'francotirador' },
   { id: 'chaleco', icono: null, nombre: 'Chaleco antibalas', precio: 250, desc: 'Absorbe la mayoría del daño.', dar: j => { j.chaleco = 100; }, tiene: j => j.chaleco >= 100 }
 ];
 
@@ -192,6 +196,7 @@ export class Actividades {
   categoriaDe(a) {
     const id = a.requiere || a.icono || a.id;
     const W = ARMAS[id];
+    if (a.accesorio) return 'accesorios';
     if (a.requiere) return 'municion';
     if (!W) return 'otros';
     return W.tipo === 'golpe' ? 'mano' : W.tipo === 'lanzar' || W.tipo === 'cohete' ? 'pesadas' : 'fuego';
@@ -201,7 +206,7 @@ export class Actividades {
 
   imagen(a, grande) {
     const id = a.requiere || (typeof a.icono === 'string' && ARMAS[a.icono] ? a.icono : a.id);
-    if (ARMAS[id]) return `<div class="im arma">${iconoArma(id)}${a.requiere ? '<em>MUNICIÓN</em>' : ''}</div>`;
+    if (ARMAS[id]) return `<div class="im arma">${iconoArma(id)}${a.requiere ? '<em>' + (a.etiqueta || 'MUNICIÓN') + '</em>' : ''}</div>`;
     const k = PRODUCTOS[a.nombre];
     if (k !== undefined) return `<div class="im foto" style="background-position:${(k % 5) * 25}% ${Math.floor(k / 5) * 33.333}%"></div>`;
     if (a.icono && typeof a.icono === 'string') return `<div class="im">${a.icono}</div>`;
@@ -212,7 +217,7 @@ export class Actividades {
     const j = this.j.jugador, L = this.visibles();
     if (this.sel >= L.length) this.sel = 0;
     const cats = [...new Set(this.catalogo.articulos.map(a => this.categoriaDe(a)))];
-    const NOM = { todo: 'Todo', mano: 'Cuerpo a cuerpo', fuego: 'Armas de fuego', pesadas: 'Pesadas', municion: 'Munición', otros: 'Equipo' };
+    const NOM = { todo: 'Todo', mano: 'Cuerpo a cuerpo', fuego: 'Armas de fuego', pesadas: 'Pesadas', municion: 'Munición', accesorios: 'Silenciadores', otros: 'Equipo' };
     document.querySelector('#tienda .cats').innerHTML = cats.length > 1 ? ['todo', ...cats].map(c => `<button data-cat="${c}" class="${this.filtro === c ? 'on' : ''}" type="button">${NOM[c] || c}</button>`).join('') : '';
     document.querySelector('#tienda .articulos').innerHTML = L.map((a, i) => {
       const tiene = a.tiene?.(j), falta = a.requiere && !j.armas[a.requiere], caro = j.dinero < a.precio;

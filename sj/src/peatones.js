@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611221719';
+import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611221845';
 
 const _v = new THREE.Vector3();
 
@@ -84,6 +84,13 @@ export class Peaton {
 
   vozMiedo() { if (Math.random() < 0.4) this.juego.audio?.grito?.(this.pos); }
 
+  aturdir(t) {
+    if (this.muerto) return;
+    this.soltarBanca?.();
+    this.estado = 'aturdido'; this.tAturdido = t; this.aturdido = true; this.p.manosArriba = false;
+    this.juego.audio?.tono?.(2600, 0.4, 0.05, 'sawtooth', null, null, 2000);
+  }
+
   recibir(daño, desde, autor, empuje) {
     if (this.muerto) return;
     this.salud -= daño;
@@ -156,6 +163,10 @@ export class Peaton {
       this.tRendido -= dt;
       dirx = jp.x - this.pos.x; dirz = jp.z - this.pos.z;
       if (this.tRendido <= 0) { this.p.manosArriba = false; this.asustar(jp.x, jp.z, 1.2); this.estado = 'huir'; }
+    } else if (this.estado === 'aturdido') {
+      this.tAturdido -= dt;
+      if (Math.random() < dt * 6) j.chispa?.(new THREE.Vector3(this.pos.x + (Math.random() - 0.5) * 0.5, 0.6 + Math.random() * 0.6, this.pos.z + (Math.random() - 0.5) * 0.5), '#8fd8ff');
+      if (this.tAturdido <= 0) { this.aturdido = false; this.p.cuerpo.position.y = 0; if (this.tipo === 'civil') { this.estado = 'huir'; this.miedo = 6; this.huyeDe.copy(jug.pos); } else this.estado = this.tipo === 'poli' ? 'perseguir' : 'atacar'; }
     } else if (this.estado === 'agachado') {
       this.tAgachado -= dt;
       if (this.tAgachado <= 0) { this.estado = 'huir'; this.p.cuerpo.position.y = 0; }
@@ -249,7 +260,7 @@ export class Peaton {
     const dj = Math.abs(this.pos.x - jp.x) + Math.abs(this.pos.z - jp.z);
     nivelDetalle(this.p, dj < 45);
     animar(this.p, dt, mover, this.arma, apunta);
-    if (this.estado === 'agachado') { const P = this.p; P.cuerpo.position.y = -0.4; P.pi.rotation.x = -1.5; P.pd.rotation.x = -1.3; P.ri.rotation.x = 2.3; P.rd.rotation.x = 2.1; P.cuerpo.rotation.x = 0.35; P.bi.rotation.set(-2.8, 0, 0.5); P.bd.rotation.set(-2.8, 0, -0.5); P.ci.rotation.x = -1.9; P.cd.rotation.x = -1.9; }
+    if (this.estado === 'agachado' || this.estado === 'aturdido') { const P = this.p; P.cuerpo.position.y = -0.4; P.pi.rotation.x = -1.5; P.pd.rotation.x = -1.3; P.ri.rotation.x = 2.3; P.rd.rotation.x = 2.1; P.cuerpo.rotation.x = 0.35; P.bi.rotation.set(-2.8, 0, 0.5); P.bd.rotation.set(-2.8, 0, -0.5); P.ci.rotation.x = -1.9; P.cd.rotation.x = -1.9; }
     else if (this.p.cuerpo.position.y < -0.1) this.p.cuerpo.position.y = 0;
     const P = this.p, tt = this.t;
     if (this.estado === 'sentado' && this.banca?.pie) {
@@ -287,7 +298,7 @@ export class Peaton {
         }
       } else if (this.mira) this.mira *= 1 - Math.min(1, dt * 3);
     }
-    P.expresion = this.estado === 'huir' || this.estado === 'agachado' || this.estado === 'rendido' || this.golpe > 0 ? 'miedo' : this.estado === 'atacar' || this.estado === 'perseguir' || (this.tipo === 'matón' && this.estado !== 'pasear') ? 'enojo' : null;
+    P.expresion = this.estado === 'huir' || this.estado === 'agachado' || this.estado === 'aturdido' || this.estado === 'rendido' || this.golpe > 0 ? 'miedo' : this.estado === 'atacar' || this.estado === 'perseguir' || (this.tipo === 'matón' && this.estado !== 'pasear') ? 'enojo' : null;
     if (this.estado === 'pasear' && this.habito === 'celular') {
       P.telefono.visible = true; P.bd.rotation.set(-1.15, 0.3, 0.15); P.cd.rotation.x = -1.35; P.cabeza.rotation.x = 0.38;
     } else if (P.telefono.visible && this.arma === 'puno') P.telefono.visible = false;

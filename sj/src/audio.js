@@ -101,7 +101,11 @@ export class Audio {
 
   disparo(arma, p) {
     const v = this.dist(p);
-    if (arma === 'recortada') arma = 'escopeta';
+    if (arma === 'silenciado') { this.ruidoCorto(0.07, 2400, 0.22 * v, 'bandpass', 0.8); this.tono(260, 0.05, 0.07 * v, 'triangle', null, null, 120); return; }
+    if (arma === 'recortada' || arma === 'escopetaAuto') arma = 'escopeta';
+    if (arma === 'pistolaOro') { this.ruidoCorto(0.2, 1500, 0.7 * v); this.tono(220, 0.1, 0.35 * v, 'square', null, null, 70); this.tono(1800, 0.25, 0.04 * v, 'sine'); return; }
+    if (arma === 'ballesta') { this.tono(180, 0.16, 0.22 * v, 'triangle', null, null, 90); this.ruidoCorto(0.08, 2200, 0.12 * v, 'bandpass'); return; }
+    if (arma === 'taser') { this.tono(2400, 0.35, 0.08 * v, 'sawtooth', null, null, 1900); this.ruidoCorto(0.35, 4000, 0.18 * v, 'highpass'); return; }
     if (arma === 'ametralladora') arma = 'subfusil';
     if (arma === 'francotirador') { this.ruidoCorto(0.35, 1100, 0.9 * v); this.tono(70, 0.35, 0.6 * v, 'sine', null, null, 30); this.ruidoCorto(0.5, 400, 0.25 * v, 'lowpass', 0.4); return; }
     if (arma === 'revolver') { this.ruidoCorto(0.3, 1000, 0.85 * v); this.tono(110, 0.18, 0.5 * v, 'square', null, null, 40); return; }

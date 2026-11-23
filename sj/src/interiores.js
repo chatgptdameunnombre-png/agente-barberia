@@ -1,19 +1,22 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611221719';
-import { hoja } from './texturas.js?v=202611221719';
-import { Peaton } from './peatones.js?v=202611221719';
-import { letrero } from './ciudad.js?v=202611221719';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611221719';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611221719';
-import { ARTICULOS } from './actividades.js?v=202611221719';
-import { OUTFITS, cambiarOutfit } from './jugador.js?v=202611221719';
-import { jugarMaquinita } from './maquinita.js?v=202611221719';
+import { animar } from './persona.js?v=202611221845';
+import { hoja } from './texturas.js?v=202611221845';
+import { Peaton } from './peatones.js?v=202611221845';
+import { letrero } from './ciudad.js?v=202611221845';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611221845';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611221845';
+import { ARTICULOS } from './actividades.js?v=202611221845';
+import { OUTFITS, cambiarOutfit } from './jugador.js?v=202611221845';
+import { jugarMaquinita } from './maquinita.js?v=202611221845';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { ARMERIAS, TIPOS_ARMERIA, construirArmeria } from './armerias.js?v=202611221845';
+import { ARMAS } from './jugador.js?v=202611221845';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
 const INT = hoja('assets/interior.jpg', 3, 2, { tam: 512, sinUrl: true });
-const COLOR_ICONO = { cine: '#ffcf5a', maquinitas: '#3fd2ff', tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a', mercado: '#ff8a3a', templo: '#f2e6c8' };
-const LETRA = { cine: 'P', maquinitas: 'A', tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L', mercado: 'M', templo: '+' };
+const COLOR_ICONO = { charro: '#e6b54a', trinchera: '#9ab85a', sierra: '#d88a4a', filo: '#ff5a4a', seguridad: '#4a8aff', cine: '#ffcf5a', maquinitas: '#3fd2ff', tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a', mercado: '#ff8a3a', templo: '#f2e6c8' };
+const LETRA = { charro: 'mira', trinchera: 'mira', sierra: 'mira', filo: 'mira', seguridad: 'mira', cine: 'P', maquinitas: 'A', tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L', mercado: 'M', templo: '+' };
 const LUGARES_LIBRES = [
   ['ropa', 'BOUTIQUE LA JACARANDA', 'Boutique La Jacaranda', '#2a1440', '#e9c8ff'],
   ['barberia', 'BARBERÍA EL BIGOTE', 'Barbería El Bigote', '#1a1a1a', '#ff6b6b'],
@@ -21,7 +24,7 @@ const LUGARES_LIBRES = [
   ['gimnasio', 'GIMNASIO EL TORO', 'Gimnasio El Toro', '#101a14', '#4fe08a'],
   ['depa', 'DEPARTAMENTOS JACARANDA', 'Tu departamento', '#1a1428', '#d9b3ff'],
   ['antro', 'ANTRO NEÓN', 'Antro Neón', '#100818', '#ff4fd8'],
-  ['arena', 'ARENA JACARANDA · LUCHA LIBRE', 'Arena Jacaranda', '#1a0a0a', '#ffd23a'],
+  ['arena', 'ARENA JACARANDA · LUCHA LIBRE', 'Arena Jacaranda · ring', '#1a0a0a', '#ffd23a'],
   ['cine', 'CINE JACARANDA', 'Cine Jacaranda', '#1a0a14', '#ffcf5a'],
   ['maquinitas', 'MAQUINITAS EL PIXEL', 'Maquinitas El Pixel', '#0a0a1a', '#3fd2ff']
 ];
@@ -46,8 +49,8 @@ export class Interiores {
     this.tiendas = [];
     this.dentro = null;
     this.robo = null;
-    this.luz1 = new THREE.PointLight('#ffe2b0', 0, 18, 1.4);
-    this.luz2 = new THREE.PointLight('#fff0d8', 0, 18, 1.4);
+    this.luz1 = new THREE.PointLight('#ffe2b0', 0, 30, 1.2);
+    this.luz2 = new THREE.PointLight('#fff0d8', 0, 30, 1.2);
     juego.escena.add(this.luz1, this.luz2);
     this.elegir();
     this.tiendas.forEach((t, i) => { t.zonas = []; this.construir(t, i); this.puertaFuera(t); });
@@ -182,6 +185,7 @@ export class Interiores {
       const l = letrero(nombre, fondo, tinta, Math.min(f.w - 1.4, 6.5), 1.2);
       l.position.set(f.x + f.fx * 0.08, 3.9, f.z + f.fz * 0.08); l.rotation.y = f.rot;
       this.j.escena.add(l);
+      this.toldo(f, tinta, fondo);
       if (tipo === 'barberia') {
         const poste = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 1.2, 12), new THREE.MeshBasicMaterial({ map: this.texturaPoste() }));
         poste.position.set(f.x + f.fx * 0.25 + f.fz * 1.6, 2.6, f.z + f.fz * 0.25 - f.fx * 1.6);
@@ -189,12 +193,51 @@ export class Interiores {
       }
       lista.push(t);
     }
+    for (const tipo of TIPOS_ARMERIA) {
+      const T = ARMERIAS[tipo], f = libres.find(f => lejos(f.x, f.z, 70)) || libres.find(f => lejos(f.x, f.z, 40));
+      if (!f) continue;
+      const t = crear(f, tipo, T.bonito, null);
+      const l = letrero(T.nombre, T.fondo, T.tinta, Math.min(f.w - 1.4, 6.5), 1.2);
+      l.position.set(f.x + f.fx * 0.08, 3.9, f.z + f.fz * 0.08); l.rotation.y = f.rot;
+      this.j.escena.add(l);
+      this.toldo(f, T.tinta, T.fondo);
+      lista.push(t);
+    }
+    this.lamparasPared();
     { const Bc = c.bloques.find(b => b.tipo === 'catedral'); if (Bc) { const fz = Bc.z1 - 3 - 12; lista.push({ tipo: 'templo', nombre: 'Catedral de Santa Jacaranda', rot: 0, fx: 0, fz: 1, fachada: { x: Bc.cx, z: fz + 1.9 }, puerta: new THREE.Vector3(Bc.cx, 0, fz + 3.3), robadaHasta: 0 }); } }
     { const Bm = c.bloques.find(b => b.tipo === 'mercado'); if (Bm) lista.push({ tipo: 'mercado', nombre: 'Mercado de San Jacinto', rot: 0, fx: 0, fz: 1, fachada: { x: Bm.cx - 3.4, z: Bm.cz + 23.2 }, puerta: new THREE.Vector3(Bm.cx - 3.4, 0, Bm.cz + 24.6), robadaHasta: 0 }); }
     if (c.gasolinera) { const G = c.gasolinera, px = G.cx + 7, pz = G.iz0 + 11.5; lista.push({ tipo: 'tienda', nombre: 'Súper 24', letrero: 0, rot: 0, fx: 0, fz: 1, fachada: { x: px, z: pz }, puerta: new THREE.Vector3(px, 0, pz + 1.3), robadaHasta: 0 }); }
     const a = c.lugares.armeria;
     lista.push({ tipo: 'armeria', nombre: 'Armería del Valle', rot: 0, fx: 0, fz: 1, fachada: { x: a.x, z: a.z - 1.6 }, puerta: new THREE.Vector3(a.x, 0, a.z), robadaHasta: 0 });
     this.tiendas = lista;
+  }
+
+  toldo(f, c1, c2) {
+    const w = Math.min(3.4, (f.w || 4) - 1), sale = 1.15, alto = 3.15, bajo = 2.7, L = Math.hypot(sale, alto - bajo);
+    const cv = document.createElement('canvas'); cv.width = 256; cv.height = 128; const x = cv.getContext('2d');
+    for (let k = 0; k < 8; k++) { x.fillStyle = k % 2 ? '#f4efe4' : c1; x.fillRect(k * 32, 0, 32, 96); }
+    for (let k = 0; k < 8; k++) { x.fillStyle = k % 2 ? '#f4efe4' : c1; x.beginPath(); x.moveTo(k * 32, 95); x.lineTo(k * 32 + 32, 95); x.arc(k * 32 + 16, 95, 16, 0, Math.PI); x.fill(); }
+    x.fillStyle = 'rgba(0,0,0,0.18)'; x.fillRect(0, 0, 256, 6);
+    const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 4; tx.wrapS = THREE.RepeatWrapping; tx.repeat.x = Math.max(1, Math.round(w / 1.6));
+    const arriba = new THREE.PlaneGeometry(w, L); arriba.rotateX(Math.atan2(-sale, alto - bajo)); arriba.translate(0, (alto + bajo) / 2, sale / 2 + 0.04);
+    const fr = new THREE.PlaneGeometry(w, 0.34); fr.translate(0, bajo - 0.17, sale + 0.04);
+    for (const [g, a, b] of [[arriba, 0.3, 0.7], [fr, 0, 0.42]]) { const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, a + uv.getY(i) * b); }
+    const lado = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, alto, 0.04), new THREE.Vector3(0, bajo, sale + 0.04), new THREE.Vector3(0, bajo - 0.3, sale + 0.04)]); lado.setAttribute('uv', new THREE.Float32BufferAttribute([0.05, 0.95, 0.05, 0.35, 0.05, 0.3], 2)); lado.computeVertexNormals();
+    const l1 = lado.clone().translate(-w / 2, 0, 0), l2 = lado.clone().translate(w / 2, 0, 0);
+    const m = new THREE.Mesh(mergeGeometries([arriba.toNonIndexed(), fr.toNonIndexed(), l1, l2]), new THREE.MeshStandardMaterial({ map: tx, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.85 }));
+    m.position.set(f.x, 0, f.z); m.rotation.y = f.rot; m.castShadow = false; m.receiveShadow = true;
+    this.j.escena.add(m);
+    (this.lamparas = this.lamparas || []).push([f, w]);
+  }
+
+  lamparasPared() {
+    const L = this.lamparas || []; if (!L.length) return;
+    this.matLampara = new THREE.MeshStandardMaterial({ color: '#2a2622', emissive: '#ffd08a', emissiveIntensity: 0.1, roughness: 0.5, metalness: 0.4 });
+    const geo = mergeGeometries([new THREE.BoxGeometry(0.16, 0.26, 0.16).translate(0, 0, 0.1), new THREE.BoxGeometry(0.06, 0.06, 0.12).translate(0, 0.16, 0.04)]);
+    const im = new THREE.InstancedMesh(geo, this.matLampara, L.length * 2), o = new THREE.Object3D();
+    let n = 0;
+    for (const [f, w] of L) for (const s of [-1, 1]) { const d = w / 2 + 0.25; o.position.set(f.x + f.fz * d * s + f.fx * 0.06, 2.35, f.z - f.fx * d * s + f.fz * 0.06); o.rotation.set(0, f.rot, 0); o.updateMatrix(); im.setMatrixAt(n++, o.matrix); }
+    im.castShadow = false; this.j.escena.add(im);
   }
 
   puertaFuera(t) {
@@ -266,24 +309,25 @@ export class Interiores {
 
   construir(t, i) {
     const j = this.j, esc = j.escena, mundo = j.mundo;
-    const W = t.tipo === 'cine' ? 16 : t.tipo === 'armeria' ? 12 : t.tipo === 'arena' ? 22 : t.tipo === 'mercado' ? 24 : t.tipo === 'templo' ? 16 : 14, L = t.tipo === 'cine' ? 22 : t.tipo === 'arena' ? 19 : t.tipo === 'mercado' ? 20 : t.tipo === 'templo' ? 30 : 11, H = t.tipo === 'cine' ? 7 : t.tipo === 'arena' ? 6.5 : t.tipo === 'mercado' ? 7 : t.tipo === 'templo' ? 12 : 4;
+    const MED = { cine: [18, 24, 7], armeria: [18, 16, 5], arena: [26, 22, 7], mercado: [28, 24, 7.5], templo: [16, 30, 12], depa: [14, 11, 4] }, med = MED[t.tipo] || [20, 16, 5];
+    const [W, L, H] = med;
     const ox = 3000 + (i % 4) * 40, oz = 3000 + Math.floor(i / 4) * 40;
     const g = new THREE.Group(); g.position.set(ox, 0, oz); g.visible = false; esc.add(g);
     t.interior = { g, ox, oz, W, L, H, entrada: new THREE.Vector3(ox, 0, oz + L / 2 - 1.6), salida: new THREE.Vector3(ox, 0, oz + L / 2 - 0.9) };
     const m = (c, extra = {}) => new THREE.MeshLambertMaterial({ color: c, ...extra });
     const caja = (w, h, d, mat, x, y, z, choca = true) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); b.position.set(x, y, z); b.castShadow = false; b.receiveShadow = false; g.add(b); if (choca) mundo.agregar(ox + x - w / 2, oz + z - d / 2, ox + x + w / 2, oz + z + d / 2, y + h / 2); return b; };
     const pisoTex = t.tipo === 'tienda' ? INT[2].textura : null;
-    const piso = new THREE.Mesh(new THREE.PlaneGeometry(W, L), t.tipo === 'tienda' ? m('#d8d0c8', { map: repetir(INT[2].textura, W / 3, L / 3) }) : t.tipo === 'barberia' ? m('#ddd', { map: this.ajedrez() }) : m(t.tipo === 'armeria' ? '#3a3632' : '#8a7060'));
+    const piso = new THREE.Mesh(new THREE.PlaneGeometry(W, L), t.tipo === 'tienda' ? m('#d8d0c8', { map: repetir(INT[2].textura, W / 3, L / 3) }) : t.tipo === 'barberia' ? m('#ddd', { map: this.ajedrez() }) : m(ARMERIAS[t.tipo]?.piso || (t.tipo === 'armeria' ? '#3a3632' : '#8a7060')));
     piso.rotation.x = -Math.PI / 2; g.add(piso);
     const techo = new THREE.Mesh(new THREE.PlaneGeometry(W, L), m('#f2efe8')); techo.rotation.x = Math.PI / 2; techo.position.y = H; g.add(techo);
-    const pared = t.tipo === 'tienda' ? m('#e0d8d0', { map: repetir(INT[3].textura, W / 4, 1) }) : m(t.tipo === 'ropa' ? '#c9a3c4' : t.tipo === 'barberia' ? '#b8ad98' : t.tipo === 'mercado' ? '#e8dcc4' : t.tipo === 'templo' ? '#efe4cc' : '#5a5650');
+    const pared = t.tipo === 'tienda' ? m('#e0d8d0', { map: repetir(INT[3].textura, W / 4, 1) }) : m(ARMERIAS[t.tipo] ? ARMERIAS[t.tipo].pared : t.tipo === 'ropa' ? '#c9a3c4' : t.tipo === 'barberia' ? '#b8ad98' : t.tipo === 'mercado' ? '#e8dcc4' : t.tipo === 'templo' ? '#efe4cc' : '#5a5650');
     caja(W, H, 0.3, pared, 0, H / 2, -L / 2);
     caja(W, H, 0.3, pared, 0, H / 2, L / 2);
     caja(0.3, H, L, pared, -W / 2, H / 2, 0);
     caja(0.3, H, L, pared, W / 2, H / 2, 0);
     caja(1.6, 2.6, 0.08, m('#2a3442', { emissive: '#6a8ab0', emissiveIntensity: 0.6 }), 0, 1.3, L / 2 - 0.16, false);
     caja(2.2, 0.5, 0.1, m('#b02030', { emissive: '#ff3040', emissiveIntensity: 0.7 }), 0, 3.1, L / 2 - 0.2, false);
-    for (const x of [-W / 4, W / 4]) for (const z of [-L / 4, L / 4]) caja(1.8, 0.06, 0.4, m('#fff', { emissive: '#fff8e8', emissiveIntensity: 1 }), x, H - 0.04, z, false);
+    for (const x of W > 16 ? [-W / 3, 0, W / 3] : [-W / 4, W / 4]) for (const z of [-L / 4, L / 4]) caja(1.8, 0.06, 0.4, m('#fff', { emissive: '#fff8e8', emissiveIntensity: 1 }), x, H - 0.04, z, false);
     const aro = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.7, 28).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#ffc94a', transparent: true, opacity: 0.8 }));
     aro.position.set(0, 0.03, L / 2 - 0.9); g.add(aro);
     t.interior.mostrador = new THREE.Vector3(ox + W / 2 - 3, 0, oz - L / 2 + 3.2);
@@ -333,6 +377,8 @@ export class Interiores {
       IMG_ARMAS.forEach((p, k) => { const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.75), new THREE.MeshBasicMaterial({ map: p.textura, transparent: true })); pl.position.set(-4.2 + (k % 4) * 2.8, 2.6 - Math.floor(k / 4) * 1.1, -L / 2 + 0.3); g.add(pl); });
       t.cajero = this.npc(t, 0, -L / 2 + 1.5, { cara: 6, ropa: null, camisa: '#2b2b2b', estiloPelo: 'rapado' });
       t.interior.mostrador.set(ox, 0, oz - L / 2 + 3.4);
+    } else if (ARMERIAS[t.tipo]) {
+      construirArmeria.call(this, t, W, L, H, g, caja, m);
     } else if (t.tipo === 'cantina') {
       caja(W - 2, 1.1, 0.9, m('#3a2416'), 0, 0.55, -L / 2 + 2.4);
       caja(W - 2, 0.08, 1, m('#5a3a22'), 0, 1.14, -L / 2 + 2.4, false);
@@ -434,7 +480,10 @@ export class Interiores {
       cartel('MÁSCARA|CONTRA|MÁSCARA', 'DOMINGO 8 PM|ARENA JACARANDA', '#10307a', 5, -L / 2 + 0.05, 0);
       cartel('ARENA|JACARANDA', 'DESDE 1958|CATEDRAL DEL PANCRACIO', '#1a1a1e', -W / 2 + 0.05, -2, Math.PI / 2, 3.6, 4.4);
       cartel('RUDOS|VS|TÉCNICOS', 'BOLETOS EN|TAQUILLA', '#5a1a7a', W / 2 - 0.05, -2, -Math.PI / 2, 3.6, 4.4);
-      t.arena = { rudo, tecnico, publico, rz, t: 0, combate: 0, apuesta: null, caida: null, ruido: 0 };
+      for (let k = 0; k < 3; k++) caja(1.6, 0.33 * (3 - k), 0.45, m('#b0202a'), 0, 0.165 * (3 - k), rz + 3.45 + k * 0.45);
+      const et = this.etiqueta('SUBE AL RING', '$200 · GANA $1,000'); et.position.set(0, 2.6, rz + 4.9); et.scale.set(1.6, 0.53, 1); g.add(et);
+      const aro = new THREE.Mesh(new THREE.RingGeometry(0.5, 0.66, 28).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#ffd23a', transparent: true, opacity: 0.85, depthWrite: false })); aro.position.set(0, 0.03, rz + 4.9); g.add(aro);
+      t.arena = { rudo, tecnico, publico, rz, t: 0, combate: 0, apuesta: null, caida: null, ruido: 0, etRing: et, aroRing: aro, ringX: ox, ringZ: oz + rz + 4.9 };
       t.cajero = this.npc(t, -W / 2 + 2.2, L / 2 - 3.2, { cara: 3, ropa: 5 });
       caja(2.6, 1.1, 0.8, m('#3a1a10'), -W / 2 + 2.2, 0.55, L / 2 - 4.3);
       t.interior.mostrador.set(ox - W / 2 + 2.2, 0, oz + L / 2 - 5.2);
@@ -724,6 +773,7 @@ export class Interiores {
     const p = this.j.jugador.pos;
     if (!this.dentro) return null;
     const T = this.dentro, M = T.interior.mostrador;
+    if (T.arena && !T.arena.pelea && Math.hypot(p.x - T.arena.ringX, p.z - T.arena.ringZ) < 1.4) return { ring: true };
     if (T.tipo !== 'depa' && T.tipo !== 'gimnasio' && M && Math.hypot(p.x - M.x, p.z - M.z) < 2.6) return { mostrador: true };
     let mejor = null, md = 0.85;
     for (const z of this.dentro.zonas) { const d = Math.hypot(p.x - z.x, p.z - z.z); if (d < md) { md = d; mejor = z; } }
@@ -733,6 +783,7 @@ export class Interiores {
   interactuar() {
     const z = this.cerca();
     if (!z || this.robo) return false;
+    if (z.ring) { const j = this.j; if (j.jugador.dinero < 200) { j.hud.notificar('alerta', 'No te alcanza', 'Subir al ring cuesta $200.', 2.5); return true; } j.jugador.dinero -= 200; j.hud.popDinero?.(-200); this.empezarPelea(this.dentro); return true; }
     if (z.mostrador) { this.j.actividades.abrirTienda(this.catalogo(this.dentro)); return true; }
     this.j.actividades.comprarArticulo(z.art);
     return true;
@@ -772,8 +823,9 @@ export class Interiores {
     this.bloqueo = t.interior.salida.clone();
     jug.yaw = Math.PI; j.camYaw = Math.PI; j.camPitch = -0.15;
     const I = t.interior;
-    this.luz1.position.set(I.ox - 3, 3.4, I.oz); this.luz2.position.set(I.ox + 3, 3.4, I.oz - 2);
+    this.luz1.position.set(I.ox - I.W / 4, Math.min(I.H - 0.6, 4.4), I.oz); this.luz2.position.set(I.ox + I.W / 4, Math.min(I.H - 0.6, 4.4), I.oz - I.L / 6);
     const oscuro = t.tipo === 'antro'; this.luz1.intensity = oscuro ? 2.5 : 9; this.luz2.intensity = oscuro ? 2.5 : 9; this.luz1.color.set(oscuro ? '#ff4fd8' : '#ffe2b0'); this.luz2.color.set(oscuro ? '#3fd2ff' : '#fff0d8'); this.avisoAlerta = false;
+    if (ARMERIAS[t.tipo]) { this.luz1.position.set(I.ox - 4, 3.3, I.oz + 1); this.luz2.position.set(I.ox + 0.5, 3.4, I.oz - I.L / 2 + 1.4); this.luz1.color.set(ARMERIAS[t.tipo].luz); this.luz1.intensity = 13; this.luz2.intensity = 16; }
     j.audio.ui(660);
     j.audio.puerta?.();
     j.hud.notificar('tienda', t.nombre, t.tipo === 'tienda' ? (t.robadaHasta > j.reloj ? 'Ya la robaste hace poco: el cajero está alerta.' : 'Párate frente a un producto y presiona E… o apunta al cajero para robarla.') : t.tipo === 'depa' ? 'Tu casa: aquí puedes dormir y guardar.' : 'Párate frente a lo que quieras y presiona E.', 5);
@@ -801,6 +853,7 @@ export class Interiores {
   catalogo(t) {
     const j = this.j;
     if (t.tipo === 'armeria') return { titulo: 'ARMERÍA DEL VALLE', sub: 'PAGO EN EFECTIVO, SIN PREGUNTAS', articulos: ARTICULOS };
+    if (ARMERIAS[t.tipo]) { const T = ARMERIAS[t.tipo]; return { titulo: T.nombre, sub: T.sub, articulos: (t.arts = t.arts || T.articulos()) }; }
     if (t.tipo === 'cantina' && j.propiedades?.cantina) return { titulo: 'CANTINA', sub: '', articulos: [
       { id: 'cerveza', nombre: 'Cerveza de la casa', precio: 0, verbo: 'Tomar', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 10); j.mareo = Math.min(90, (j.mareo || 0) + 18); } },
       { id: 'botana', nombre: 'Botana de la casa', precio: 0, verbo: 'Comer', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 30); } }
@@ -902,12 +955,14 @@ export class Interiores {
     const j = this.j, jug = j.jugador, t = performance.now() / 1000;
     if (this.poste) this.poste.material.map.offset.y = (t * 0.4) % 1;
     if (this.matPuerta) this.matPuerta.emissiveIntensity = 0.12 + j.ambiente.noche * 0.8;
+    if (this.matLampara) this.matLampara.emissiveIntensity = 0.1 + j.ambiente.noche * 2.2;
     this.actualizarPuertas();
     if (this.dentro && !jug.muerto && !j.overlay) {
       const z = this.cerca();
+      if (z?.ring) j.hud.pista('E', 'Subir al ring contra El Rudo del Nopal · $200');
       if (z?.mostrador && !this.robo) { j.hud.pista('E', 'Ver productos · ' + this.dentro.nombre); if (this.letreroM) this.letreroM.material.opacity = 1; }
       for (const q of this.dentro.zonas) { const obj = q === z ? 1.25 : 1; q.escala += (obj - q.escala) * Math.min(1, dt * 10); q.et.scale.set(1.25 * q.escala, 0.415 * q.escala, 1); q.aro.material.opacity = q === z ? 0.95 : 0.45; }
-      if (z && !z.mostrador && !this.robo) {
+      if (z && !z.mostrador && !z.ring && !this.robo) {
         const a = z.art, tiene = a.tiene?.(jug), falta = a.requiere && !jug.armas[a.requiere];
         j.hud.pista(tiene || falta ? '·' : 'E', tiene ? a.nombre + ' · ya lo tienes' : falta ? 'Primero compra el arma' : (jug.dinero < a.precio ? 'Te faltan $' + (a.precio - jug.dinero).toLocaleString('es-MX') : (a.verbo || 'Comprar') + ' ' + a.nombre + (a.precio ? ' · $' + a.precio.toLocaleString('es-MX') : '')));
       }
@@ -916,6 +971,7 @@ export class Interiores {
     if (T?.arena) { if (T.arena.pelea) this.actualizarPelea(T, dt); else this.animarArena(T, dt); }
     if (this.entreno) { if (T?.tipo === 'gimnasio') this.animarEntreno(dt); else this.entreno = null; }
     if (this.costal) { this.costalV = (this.costalV || 0) - (this.costal.rotation.x || 0) * dt * 30; this.costalV *= 1 - Math.min(1, dt * 2.5); this.costal.rotation.x = (this.costal.rotation.x || 0) + this.costalV * dt; }
+    if (T?.vitrina) T.vitrina.rotation.y += dt * 0.7;
     if (T?.cine) this.animarCine(T, dt);
     if (T?.maquinitas) this.animarMaquinitas(T, dt);
     if (T?.cantina) this.animarCantina(T, dt);
@@ -927,7 +983,7 @@ export class Interiores {
     if (cam.position.y > I.H - 0.3) cam.position.y = I.H - 0.3;
     const caj = T.cajero;
     if (T.tipo !== 'tienda' || !caj || caj.muerto) { this.cancelarRobo(); return; }
-    const arma = ['pistola', 'escopeta', 'subfusil', 'rifle'].includes(jug.arma) ? 'fuego' : ['bate', 'cuchillo'].includes(jug.arma) ? 'golpe' : null;
+    const arma = ['bala', 'perdigon'].includes(ARMAS[jug.arma]?.tipo) && !ARMAS[jug.arma]?.aturde ? 'fuego' : ['bate', 'cuchillo', 'machete', 'katana'].includes(jug.arma) ? 'golpe' : null;
     const d = Math.hypot(jug.pos.x - caj.pos.x, jug.pos.z - caj.pos.z);
     const ang = Math.atan2(caj.pos.x - jug.pos.x, caj.pos.z - jug.pos.z);
     let dif = ang - j.camYaw; while (dif > Math.PI) dif -= Math.PI * 2; while (dif < -Math.PI) dif += Math.PI * 2;

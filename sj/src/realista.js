@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano, recorte } from './humanos.js?v=202611221719';
+import { crearHumano, recorte } from './humanos.js?v=202611221845';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -7,7 +7,8 @@ export const RITMO = { Walk_Loop: 0.975, Jog_Fwd_Loop: 5.36, Sprint_Loop: 5.6, C
 const LOCO = ['Walk_Loop', 'Jog_Fwd_Loop', 'Sprint_Loop'];
 const MIN_R = { Jog_Fwd_Loop: 0.88, Sprint_Loop: 0.85 };
 const _yaw = new THREE.Quaternion(), _eje = new THREE.Vector3();
-const FUEGO = ['pistola', 'subfusil', 'rifle', 'escopeta', 'revolver', 'recortada', 'ametralladora', 'francotirador', 'lanzacohetes'];
+const FUEGO = ['pistola', 'subfusil', 'rifle', 'escopeta', 'revolver', 'recortada', 'ametralladora', 'francotirador', 'lanzacohetes', 'pistolaOro', 'taser', 'escopetaAuto', 'ballesta'];
+const ESPADA = ['katana', 'machete'];
 const PARES = [['cuerpo', 'pelvis'], ['torso', 'spine_01'], ['cabeza', 'head'], ['pi', 'thigh_l'], ['ri', 'calf_l'], ['pd', 'thigh_r'], ['rd', 'calf_r'], ['bi', 'upperarm_l'], ['ci', 'lowerarm_l'], ['bd', 'upperarm_r'], ['cd', 'lowerarm_r']];
 const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _v = new THREE.Vector3(), _m = new THREE.Matrix4();
 
@@ -156,7 +157,7 @@ export class Realista {
     if (!j.coche && !j.rueda && !j.arrestado && !j.nadando) {
       if (j.golpeT > 0 && !fuego) {
         if (j.golpeT > (this.prevGolpe ?? 0) + 0.01) forzarSup = true;
-        sup = (j.combo || 0) % 2 ? 'Punch_Cross' : 'Punch_Jab'; supVeces = 1;
+        sup = ESPADA.includes(j.arma) ? 'Sword_Attack' : (j.combo || 0) % 2 ? 'Punch_Cross' : 'Punch_Jab'; supVeces = 1;
         if (v < 0.25) { base = sup; veces = 1; forzarBase = forzarSup; sup = null; }
       } else if (fuego && (j.apunta || j.disparando)) {
         const pitch = this.j?.juego?.camPitch || 0;
@@ -164,6 +165,7 @@ export class Realista {
         if (j.recargando > 0) supVeces = 1;
       } else if (fuego && j.recargando > 0) { sup = 'Pistol_Reload'; supVeces = 1; }
       else if (fuego && v < 0.25 && !j.gesto) base = 'Pistol_Idle_Loop';
+      else if (j.arma === 'katana' && v < 0.25 && !j.gesto) base = 'Sword_Idle';
     }
     this.prevGolpe = j.golpeT || 0;
     return { base, escala, veces, sup, supVeces, forzarSup, forzarBase };
@@ -270,6 +272,7 @@ export class Realista {
     let base = 'Idle_Loop', escala = 1, sup = null, supVeces = Infinity, forzarSup = false;
     if (e === 'sentado') base = q.banca?.pie ? 'Idle_Loop' : 'Sitting_Idle_Loop';
     else if (e === 'agachado') base = 'Crouch_Idle_Loop';
+    else if (e === 'aturdido') base = 'Fixing_Kneeling';
     else if (e === 'charla' || (q.limpiando && v < 0.2)) base = 'Idle_Talking_Loop';
     else if (v < 0.2) base = q.anim || (q.habito === 'celular' ? 'Idle_Talking_Loop' : 'Idle_Loop');
     else if (v < 2.8) base = q.formal ? 'Walk_Formal_Loop' : 'Walk_Loop';

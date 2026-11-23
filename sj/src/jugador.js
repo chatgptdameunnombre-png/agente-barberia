@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { enLago, sobreMuelle } from './ciudad.js?v=202611221719';
-import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611221719';
+import { enLago, sobreMuelle } from './ciudad.js?v=202611221845';
+import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611221845';
 
 export const ARMAS = {
   puno: { nombre: 'PUÑOS', tipo: 'golpe', daño: 14, cadencia: 0.42, alcance: 1.7, empuje: 3, cargador: 0 },
@@ -18,21 +18,26 @@ export const ARMAS = {
   ametralladora: { nombre: 'AMETRALLADORA', tipo: 'bala', daño: 22, cadencia: 0.07, alcance: 130, disp: 0.045, cargador: 100, recarga: 3.2 },
   francotirador: { nombre: 'FRANCOTIRADOR', tipo: 'bala', daño: 160, cadencia: 1.2, alcance: 320, disp: 0.0015, cargador: 5, recarga: 2.4, zoom: 16 },
   lanzacohetes: { nombre: 'LANZACOHETES', tipo: 'cohete', cadencia: 1.4, alcance: 200, cargador: 1, recarga: 2.2 },
-  molotov: { nombre: 'MOLOTOV', tipo: 'lanzar', cadencia: 0.9, cargador: 0 }
+  molotov: { nombre: 'MOLOTOV', tipo: 'lanzar', cadencia: 0.9, cargador: 0 },
+  katana: { nombre: 'KATANA', tipo: 'golpe', daño: 88, cadencia: 0.46, alcance: 2.7, empuje: 4, cargador: 0, barrido: 2 },
+  pistolaOro: { nombre: 'LA CHARRA', tipo: 'bala', daño: 58, cadencia: 0.2, alcance: 135, disp: 0.006, cargador: 15, recarga: 0.85 },
+  taser: { nombre: 'TÁSER', tipo: 'bala', daño: 4, cadencia: 0.9, alcance: 14, disp: 0.01, cargador: 3, recarga: 1.6, aturde: 6, silencio: true },
+  escopetaAuto: { nombre: 'ESCOPETA DE TAMBOR', tipo: 'perdigon', daño: 15, perdigones: 8, cadencia: 0.24, alcance: 34, disp: 0.12, cargador: 12, recarga: 2.6 },
+  ballesta: { nombre: 'BALLESTA', tipo: 'bala', daño: 140, cadencia: 1.05, alcance: 150, disp: 0.003, cargador: 1, recarga: 1.25, silencio: true, zoom: 34, sinMirilla: true }
 };
-export const ORDEN = ['puno', 'bate', 'cuchillo', 'machete', 'llave', 'pistola', 'revolver', 'escopeta', 'recortada', 'subfusil', 'ametralladora', 'rifle', 'francotirador', 'lanzacohetes', 'granada', 'molotov'];
+export const ORDEN = ['puno', 'bate', 'cuchillo', 'machete', 'llave', 'katana', 'pistola', 'revolver', 'pistolaOro', 'taser', 'escopeta', 'recortada', 'escopetaAuto', 'subfusil', 'ametralladora', 'rifle', 'francotirador', 'ballesta', 'lanzacohetes', 'granada', 'molotov'];
 export const CATEGORIAS = [
-  { id: 'mano', nombre: 'CUERPO A CUERPO', armas: ['puno', 'bate', 'cuchillo', 'machete', 'llave'] },
-  { id: 'pistolas', nombre: 'PISTOLAS', armas: ['pistola', 'revolver'] },
-  { id: 'escopetas', nombre: 'ESCOPETAS', armas: ['escopeta', 'recortada'] },
+  { id: 'mano', nombre: 'CUERPO A CUERPO', armas: ['puno', 'bate', 'cuchillo', 'machete', 'llave', 'katana'] },
+  { id: 'pistolas', nombre: 'PISTOLAS', armas: ['pistola', 'revolver', 'pistolaOro', 'taser'] },
+  { id: 'escopetas', nombre: 'ESCOPETAS', armas: ['escopeta', 'recortada', 'escopetaAuto'] },
   { id: 'subfusiles', nombre: 'AUTOMÁTICAS', armas: ['subfusil', 'ametralladora'] },
-  { id: 'rifles', nombre: 'RIFLES', armas: ['rifle', 'francotirador'] },
+  { id: 'rifles', nombre: 'RIFLES', armas: ['rifle', 'francotirador', 'ballesta'] },
   { id: 'pesadas', nombre: 'PESADAS', armas: ['lanzacohetes'] },
   { id: 'lanzables', nombre: 'LANZABLES', armas: ['granada', 'molotov'] }
 ];
 export const tieneArma = (j, k) => { const s = j.armas[k]; return !!s && (ARMAS[k].tipo !== 'lanzar' || s.reserva > 0); };
 
-import { Realista } from './realista.js?v=202611221719';
+import { Realista } from './realista.js?v=202611221845';
 export const REALISTAS = {};
 export const OUTFIT = {};
 export const OUTFITS = {
@@ -186,7 +191,7 @@ export class Jugador {
       P.pi.rotation.set(-0.15 * k, 0, 0.08); P.pd.rotation.set(-0.15 * k, 0, -0.08); P.ri.rotation.x = 1.65 * k; P.rd.rotation.x = 1.65 * k;
       P.bi.rotation.set(-2.5 * k, 0, 0.95 * k); P.bd.rotation.set(-2.5 * k, 0, -0.95 * k); P.ci.rotation.x = -2.3 * k; P.cd.rotation.x = -2.3 * k;
       P.cabeza.rotation.set(0.35 * k, 0, 0); P.torso.rotation.set(0, 0, 0);
-      for (const a of ['pistola', 'subfusil', 'rifle', 'escopeta', 'bate', 'cuchillo', 'machete', 'llave', 'revolver', 'recortada', 'ametralladora', 'francotirador', 'lanzacohetes', 'granada', 'molotov']) if (P[a]) P[a].visible = false;
+      for (const a of ORDEN) if (P[a]) P[a].visible = false;
       this.grupo.position.set(this.pos.x, 0, this.pos.z);
       return;
     }

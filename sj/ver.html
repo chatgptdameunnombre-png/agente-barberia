@@ -34,7 +34,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { crearHumano, configurar, ponerMascara, ponerNovia } from './src/humanos.js?v=202611221719';
+import { crearHumano, configurar, ponerMascara, ponerNovia } from './src/humanos.js?v=202611221845';
 
 const r = new THREE.WebGLRenderer({ antialias: true });
 r.setPixelRatio(Math.min(devicePixelRatio, 2)); r.setSize(innerWidth, innerHeight);
@@ -55,7 +55,7 @@ const piso = new THREE.Mesh(new THREE.CircleGeometry(14, 64).rotateX(-Math.PI / 
 piso.receiveShadow = true; esc.add(piso);
 
 const ANIMS = [['Reposo', 'Idle_Loop'], ['Platicando', 'Idle_Talking_Loop'], ['Caminar', 'Walk_Loop'], ['Trotar', 'Jog_Fwd_Loop'], ['Correr', 'Sprint_Loop'], ['Agachado', 'Crouch_Idle_Loop'], ['Rodar', 'Roll'], ['Golpe', 'Punch_Cross'], ['Pistola', 'Pistol_Idle_Loop'], ['Disparar', 'Pistol_Shoot'], ['Manejar', 'Driving_Loop'], ['Sentado', 'Sitting_Idle_Loop'], ['Bailar', 'Dance_Loop'], ['Morir', 'Death01']];
-const PERS = [['Matías', 'matias'], ['Lucía', 'lucia'], ['Don Chuy', 'chuy'], ['Chava', 'chava'], ['Flaco', 'flaco'], ['Padre Tomás', 'tomas'], ['Rosario', 'rosario'], ['Luchador', 'luchador'], ['Don Neto', 'neto'], ['Rigo', 'rigo'], ['Novia', 'novia'], ['Novio', 'novio'], ['Todos', 'todos']];
+const PERS = [['Matías', 'matias'], ['Lucía', 'lucia'], ['Don Chuy', 'chuy'], ['Chava', 'chava'], ['Flaco', 'flaco'], ['Rosario', 'rosario'], ['Luchador', 'luchador'], ['Don Neto', 'neto'], ['Rigo', 'rigo'], ['Novia', 'novia'], ['Novio', 'novio'], ['Todos', 'todos']];
 const GENTE = ['matias', 'lucia', 'chuy', 'peaton1', 'peaton2', 'peaton3', 'peaton4', 'peaton5', 'peaton6', 'peaton7', 'peaton8', 'peaton9', 'peaton10'];
 const grupoTodos = new THREE.Group();
 let actual = null, clip = 'Idle_Loop', nombre = 'matias';

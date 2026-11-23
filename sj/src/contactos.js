@@ -1,6 +1,6 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611221719';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221719';
-import { Peaton } from './peatones.js?v=202611221719';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611221845';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221845';
+import { Peaton } from './peatones.js?v=202611221845';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -23,7 +23,7 @@ const matones = (m, x, z, n, armas = ['pistola'], estado = 'quieto') => {
 const matonesDentro = (m, t, n, armas) => {
   const I = t.interior, l = [], j = m.j;
   for (let k = 0; k < n; k++) {
-    const x = I.ox + (Math.random() - 0.5) * (I.W - 3.5), z = I.oz - I.L / 2 + 1.6 + Math.random() * (I.L - 5);
+    const x = I.ox + (Math.random() - 0.5) * (I.W - 4), z = I.oz - I.L / 2 + 1.8 + Math.random() * Math.max(2, I.L - 8.5);
     const g = new Peaton(j, { tipo: 'matón', x, z, estado: 'atacar', arma: armas[k % armas.length] });
     g.enInterior = t; g.salud = 80; g.yaw = Math.random() * 6; g.grupo.visible = j.interiores?.dentro === t;
     j.peatones.push(g); m.extra.push(g); l.push(g);
@@ -434,107 +434,6 @@ export const CONTACTOS = {
           } else m.objetivo(`Recupera los deportivos del Flaco: <b>${m.entregados} de 2</b>.`);
         },
         fin(m) { m.j.hud.dialogos([['El Flaco Arreola', 'Te debo una grande. Cuando necesites ruedas, aquí está tu compa.']]); }
-      }
-    ]
-  },
-  tomas: {
-    nombre: 'Padre Tomás', letra: 'T', modelo: 'tomas', color: '#e8e4d8', zona: 'Catedral', requisito: 0,
-    apariencia: { camisa: '#121216', pantalon: '#121216', edad: 'mayor', lentes: true, barba: null, mujer: false, sombrero: null, peloLargo: false, mangaCorta: false, complexion: 1.05 },
-    lugar: j => libre(j, j.ciudad.lugares.catedral.x + 5, j.ciudad.lugares.catedral.z + 4),
-    lista: [
-      {
-        titulo: 'LA LIMOSNA', premio: 600,
-        inicio(m) {
-          const j = m.j, C = j.ciudad.lugares.catedral, p = libre(j, C.x - 8, C.z + 10);
-          m.dialogo([['Padre Tomás', '¡Hijo, ayúdame! Ese muchacho se llevó la alcancía de los pobres.'], ['Padre Tomás', 'No le hagas daño de más. Sólo recupera lo que es de la gente.']]);
-          m.ladron = new Peaton(j, { x: p.x, z: p.z, estado: 'huir', vestido: { camisa: '#3a5a8a', pantalon: '#2a2a2a', gorra: '#8a2a2a' } });
-          m.ladron.objetivoMision = true; m.ladron.salud = 90; j.peatones.push(m.ladron); m.extra.push(m.ladron);
-          m.objetivos = [m.ladron];
-          m.objetivo('Alcanza al <b>ladrón</b> y quítale la alcancía.');
-        },
-        actualizar(m) {
-          const j = m.j, L = m.ladron;
-          if (m.paso === 0) {
-            if (!j.peatones.includes(L)) return 'falla:El ladrón se escapó.';
-            if (L.muerto || L.salud < 60) {
-              m.paso = 1; m.objetivos = [];
-              if (!L.muerto) { L.estado = 'agachado'; L.tAgachado = 99; j.hud.burbuja?.(L, '¡Ya, ya, tome!'); }
-              const s = j.crearRecogible('sobre', L.pos.x + 0.6, L.pos.z); m.extra.push(s.malla); m.caja = s; m.marcar(1, L.pos.x + 0.6, L.pos.z, 1.5, 2, '#e8e4d8');
-            } else {
-              L.estado = 'huir'; L.miedo = 12; L.huyeDe.copy(j.jugador.posicion);
-              if (L.pos.distanceTo(j.jugador.posicion) > 140) return 'falla:El ladrón se escapó.';
-            }
-          }
-          if (m.paso === 1) {
-            m.objetivo('Recoge la <b>alcancía</b>.');
-            if (m.caja.tomado) { m.paso = 2; const g = CONTACTOS.tomas.lugar(j); m.marcar(1, g.x, g.z, 2, 3, '#e8e4d8'); m.mato = L.muerto; }
-          }
-          if (m.paso === 2) { m.objetivo('Devuélvele la alcancía al <b>Padre Tomás</b>.'); if (llegar(m, 1, false)) return 'ok'; }
-        },
-        fin(m) { m.j.hud.dialogos([['Padre Tomás', m.mato ? 'Gracias, aunque no era para tanto, hijo. Rezaré por los dos.' : 'Dios te lo pague, hijo. Esta noche cenan los que menos tienen.']]); }
-      },
-      {
-        titulo: 'A TIEMPO', premio: 1300,
-        inicio(m) {
-          const j = m.j, C = j.ciudad.lugares.catedral, p = libre(j, C.x + 14, C.z + 6);
-          m.dialogo([['Padre Tomás', 'Doña Licha se desmayó en misa y la ambulancia no llega.'], ['Padre Tomás', 'Consigue un coche y llévala al Hospital Civil. Maneja con cuidado, por favor.']]);
-          m.licha = new Peaton(j, { x: p.x, z: p.z, estado: 'quieto', vestido: { camisa: '#c87aa8', pantalon: '#3a2a4a', pelo: '#d8d4cc', mujer: true, edad: 'mayor', falda: true } });
-          m.licha.objetivoMision = true; j.peatones.push(m.licha); m.extra.push(m.licha);
-          m.objetivos = [m.licha]; m.estado = 100;
-          m.objetivo('Consigue un <b>coche</b> y recoge a <b>Doña Licha</b>.');
-        },
-        actualizar(m) {
-          const j = m.j, L = m.licha, c = j.jugador.coche;
-          if (m.paso === 0) {
-            if (L.muerto || !j.peatones.includes(L)) return 'falla:Doña Licha no lo logró.';
-            L.estado = 'agachado'; L.tAgachado = 99;
-            if (c && c.tipo !== 'moto' && c.pos.distanceTo(L.pos) < 6 && c.vel < 3) {
-              m.paso = 1; L.quitar(); j.peatones.splice(j.peatones.indexOf(L), 1); m.objetivos = [];
-              const H = j.ciudad.lugares.hospital; m.marcar(1, H.x, H.z, 5, 3, '#e8e4d8'); m.reloj = 95; m.coche = c; c.ultimoChoque = 0;
-              j.hud.burbuja?.(j.jugador, 'Agárrese, Doña Licha.');
-            }
-          }
-          if (m.paso === 1) {
-            if (j.jugador.coche !== m.coche) return 'falla:Dejaste sola a Doña Licha.';
-            if ((m.coche.ultimoChoque || 0) > 5) { m.estado -= m.coche.ultimoChoque * 2.5; m.coche.ultimoChoque = 0; j.hud.notificar('alerta', '¡Cuidado!', 'Doña Licha se lastimó con el golpe.', 1.5); }
-            if (m.estado <= 0) return 'falla:Doña Licha no aguantó el viaje.';
-            m.objetivo(`Llévala al <b>Hospital Civil</b> · estado <b>${Math.max(0, Math.round(m.estado))}%</b>.`);
-            if (m.dentro(1, m.coche.pos, 1.6) && m.coche.vel < 4) return 'ok';
-          }
-        },
-        fin(m) { m.j.hud.dialogos([['Padre Tomás', 'Ya está estable, gracias a ti. Esta ciudad todavía tiene buena gente.']]); }
-      },
-      {
-        titulo: 'LA PROCESIÓN', premio: 3200,
-        inicio(m) {
-          const j = m.j, C = j.ciudad.lugares.catedral, P = j.ciudad.lugares.plaza;
-          m.dialogo([['Padre Tomás', 'Hoy sale la procesión de la Virgen y unos maleantes amenazaron con arruinarla.'], ['Padre Tomás', 'Acompáñanos hasta la Plaza. Que nadie salga lastimado.']]);
-          const a = libre(j, C.x, C.z + 6), d = libre(j, P.x, P.z - 4);
-          m.ruta = [[a.x, a.z], [a.x + (d.x - a.x) * 0.33, a.z + (d.z - a.z) * 0.33], [a.x + (d.x - a.x) * 0.66, a.z + (d.z - a.z) * 0.66], [d.x, d.z]];
-          m.fieles = [];
-          for (let k = 0; k < 6; k++) { const g = new Peaton(j, { x: a.x - k * 1.2, z: a.z - (k % 2) * 0.9, estado: 'pasear', vestido: { camisa: ['#f2f0ea', '#e8dcc0', '#d8c0d8'][k % 3], pantalon: '#3a3a40' } }); g.objetivoMision = true; g.ruta = m.ruta; g.indice = 1; g.sentido = 1; j.peatones.push(g); m.extra.push(g); m.fieles.push(g); }
-          m.malos = []; m.oleada = 0; m.espera = 8; m.fin = { x: d.x, z: d.z };
-          m.marcar(1, d.x, d.z, 6, 1, '#e8e4d8');
-          m.objetivo('Acompaña la <b>procesión</b> hasta la <b>Plaza</b>.');
-        },
-        actualizar(m, dt) {
-          const j = m.j, vivos = m.fieles.filter(g => !g.muerto && j.peatones.includes(g));
-          if (m.fieles.length - vivos.length >= 2) return 'falla:La procesión terminó en tragedia.';
-          for (const g of vivos) { if (g.indice >= 3 && Math.hypot(g.pos.x - m.fin.x, g.pos.z - m.fin.z) < 3) { g.estado = 'quieto'; continue; } g.estado = 'pasear'; g.ruta = m.ruta; g.sentido = 1; if (g.indice === 0) g.indice = 3; }
-          m.espera -= dt;
-          if (m.oleada < 2 && m.espera <= 0 && m.malos.every(g => g.muerto)) {
-            m.oleada++; m.espera = 14;
-            const L = vivos[0] || m.fieles[0], a = Math.random() * 6;
-            matones(m, L.pos.x + Math.cos(a) * 26, L.pos.z + Math.sin(a) * 26, 2 + m.oleada, ['pistola', 'puno', 'cuchillo'], 'atacar').forEach(g => m.malos.push(g));
-            j.hud.notificar('alerta', '¡Ahí vienen!', 'Protege a la procesión.', 2.5);
-          }
-          despertar(m, m.malos, 60);
-          m.objetivos = [...vivos, ...m.malos.filter(g => !g.muerto)];
-          const llegaron = vivos.filter(g => Math.hypot(g.pos.x - m.fin.x, g.pos.z - m.fin.z) < 4).length;
-          m.objetivo(`Protege la procesión · fieles <b>${vivos.length}</b> · llegaron <b>${llegaron}</b>`);
-          if (m.oleada >= 2 && m.malos.every(g => g.muerto) && llegaron >= vivos.length - 1 && llegaron > 0) return 'ok';
-        },
-        fin(m) { m.j.hud.dialogos([['Padre Tomás', 'La Virgen llegó a la Plaza y la gente cantó toda la tarde. Gracias, hijo.']]); }
       }
     ]
   },
@@ -1131,6 +1030,147 @@ export const CONTACTOS = {
           if (m.paso === 1) { m.objetivo('<b>Pierde a la policía</b> (5 estrellas y helicóptero).'); if (!j.policia.estrellas) return 'ok'; }
         },
         fin(m) { m.j.noticias?.avisar('persecucion'); m.j.hud.dialogos([['Marisol "La Jefa"', 'Santa Jacaranda ya tiene dueña. Y tú eres mi mano derecha.']]); }
+      }
+    ]
+  },
+  ruelas: {
+    nombre: 'Capitán Ruelas', letra: 'Q', modelo: 'peaton7', color: '#4a8aff', zona: 'Hospital', requisito: 1,
+    apariencia: { camisa: '#1a2a4a', pantalon: '#22262e', lentes: true, reloj: true, sombrero: null, complexion: 1.15, edad: 'adulto', barba: 'candado', mangaCorta: false, mujer: false, peloLargo: false },
+    lugar: j => { const H = j.ciudad.lugares.hospital; return libre(j, H.x + 22, H.z + 6); },
+    lista: [
+      {
+        titulo: 'REHENES EN LA FARMACIA', premio: 3200,
+        inicio(m) {
+          m.malos = null; m.rehenes = null; m.jefe = null; m.tienda = null; m.alarma = false; m.convoy = null; m.venado = null; m.huye = null;
+          const j = m.j, jp = j.jugador.posicion, T = j.interiores.tiendas.filter(t => t.tipo === 'tienda');
+          m.dialogo([['Capitán Ruelas', 'Soy Ruelas, jefe de Seguridad Escudo. Unos asaltantes tienen a tres empleados de rodillas en una farmacia.'], ['Capitán Ruelas', 'La policía va a entrar a lo bruto. Tú entras antes. Te presto un táser: si los dejas tirados, rematas sin tirarle a los rehenes.']]);
+          j.jugador.darArma('taser', 9); j.jugador.darArma('pistola', 36);
+          m.tienda = T.find(t => /farmacia/i.test(t.nombre)) || T.sort((a, b) => Math.hypot(a.puerta.x - jp.x, a.puerta.z - jp.z) - Math.hypot(b.puerta.x - jp.x, b.puerta.z - jp.z))[0];
+          m.marcar(1, m.tienda.puerta.x, m.tienda.puerta.z, 2, 3, '#4a8aff');
+          m.objetivo(`Entra a <b>${m.tienda.nombre}</b> y libera a los rehenes.`);
+        },
+        actualizar(m) {
+          const j = m.j, I = j.interiores, t = m.tienda;
+          if (m.paso === 0) {
+            if (I.dentro === t && !m.malos) {
+              m.malos = matonesDentro(m, t, 4, ['pistola', 'subfusil', 'escopeta']);
+              const X = t.interior.ox, Z = t.interior.oz - t.interior.L / 2 + 1.3;
+              m.rehenes = [-2.4, -0.4, 1.6].map((dx, k) => { const g = new Peaton(j, { tipo: 'civil', x: X + dx, z: Z + 2.2 + (k % 2) * 0.6, estado: 'agachado' }); g.tAgachado = 1e9; g.enInterior = t; g.objetivoMision = true; g.rehen = true; g.yaw = 0; g.grupo.visible = true; j.peatones.push(g); m.extra.push(g); return g; });
+              j.hud.grande('¡REHENES!', 'Cuidado con a quién le tiras', 2.2);
+            }
+            if (m.rehenes) {
+              if (m.rehenes.some(g => g.muerto)) return 'falla Murió un rehén.';
+              for (const g of m.rehenes) if (g.estado !== 'agachado') { g.estado = 'agachado'; g.tAgachado = 1e9; }
+              m.objetivos = m.malos.filter(g => !g.muerto);
+              m.objetivo(`Acaba con los asaltantes sin herir a los rehenes: quedan <b>${m.objetivos.length}</b>.`);
+              if (!m.objetivos.length) { m.paso = 1; for (const g of m.rehenes) { g.estado = 'quieto'; g.p.cuerpo.position.y = 0; } j.hud.grande('¡REHENES A SALVO!', 'Sal de la farmacia', 2.2, 'exito'); }
+            }
+          }
+          if (m.paso === 1) { m.objetivos = []; m.objetivo('Sal de la farmacia.'); if (!I.dentro) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['Capitán Ruelas', 'Tres empleados vivos y ni un rasguño. Así se trabaja.']]); }
+      },
+      {
+        titulo: 'SILENCIO EN EL MERCADO', premio: 4500,
+        inicio(m) {
+          m.malos = null; m.rehenes = null; m.jefe = null; m.tienda = null; m.alarma = false; m.convoy = null; m.venado = null; m.huye = null; m.libreta = null;
+          const j = m.j;
+          m.dialogo([['Capitán Ruelas', 'El Contador lava dinero en la fonda del mercado de noche. Tiene una libreta con todos los nombres.'], ['Capitán Ruelas', 'Entra con esta ballesta. Si nadie oye nada, te doy un extra. Si suena un balazo, se te vienen todos encima.']]);
+          j.jugador.darArma('ballesta', 12); j.jugador.darArma('cuchillo');
+          m.tienda = j.interiores.tiendas.find(t => t.tipo === 'mercado');
+          m.marcar(1, m.tienda.puerta.x, m.tienda.puerta.z, 2, 3, '#4a8aff');
+          m.objetivo('Entra al <b>Mercado de San Jacinto</b> sin hacer ruido.');
+        },
+        actualizar(m) {
+          const j = m.j, I = j.interiores, t = m.tienda;
+          if (m.paso === 0) {
+            if (I.dentro === t && !m.malos) {
+              m.malos = matonesDentro(m, t, 5, ['pistola', 'subfusil', 'escopeta']);
+              m.jefe = matonesDentro(m, t, 1, ['pistola'])[0]; m.jefe.salud = 130; m.jefe.jefe = true;
+              for (const g of [...m.malos, m.jefe]) { g.estado = 'quieto'; g.yaw = Math.random() * 6.28; }
+              j.hud.grande('EL CONTADOR', 'Sin ruido: usa la ballesta', 2.2);
+            }
+            if (m.malos) {
+              const todos = [...m.malos, m.jefe], vivos = todos.filter(g => !g.muerto);
+              if (!m.alarma && vivos.some(g => g.estado === 'atacar' || g.estado === 'perseguir')) { m.alarma = true; for (const g of vivos) g.estado = 'atacar'; j.hud.grande('¡TE DESCUBRIERON!', 'Ya no hay extra', 2); }
+              m.objetivos = vivos;
+              m.objetivo(m.alarma ? `Acaba con todos: quedan <b>${vivos.length}</b>.` : `Elimina a los <b>${vivos.length}</b> sin que te descubran.`);
+              if (!vivos.length) { m.paso = 1; m.libreta = j.crearRecogible('sobre', m.jefe.pos.x + 0.5, m.jefe.pos.z); m.extra.push(m.libreta.malla); m.objetivos = []; }
+            }
+          }
+          if (m.paso === 1) { m.objetivo('Recoge <b>la libreta</b> de El Contador.'); if (m.libreta.tomado) { m.paso = 2; if (m.alarma) j.policia.subir(3); } }
+          if (m.paso === 2) { m.objetivo(m.alarma ? 'Sal del mercado y <b>pierde a la policía</b>.' : 'Sal del mercado.'); if (!I.dentro && !j.policia.estrellas) { if (!m.alarma) { j.jugador.dinero += 1500; j.hud.notificar('ok', 'Trabajo limpio', 'Extra de $1,500 por no hacer ruido.', 3); } return 'ok'; } }
+        },
+        fin(m) { m.j.hud.dialogos([['Capitán Ruelas', 'Con esta libreta caen veinte. Y nadie supo que fuiste tú.']]); }
+      },
+      {
+        titulo: 'EL CONVOY', premio: 6500,
+        inicio(m) {
+          m.malos = []; m.rehenes = null; m.jefe = null; m.tienda = null; m.alarma = false; m.venado = null; m.huye = null;
+          const j = m.j, jp = j.jugador.posicion;
+          m.dialogo([['Capitán Ruelas', 'Tres camionetas blindadas van a cruzar la ciudad con el dinero de El Contador.'], ['Capitán Ruelas', 'Ahí te va una escopeta de tambor y un lanzacohetes. Que no llegue ninguna.']]);
+          j.jugador.darArma('escopetaAuto', 36); j.jugador.darArma('lanzacohetes', 3); j.jugador.darArma('granada', 3);
+          const p0 = puntoCalleAleatorio(jp, 110, 200, 80) || { x: jp.x + 140, z: jp.z, yaw: 0 };
+          m.convoy = [0, 1, 2].map(k => { const p = puntoCalleAleatorio(p0, 4 + k * 9, 14 + k * 12, 30) || { x: p0.x + k * 10, z: p0.z, yaw: p0.yaw }; const c = coche(m, 'camioneta', '#141416', p, true); c.salud = c.t.salud * 2.2; c.fugitivo = true; c.convoy = true; c.escolta = false; return c; });
+          m.objetivo('Destruye las <b>3 camionetas</b> del convoy.');
+        },
+        actualizar(m) {
+          const j = m.j, jp = j.jugador.posicion;
+          const vivas = m.convoy.filter(c => !c.quemado && j.coches.includes(c));
+          for (const c of vivas) {
+            if (c.pos.distanceTo(jp) < 70) c.panico = Math.max(c.panico || 0, 8);
+            if (!c.escolta && c.salud < c.t.salud * 0.9) { c.escolta = true; m.malos.push(...matones(m, c.pos.x, c.pos.z, 2, ['subfusil', 'escopeta'], 'atacar')); if (!j.policia.estrellas) j.policia.subir(2); }
+          }
+          for (const c of m.convoy) if (!c.escolta && c.quemado) { c.escolta = true; m.malos.push(...matones(m, c.pos.x, c.pos.z, 2, ['subfusil', 'escopeta'], 'atacar')); }
+          if (m.paso === 0) {
+            m.objetivos = vivas;
+            m.objetivo(`Destruye las camionetas del convoy: quedan <b>${vivas.length}</b>.`);
+            if (!vivas.length) { m.paso = 1; j.policia.subir(3); j.hud.grande('¡CONVOY DESTRUIDO!', 'Pierde a la policía', 2.4, 'exito'); }
+            if (vivas.some(c => c.pos.distanceTo(jp) > 520)) return 'falla Se te escapó una camioneta.';
+          }
+          if (m.paso === 1) { m.objetivos = m.malos.filter(g => !g.muerto && g.pos.distanceTo(jp) < 60); m.objetivo('<b>Pierde a la policía.</b>'); if (!j.policia.estrellas) return 'ok'; }
+        },
+        fin(m) { m.j.noticias?.avisar('persecucion'); m.j.hud.dialogos([['Capitán Ruelas', 'Tres camionetas en llamas en pleno centro. Mañana vas a salir en el noticiero.']]); }
+      },
+      {
+        titulo: 'CAZA EN EL LAGO', premio: 8000,
+        inicio(m) {
+          m.malos = null; m.rehenes = null; m.jefe = null; m.tienda = null; m.alarma = false; m.convoy = null; m.huye = null;
+          const j = m.j, L = j.ciudad.lugares.lago;
+          m.dialogo([['Capitán Ruelas', 'El Venado Arriaga, el sicario de El Contador, está en el muelle del Lago Azul con su escolta.'], ['Capitán Ruelas', 'Si te ve llegar, se sube a su deportivo y no lo vuelves a ver. Tíralo de lejos.']]);
+          j.jugador.darArma('francotirador', 15); j.jugador.darArma('ballesta', 12);
+          const p = libre(j, L.x + 14, L.z + 4); m.base = p;
+          m.malos = matones(m, p.x, p.z, 5, ['subfusil', 'escopeta', 'rifle']);
+          m.venado = matones(m, p.x, p.z, 1, ['pistolaOro'])[0]; m.venado.salud = 90; m.venado.jefe = true;
+          const pc = puntoCalleAleatorio(p, 8, 30, 20) || { x: p.x + 10, z: p.z, yaw: 0 };
+          m.auto = coche(m, 'deportivo', '#e8e8ec', pc, false); m.auto.reservado = true;
+          m.marcar(1, p.x, p.z, 10, 3, '#4a8aff');
+          m.objetivo('Acaba con <b>El Venado Arriaga</b> antes de que te vea. Usa el francotirador.');
+        },
+        actualizar(m) {
+          const j = m.j, jp = j.jugador.posicion, v = m.venado;
+          if (m.paso === 0) {
+            despertar(m, m.malos, 40);
+            m.objetivos = [v];
+            const alerta = !v.muerto && (v.pos.distanceTo(jp) < 42 || v.estado === 'atacar' || m.malos.some(g => g.estado === 'atacar' || g.muerto));
+            if (v.muerto) { m.paso = 2; j.policia.subir(3); j.hud.grande('¡CAYÓ EL VENADO!', 'Pierde a la policía', 2.2, 'exito'); }
+            else if (alerta) {
+              m.paso = 1; const c = m.auto; v.grupo.visible = false; const i = j.peatones.indexOf(v); if (i >= 0) { v.quitar(); j.peatones.splice(i, 1); }
+              c.conductor = 'ia'; c.id = 960; c.fugitivo = true; c.panico = 999; c.salud = c.t.salud * 1.6; c.reservado = false; m.huye = c;
+              for (const g of m.malos) if (!g.muerto) g.estado = 'atacar';
+              j.hud.grande('¡SE ESCAPA!', 'Destruye el deportivo blanco', 2.2);
+            }
+          }
+          if (m.paso === 1) {
+            const c = m.huye; m.objetivos = [c];
+            m.objetivo('El Venado huye: <b>destruye el deportivo blanco</b>.');
+            c.panico = 999;
+            if (c.quemado) { m.paso = 2; j.policia.subir(3); j.hud.grande('¡CAYÓ EL VENADO!', 'Pierde a la policía', 2.2, 'exito'); }
+            else if (!j.coches.includes(c) || c.pos.distanceTo(jp) > 420) return 'falla Se escapó El Venado.';
+          }
+          if (m.paso === 2) { m.objetivos = []; m.objetivo('<b>Pierde a la policía.</b>'); if (!j.policia.estrellas) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['Capitán Ruelas', 'Sin su sicario, El Contador está solo. Cuando quieras trabajo, ya sabes dónde estoy.']]); }
       }
     ]
   }
