@@ -1,7 +1,7 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611222040';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611222040';
-import { Peaton } from './peatones.js?v=202611222040';
-import { romperVitrina, reponerVitrinas } from './joyeria.js?v=202611222040';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611222131';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611222131';
+import { Peaton } from './peatones.js?v=202611222131';
+import { romperVitrina, reponerVitrinas } from './joyeria.js?v=202611222131';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -1308,6 +1308,79 @@ export const CONTACTOS = {
           }
         },
         fin(m) { m.j.noticias?.avisar('joyeria'); m.j.hud.dialogos([['El Profe', m.modo === 'callado' && !m.alarma ? 'Ni una alarma. Eso, mi alumno, es arte.' : 'Ruidoso, pero salimos. La próxima vez, más fino.']]); }
+      }
+    ]
+  },
+  ines: {
+    nombre: 'Capitana Inés Robles', letra: 'I', modelo: 'peaton8', color: '#7ae0ff', zona: 'Aeropuerto Internacional', requisito: 1,
+    apariencia: { mujer: true, peloLargo: true, pelo: '#2a1a10', camisa: '#1a2846', pantalon: '#1a1a1e', lentes: true, reloj: true, sombrero: null, complexion: 1.0 },
+    lugar: j => ({ x: 62, z: 380 }),
+    lista: [
+      {
+        titulo: 'UNIFORME PRESTADO', premio: 1500,
+        inicio(m) {
+          m.malos = null; m.pena = null; m.uniforme = null; m.fotos = null;
+          const j = m.j;
+          m.dialogo([['Capitana Inés Robles', 'Fui piloto de Jacaranda Cargo hasta que vi lo que meten en sus aviones. Me corrieron y nadie me creyó.'], ['Capitana Inés Robles', 'Para entrar a la pista necesitas uniforme de seguridad. El Oficial Peña fuma a escondidas detrás de la terminal. Duérmelo y quítale el suyo.']]);
+          const g = new Peaton(j, { tipo: 'poli', x: 125, z: 404, estado: 'quieto', arma: 'pistola' }); g.fila = true; g.objetivoMision = true; g.yaw = -Math.PI / 2; g.salud = 60; j.peatones.push(g); m.extra.push(g); m.pena = g;
+          m.objetivos = [g];
+          m.objetivo('Noquea al <b>Oficial Peña</b> detrás de la terminal (táser, golpe por la espalda agachado o como puedas).');
+        },
+        actualizar(m) {
+          const j = m.j, g = m.pena;
+          if (m.paso === 0 && (g.muerto || g.estado === 'aturdido')) {
+            m.paso = 1; m.objetivos = []; m.uniforme = j.crearRecogible('sobre', g.pos.x + 1, g.pos.z); m.uniforme.texto = 'Tienes el uniforme de seguridad'; m.extra.push(m.uniforme.malla);
+            if (g.estado === 'aturdido') g.tAturdido = 30;
+          }
+          if (m.paso === 0 && g.estado === 'perseguir') m.objetivo('¡Te vio! Noquéalo rápido.');
+          if (m.paso === 1) { m.objetivo('Toma el <b>uniforme</b>.'); if (m.uniforme.tomado) { j.propiedades.uniforme = true; j.guardar(); return 'ok'; } }
+        },
+        fin(m) { m.j.hud.dialogos([['Capitana Inés Robles', 'Perfecto. Póntelo en los vestidores del personal, junto a la puerta de servicio. Con él los guardias no te molestan si no corres cerca ni disparas.']]); }
+      },
+      {
+        titulo: 'LA LISTA DE CARGA', premio: 3500,
+        inicio(m) {
+          m.malos = null; m.pena = null; m.uniforme = null; m.fotos = null;
+          const j = m.j, V = j.aeropuerto.vestidor;
+          m.dialogo([['Capitana Inés Robles', 'Necesito pruebas. En el Hangar 7 están los papeles de la carga: tómales foto a los tres.'], ['Capitana Inés Robles', 'Ponte el uniforme y entra por la puerta de servicio. Si te descubren, se acabó.']]);
+          m.marcar(1, V.x, V.z - 1.5, 1.5, 2, '#7ae0ff');
+          m.objetivo('Ponte el <b>uniforme</b> en los vestidores del personal (E).');
+        },
+        actualizar(m) {
+          const j = m.j, AP = j.aeropuerto, J = j.jugador;
+          if (AP.alerta > 0) return 'falla Te descubrieron en la pista.';
+          if (m.paso === 0) { if (J.disfraz) { m.paso = 1; m.ocultar(1); m.fotos = AP.fotosHangar.map(([x, z]) => { const r = j.crearRecogible('sobre', x, z); r.texto = 'Foto de la lista de carga'; m.extra.push(r.malla); return r; }); m.marcar(1, AP.hangar7.x, AP.hangar7.z + 18, 4, 3, '#7ae0ff'); } return; }
+          if (m.paso === 1) {
+            if (j.jugador.pos.distanceTo(new m.j.camara.position.constructor(AP.hangar7.x, 0, AP.hangar7.z)) < 30) m.ocultar(1);
+            const n = m.fotos.filter(r => r.tomado).length;
+            m.objetivo(`Entra al <b>Hangar 7</b> sin correr cerca de los guardias y toma las fotos: <b>${n} de 3</b>.`);
+            if (n >= 3) m.paso = 2;
+            return;
+          }
+          m.objetivo('Sal del aeropuerto sin levantar sospechas.');
+          if (!AP.enZonaAerea(J.pos.x, J.pos.z)) return 'ok';
+        },
+        fin(m) { m.j.hud.dialogos([['Capitana Inés Robles', 'Aquí está: oro, dinero y documentos de la ciudad. Esta noche se van en el Vuelo 7. No se van a ir.']]); }
+      },
+      {
+        titulo: 'EL VUELO 7', premio: 15000,
+        inicio(m) {
+          m.malos = null; m.pena = null; m.uniforme = null; m.fotos = null;
+          const j = m.j, V = j.vuelo, JT = V.jet;
+          m.dialogo([['Capitana Inés Robles', 'El avión de carga está frente al Hangar 7. Súbete, despega por el rodaje o la pista y llévalo al Aeródromo Jacaranda, en la carretera a la Sierra.'], ['Capitana Inés Robles', 'En cuanto arranquen los motores va a sonar todo. Vuela bajo hasta salir y aterriza despacio: W para acelerar, Espacio para subir, Shift para bajar.']]);
+          V.jetMision = true; if (!JT.quemado) V.reponer(JT);
+          m.objetivos = [JT];
+          m.objetivo('Llega al <b>avión de carga</b> frente al Hangar 7 y súbete (F). Mejor con uniforme.');
+        },
+        actualizar(m) {
+          const j = m.j, V = j.vuelo, JT = V.jet, A = V.activa;
+          if (JT.quemado) return 'falla Se destruyó el avión.';
+          if (m.paso === 0) { if (A === JT) { m.paso = 1; m.objetivos = []; j.aeropuerto.alarma('¡Se están robando el avión!'); const P = { x: 561, z: 0 }; m.marcar(1, P.x, P.z, 40, 6, '#7ae0ff'); } return; }
+          m.objetivo(A === JT ? 'Vuela al <b>Aeródromo Jacaranda</b> y aterriza el avión.' : 'Regresa al <b>avión de carga</b>.');
+          if (A === JT && V.enTierra(JT) && JT.v < 3 && Math.hypot(JT.pos.x - 561, JT.pos.z) < 260) { j.propiedades.jet = true; return 'ok'; }
+        },
+        falla(m) { m.j.vuelo.jetMision = false; },
+        fin(m) { const j = m.j; j.vuelo.jetMision = false; j.propiedades.jet = true; j.guardar(); j.noticias?.avisar('aeropuerto'); j.hud.dialogos([['Capitana Inés Robles', '¡Lo hiciste! Con lo que traía ese avión, Jacaranda Cargo se acabó. Y el avión… digamos que ahora es tuyo. Te espera en el Aeródromo.']]); }
       }
     ]
   }

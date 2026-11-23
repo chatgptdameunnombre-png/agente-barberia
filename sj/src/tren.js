@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { linea, LIMITE } from './ciudad.js?v=202611222040';
+import { linea, LIMITE } from './ciudad.js?v=202611222131';
 
 function lienzo(w, h, pintar) {
   const c = document.createElement('canvas'); c.width = w; c.height = h; pintar(c.getContext('2d'), w, h);
@@ -66,7 +66,7 @@ export class TrenLigero {
   constructor(juego) {
     this.j = juego;
     const escena = juego.escena, mundo = juego.mundo;
-    const X = this.X = linea(3), Z0 = this.Z0 = -LIMITE - 95, Z1 = this.Z1 = LIMITE + 95, ARRIBA = this.ARRIBA = 7.2;
+    const X = this.X = linea(3), Z0 = this.Z0 = -LIMITE - 10, Z1 = this.Z1 = LIMITE + 10, ARRIBA = this.ARRIBA = 7.2;
     this.estaciones = [{ z: -200, nombre: 'ESTACIÓN HOSPITAL' }, { z: -40, nombre: 'ESTACIÓN CATEDRAL' }, { z: 120, nombre: 'ESTACIÓN PARQUE' }];
     const texConc = lienzo(512, 128, pintarConcreto); texConc.wrapS = THREE.RepeatWrapping;
     const matConc = new THREE.MeshStandardMaterial({ map: texConc, roughness: 0.9 });

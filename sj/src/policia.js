@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611222040';
-import { Peaton } from './peatones.js?v=202611222040';
-import { Helicoptero } from './helicoptero.js?v=202611222040';
-import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611222040';
+import { Coche, nuevaRutaIA, puntoCalleAleatorio } from './vehiculos.js?v=202611222131';
+import { Peaton } from './peatones.js?v=202611222131';
+import { Helicoptero } from './helicoptero.js?v=202611222131';
+import { linea, indiceLinea, LIMITE } from './ciudad.js?v=202611222131';
 
 const MAX_COCHES = [0, 2, 3, 4, 6, 7];
 

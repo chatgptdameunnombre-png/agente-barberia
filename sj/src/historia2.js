@@ -1,6 +1,6 @@
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611222040';
-import { Peaton } from './peatones.js?v=202611222040';
-import { CAMINOS, MIRADOR, alturaCerro } from './sierradatos.js?v=202611222040';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611222131';
+import { Peaton } from './peatones.js?v=202611222131';
+import { SUBIDA, MIRADOR, alturaCerro } from './sierradatos.js?v=202611222131';
 
 const libre = (j, x, z) => {
   for (let r = 0; r < 16; r += 1) for (let a = 0; a < 12; a++) { const px = x + Math.cos(a * Math.PI / 6) * r, pz = z + Math.sin(a * Math.PI / 6) * r; if (!j.mundo.dentro(px, 1, pz)) return { x: px, z: pz }; }
@@ -114,7 +114,7 @@ export const LISTA2 = [
     inicio(m) {
       reset(m); const j = m.j;
       m.dialogo([['Don Chuy', 'Un Halcón presume que nadie sube al Mirador más rápido que él. Le aposté a que tú sí.'], ['Don Chuy', 'Sal por la calzada del oriente, cruza la barda y sube hasta arriba en menos de un minuto y medio. En coche, eh.']]);
-      const S = CAMINOS[4].pts;
+      const S = SUBIDA.pts;
       m.cps = [[336, 0], [440, 0], [410, -150], S[Math.floor(S.length * 0.35)], S[Math.floor(S.length * 0.7)], [MIRADOR.x, MIRADOR.z]];
       m.marcar(1, 336, 0, 6, 3, '#ffc94a');
       m.objetivo('En <b>coche</b>, ve a la salida de la ciudad por la calzada del oriente.');

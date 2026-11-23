@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { modeloProtagonista, realistaDe } from './jugador.js?v=202611222040';
-import { animar, sentar } from './persona.js?v=202611222040';
-import { Peaton } from './peatones.js?v=202611222040';
+import { modeloProtagonista, realistaDe } from './jugador.js?v=202611222131';
+import { animar, sentar } from './persona.js?v=202611222131';
+import { Peaton } from './peatones.js?v=202611222131';
 
 const SENTADOS = [
   [['A', 'A veces se me olvida que esta ciudad también es bonita.'], ['B', 'Cuando no nos andan correteando, sí lo es.']],
@@ -131,8 +131,31 @@ export class Duo {
     this.dibujar(dt); return true;
   }
 
+  enAvion(A, dt) {
+    const g = this.p.grupo;
+    if (this.avion !== A) {
+      this.enMoto = null; this.abordo = null; this.enCoche = null; this.bajando = null;
+      const S = A.asientoDuo || (A.tipo === 'heli' ? [0.45, -0.98, 0.95] : [0.18, -0.32, -0.05]);
+      A.cuerpo.add(g); g.position.set(S[0], S[1], S[2]); g.rotation.set(0, 0, 0); this.avion = A;
+      this.sentadoListo = { pie: false };
+    }
+    g.visible = true; sentar(this.p); this.anim = null; this.vel = 0; this.pos.copy(A.pos); this.yaw = A.yaw;
+    if (!this.j.sinRealista) realistaDe(this.nombre).actualizarJugador(this.adaptador || (this.adaptador = { juego: this.j }), dt, this);
+  }
+
+  salirAvion() {
+    const j = this.j, jug = j.jugador, g = this.p.grupo, A = this.avion;
+    j.escena.add(g); this.avion = null; this.sentadoListo = null; g.visible = true;
+    const lado = A.tipo === 'heli' ? 2.6 : 2.4, rx = Math.cos(A.yaw), rz = -Math.sin(A.yaw);
+    this.pos.set(A.pos.x - rx * lado, 0, A.pos.z - rz * lado); j.mundo.empujar(this.pos, 0.4);
+    this.p.cuerpo.rotation.set(0, 0, 0); this.p.pi.rotation.set(0, 0, 0); this.p.pd.rotation.set(0, 0, 0);
+  }
+
   actualizar(dt) {
     const j = this.j, jug = j.jugador, g = this.p.grupo;
+    const VA = j.vuelo?.activa;
+    if (VA) { this.enAvion(VA, dt); return; }
+    if (this.avion) this.salirAvion();
     const c = jug.coche, subeA = c || (j.entrando?.f || j.entrando?.t > 0.15 ? j.entrando.c : null);
     if (subeA && subeA.tipo !== 'lancha' && this.enCoche !== subeA) {
       if (this.enMoto) { j.escena.add(g); this.enMoto = null; }

@@ -1,6 +1,6 @@
-import { Peaton } from './peatones.js?v=202611222040';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611222040';
-import { NEGOCIOS } from './economia.js?v=202611222040';
+import { Peaton } from './peatones.js?v=202611222131';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611222131';
+import { NEGOCIOS } from './economia.js?v=202611222131';
 
 const libre = (j, x, z) => {
   for (let r = 0; r < 14; r += 1) for (let a = 0; a < 12; a++) { const px = x + Math.cos(a * Math.PI / 6) * r, pz = z + Math.sin(a * Math.PI / 6) * r; if (!j.mundo.dentro(px, 1, pz)) return { x: px, z: pz }; }

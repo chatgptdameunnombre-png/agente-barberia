@@ -1,7 +1,8 @@
+import { alturaCampo } from './sierradatos.js?v=202611222131';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611222040';
-import { hoja } from './texturas.js?v=202611222040';
+import { construirEstadio } from './estadio.js?v=202611222131';
+import { hoja } from './texturas.js?v=202611222131';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -276,6 +277,7 @@ export function construirCiudad(escena, mundo) {
     m.rotation.x = -Math.PI / 2; m.position.set(x, 0.04, z);
     marcoAfuera.add(m);
   }
+  marcoAfuera.visible = false;
   escena.add(marcoAfuera);
 
   const banquetaT = texSuelo(1);
@@ -298,8 +300,8 @@ export function construirCiudad(escena, mundo) {
   for (let i = 0; i < 4; i++) {
     const L = LIMITE + 1.2;
     const [x0, z0, x1, z1] = [[-L - 1, -L - 1, L + 1, -L], [-L - 1, L, L + 1, L + 1], [-L - 1, -L, -L, L], [L, -L, L + 1, L]][i];
-    if (i === 3) { for (const [a, b] of [[z0, -9], [9, z1]]) obra.caja('liso', (x0 + x1) / 2, (a + b) / 2, x1 - x0, b - a, 1.1, '#c9c2b4', 0, true); continue; }
-    obra.caja('liso', (x0 + x1) / 2, (z0 + z1) / 2, x1 - x0, z1 - z0, 1.1, '#c9c2b4', 0, true);
+    if (i >= 2) { for (const [a, b] of [[z0, -9], [9, z1]]) obra.caja('liso', (x0 + x1) / 2, (a + b) / 2, x1 - x0, b - a, 1.1, '#c9c2b4', 0, true); continue; }
+    for (const [a, b] of [[x0, -9], [9, x1]]) obra.caja('liso', (a + b) / 2, (z0 + z1) / 2, b - a, z1 - z0, 1.1, '#c9c2b4', 0, true);
   }
 
   const arbol = (x, z, morado = r() < 0.55, escala = 0.8 + r() * 0.5) => {
@@ -821,11 +823,12 @@ export function construirCiudad(escena, mundo) {
       const a = r() * Math.PI * 2, d = 440 + Math.pow(r(), 0.8) * 170, x = Math.cos(a) * d, z = Math.sin(a) * d;
       if (Math.abs(x) < LIMITE + 30 && Math.abs(z) < LIMITE + 30) continue;
       if (x > 300 && z > -440 && z < 360) continue;
+      if (z > 300 && x > -440 && x < 440) continue;
       const alto = r() < 0.03 ? 14 + r() * 26 : 3.5 + r() * 6.5, ancho = 7 + r() * 12;
-      V.set(x, -0.5, z); E.set(ancho, alto, ancho * (0.6 + r() * 0.8)); Q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.round(a * 4 / Math.PI) * Math.PI / 4 + (r() - 0.5) * 0.2);
+      V.set(x, -0.5 + alturaCampo(x, z), z); E.set(ancho, alto, ancho * (0.6 + r() * 0.8)); Q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.round(a * 4 / Math.PI) * Math.PI / 4 + (r() - 0.5) * 0.2);
       M.compose(V, Q, E); im.setMatrixAt(k, M); im.setColorAt(k, cc.set(tonos[r() * tonos.length | 0]).multiplyScalar(0.85 + r() * 0.2)); k++;
     }
-    im.instanceMatrix.needsUpdate = true; im.instanceColor.needsUpdate = true; im.frustumCulled = false;
+    im.instanceMatrix.needsUpdate = true; im.instanceColor.needsUpdate = true; im.frustumCulled = false; im.visible = false;
     cerros.add(im);
   }
   escena.add(cerros);

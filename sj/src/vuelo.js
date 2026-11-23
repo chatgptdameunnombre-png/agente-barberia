@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { modeloHeli } from './helicoptero.js?v=202611222040';
-import { alturaCerro } from './sierradatos.js?v=202611222040';
+import { modeloHeli } from './helicoptero.js?v=202611222131';
+import { alturaCerro, PISTA } from './sierradatos.js?v=202611222131';
+import { modeloJet } from './aeropuerto.js?v=202611222131';
 
 const angulo = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
 
@@ -8,7 +9,7 @@ function texCivil() {
   const c = document.createElement('canvas'); c.width = 512; c.height = 128; const g = c.getContext('2d');
   g.fillStyle = '#f2f2f4'; g.fillRect(0, 0, 512, 128);
   g.fillStyle = '#5a2a8a'; g.fillRect(0, 62, 512, 18); g.fillStyle = '#f2c431'; g.fillRect(0, 80, 512, 5);
-  g.fillStyle = '#5a2a8a'; g.font = '900 20px Inter, Arial'; g.textAlign = 'center'; g.fillText('AERO JACARANDA', 128, 48); g.fillText('AERO JACARANDA', 384, 48);
+  g.fillStyle = '#5a2a8a'; g.font = '900 20px Inter, Arial'; g.textAlign = 'center'; g.save(); g.translate(128, 0); g.scale(-1, 1); g.fillText('AERO JACARANDA', 0, 48); g.restore(); g.fillText('AERO JACARANDA', 384, 48);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
 }
 
@@ -17,11 +18,11 @@ function modeloAvion() {
   const blanco = new THREE.MeshStandardMaterial({ color: '#f2f2f4', roughness: 0.35, metalness: 0.2 });
   const rojo = new THREE.MeshStandardMaterial({ color: '#c8202e', roughness: 0.4, metalness: 0.2 });
   const gris = new THREE.MeshStandardMaterial({ color: '#2a2c30', roughness: 0.5, metalness: 0.6 });
-  const vidrio = new THREE.MeshStandardMaterial({ color: '#0f1a24', roughness: 0.05, metalness: 0.9 });
+  const vidrio = new THREE.MeshStandardMaterial({ color: '#0f1a24', roughness: 0.05, metalness: 0.9, transparent: true, opacity: 0.4, depthWrite: false });
   const perfil = [[0, -3.6], [0.25, -3.5], [0.45, -2.6], [0.62, -1.2], [0.72, 0.2], [0.7, 1.2], [0.55, 1.9], [0.3, 2.25], [0, 2.3]].map(([r, y]) => new THREE.Vector2(r, y));
   const fus = new THREE.Mesh(new THREE.LatheGeometry(perfil, 18).rotateX(Math.PI / 2), blanco); fus.position.y = 0.2; cuerpo.add(fus);
   const franja = new THREE.Mesh(new THREE.CylinderGeometry(0.735, 0.735, 3.2, 18, 1, true).rotateX(Math.PI / 2), rojo); franja.position.set(0, 0.2, -0.2); franja.scale.set(1, 1, 1); cuerpo.add(franja);
-  const cab = new THREE.Mesh(new THREE.SphereGeometry(0.62, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.5).scale(0.9, 0.7, 1.6), vidrio); cab.position.set(0, 0.62, 0.5); cuerpo.add(cab);
+  const cab = new THREE.Mesh(new THREE.SphereGeometry(0.62, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.5).scale(0.9, 0.85, 1.9), vidrio); cab.position.set(0, 0.6, 0.25); cab.renderOrder = 2; cuerpo.add(cab);
   const ala = new THREE.Mesh(new THREE.BoxGeometry(10.5, 0.12, 1.5), blanco); ala.position.set(0, 0.95, 0.3); cuerpo.add(ala);
   for (const s of [-1, 1]) { const punta = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.13, 1.52), rojo); punta.position.set(s * 4.85, 0.95, 0.3); cuerpo.add(punta); const st = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.4, 6), gris); st.position.set(s * 1.6, 0.45, 0.4); st.rotation.z = s * 0.7; cuerpo.add(st); }
   const est = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.08, 0.9), blanco); est.position.set(0, 0.35, -3.3); cuerpo.add(est);
@@ -44,9 +45,13 @@ export class Vuelo {
     if (!S) return;
     const H = modeloHeli(); H.pinta.map = texCivil(); H.pinta.needsUpdate = true; H.azul.color.set('#5a2a8a');
     H.cono.visible = H.mancha.visible = false; H.baliza.visible = false;
+    H.cuerpo.traverse(o => { if (o.isMesh && o.material?.metalness > 0.85 && o.material.color?.getHexString() === '0f1a24') { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.38; o.material.depthWrite = false; o.renderOrder = 2; } });
     this.agregar({ tipo: 'heli', ...H, base: { x: S.heliPad.x, z: S.heliPad.z, yaw: -Math.PI / 2 }, alto: 1.36, nombre: 'el helicóptero' });
     const A = modeloAvion();
     this.agregar({ tipo: 'avion', ...A, base: S.avionBase, alto: 0.78, nombre: 'la avioneta' });
+    const JT = modeloJet('#3a1a0e', '#f2c431');
+    this.jet = { tipo: 'jet', ...JT, base: { x: 302, z: 489, yaw: -Math.PI / 2 }, alto: 0.05, nombre: 'el avión de carga', params: { vmax: 95, vmin: 42, despegue: 45, giro: 0.42 }, asientoDuo: [1.0, 2.0, 13.2], oculto: true };
+    this.agregar(this.jet); this.jet.grupo.visible = false;
   }
 
   agregar(A) {
@@ -68,7 +73,7 @@ export class Vuelo {
     const j = this.j, J = j.jugador;
     if (this.activa || J.coche || J.interior || J.muerto) return null;
     let mejor = null, md = 6.5;
-    for (const A of this.aeronaves) { if (A.quemado) continue; const d = Math.hypot(A.pos.x - J.pos.x, A.pos.z - J.pos.z); if (d < md && this.enTierra(A)) { md = d; mejor = A; } }
+    for (const A of this.aeronaves) { if (A.quemado || A.oculto) continue; const d = Math.hypot(A.pos.x - J.pos.x, A.pos.z - J.pos.z) - (A.tipo === 'jet' ? 9 : 0); if (d < md && this.enTierra(A)) { md = d; mejor = A; } }
     return mejor;
   }
 
@@ -77,7 +82,7 @@ export class Vuelo {
     if (!A) return;
     this.activa = A; J.grupo.visible = false; J.volando = A; A.motor = Math.max(A.motor, 0.05);
     j.camYaw = A.yaw; j.camPitch = -0.15;
-    j.hud.notificar('coche', A.tipo === 'heli' ? 'Helicóptero' : 'Avioneta', A.tipo === 'heli' ? 'W/S adelante y atrás · A/D girar · Espacio subir · Shift bajar · F bajarte en tierra' : 'W/S acelerar y frenar · A/D girar · Espacio nariz arriba · Shift nariz abajo · F bajarte detenido', 7);
+    j.hud.notificar('coche', A.tipo === 'heli' ? 'Helicóptero' : 'Avioneta', A.tipo === 'heli' ? 'W/S adelante y atrás · A/D girar · Espacio subir · Shift bajar · F bajarte en tierra' : 'W/S motor · A/D girar · Espacio subir · Shift bajar · F bajarte detenido. Con motor a más de la mitad y Espacio despegas solo.', 7);
     j.estadisticas?.sumar?.('vuelos');
   }
 
@@ -104,7 +109,8 @@ export class Vuelo {
     A.grupo.rotation.set(0, A.yaw, 0);
     A.cuerpo.rotation.set(A.pitch, 0, A.roll, 'YXZ');
     if (A.tipo === 'heli') { A.rotor.rotation.y += dt * (6 + A.motor * 34); A.colaRotor.rotation.x += dt * (10 + A.motor * 50); A.disco.material.opacity = 0.06 + A.motor * 0.14; }
-    else { A.helice.rotation.z += dt * (A.motor > 0.02 ? 20 + A.motor * 60 : 0); A.disco.visible = A.motor > 0.05; }
+    else if (A.tipo === 'avion') { A.helice.rotation.z += dt * (A.motor > 0.02 ? 20 + A.motor * 60 : 0); A.disco.visible = A.motor > 0.05; }
+    else if (A.estrobo) A.estrobo.visible = Math.sin(performance.now() / 160) > 0.5;
   }
 
   colision(A, prev) {
@@ -145,31 +151,29 @@ export class Vuelo {
   }
 
   avion(A, dt, ent, k) {
-    const arriba = (k.Space ? 1 : 0) - (k.ShiftLeft || k.ShiftRight || k.KeyC ? 1 : 0), prev = A.pos.clone();
-    A.motor = Math.max(0, Math.min(1, A.motor + ent.y * 0.45 * dt));
-    const tierra = this.enTierra(A);
-    const meta = tierra && ent.y < 0 && A.motor === 0 ? 0 : 10 + A.motor * 52;
-    A.v += (meta - A.v) * dt * (meta < A.v ? (tierra ? 0.9 : 0.25) : 0.32);
-    if (!tierra) A.v += Math.sin(A.pitch) * 9 * dt;
+    const arriba = (k.Space ? 1 : 0) - (k.ShiftLeft || k.ShiftRight || k.KeyC ? 1 : 0), prev = A.pos.clone(), P = A.params || { vmax: 62, vmin: 22, despegue: 24, giro: 0.75 };
+    A.motor = Math.max(0, Math.min(1, A.motor + ent.y * 0.6 * dt));
+    const tierra = this.enTierra(A), alt = A.pos.y - this.suelo(A.pos.x, A.pos.z) - A.alto;
+    const meta = tierra ? (ent.y < 0 && A.motor < 0.05 ? 0 : A.motor * P.vmax) : P.vmin + A.motor * (P.vmax - P.vmin);
+    A.v += (meta - A.v) * dt * (tierra && meta < A.v ? 0.9 : 0.45);
     A.v = Math.max(0, A.v);
-    if (tierra) {
-      A.roll += (0 - A.roll) * Math.min(1, dt * 6);
-      A.yaw -= ent.x * 0.7 * dt * Math.min(1, A.v / 6);
-      A.pitch = A.v > 25 ? Math.min(0, Math.max(-0.35, A.pitch - arriba * 0.8 * dt)) : A.pitch * Math.max(0, 1 - dt * 4);
-    } else {
-      A.roll += (ent.x * 0.8 - A.roll) * Math.min(1, dt * 2.2);
-      A.yaw -= A.roll * Math.min(1.2, A.v / 32) * 0.9 * dt;
-      A.pitch -= arriba * 0.9 * dt; if (!arriba) A.pitch *= 1 - Math.min(1, dt * 0.5); A.pitch = Math.max(-0.6, Math.min(0.6, A.pitch));
+    A.yaw -= ent.x * (tierra ? 0.6 * Math.min(1, A.v / 8) : P.giro) * dt;
+    A.roll += ((tierra ? 0 : ent.x * 0.55) - A.roll) * Math.min(1, dt * 3);
+    let vy = A.vel.y;
+    if (tierra) vy = arriba > 0 && A.v > P.despegue ? 5 : 0;
+    else {
+      vy += (arriba * 9 - vy) * Math.min(1, dt * 2);
+      if (alt < 5 && vy < -4) vy = -4;
     }
-    const sube = -Math.sin(A.pitch) * A.v - (A.v < 26 && !tierra ? (26 - A.v) * 0.9 : 0), hor = Math.cos(A.pitch) * A.v;
-    A.vel.set(Math.sin(A.yaw) * hor, tierra && sube < 0 ? 0 : sube, Math.cos(A.yaw) * hor);
+    A.vel.set(Math.sin(A.yaw) * A.v, vy, Math.cos(A.yaw) * A.v);
     A.pos.addScaledVector(A.vel, dt);
-    if (A.pos.y > 320) A.pos.y = 320;
+    if (A.pos.y > 320) { A.pos.y = 320; A.vel.y = Math.min(0, A.vel.y); }
+    A.pitch += (-Math.atan2(A.vel.y, Math.max(8, A.v)) * 0.8 - A.pitch) * Math.min(1, dt * 4);
     if (this.colision(A, prev)) return;
     const s = this.sueloVuelo(A, prev) + A.alto;
     if (A.pos.y < s) {
-      if (!tierra && (A.vel.y < -7 || Math.abs(A.roll) > 0.5 || A.pitch > 0.3)) { this.estrellar(A); return; }
-      A.pos.y = s; if (A.pitch > 0) A.pitch = 0;
+      if (!tierra && A.vel.y < -14) { this.estrellar(A); return; }
+      A.pos.y = s; A.vel.y = 0; A.pitch = 0;
     }
   }
 
@@ -180,9 +184,10 @@ export class Vuelo {
     if (!this.activa) return;
     J.pos.set(A.pos.x, 0, A.pos.z); J.y = 0; J.yaw = A.yaw;
     const alt = Math.max(0, A.pos.y - this.suelo(A.pos.x, A.pos.z) - A.alto), vel = A.vel.length() * 3.6;
-    j.hud.pista(this.enTierra(A) && A.vel.length() < 2.5 ? 'F' : '·', `${A.tipo === 'heli' ? 'Helicóptero' : 'Avioneta'} · altura ${Math.round(alt)} m · ${Math.round(vel)} km/h · motor ${Math.round(A.motor * 100)}%${this.enTierra(A) && A.vel.length() < 2.5 ? ' · F para bajarte' : ''}`);
+    j.hud.pista(this.enTierra(A) && A.vel.length() < 2.5 ? 'F' : '·', `${A.tipo === 'heli' ? 'Helicóptero' : A.tipo === 'jet' ? 'Avión de carga' : 'Avioneta'} · altura ${Math.round(alt)} m · ${Math.round(vel)} km/h · motor ${Math.round(A.motor * 100)}%${this.enTierra(A) && A.vel.length() < 2.5 ? ' · F para bajarte' : ''}`);
     this.tSonido -= dt;
     if (A.tipo === 'heli') { if (this.tSonido <= 0) { this.tSonido = 0.11; j.audio?.ruidoCorto?.(0.09, 260, 0.1 * A.motor, 'lowpass'); } }
+    else if (A.tipo === 'jet') { if (this.tSonido <= 0) { this.tSonido = 0.12; j.audio?.ruidoCorto?.(0.16, 520, 0.08 + A.motor * 0.18, 'lowpass'); } }
     else j.audio?.motor?.(0.25 + A.motor * 0.75, true);
   }
 
@@ -190,8 +195,8 @@ export class Vuelo {
     const j = this.j, A = this.activa;
     j.tMouse += dt;
     if (j.tMouse > 1.4) { j.camYaw += angulo(A.yaw - j.camYaw) * Math.min(1, dt * 2.4); j.camPitch += (-0.2 - j.camPitch) * Math.min(1, dt * 2); }
-    const dist = A.tipo === 'heli' ? 13 : 15, cp = Math.cos(j.camPitch);
-    const objetivo = new THREE.Vector3(A.pos.x, A.pos.y + 1.2, A.pos.z);
+    const dist = A.tipo === 'heli' ? 13 : A.tipo === 'jet' ? 34 : 15, cp = Math.cos(j.camPitch);
+    const objetivo = new THREE.Vector3(A.pos.x, A.pos.y + (A.tipo === 'jet' ? 5 : 1.2), A.pos.z);
     const p = objetivo.clone().add(new THREE.Vector3(-Math.sin(j.camYaw) * cp * dist, -Math.sin(j.camPitch) * dist + 2.2, -Math.cos(j.camYaw) * cp * dist));
     const s = this.suelo(p.x, p.z) + 1; if (p.y < s) p.y = s;
     cam.position.lerp(p, Math.min(1, dt * 6)); cam.lookAt(objetivo);
@@ -199,7 +204,14 @@ export class Vuelo {
   }
 
   actualizar(dt) {
+    const JT = this.jet, j = this.j;
+    if (JT && JT !== this.activa) {
+      const tiene = !!j.propiedades?.jet;
+      if (tiene && !JT.enAerodromo && !JT.quemado) { JT.enAerodromo = true; JT.base = { x: (PISTA.x0 + PISTA.x1) / 2, z: 60, yaw: Math.PI }; this.reponer(JT); }
+      JT.oculto = !(tiene || this.jetMision); JT.grupo.visible = !JT.oculto && !JT.quemado;
+    }
     for (const A of this.aeronaves) {
+      if (A.oculto) continue;
       if (A.quemado) { A.quemado += dt; if (A.quemado > 45 && Math.hypot(A.pos.x - this.j.jugador.posicion.x, A.pos.z - this.j.jugador.posicion.z) > 120) this.reponer(A); continue; }
       if (A !== this.activa) {
         A.motor = Math.max(0, A.motor - dt * 0.3);
@@ -211,5 +223,5 @@ export class Vuelo {
     if (A && !this.j.overlay) this.j.hud.pista('F', 'Pilotear ' + A.nombre);
   }
 
-  marcasMapa() { return this.aeronaves.filter(A => !A.quemado && A !== this.activa).map(A => ({ x: A.pos.x, z: A.pos.z, tipo: 'icono', ic: { c: '#7ae0ff', t: A.tipo === 'heli' ? 'H' : 'A', n: A.tipo === 'heli' ? 'Helicóptero' : 'Avioneta' } })); }
+  marcasMapa() { return this.aeronaves.filter(A => !A.quemado && !A.oculto && A !== this.activa).map(A => ({ x: A.pos.x, z: A.pos.z, tipo: 'icono', ic: { c: '#7ae0ff', t: A.tipo === 'heli' ? 'H' : A.tipo === 'jet' ? 'J' : 'A', n: A.tipo === 'heli' ? 'Helicóptero' : A.tipo === 'jet' ? 'Avión de carga' : 'Avioneta' } })); }
 }

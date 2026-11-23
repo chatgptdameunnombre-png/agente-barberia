@@ -3,7 +3,18 @@ export const PISTA = { x0: 540, x1: 582, z0: -165, z1: 165 };
 export const HANGAR = { x0: 582, x1: 640, z0: -45, z1: 45 };
 export const PUEBLO = { x0: 375, x1: 505, z0: 62, z1: 175 };
 export const CASA = { x0: 395, x1: 485, z0: 196, z1: 276 };
+export const RANCHO = { x0: -480, x1: -392, z0: -50, z1: 70 };
+export const PARADOR = { x0: 378, x1: 418, z0: 8, z1: 40 };
 export const ANCHO = 8.5;
+export const PERI = 352;
+export const AERO = { tx0: -165, tx1: 165, tz0: 356, tz1: 418, ax0: -345, ax1: 345, az0: 418, az1: 560, pista: { x0: -335, x1: 335, z0: 502, z1: 542 } };
+
+function anillo() {
+  const p = [], R = PERI, r = 34;
+  for (const [cx, cz, a0] of [[R - r, R - r, 0], [-(R - r), R - r, Math.PI / 2], [-(R - r), -(R - r), Math.PI], [R - r, -(R - r), Math.PI * 1.5]]) for (let k = 0; k <= 6; k++) { const a = a0 + k / 6 * Math.PI / 2; p.push([cx + Math.cos(a) * r, cz + Math.sin(a) * r]); }
+  p.push(p[0]);
+  return p;
+}
 
 const sstep = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
 
@@ -23,6 +34,11 @@ function espiral() {
 }
 
 export const CAMINOS = [
+  { nombre: 'Periférico Jacaranda', pts: anillo(), anillo: true },
+  { nombre: 'Salida Norte', pts: [[0, -318], [0, -PERI]] },
+  { nombre: 'Salida Sur', pts: [[0, 318], [0, PERI], [0, 382]] },
+  { nombre: 'Salida Poniente', pts: [[-318, 0], [-PERI, 0]] },
+  { nombre: 'Camino al Rancho El Mezquite', pts: [[-PERI, 20], [-372, 20], [-393, 20]] },
   { nombre: 'Carretera a la Sierra', pts: [[318, 0], [380, 0], [440, 0]] },
   { nombre: 'Camino al Aeródromo', pts: [[440, 0], [500, 0], [541, 0]] },
   { nombre: 'Calle Real de San Isidro', pts: [[440, 0], [440, 40], [440, 64]] },
@@ -31,10 +47,13 @@ export const CAMINOS = [
 ];
 
 export const MIRADOR = (() => { const e = espiral(), f = e[e.length - 1]; return { x: f[0], z: f[1] }; })();
+export const SUBIDA = CAMINOS.find(c => c.nombre === 'Subida al Mirador');
 
 export const REGIONES = [
   ...CAMINOS.map(c => ({ tipo: 'camino', pts: c.pts, w: ANCHO / 2 + 2 })),
   { tipo: 'rect', ...PISTA }, { tipo: 'rect', ...HANGAR }, { tipo: 'rect', ...PUEBLO }, { tipo: 'rect', ...CASA },
+  { tipo: 'rect', ...RANCHO }, { tipo: 'rect', ...PARADOR },
+  { tipo: 'rect', x0: AERO.tx0, x1: AERO.tx1, z0: AERO.tz0, z1: AERO.tz1 + 0.5 }, { tipo: 'rect', x0: AERO.ax0, x1: AERO.ax1, z0: AERO.az0, z1: AERO.az1 },
   { tipo: 'disco', x: CERRO.x, z: CERRO.z, r: CERRO.r - 4 },
   { tipo: 'disco', x: 440, z: 0, r: 14 }
 ];
@@ -65,4 +84,20 @@ export function regresar(x, z, r) {
     }
   }
   return mejor;
+}
+
+function ruido(x, z) { const s = Math.sin(x * 12.9898 + z * 78.233) * 43758.5453; return s - Math.floor(s); }
+function suave(x, z) {
+  const ix = Math.floor(x), iz = Math.floor(z), fx = x - ix, fz = z - iz, u = fx * fx * (3 - 2 * fx), v = fz * fz * (3 - 2 * fz);
+  const a = ruido(ix, iz), b = ruido(ix + 1, iz), c = ruido(ix, iz + 1), d = ruido(ix + 1, iz + 1);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+export function lomas(x, z) { return suave(x / 140, z / 140) * 0.6 + suave(x / 60 + 7, z / 60 + 3) * 0.3 + suave(x / 25, z / 25) * 0.1; }
+export function alturaCampo(x, z) {
+  const m = Math.max(Math.abs(x), Math.abs(z));
+  if (m < 362) return 0;
+  const borde = sstep((m - 362) / 70);
+  let lejos = 1;
+  if (dentroRegion(x, z, 10)) lejos = 0; else if (dentroRegion(x, z, 26)) lejos = 0.35; else if (dentroRegion(x, z, 44)) lejos = 0.75;
+  return Math.max(0, lomas(x, z) - 0.28) * 34 * borde * lejos;
 }

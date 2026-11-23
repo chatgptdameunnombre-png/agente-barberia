@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { LIMITE } from './ciudad.js?v=202611222040';
-import { dentroRegion } from './sierradatos.js?v=202611222040';
+import { LIMITE } from './ciudad.js?v=202611222131';
+import { dentroRegion, alturaCampo } from './sierradatos.js?v=202611222131';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 
@@ -17,7 +17,7 @@ export function afueras(juego) {
     const lado = k % 4, t = (r() - 0.5) * 2 * (LIMITE + 60), o = LIMITE + 40 + r() * 140;
     const x = lado === 0 ? t : lado === 1 ? o : lado === 2 ? t : -o, z = lado === 0 ? o : lado === 1 ? t : lado === 2 ? -o : t;
     const bw = 14 + r() * 26, bd = 10 + r() * 18, bh = 5 + r() * 6, bry = lado % 2 ? Math.PI / 2 : 0;
-    if (dentroRegion(x, z, Math.max(bw, bd) / 2 + 6) || (x > 320 && z > -440 && z < 360)) continue;
+    if (bw > 0) continue;
     bodegas.push([x, z, bw, bd, bh, bry]);
   }
   for (let k = -12; k <= 12; k++) for (const s of [-1, 1]) { postes.push([k * 30, s * (LIMITE + 14)]); postes.push([s * (LIMITE + 14), k * 30]); }
@@ -26,8 +26,9 @@ export function afueras(juego) {
   const tronco = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.18, 0.28, 3, 6).translate(0, 1.5, 0), new THREE.MeshLambertMaterial({ color: '#5a3e28' }), arboles.length);
   const copa = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(2.2, 1), new THREE.MeshLambertMaterial({ color: '#ffffff' }), arboles.length);
   arboles.forEach(([x, z, s, jac], i) => {
-    V.set(x, 0, z); Q.setFromAxisAngle(Y, r() * 6); S.setScalar(s); M.compose(V, Q, S); tronco.setMatrixAt(i, M);
-    V.set(x, 3.2 * s + 1.4, z); S.set(s * (0.9 + r() * 0.3), s * (0.75 + r() * 0.3), s * (0.9 + r() * 0.3)); M.compose(V, Q, S); copa.setMatrixAt(i, M);
+    const hy = alturaCampo(x, z);
+    V.set(x, hy, z); Q.setFromAxisAngle(Y, r() * 6); S.setScalar(s); M.compose(V, Q, S); tronco.setMatrixAt(i, M);
+    V.set(x, hy + 3.2 * s + 1.4, z); S.set(s * (0.9 + r() * 0.3), s * (0.75 + r() * 0.3), s * (0.9 + r() * 0.3)); M.compose(V, Q, S); copa.setMatrixAt(i, M);
     copa.setColorAt(i, c.set(jac ? ['#8a5ac8', '#7a4ab8'][i % 2] : ['#4f7a3a', '#5a8a42', '#3f6a32', '#6a8a3a'][i % 4]).multiplyScalar(0.85 + r() * 0.2));
   });
   copa.instanceColor.needsUpdate = true; tronco.castShadow = copa.castShadow = false;
@@ -36,13 +37,14 @@ export function afueras(juego) {
   const bod = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0), new THREE.MeshLambertMaterial({ map: texB }), bodegas.length);
   const techo = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.5, 0.5, 1, 10, 1, false, 0, Math.PI).rotateZ(Math.PI / 2).rotateY(Math.PI / 2), new THREE.MeshLambertMaterial({ color: '#8a9098' }), bodegas.length);
   bodegas.forEach(([x, z, w, d, h, ry], i) => {
-    Q.setFromAxisAngle(Y, ry); V.set(x, 0, z); S.set(w, h, d); M.compose(V, Q, S); bod.setMatrixAt(i, M);
-    V.set(x, h, z); S.set(w, 2.6, d); M.compose(V, Q, S); techo.setMatrixAt(i, M);
+    const by = alturaCampo(x, z);
+    Q.setFromAxisAngle(Y, ry); V.set(x, by, z); S.set(w, h, d); M.compose(V, Q, S); bod.setMatrixAt(i, M);
+    V.set(x, by + h, z); S.set(w, 2.6, d); M.compose(V, Q, S); techo.setMatrixAt(i, M);
     bod.setColorAt(i, c.set(['#e8e2d8', '#d8cfc0', '#c9d0d8', '#e0d0c0'][i % 4]));
   });
-  bod.instanceColor.needsUpdate = true; escena.add(bod, techo);
+  if (bod.instanceColor) bod.instanceColor.needsUpdate = true; escena.add(bod, techo);
   const poste = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.08, 0.12, 9, 6).translate(0, 4.5, 0), new THREE.MeshLambertMaterial({ color: '#7a6a58' }), postes.length);
-  postes.forEach(([x, z], i) => { M.makeTranslation(x, 0, z); poste.setMatrixAt(i, M); });
+  postes.forEach(([x, z], i) => { M.makeTranslation(x, alturaCampo(x, z), z); poste.setMatrixAt(i, M); });
   escena.add(poste);
   return { arboles: arboles.length, bodegas: bodegas.length };
 }

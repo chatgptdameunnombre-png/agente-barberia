@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { letrero } from './ciudad.js?v=202611222040';
-import { Peaton } from './peatones.js?v=202611222040';
-import { CERRO, PISTA, HANGAR, PUEBLO, CASA, ANCHO, CAMINOS, MIRADOR, alturaCerro, dentroRegion, regresar } from './sierradatos.js?v=202611222040';
+import { letrero } from './ciudad.js?v=202611222131';
+import { Peaton } from './peatones.js?v=202611222131';
+import { CERRO, PISTA, HANGAR, PUEBLO, CASA, ANCHO, CAMINOS, MIRADOR, AERO, PERI, alturaCerro, dentroRegion, regresar } from './sierradatos.js?v=202611222131';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 function lienzo(w, h, f) { const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
@@ -225,6 +225,7 @@ export class Sierra {
   }
 
   letreros(esc) {
+    for (const [x, z, ry, t] of [[-6, -PERI + 12, 0, 'PERIFÉRICO · SIERRA · AEROPUERTO'], [6, PERI - 12, Math.PI, 'AEROPUERTO INTERNACIONAL'], [-PERI + 12, 6, Math.PI / 2, 'PERIFÉRICO · AEROPUERTO · SIERRA']]) { const l = letrero(t, '#0f5a2a', '#ffffff', 7, 1.2); l.position.set(x, 5.2, z); l.rotation.y = ry; esc.add(l); }
     const s = letrero('SAN ISIDRO · AERÓDROMO · MIRADOR', '#0f5a2a', '#ffffff', 7, 1.2); s.position.set(350, 5.2, 0); s.rotation.y = -Math.PI / 2; esc.add(s);
     this.lisos.push(cil(0.14, 0.16, 5.6, 350, 2.8, -3.8, '#8a8e94', 8), cil(0.14, 0.16, 5.6, 350, 2.8, 3.8, '#8a8e94', 8), caja(0.12, 0.2, 7.8, 350, 4.5, 0, '#8a8e94'));
   }
@@ -237,6 +238,7 @@ export class Sierra {
     const [cx, cz] = S(CERRO.x, CERRO.z), [ex] = S(CERRO.x + CERRO.r, CERRO.z); const rad = Math.abs(ex - cx);
     const gr = g.createRadialGradient(cx, cz, 0, cx, cz, rad); gr.addColorStop(0, '#9a8c6a'); gr.addColorStop(1, 'rgba(90,120,60,0.35)'); g.fillStyle = gr; g.beginPath(); g.arc(cx, cz, rad, 0, 7); g.fill();
     rect(PUEBLO, '#c8b088'); rect(CASA, '#6a9a4a'); rect(PISTA, '#3a3c40'); rect(HANGAR, '#8a9098');
+    rect({ x0: AERO.ax0, x1: AERO.ax1, z0: AERO.az0, z1: AERO.az1 }, 'rgba(150,150,145,0.9)'); rect({ x0: AERO.tx0, x1: AERO.tx1, z0: AERO.tz0, z1: AERO.tz1 }, 'rgba(190,186,178,0.9)'); rect(AERO.pista, '#2c2d31'); rect({ x0: -110, x1: 110, z0: 394, z1: 416 }, '#e8e8ec');
     for (const C of CAMINOS) { g.beginPath(); C.pts.forEach((p, i) => { const [x, y] = S(p[0], p[1]); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.strokeStyle = 'rgba(0,0,0,.5)'; g.lineWidth = grueso + 3; g.stroke(); g.strokeStyle = '#d8d4cc'; g.lineWidth = grueso; g.stroke(); }
     g.restore();
   }

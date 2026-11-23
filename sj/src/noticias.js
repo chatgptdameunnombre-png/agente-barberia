@@ -22,6 +22,7 @@ const EVENTOS = {
   serenata: ['Reportan serenata sorpresa en la Plaza de Armas. Hubo aplausos y hasta lágrimas.'],
   tormenta: ['Alerta de Protección Civil: tormenta fuerte sobre Santa Jacaranda. Calles inundadas, maneje con precaución.', 'El viento derriba anuncios y las calles parecen ríos. Protección Civil pide no salir.'],
   joyeria: ['Roban la Joyería Diamante: se llevan las vitrinas completas. La policía revisa las cámaras.', 'Golpe en la Joyería Diamante. "Fueron profesionales", dice el dueño.'],
+  aeropuerto: ['Roban un avión de carga del Aeropuerto Internacional en pleno despegue. Jacaranda Cargo niega que llevara algo ilegal.', 'Investigan a Jacaranda Cargo tras el robo de su avión: dentro había oro y documentos de la ciudad.'],
   colonia: ['Balacera entre pandillas en el barrio. Los vecinos dicen que la colonia cambió de dueño.']
 };
 
