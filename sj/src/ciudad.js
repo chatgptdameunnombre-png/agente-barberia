@@ -1,8 +1,9 @@
-import { alturaCampo } from './sierradatos.js?v=202611222131';
+import { alturaCampo } from './sierradatos.js?v=202611231659';
 import * as THREE from 'three';
+import { trocear, lejos } from './ligero.js?v=202611231659';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611222131';
-import { hoja } from './texturas.js?v=202611222131';
+import { construirEstadio } from './estadio.js?v=202611231659';
+import { hoja } from './texturas.js?v=202611231659';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -749,6 +750,7 @@ export function construirCiudad(escena, mundo) {
   tronco.castShadow = copa.castShadow = copa2.castShadow = true;
   copa.receiveShadow = copa2.receiveShadow = true;
   escena.add(tronco, copa, copa2, petalo);
+  lejos(trocear(tronco, 165), 430); lejos(trocear(copa, 165), 560); lejos(trocear(copa2, 165), 470); if (petalo.count) lejos(trocear(petalo, 165), 260);
 
   for (let i = 0; i <= BLOQUES; i++) for (let j = 0; j <= BLOQUES; j++) {
     const X = linea(i), Z = linea(j), d = CALLE / 2 + 0.6;

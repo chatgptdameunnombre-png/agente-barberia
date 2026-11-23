@@ -1,5 +1,5 @@
-import { Coche, puntoCalleAleatorio, TIPOS } from './vehiculos.js?v=202611222131';
-import { aplicarTuneo, nombreTipo } from './tuneo.js?v=202611222131';
+import { Coche, puntoCalleAleatorio, TIPOS } from './vehiculos.js?v=202611231659';
+import { aplicarTuneo, nombreTipo } from './tuneo.js?v=202611231659';
 
 export const NEGOCIOS = [
   { id: 'depa', nombre: 'Departamento Jacaranda', precio: 6000, renta: 0, desc: 'Tu casa: duerme, cúrate y guarda la partida.' },

@@ -52,7 +52,7 @@ export const SUBIDA = CAMINOS.find(c => c.nombre === 'Subida al Mirador');
 export const REGIONES = [
   ...CAMINOS.map(c => ({ tipo: 'camino', pts: c.pts, w: ANCHO / 2 + 2 })),
   { tipo: 'rect', ...PISTA }, { tipo: 'rect', ...HANGAR }, { tipo: 'rect', ...PUEBLO }, { tipo: 'rect', ...CASA },
-  { tipo: 'rect', ...RANCHO }, { tipo: 'rect', ...PARADOR },
+  { tipo: 'rect', ...RANCHO }, { tipo: 'rect', ...PARADOR }, { tipo: 'rect', x0: PARADOR.x0, x1: PARADOR.x1, z0: 3, z1: PARADOR.z0 + 1 },
   { tipo: 'rect', x0: AERO.tx0, x1: AERO.tx1, z0: AERO.tz0, z1: AERO.tz1 + 0.5 }, { tipo: 'rect', x0: AERO.ax0, x1: AERO.ax1, z0: AERO.az0, z1: AERO.az1 },
   { tipo: 'disco', x: CERRO.x, z: CERRO.z, r: CERRO.r - 4 },
   { tipo: 'disco', x: 440, z: 0, r: 14 }

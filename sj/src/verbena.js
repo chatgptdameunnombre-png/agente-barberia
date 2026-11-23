@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Peaton } from './peatones.js?v=202611222131';
+import { Peaton } from './peatones.js?v=202611231659';
 
 const N = { do: 261.63, re: 293.66, mi: 329.63, fa: 349.23, sol: 392, la: 440, si: 493.88, do2: 523.25, re2: 587.33, mi2: 659.25 };
 const MELODIA = [['mi', 1], ['sol', 1], ['do2', 2], ['si', 1], ['la', 1], ['sol', 2], ['fa', 1], ['la', 1], ['re2', 2], ['do2', 1], ['si', 1], ['la', 2], ['sol', 1], ['mi', 1], ['sol', 1], ['la', 1], ['si', 1], ['re2', 1], ['do2', 2], ['sol', 1], ['mi', 1], ['re', 1], ['fa', 1], ['mi', 2], ['re', 2], ['do', 4]];
@@ -20,7 +20,7 @@ export class Verbena {
     const mCuerda = new THREE.MeshBasicMaterial({ color: '#1a1a1c' });
     for (const g of cuerdas) juego.escena.add(new THREE.Mesh(g, mCuerda));
     this.matFoco = new THREE.MeshBasicMaterial({ color: '#ffffff', toneMapped: false });
-    this.focos = new THREE.InstancedMesh(new THREE.SphereGeometry(0.075, 8, 6), this.matFoco, focos.length);
+    this.focos = new THREE.InstancedMesh(new THREE.SphereGeometry(0.075, 6, 4), this.matFoco, focos.length);
     const o = new THREE.Object3D(), c = new THREE.Color(), cols = ['#ffd86a', '#ff6a8a', '#6ad8ff', '#8aff7a', '#ffb04a'];
     focos.forEach((p, i) => { o.position.copy(p); o.updateMatrix(); this.focos.setMatrixAt(i, o.matrix); this.focos.setColorAt(i, c.set(cols[i % cols.length])); });
     this.focos.instanceColor.needsUpdate = true;

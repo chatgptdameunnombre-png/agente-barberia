@@ -19,7 +19,7 @@ export function alumbrado(juego) {
   });
   const gris = new THREE.MeshStandardMaterial({ color: '#6a6c70', roughness: 0.55, metalness: 0.5 });
   const brazoGeo = mergeGeometries([new THREE.CylinderGeometry(0.045, 0.05, 2.45, 6).rotateX(Math.PI / 2).rotateX(-0.12).translate(0, 7.28, 1.15), new THREE.BoxGeometry(0.12, 0.3, 0.12).translate(0, 7.12, 0.02)]);
-  const cabezaGeo = new THREE.CapsuleGeometry(0.16, 0.5, 4, 10).rotateX(Math.PI / 2).scale(1.15, 0.55, 1).translate(0, 7.43, 2.35);
+  const cabezaGeo = new THREE.CapsuleGeometry(0.16, 0.5, 2, 6).rotateX(Math.PI / 2).scale(1.15, 0.55, 1).translate(0, 7.43, 2.35);
   const lenteGeo = new THREE.PlaneGeometry(0.3, 0.55).rotateX(Math.PI / 2).translate(0, 7.36, 2.38);
   const orientar = L => { _o.position.set(L.x, 0, L.z); _o.rotation.set(0, Math.atan2(L.nx, L.nz), 0); _o.scale.setScalar(1); };
   const brazos = instancias(brazoGeo, gris, lum, orientar), cabezas = instancias(cabezaGeo, gris, lum, orientar);
@@ -55,7 +55,7 @@ export function alumbrado(juego) {
   const globos = [];
   for (const F of col2) for (const [dx, dz] of [[0.55, 0], [-0.55, 0], [0, 0.55], [0, -0.55]]) globos.push({ x: F.x + dx, z: F.z + dz });
   const matGlobo = new THREE.MeshStandardMaterial({ color: '#f2ece0', roughness: 0.3, emissive: '#ffcf80', emissiveIntensity: 0 });
-  const globo = instancias(new THREE.SphereGeometry(0.17, 12, 10).translate(0, 3.93, 0), matGlobo, globos, G => { _o.position.set(G.x, 0, G.z); _o.rotation.set(0, 0, 0); _o.scale.setScalar(1); });
+  const globo = instancias(new THREE.SphereGeometry(0.17, 8, 6).translate(0, 3.93, 0), matGlobo, globos, G => { _o.position.set(G.x, 0, G.z); _o.rotation.set(0, 0, 0); _o.scale.setScalar(1); });
   const matCharco2 = matCharco.clone(); matCharco2.color.set('#ffb870');
   const charcos2 = instancias(new THREE.PlaneGeometry(8, 8).rotateX(-Math.PI / 2), matCharco2, col2, F => { _o.position.set(F.x, 0.21, F.z); _o.rotation.set(0, 0, 0); _o.scale.setScalar(1); });
   charcos2.renderOrder = 1;

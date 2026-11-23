@@ -1,10 +1,11 @@
-import { alturaCerro } from './sierradatos.js?v=202611222131';
+import { alturaCerro } from './sierradatos.js?v=202611231659';
+import { dormirQuieto } from './ligero.js?v=202611231659';
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611222131';
-import { mat } from './persona.js?v=202611222131';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611231659';
+import { mat } from './persona.js?v=202611231659';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611222131';
+import { hoja } from './texturas.js?v=202611231659';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, vocho: 1, vochotaxi: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
@@ -640,7 +641,7 @@ export function modelo(tipo, color) {
   for (const s of [-1, 1]) {
     const h = new THREE.Sprite(matHalo);
     h.position.set(s * (t.ancho / 2 - 0.32), 0.3 + t.alto * 0.62, t.largo / 2 + 0.25);
-    h.scale.setScalar(1.6);
+    h.scale.setScalar(1.1);
     carro.add(h);
   }
   const P = PERFIL[tipo], yb = piso, yt = piso + H, finos = [];
@@ -744,6 +745,12 @@ export class Coche {
     this.grupo.position.copy(this.pos);
     this.grupo.rotation.y = yaw;
     juego.escena.add(this.grupo);
+    if (this.tipo !== 'moto' && this.tipo !== 'lancha' && this.carro) {
+      const g = this.grupo, ca = this.carro, c = this, agregar = THREE.Object3D.prototype.add;
+      dormirQuieto(g, a => { a[0] = g.position.x; a[1] = g.position.y; a[2] = g.position.z; a[3] = g.rotation.y; a[4] = ca.position.y; a[5] = ca.rotation.x; a[6] = ca.rotation.z; a[7] = c.ruedas?.[0]?.rotation.x || 0; a[8] = c.delanteras?.[0]?.rotation.y || 0; a[9] = c.puerta?.rotation.y || 0; a[10] = c.puertaP?.rotation.y || 0; a[11] = c.salud + (c.quemado ? 1000 : 0) + (c.ponchadas?.size || 0) * 7; });
+      g.add = function (...a) { g.__sucio = true; return agregar.apply(this, a); };
+      ca.add = function (...a) { g.__sucio = true; return agregar.apply(this, a); };
+    }
   }
   get fx() { return Math.sin(this.yaw); }
   get fz() { return Math.cos(this.yaw); }

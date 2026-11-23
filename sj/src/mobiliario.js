@@ -1,6 +1,7 @@
 import * as THREE from 'three';
+import { trocearMalla, lejos } from './ligero.js?v=202611231659';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { BLOQUES, CALLE, linea, rng, LIMITE, tipoBloque } from './ciudad.js?v=202611222131';
+import { BLOQUES, CALLE, linea, rng, LIMITE, tipoBloque } from './ciudad.js?v=202611231659';
 
 const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(1, 1, 1), _e = new THREE.Euler();
 
@@ -103,7 +104,7 @@ export function amueblar(juego) {
   const cruceta = mergeGeometries([new THREE.BoxGeometry(0.1, 0.1, 1.7).translate(0, 7.75, 0), ...[-0.72, 0, 0.72].map(o => new THREE.CylinderGeometry(0.035, 0.045, 0.14, 6).translate(0, 7.86, o))]);
   g.add(instancias(cruceta, new THREE.MeshStandardMaterial({ color: '#5a5650', roughness: 0.7 }), postes));
   if (transformadores.length) g.add(instancias(mergeGeometries([new THREE.CylinderGeometry(0.28, 0.28, 0.8, 12), new THREE.CylinderGeometry(0.3, 0.3, 0.06, 12).translate(0, 0.42, 0)]), new THREE.MeshStandardMaterial({ color: '#7d8388', roughness: 0.5, metalness: 0.4 }), transformadores));
-  if (cables.length) { const cg = mergeGeometries(cables); const cm = new THREE.Mesh(cg, new THREE.MeshBasicMaterial({ color: '#17171a' })); cm.frustumCulled = false; g.add(cm); }
+  if (cables.length) { const cg = mergeGeometries(cables); const cm = new THREE.Mesh(cg, new THREE.MeshBasicMaterial({ color: '#17171a' })); g.add(cm); lejos(trocearMalla(cm, 165), 230); }
   const rojo = new THREE.MeshStandardMaterial({ color: '#c0262a', roughness: 0.45, metalness: 0.2 });
   const imHidrantes = instancias(mergeGeometries([new THREE.CylinderGeometry(0.13, 0.15, 0.62, 12).translate(0, 0.31, 0), new THREE.SphereGeometry(0.13, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, 0.62, 0), new THREE.CylinderGeometry(0.05, 0.05, 0.38, 8).rotateZ(Math.PI / 2).translate(0, 0.44, 0), new THREE.CylinderGeometry(0.065, 0.065, 0.1, 8).rotateX(Math.PI / 2).translate(0, 0.44, 0.13), new THREE.CylinderGeometry(0.17, 0.17, 0.05, 12).translate(0, 0.03, 0)]), rojo, hidrantes);
   g.add(imHidrantes);

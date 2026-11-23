@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611222131';
+import { dormible } from './ligero.js?v=202611231659';
+import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611231659';
 
 const _v = new THREE.Vector3();
 
@@ -13,7 +14,7 @@ export class Peaton {
     this.corredor = this.tipo === 'civil' && !opc.vestido && !opc.estado && Math.random() < 0.1;
     if (this.corredor) Object.assign(vestido, { camisa: ['#ff4f6a', '#3fd2ff', '#ffd84a', '#4fe08a', '#f2f2f0', '#b46bff'][Math.random() * 6 | 0], ropa: null, mangaCorta: true, shorts: true, pantalon: '#1a1a1e', zapatos: '#e8e4da', sombrero: null, falda: false, gorra: Math.random() < 0.4 ? '#f2f2f0' : null, mochila: false, lentes: false });
     this.p = crearPersona(vestido);
-    this.grupo = this.p.grupo;
+    this.grupo = dormible(this.p.grupo);
     this.pos = new THREE.Vector3(opc.x || 0, 0, opc.z || 0);
     this.yaw = opc.yaw || 0;
     this.salud = this.tipo === 'poli' ? 70 : this.tipo === 'matón' ? 80 : 40;

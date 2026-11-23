@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { letrero } from './ciudad.js?v=202611222131';
-import { Peaton } from './peatones.js?v=202611222131';
-import { Coche } from './vehiculos.js?v=202611222131';
-import { realistaDe } from './jugador.js?v=202611222131';
-import { AERO } from './sierradatos.js?v=202611222131';
+import { letrero } from './ciudad.js?v=202611231659';
+import { Peaton } from './peatones.js?v=202611231659';
+import { Coche } from './vehiculos.js?v=202611231659';
+import { realistaDe } from './jugador.js?v=202611231659';
+import { AERO } from './sierradatos.js?v=202611231659';
 
 const _c = new THREE.Color();
 function teñir(g, hex) { _c.set(hex); const n = g.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([_c.r, _c.g, _c.b], i * 3); g.setAttribute('color', new THREE.BufferAttribute(a, 3)); return g.index ? g.toNonIndexed() : g; }
@@ -68,7 +68,7 @@ export class Aeropuerto {
     this.vestidor = { x: -150, z: 404 };
     this.terminal(esc); this.malla(esc); this.zonaAerea(esc);
     const m = new THREE.Mesh(mergeGeometries(L), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0.15 })); m.castShadow = m.receiveShadow = true; esc.add(m);
-    this.matVidrio = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.05, metalness: 0.8, emissive: '#ffd9a0', emissiveIntensity: 0 });
+    this.matVidrio = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.08, metalness: 0.7, emissive: '#ffd9a0', emissiveIntensity: 0, envMapIntensity: 1.9 }); this.matVidrio.color.setScalar(2.6);
     esc.add(new THREE.Mesh(mergeGeometries(this.V), this.matVidrio));
     this.jets = [[-70, '#5a2a8a', '#f2c431'], [0, '#c8202e', '#ffffff'], [70, '#1a5ab8', '#7ae0ff']].map(([x, c1, c2]) => { const J = modeloJet(c1, c2); J.grupo.position.set(x, 0, 448); J.grupo.rotation.y = Math.PI; esc.add(J.grupo); this.choca(x - 2, 430, x + 2, 466, 6); return J; });
     this.trafico = { ...modeloJet('#2a8a4a', '#f2f2f2'), fase: 'espera', t: 15, v: 0, pos: new THREE.Vector3() }; this.trafico.grupo.visible = false; esc.add(this.trafico.grupo);

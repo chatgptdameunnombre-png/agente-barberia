@@ -458,9 +458,19 @@
   #rueda .centro em { display:block; font:800 10px Inter; font-style:normal; letter-spacing:2px; opacity:.6; margin-bottom:2px; }
   #rueda .centro .giro { display:block; font:600 9.5px Inter; font-style:normal; opacity:.6; margin-top:6px; max-width:150px; transition:opacity .2s; }
 body.cine::before,body.cine::after{content:'';position:fixed;left:0;right:0;height:11vh;background:#000;z-index:40;pointer-events:none}body.cine::before{top:0}body.cine::after{bottom:0}body.cine #hud{opacity:.15}
+
+#cargando { position: fixed; inset: 0; z-index: 9999; background: radial-gradient(ellipse at 50% 40%, #2a1a4a 0%, #120a22 60%, #07040e 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; color: #fff; font-family: Inter, system-ui, sans-serif; transition: opacity .5s; }
+#cargando.fuera { opacity: 0; pointer-events: none; }
+#cargando b { font-size: clamp(28px, 5vw, 54px); letter-spacing: .14em; font-weight: 900; background: linear-gradient(90deg, #c48bff, #f2c431); -webkit-background-clip: text; background-clip: text; color: transparent; }
+#cargando span { font-size: 14px; opacity: .75; letter-spacing: .08em; }
+#cargando i { display: block; width: min(320px, 60vw); height: 4px; border-radius: 4px; background: rgba(255,255,255,.14); overflow: hidden; position: relative; }
+#cargando i::after { content: ''; position: absolute; inset: 0; width: 40%; border-radius: 4px; background: linear-gradient(90deg, #c48bff, #f2c431); animation: cargaBarra 1.3s ease-in-out infinite; will-change: transform; }
+@keyframes cargaBarra { 0% { transform: translateX(-110%); } 100% { transform: translateX(280%); } }
 </style>
 </head>
 <body>
+<div id="cargando"><b>SANTA JACARANDA</b><i></i><span>Preparando la ciudad…</span></div>
+<script>(() => { const aviso = () => { const c = document.getElementById('cargando'); if (c && !window.__juego) c.querySelector('span').textContent = 'No se pudo iniciar. Usa Chrome o Edge actualizado y activa la aceleración por hardware.'; }; addEventListener('error', aviso); addEventListener('unhandledrejection', aviso); })();</script>
 <canvas id="lienzo"></canvas>
 <div id="hud">
   <div id="mira"><i></i><i></i><i></i><i></i></div>
@@ -551,14 +561,21 @@ body.cine::before,body.cine::after{content:'';position:fixed;left:0;right:0;heig
     <label class="ajuste">Volumen general<input type="range" min="0" max="1" step="0.05" data-aj="volumen"></label>
     <label class="ajuste">Música de la radio<input type="range" min="0" max="1" step="0.05" data-aj="musica"></label>
     <label class="ajuste">Sensibilidad del mouse<input type="range" min="0.3" max="2.5" step="0.05" data-aj="sensibilidad"></label>
-    <label class="ajuste">Calidad gráfica<select data-aj="calidad"><option value="3">Ultra (sombras de contacto y bordes suaves)</option><option value="2">Alta (brillos y sombras)</option><option value="1">Media (sombras)</option><option value="0">Rápida</option></select></label>
+    <label class="ajuste">Calidad gráfica<select data-aj="calidad"><option value="auto">Automática (se ajusta sola a tu computadora)</option><option value="3">Ultra (todo encendido)</option><option value="2">Alta (brillos y sombras)</option><option value="1">Media (sombras)</option><option value="0">Rápida (sin sombras)</option><option value="-1">Mínima (computadoras viejas)</option></select></label>
     <label class="ajuste">Flechas del GPS en la calle<input type="checkbox" data-aj="flechas"></label>
     <label class="ajuste">Invertir mouse vertical<input type="checkbox" data-aj="invertir"></label>
     <label class="ajuste">Mostrar FPS<input type="checkbox" data-aj="fps"></label>
   </div>
   <div class="der vidrio" id="pNovedades"><h3>NOVEDADES</h3>
     <ul class="novedades">
-      <li class="sep">LO MÁS NUEVO · 24 DE NOVIEMBRE</li>
+      <li class="sep">LO MÁS NUEVO · 24 DE NOVIEMBRE, TARDE</li>
+      <li><b>Mucho más ligero</b> El juego rinde casi el doble. En Ajustes → Calidad gráfica deja <i>Automática</i>: mide tu computadora y se acomoda sola. Para equipos viejos hay un nivel nuevo, <i>Mínima</i>.</li>
+      <li><b>Cielo nuevo</b> Nubes que se mueven, sol con resplandor, atardeceres y bruma azul a lo lejos. Desde el aire ya se ve toda la ciudad.</li>
+      <li><b>Imagen más nítida</b> Colores más vivos, mejor contraste y rayos de sol entre los edificios (en Alta y Ultra).</li>
+      <li><b>Reflejos reales</b> En Ultra, la pintura y los vidrios de tu coche reflejan la calle por la que vas.</li>
+      <li><b>Campo con vida</b> Pasto, flores y matorrales a la orilla de las carreteras, árboles con volumen y terreno con manchas de tierra y pasto seco.</li>
+      <li><b>Helicóptero arreglado</b> Ya se puede caminar de la pista a la plataforma del hangar, y de la carretera a la Fonda La Curva.</li>
+      <li class="sep">24 DE NOVIEMBRE</li>
       <li><b>Sal por donde quieras</b> La barda ya tiene salida al norte, sur, oriente y poniente, y el Periférico Jacaranda rodea la ciudad.</li>
       <li><b>Aeropuerto Internacional</b> Al sur: terminal, pista con aviones que despegan y aterrizan, hangares, torre de control. La pista es zona restringida: sin uniforme te cae la policía.</li>
       <li><b>Capitana Inés Robles</b> (letra <i>I</i>, en el aeropuerto): consigue el uniforme, infíltrate al Hangar 7 y róbate el avión de carga.</li>
@@ -693,7 +710,7 @@ body.cine::before,body.cine::after{content:'';position:fixed;left:0;right:0;heig
     "@dimforge/rapier3d-compat": "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.14.0/rapier.es.js"
 } }
 </script>
-<script type="module" src="src/main.js?v=202611222131"></script>
+<script type="module" src="src/main.js?v=202611231659"></script>
 <div id="mirilla"><i></i></div>
 </body>
 </html>

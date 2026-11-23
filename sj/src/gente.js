@@ -1,5 +1,5 @@
-import { Realista } from './realista.js?v=202611222131';
-import { ponerNovia } from './humanos.js?v=202611222131';
+import { Realista } from './realista.js?v=202611231659';
+import { ponerNovia } from './humanos.js?v=202611231659';
 
 const ADORNOS = { novia: ponerNovia };
 
@@ -38,7 +38,7 @@ export class Gente {
     if (this.t <= 0) {
       this.t = 0.5;
       const P = j.jugador.posicion;
-      const cand = j.peatones.filter(q => !q.enInterior && q.p && q.grupo?.parent && !(q.muerto && !this.usados.has(q))).map(q => [q, Math.hypot(q.pos.x - P.x, q.pos.z - P.z)]).filter(([, d]) => d < 52).sort((a, b) => a[1] - b[1]).slice(0, this.maximo).map(([q]) => q);
+      const cand = j.peatones.filter(q => !q.enInterior && q.p && q.grupo?.parent && !(q.muerto && !this.usados.has(q))).map(q => [q, Math.hypot(q.pos.x - P.x, q.pos.z - P.z)]).filter(([, d]) => d < (this.rango || 52)).sort((a, b) => a[1] - b[1]).slice(0, this.maximo).map(([q]) => q);
       const quiero = new Set(cand);
       for (const q of [...this.usados.keys()]) if (!quiero.has(q) || !j.peatones.includes(q)) this.devolver(q);
       for (const q of cand) if (!this.usados.has(q)) this.usados.set(q, this.pedir(this.clase(q)));

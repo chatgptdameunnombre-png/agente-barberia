@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { linea, BLOQUES, CALLE, LIMITE } from './ciudad.js?v=202611222131';
+import { linea, BLOQUES, CALLE, LIMITE } from './ciudad.js?v=202611231659';
 
 const CICLO = 26, VERDE = 10.5, AMBAR = 2;
 
@@ -23,7 +23,7 @@ export class Semaforos {
     const caja = new THREE.MeshStandardMaterial({ color: '#16181c', roughness: 0.5, metalness: 0.3 });
     this.poste = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.08, 0.1, 4.4, 8).translate(0, 2.2, 0), metal, n);
     this.cajas = new THREE.InstancedMesh(new THREE.BoxGeometry(0.34, 0.95, 0.34).translate(0, 4.05, 0), caja, n * 2);
-    this.focos = new THREE.InstancedMesh(new THREE.SphereGeometry(0.1, 10, 8), new THREE.MeshBasicMaterial({ color: '#ffffff' }), n * 2 * 3 * 2);
+    this.focos = new THREE.InstancedMesh(new THREE.SphereGeometry(0.1, 6, 4), new THREE.MeshBasicMaterial({ color: '#ffffff' }), n * 2 * 3 * 2);
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(1, 1, 1), p = new THREE.Vector3();
     this.mapa = [];
     this.lista.forEach((L, a) => {

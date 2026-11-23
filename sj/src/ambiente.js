@@ -2,17 +2,42 @@ import * as THREE from 'three';
 
 const C = (h) => new THREE.Color(h);
 const PALETA = [
-  { h: 0, arriba: C('#060a1c'), horizonte: C('#1a1f3d'), sol: C('#7a8ac8'), luz: 0.3, amb: 0.42 },
+  { h: 0, arriba: C('#050918'), horizonte: C('#161b38'), sol: C('#7a8ac8'), luz: 0.3, amb: 0.42 },
   { h: 5, arriba: C('#0b1230'), horizonte: C('#3a2f55'), sol: C('#7a7ac0'), luz: 0.3, amb: 0.42 },
-  { h: 6.5, arriba: C('#3f5f9a'), horizonte: C('#ff9e6b'), sol: C('#ffb27a'), luz: 0.7, amb: 0.5 },
-  { h: 8, arriba: C('#4a78b0'), horizonte: C('#c4cdd2'), sol: C('#fff0d0'), luz: 1.25, amb: 0.62 },
-  { h: 13, arriba: C('#3f72b4'), horizonte: C('#b8c8d4'), sol: C('#fffaf0'), luz: 1.45, amb: 0.68 },
-  { h: 17, arriba: C('#4f6fa8'), horizonte: C('#e0b88c'), sol: C('#ffd8a0'), luz: 1.25, amb: 0.6 },
-  { h: 18.7, arriba: C('#4b4f9a'), horizonte: C('#ff7a4a'), sol: C('#ff9a5a'), luz: 0.85, amb: 0.5 },
-  { h: 19.8, arriba: C('#1d2156'), horizonte: C('#a2466a'), sol: C('#b0608a'), luz: 0.35, amb: 0.38 },
-  { h: 21, arriba: C('#080c22'), horizonte: C('#221c40'), sol: C('#7a8ac8'), luz: 0.3, amb: 0.42 },
-  { h: 24, arriba: C('#060a1c'), horizonte: C('#1a1f3d'), sol: C('#7a8ac8'), luz: 0.3, amb: 0.42 }
+  { h: 6.5, arriba: C('#35579a'), horizonte: C('#ff9e6b'), sol: C('#ffb27a'), luz: 0.7, amb: 0.5 },
+  { h: 8, arriba: C('#2f6fc0'), horizonte: C('#bcd6ec'), sol: C('#fff0d0'), luz: 1.25, amb: 0.62 },
+  { h: 13, arriba: C('#2565c0'), horizonte: C('#a9cdec'), sol: C('#fffaf0'), luz: 1.45, amb: 0.68 },
+  { h: 16.6, arriba: C('#2f68b8'), horizonte: C('#bcd2e2'), sol: C('#fff0d2'), luz: 1.35, amb: 0.64 },
+  { h: 17.8, arriba: C('#41639e'), horizonte: C('#f0bc8a'), sol: C('#ffd098'), luz: 1.15, amb: 0.58 },
+  { h: 18.7, arriba: C('#3d4390'), horizonte: C('#ff7a4a'), sol: C('#ff9a5a'), luz: 0.85, amb: 0.5 },
+  { h: 19.8, arriba: C('#1a1e52'), horizonte: C('#a2466a'), sol: C('#b0608a'), luz: 0.35, amb: 0.38 },
+  { h: 21, arriba: C('#070b20'), horizonte: C('#201a3c'), sol: C('#7a8ac8'), luz: 0.3, amb: 0.42 },
+  { h: 24, arriba: C('#050918'), horizonte: C('#161b38'), sol: C('#7a8ac8'), luz: 0.3, amb: 0.42 }
 ];
+
+function ruidoCielo() {
+  const N = 256, c = document.createElement('canvas'); c.width = c.height = N;
+  const x = c.getContext('2d'), img = x.createImageData(N, N), d = img.data;
+  const capa = (semilla) => {
+    const out = new Float32Array(N * N); let amp = 1, tot = 0;
+    for (let per = 8; per <= 64; per *= 2) {
+      const g = new Float32Array(per * per); let s = semilla * 7919 + per * 104729;
+      for (let i = 0; i < g.length; i++) { s = (s * 1664525 + 1013904223) >>> 0; g[i] = s / 4294967296; }
+      for (let yy = 0; yy < N; yy++) for (let xx = 0; xx < N; xx++) {
+        const fx = xx / N * per, fy = yy / N * per, ix = Math.floor(fx), iy = Math.floor(fy), tx = fx - ix, ty = fy - iy, u = tx * tx * (3 - 2 * tx), v = ty * ty * (3 - 2 * ty);
+        const a = g[(iy % per) * per + ix % per], b = g[(iy % per) * per + (ix + 1) % per], cc = g[((iy + 1) % per) * per + ix % per], dd = g[((iy + 1) % per) * per + (ix + 1) % per];
+        out[yy * N + xx] += (a + (b - a) * u + (cc - a) * v + (a - b - cc + dd) * u * v) * amp;
+      }
+      tot += amp; amp *= 0.5;
+    }
+    for (let i = 0; i < out.length; i++) out[i] /= tot;
+    return out;
+  };
+  const r = capa(1), g = capa(2), b = capa(3);
+  for (let i = 0; i < N * N; i++) { d[i * 4] = r[i] * 255; d[i * 4 + 1] = g[i] * 255; d[i * 4 + 2] = b[i] * 255; d[i * 4 + 3] = 255; }
+  x.putImageData(img, 0, 0);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; return t;
+}
 
 export class Ambiente {
   constructor(juego, escena, ciudad) {
@@ -41,16 +66,38 @@ export class Ambiente {
     escena.fog = this.niebla;
     const cielo = new THREE.ShaderMaterial({
       side: THREE.BackSide, depthWrite: false, fog: false,
-      uniforms: { arriba: { value: C('#5d9be0') }, horizonte: { value: C('#cfe3f2') }, solDir: { value: new THREE.Vector3(0, 1, 0) }, solColor: { value: C('#fff') } },
-      vertexShader: 'varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-      fragmentShader: `uniform vec3 arriba; uniform vec3 horizonte; uniform vec3 solDir; uniform vec3 solColor; varying vec3 vP;
-        void main(){ float h = clamp(vP.y, -0.2, 1.0); vec3 c = mix(horizonte, arriba, pow(max(h,0.0), 0.55));
-          float s = max(dot(normalize(vP), normalize(solDir)), 0.0);
-          c += solColor * (pow(s, 400.0) * 1.6 + pow(s, 12.0) * 0.25);
-          gl_FragColor = vec4(c, 1.0); }`
+      uniforms: { arriba: { value: C('#5d9be0') }, horizonte: { value: C('#cfe3f2') }, solDir: { value: new THREE.Vector3(0, 1, 0) }, solColor: { value: C('#fff') }, nubeLuz: { value: C('#ffffff') }, nubeSombra: { value: C('#8a94a6') }, tiempo: { value: 0 }, cobertura: { value: 0.35 }, nubes: { value: 1 }, ruido: { value: ruidoCielo() } },
+      vertexShader: 'varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+      fragmentShader: `uniform vec3 arriba; uniform vec3 horizonte; uniform vec3 solDir; uniform vec3 solColor; uniform vec3 nubeLuz; uniform vec3 nubeSombra; uniform float tiempo; uniform float cobertura; uniform float nubes; uniform sampler2D ruido; varying vec3 vP;
+        void main(){
+          vec3 d = normalize(vP), sd = normalize(solDir);
+          float h = max(d.y, 0.0);
+          vec3 c = mix(horizonte, arriba, pow(h, 0.5));
+          c = mix(c, horizonte, exp(-h * 9.0) * 0.5);
+          c = mix(c, horizonte * 0.82, smoothstep(0.0, -0.25, d.y));
+          float s = max(dot(d, sd), 0.0);
+          float bajo = 1.0 - smoothstep(0.0, 0.55, sd.y);
+          c += solColor * pow(s, 5.0) * 0.2 * (0.35 + bajo) * exp(-h * 2.6);
+          c += solColor * (pow(s, 900.0) * 3.0 + pow(s, 120.0) * 0.55 + pow(s, 30.0) * 0.22 + pow(s, 8.0) * 0.1);
+          if (nubes > 0.5 && d.y > 0.015) {
+            vec2 uv = d.xz / (d.y + 0.14) * 0.085;
+            vec2 v = vec2(tiempo * 0.0032, tiempo * 0.0013);
+            float n = texture2D(ruido, uv * 0.55 + v).r * 0.56 + texture2D(ruido, uv * 1.6 + v * 1.7).g * 0.29 + texture2D(ruido, uv * 4.4 + v * 2.6).b * 0.15;
+            float um = mix(0.66, 0.34, cobertura);
+            float dens = smoothstep(um, um + 0.2, n) * smoothstep(0.015, 0.2, d.y);
+            float n2 = texture2D(ruido, uv * 0.55 + v + sd.xz * 0.035).r * 0.56 + texture2D(ruido, uv * 1.6 + v * 1.7 + sd.xz * 0.05).g * 0.29;
+            float luzN = clamp((n * 0.85 - n2) * 5.0 + 0.62, 0.0, 1.0);
+            vec3 nube = mix(nubeSombra, nubeLuz, luzN) + solColor * pow(s, 7.0) * 0.3 * (1.0 - dens * 0.6);
+            nube = mix(nube, horizonte, exp(-d.y * 7.0) * 0.6);
+            c = mix(c, nube, dens * 0.94);
+          }
+          gl_FragColor = vec4(c, 1.0);
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
+        }`
     });
     this.cieloMat = cielo;
-    this.cielo = new THREE.Mesh(new THREE.SphereGeometry(900, 24, 12), cielo);
+    this.cielo = new THREE.Mesh(new THREE.SphereGeometry(900, 32, 16), cielo);
     this.cielo.renderOrder = -1;
     escena.add(this.cielo);
     const n = 900, pos = new Float32Array(n * 3);
@@ -84,7 +131,7 @@ export class Ambiente {
   }
 
   reflejos(forzar = false) {
-    const r = this.juego.renderer; if (!r) return;
+    const r = this.juego.renderer; if (!r || this.juego.sinEntorno) return;
     const h = this.hora ?? 12;
     if (!forzar && this.horaReflejo !== undefined && Math.abs(h - this.horaReflejo) < 0.5 && Math.abs(h - this.horaReflejo) < 23) return;
     this.horaReflejo = h;
@@ -103,7 +150,6 @@ export class Ambiente {
 
   actualizar(dt, camara) {
     this.hora = (this.hora + dt * this.velocidad) % 24;
-    this.reflejos();
     this.climaT -= dt;
     if (this.climaT <= 0) {
       this.quiereLluvia = Math.random() < 0.3 ? 0.6 + Math.random() * 0.4 : 0;
@@ -132,9 +178,15 @@ export class Ambiente {
     this.cieloMat.uniforms.arriba.value.copy(arriba);
     this.cieloMat.uniforms.horizonte.value.copy(horiz);
     this.niebla.color.copy(horiz);
-    const nb = this.neblina || 0;
-    this.niebla.near = Math.max(50, 160 - L * 70 - nb * 60);
-    this.niebla.far = Math.max(this.niebla.near + 170, 650 - L * 200 - nb * 230);
+    const nb = this.neblina || 0, altCam = camara ? Math.max(0, camara.position.y - 22) : 0;
+    this.niebla.near = Math.max(50, 190 - L * 90 - nb * 80) + altCam * 2.2;
+    this.niebla.far = Math.max(this.niebla.near + 170, 760 - L * 280 - nb * 300) + altCam * 6.5;
+    const U = this.cieloMat.uniforms;
+    U.tiempo.value += dt;
+    this.cieloBase = this.cieloBase ?? 0.22 + Math.random() * 0.22;
+    U.cobertura.value = Math.min(1, this.cieloBase + N * 0.62 + nb * 0.15);
+    U.nubeLuz.value.copy(a.sol).lerp(b.sol, t).lerp(gris.set('#ffffff'), 0.55).multiplyScalar((0.16 + 0.84 * kDia) * (1 - N * 0.35));
+    U.nubeSombra.value.copy(horiz).lerp(gris.set('#6f7888'), 0.55).multiplyScalar((0.3 + 0.55 * kDia) * (1 - N * 0.3));
     const ang = (this.hora - 6.5) / 13 * Math.PI;
     const sx = Math.cos(ang), sy = Math.sin(ang);
     const dirSol = new THREE.Vector3(sx * 0.8, Math.max(sy, -0.3), 0.45).normalize();
@@ -155,7 +207,7 @@ export class Ambiente {
       this.luna.scale.setScalar(70); this.luna.renderOrder = -1; this.juego.escena.add(this.luna);
     }
     if (camara) { this.luna.position.copy(camara.position).addScaledVector(luna, 820); this.luna.material.opacity = Math.max(0, Math.min(1, -sy * 4)) * (1 - L * 0.8); }
-    const paso = 110 / 4096 * 2;
+    const paso = 110 / (this.sol.shadow.mapSize.x || 4096) * 2;
     const ox = Math.round(objetivo.x / paso) * paso, oz = Math.round(objetivo.z / paso) * paso;
     this.sol.position.set(ox + dirLuz.x * 200, dirLuz.y * 200, oz + dirLuz.z * 200);
     this.sol.target.position.set(ox, 0, oz);
@@ -163,9 +215,9 @@ export class Ambiente {
     this.sol.intensity = luz * (dia ? 1.6 : 0.9) * dentro;
     this.sol.color.copy(a.sol).lerp(b.sol, t);
     this.hemi.intensity = lerp(a.amb, b.amb) * (1 - L * 0.25) * 1.9 * (dentro < 0.1 ? 0.18 : dentro < 1 ? 0.55 : 1);
-    this.hemi.color.copy(arriba).lerp(gris.set('#ffffff'), 0.5);
+    this.hemi.color.copy(arriba).lerp(gris.set('#fff6ec'), 0.74);
     this.noche = Math.max(0, Math.min(1, (0.12 - sy) / 0.3));
-    for (const m of this.ciudad.materialesVentanas) { m.emissiveIntensity = this.noche * 0.82 + L * 0.12; m.color.setScalar(1 - this.noche * 0.5); }
+    for (const m of this.ciudad.materialesVentanas) { m.emissiveIntensity = this.noche * 0.64 + L * 0.1; m.color.setScalar(1 - this.noche * 0.5); }
     this.ciudad.charcoLuz.material.opacity = this.noche * 0.55;
     this.ciudad.halos.material.opacity = this.noche * 0.55;
     this.ciudad.charcoLuz.visible = this.ciudad.halos.visible = this.noche > 0.01;
@@ -197,6 +249,7 @@ export class Ambiente {
       if (L > 0.6 && Math.random() < dt * 0.05) { this.relampago = 0.35; setTimeout(() => this.juego.audio?.trueno(), 400 + Math.random() * 1500); }
     }
     this.juego.audio?.lluvia(L);
+    this.reflejos();
   }
 
   get texto() {

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { linea, CALLE, BANQUETA, VIENTO } from './ciudad.js?v=202611222131';
+import { linea, CALLE, BANQUETA, VIENTO } from './ciudad.js?v=202611231659';
 
 function texPapel() {
   const W = 128, H = 160, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
@@ -61,7 +61,7 @@ export function papelPicado(juego) {
   const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(hilos, 3));
   const lineas = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: '#e8e2d6' }));
   juego.escena.add(lineas);
-  const imF = new THREE.InstancedMesh(new THREE.SphereGeometry(0.07, 8, 6), new THREE.MeshBasicMaterial({ color: '#ffd38a', toneMapped: false }), focos.length / 3);
+  const imF = new THREE.InstancedMesh(new THREE.SphereGeometry(0.07, 5, 3), new THREE.MeshBasicMaterial({ color: '#ffd38a', toneMapped: false }), focos.length / 3);
   for (let i = 0; i < focos.length / 3; i++) { V.set(focos[i * 3], focos[i * 3 + 1], focos[i * 3 + 2]); Q.identity(); M.compose(V, Q, S); imF.setMatrixAt(i, M); }
   imF.instanceMatrix.needsUpdate = true; juego.escena.add(imF);
   return {

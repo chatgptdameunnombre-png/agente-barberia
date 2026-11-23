@@ -1,6 +1,8 @@
 import * as THREE from 'three';
-import { LIMITE } from './ciudad.js?v=202611222131';
-import { dentroRegion, alturaCampo } from './sierradatos.js?v=202611222131';
+import { trocear, lejos } from './ligero.js?v=202611231659';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { LIMITE } from './ciudad.js?v=202611231659';
+import { dentroRegion, alturaCampo } from './sierradatos.js?v=202611231659';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 
@@ -24,15 +26,21 @@ export function afueras(juego) {
   for (let i = postes.length - 1; i >= 0; i--) if (dentroRegion(postes[i][0], postes[i][1], 3)) postes.splice(i, 1);
   const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), V = new THREE.Vector3(), S = new THREE.Vector3(), Y = new THREE.Vector3(0, 1, 0), c = new THREE.Color();
   const tronco = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.18, 0.28, 3, 6).translate(0, 1.5, 0), new THREE.MeshLambertMaterial({ color: '#5a3e28' }), arboles.length);
-  const copa = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(2.2, 1), new THREE.MeshLambertMaterial({ color: '#ffffff' }), arboles.length);
+  const copaGeo = (() => {
+    const bolas = [[0, 0, 0, 1.7], [1.25, -0.25, 0.35, 1.25], [-1.1, -0.3, -0.5, 1.3], [0.2, 0.75, -0.3, 1.2], [-0.25, -0.2, 1.15, 1.15]].map(([x, y, z, e]) => { const g = new THREE.SphereGeometry(e, 9, 7); const P = g.attributes.position; for (let i = 0; i < P.count; i++) { const k = 1 + Math.sin(P.getX(i) * 5.1 + P.getY(i) * 3.3 + P.getZ(i) * 4.7) * 0.09; P.setXYZ(i, P.getX(i) * k, P.getY(i) * k * 0.86, P.getZ(i) * k); } return g.translate(x, y, z); });
+    const g = mergeGeometries(bolas), P = g.attributes.position, col = new Float32Array(P.count * 3);
+    for (let i = 0; i < P.count; i++) { const v = 0.5 + 0.5 * Math.max(0, Math.min(1, (P.getY(i) + 1.5) / 3.2)); col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = v; }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3)); return g;
+  })();
+  const copa = new THREE.InstancedMesh(copaGeo, new THREE.MeshLambertMaterial({ color: '#ffffff', vertexColors: true }), arboles.length);
   arboles.forEach(([x, z, s, jac], i) => {
     const hy = alturaCampo(x, z);
     V.set(x, hy, z); Q.setFromAxisAngle(Y, r() * 6); S.setScalar(s); M.compose(V, Q, S); tronco.setMatrixAt(i, M);
     V.set(x, hy + 3.2 * s + 1.4, z); S.set(s * (0.9 + r() * 0.3), s * (0.75 + r() * 0.3), s * (0.9 + r() * 0.3)); M.compose(V, Q, S); copa.setMatrixAt(i, M);
-    copa.setColorAt(i, c.set(jac ? ['#8a5ac8', '#7a4ab8'][i % 2] : ['#4f7a3a', '#5a8a42', '#3f6a32', '#6a8a3a'][i % 4]).multiplyScalar(0.85 + r() * 0.2));
+    copa.setColorAt(i, c.set(jac ? ['#8a62c4', '#7a52b4'][i % 2] : ['#55803c', '#628e44', '#477236', '#72903e', '#5a7a34'][i % 5]).multiplyScalar(0.95 + r() * 0.3));
   });
   copa.instanceColor.needsUpdate = true; tronco.castShadow = copa.castShadow = false;
-  escena.add(tronco, copa);
+  escena.add(tronco, copa); lejos(trocear(tronco, 220), 380); lejos(trocear(copa, 220), 560);
   const texB = (() => { const cv = document.createElement('canvas'); cv.width = 256; cv.height = 128; const g = cv.getContext('2d'); g.fillStyle = '#c9c3b8'; g.fillRect(0, 0, 256, 128); for (let x = 0; x < 256; x += 10) { g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(x, 0, 3, 128); } g.fillStyle = '#5a5e66'; g.fillRect(40, 60, 70, 68); g.fillRect(150, 60, 70, 68); g.fillStyle = 'rgba(60,50,40,0.3)'; g.fillRect(0, 108, 256, 20); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; })();
   const bod = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0), new THREE.MeshLambertMaterial({ map: texB }), bodegas.length);
   const techo = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.5, 0.5, 1, 10, 1, false, 0, Math.PI).rotateZ(Math.PI / 2).rotateY(Math.PI / 2), new THREE.MeshLambertMaterial({ color: '#8a9098' }), bodegas.length);
@@ -45,6 +53,6 @@ export function afueras(juego) {
   if (bod.instanceColor) bod.instanceColor.needsUpdate = true; escena.add(bod, techo);
   const poste = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.08, 0.12, 9, 6).translate(0, 4.5, 0), new THREE.MeshLambertMaterial({ color: '#7a6a58' }), postes.length);
   postes.forEach(([x, z], i) => { M.makeTranslation(x, alturaCampo(x, z), z); poste.setMatrixAt(i, M); });
-  escena.add(poste);
+  escena.add(poste); lejos(trocear(poste, 260), 380);
   return { arboles: arboles.length, bodegas: bodegas.length };
 }

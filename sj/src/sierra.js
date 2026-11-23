@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { letrero } from './ciudad.js?v=202611222131';
-import { Peaton } from './peatones.js?v=202611222131';
-import { CERRO, PISTA, HANGAR, PUEBLO, CASA, ANCHO, CAMINOS, MIRADOR, AERO, PERI, alturaCerro, dentroRegion, regresar } from './sierradatos.js?v=202611222131';
+import { letrero } from './ciudad.js?v=202611231659';
+import { Peaton } from './peatones.js?v=202611231659';
+import { CERRO, PISTA, HANGAR, PUEBLO, CASA, ANCHO, CAMINOS, MIRADOR, AERO, PERI, alturaCerro, dentroRegion, regresar } from './sierradatos.js?v=202611231659';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 function lienzo(w, h, f) { const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
@@ -34,7 +34,8 @@ export class Sierra {
     this.casaLote();
     this.letreros(esc);
     const m = new THREE.Mesh(mergeGeometries(this.lisos.map(g => g.index ? g.toNonIndexed() : g)), this.matVc); m.castShadow = true; m.receiveShadow = true; esc.add(m); this.malla = m;
-    juego.mundo.fuera = (x, z, r) => dentroRegion(x, z, -r) ? true : regresar(x, z, r);
+    const cabe = (x, z, r) => { for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; if (!dentroRegion(x + Math.cos(a) * r, z + Math.sin(a) * r, 0)) return false; } return true; };
+    juego.mundo.fuera = (x, z, r) => dentroRegion(x, z, -r) || cabe(x, z, r) ? true : regresar(x, z, r);
     this.gente = [];
   }
 

@@ -53,7 +53,7 @@ export class Graficos {
     const c = j.jugador.coche;
     if (c !== this.coche) this.ponerHaces(c);
     const n = A.noche ?? 0, humedo = Math.max(A.lluvia || 0, A.neblina || 0);
-    const op = c && !c.quemado && n > 0.3 ? (n - 0.3) / 0.7 * (0.17 + humedo * 0.2) : 0;
+    const op = c && !c.quemado && n > 0.3 ? (n - 0.3) / 0.7 * (0.04 + humedo * 0.045) : 0;
     this.matHaz.opacity = op;
     for (const h of this.haces) h.visible = op > 0.004 && !!h.parent && j.modoCam !== 2;
   }

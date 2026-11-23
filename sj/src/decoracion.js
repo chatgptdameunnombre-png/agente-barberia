@@ -1,6 +1,7 @@
 import * as THREE from 'three';
+import { trocearMalla, lejos } from './ligero.js?v=202611231659';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { rng, COLORES_CASA } from './ciudad.js?v=202611222131';
+import { rng, COLORES_CASA } from './ciudad.js?v=202611231659';
 
 const LETREROS = [[66, 246], [290, 466], [508, 690], [732, 912], [955, 1106], [1148, 1316], [1356, 1520], [1560, 1722]].map(([a, b]) => [6 / 887, 881 / 887, 1 - b / 1774, 1 - a / 1774]);
 const ESPECTACULARES = [];
@@ -123,7 +124,7 @@ export function decorar(juego) {
   const salida = {};
   if (liso.length) {
     const m = new THREE.Mesh(unir(liso), new THREE.MeshLambertMaterial({ vertexColors: true }));
-    m.castShadow = true; m.receiveShadow = true; escena.add(m);
+    m.castShadow = true; m.receiveShadow = true; escena.add(m); lejos(trocearMalla(m, 165), 520);
   }
   if (signos.length) {
     salida.matLetreros = new THREE.MeshLambertMaterial({ map: tLet, emissive: '#ffffff', emissiveMap: tLet, emissiveIntensity: 0 });
@@ -141,7 +142,7 @@ export function decorar(juego) {
     s.position.set(Math.cos(a) * d, 120 + r() * 140, Math.sin(a) * d);
     s.scale.set(220 + r() * 200, 80 + r() * 60, 1);
     s.userData = { a, d, v: 0.004 + r() * 0.006 };
-    s.renderOrder = -0.5;
+    s.renderOrder = -0.5; s.visible = false;
     escena.add(s);
     salida.nubes.push(s);
   }

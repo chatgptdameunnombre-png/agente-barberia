@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611222131';
+import { hoja } from './texturas.js?v=202611231659';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const cap = (r, l, y = 0) => { const g = new THREE.CapsuleGeometry(r, l, 3, 10); g.translate(0, y, 0); return g; };
@@ -479,7 +479,7 @@ export function crearPersona(o = {}) {
   if (estilo === 'sombrero') { const sc = mat(o.colorSombrero || ['#c9b07a', '#3a2a1a', '#e8dcc0'][r() * 3 | 0]); malla(R.ala, sc, 0, 0, 0, cab); malla(R.copa, sc, 0, 0, 0, cab); detalles.push(malla(R.peloCorto, mPelo, 0, -0.01, 0, cab)); }
   const hueso = (x, y, z, padre) => { const b = new THREE.Bone(); b.position.set(x, y, z); padre.add(b); return b; };
   const conPiel = (geo, mats, b1, b2) => {
-    const m = new THREE.SkinnedMesh(geo, mats);
+    const m = new THREE.SkinnedMesh(geo, Array.isArray(mats) ? mats.map(conHueso) : conHueso(mats));
     m.castShadow = true; m.receiveShadow = true; m.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0.85, 0), 1.6);
     cuerpo.add(m); g.updateMatrixWorld(true);
     m.bind(new THREE.Skeleton([b1, b2]), m.matrixWorld);
@@ -555,15 +555,17 @@ export function crearPersona(o = {}) {
   if (o.aretes && !mujer) detalles.push(malla(R.aretes, MAT_ORO, 0, 0, 0, cab));
   const ojos = detalles[0], labios = detalles[3], cejas = [cejaI, cejaD];
   const andar = { amp: (edad === 'mayor' ? 0.75 : 0.92 + r() * 0.16) * (mujer ? 0.94 : 1), brazos: 0.8 + r() * 0.4, cadera: mujer ? 0.09 : 0.03, postura: edad === 'mayor' ? 0.12 : (r() - 0.5) * 0.08, ritmo: edad === 'mayor' ? 0.85 : 0.95 + r() * 0.1 };
-  return { grupo: g, cuerpo, torso, pecho, cuello, cabeza: cab, pi, pd, ri, rd, bi, bd, ci, cd, mi, md, mangas: [bri, brd], ...armas, detalles, ojos, labios, cejas, andar, paraguas, manos, colaPelo, falda: faldaMalla, mujer, edad, fase: Math.random() * 6, inclina: 0, aterriza: 0, estilo, lod: true, parpadeo: 2 + Math.random() * 4 };
+  return { grupo: g, cuerpo, torso, pecho, cuello, cabeza: cab, pi, pd, ri, rd, bi, bd, ci, cd, mi, md, mangas: [bri, brd], tonos: { camisa: '#' + mManga.color.getHexString(), pantalon, piel, pelo: '#' + mPelo.color.getHexString() }, ...armas, detalles, ojos, labios, cejas, andar, paraguas, manos, colaPelo, falda: faldaMalla, mujer, edad, fase: Math.random() * 6, inclina: 0, aterriza: 0, estilo, lod: true, parpadeo: 2 + Math.random() * 4 };
 }
 
 export function ponerChamarra(p, color) {
   const m = mat(color); m.side = THREE.DoubleSide;
   const ch = new THREE.Mesh(R.chamarra, m); ch.castShadow = true; ch.scale.copy(p.pecho.scale); p.torso.add(ch);
-  for (const k of p.mangas) k.material = m;
+  for (const k of p.mangas) k.material = conHueso(m);
   const cuello = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.026, 8, 18, Math.PI * 1.4), m); cuello.position.set(0, 0.53, -0.012); cuello.rotation.set(Math.PI / 2 + 0.25, 0, Math.PI * 0.8); p.torso.add(cuello);
 }
+
+function conHueso(m) { if (!m.__sk) { m.__sk = m.clone(); m.__sk.color = m.color; m.__sk.__sk = m.__sk; } return m.__sk; }
 
 export function nivelDetalle(p, cerca) {
   if (p.ocultaRealista || p.lod === cerca) return;

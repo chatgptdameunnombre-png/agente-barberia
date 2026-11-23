@@ -1,7 +1,9 @@
 import * as THREE from 'three';
+import { trocear, lejos } from './ligero.js?v=202611231659';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { letrero } from './ciudad.js?v=202611222131';
-import { alturaCampo, lomas, dentroRegion, RANCHO, PARADOR, PERI } from './sierradatos.js?v=202611222131';
+import { letrero } from './ciudad.js?v=202611231659';
+import { alturaCampo, lomas, dentroRegion, RANCHO, PARADOR, PERI, CAMINOS, ANCHO } from './sierradatos.js?v=202611231659';
+import { VIENTO } from './ciudad.js?v=202611231659';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 const _c = new THREE.Color();
@@ -23,24 +25,54 @@ export class Campo {
     this.torres(esc);
     this.espectaculares(esc);
     this.rocas(esc);
+    this.orilla(esc);
     const m = new THREE.Mesh(mergeGeometries(this.L), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8 })); m.castShadow = m.receiveShadow = true; esc.add(m);
   }
 
   terreno(esc) {
     const T = 1500, n = 150, g = new THREE.PlaneGeometry(T, T, n, n).rotateX(-Math.PI / 2), P = g.attributes.position, col = new Float32Array(P.count * 3), r = this.r;
-    const p1 = new THREE.Color('#7f9a50'), p2 = new THREE.Color('#9aa45a'), seco = new THREE.Color('#b8a66e'), tierra = new THREE.Color('#9a7a54'), t = new THREE.Color();
+    const p1 = new THREE.Color('#5d8240'), p2 = new THREE.Color('#84964a'), seco = new THREE.Color('#b29c5e'), tierra = new THREE.Color('#8c6c4a'), oscuro = new THREE.Color('#46683a'), t = new THREE.Color();
     for (let i = 0; i < P.count; i++) {
       const x = P.getX(i), z = P.getZ(i), m = Math.max(Math.abs(x), Math.abs(z));
       const h = m < 334 ? -0.6 : alturaCampo(x, z);
       P.setY(i, h + 0.035);
       const l = lomas(x * 1.7 + 50, z * 1.7);
-      t.copy(p1).lerp(p2, l).lerp(seco, Math.max(0, h / 30 - 0.1) + (l > 0.62 ? 0.3 : 0)).lerp(tierra, r() < 0.04 ? 0.6 : 0);
+      const l2 = lomas(x * 4.3 - 90, z * 4.3 + 40), l3 = lomas(x * 0.6 + 300, z * 0.6 - 120);
+      t.copy(p1).lerp(p2, l).lerp(oscuro, Math.max(0, l3 - 0.42) * 1.6).lerp(seco, Math.min(0.85, Math.max(0, h / 30 - 0.1) + (l > 0.62 ? 0.3 : 0) + Math.max(0, l2 - 0.55) * 0.9)).lerp(tierra, r() < 0.05 ? 0.55 : 0).multiplyScalar(0.9 + r() * 0.16);
       col.set([t.r, t.g, t.b], i * 3);
     }
     g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.computeVertexNormals();
-    const tx = lienzo(256, 256, (x, w, h) => { x.fillStyle = '#c8c8c8'; x.fillRect(0, 0, w, h); for (let k = 0; k < 9000; k++) { const v = 150 + Math.random() * 105 | 0; x.fillStyle = `rgba(${v},${v},${v},0.5)`; x.fillRect(Math.random() * w, Math.random() * h, 1, 2 + Math.random() * 3); } });
-    tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(T / 6, T / 6); tx.colorSpace = THREE.NoColorSpace;
+    const tx = lienzo(256, 256, (x, w, h) => { x.fillStyle = '#b4b4b4'; x.fillRect(0, 0, w, h); for (let k = 0; k < 60; k++) { const v = 130 + Math.random() * 90 | 0; x.fillStyle = `rgba(${v},${v},${v},0.35)`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 8 + Math.random() * 26, 0, 7); x.fill(); } for (let k = 0; k < 14000; k++) { const v = 95 + Math.random() * 160 | 0; x.fillStyle = `rgba(${v},${v + 6},${v - 8},0.6)`; x.fillRect(Math.random() * w, Math.random() * h, 1, 2 + Math.random() * 5); } });
+    tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(T / 7, T / 7); tx.colorSpace = THREE.NoColorSpace;
     const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, map: tx, roughness: 1 })); m.receiveShadow = true; esc.add(m); this.suelo = m;
+  }
+
+  orilla(esc) {
+    const r = this.r, pasto = [], mata = [], flor = [];
+    const poner = (x, z) => {
+      if (Math.max(Math.abs(x), Math.abs(z)) < 337 || dentroRegion(x, z, 0.6)) return;
+      const k = r(); (k < 0.1 ? mata : k < 0.24 ? flor : pasto).push([x, z]);
+    };
+    for (const C of CAMINOS) for (let i = 0; i + 1 < C.pts.length; i++) {
+      const [ax, az] = C.pts[i], [bx, bz] = C.pts[i + 1], L = Math.hypot(bx - ax, bz - az) || 1, nx = -(bz - az) / L, nz = (bx - ax) / L;
+      for (let d = 0; d < L; d += 1.2) for (const s of [-1, 1]) for (let q = 0; q < 2; q++) { const o = ANCHO / 2 + 2.6 + Math.pow(r(), 1.7) * 34, u = d + r() * 1.5; poner(ax + (bx - ax) * u / L + nx * o * s, az + (bz - az) * u / L + nz * o * s); }
+    }
+    const tp = lienzo(128, 64, (x, w, h) => { x.clearRect(0, 0, w, h); for (let k = 0; k < 70; k++) { const bx = 6 + Math.random() * (w - 12), alto = 18 + Math.random() * 44, inc = (Math.random() - 0.5) * 22, v = Math.random(); x.strokeStyle = `rgb(${104 + v * 70 | 0},${150 + v * 62 | 0},${62 + v * 40 | 0})`; x.lineWidth = 1.5 + Math.random() * 2; x.beginPath(); x.moveTo(bx, h); x.quadraticCurveTo(bx + inc * 0.3, h - alto * 0.6, bx + inc, h - alto); x.stroke(); } });
+    const tf = lienzo(128, 64, (x, w, h) => { x.clearRect(0, 0, w, h); for (let k = 0; k < 34; k++) { const bx = 8 + Math.random() * (w - 16), alto = 20 + Math.random() * 36; x.strokeStyle = '#5f8a3e'; x.lineWidth = 1.6; x.beginPath(); x.moveTo(bx, h); x.lineTo(bx + (Math.random() - 0.5) * 8, h - alto); x.stroke(); x.fillStyle = ['#f2c431', '#f2c431', '#ffffff', '#c890ff', '#ff9a3a'][Math.random() * 5 | 0]; x.beginPath(); x.arc(bx, h - alto, 2.6 + Math.random() * 2.2, 0, 7); x.fill(); } });
+    const cruz = () => mergeGeometries([0, 1, 2].map(k => new THREE.PlaneGeometry(1.5, 0.75).translate(0, 0.375, 0).rotateY(k * Math.PI / 3)));
+    const viento = m => { m.onBeforeCompile = sh => { sh.uniforms.tiempo = VIENTO; sh.vertexShader = 'uniform float tiempo;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vec4 ipv = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);\n  transformed.x += sin(tiempo * 1.7 + ipv.x * 0.35 + ipv.z * 0.21) * 0.11 * position.y;\n  transformed.z += cos(tiempo * 1.3 + ipv.x * 0.18) * 0.07 * position.y;'); }; return m; };
+    const o = new THREE.Object3D();
+    const sembrar = (lista, geo, mat, esc0, alto, colores) => {
+      if (!lista.length) return;
+      const im = new THREE.InstancedMesh(geo, mat, lista.length);
+      lista.forEach(([x, z], i) => { const e = esc0 * (0.7 + r() * 0.75); o.position.set(x, alturaCampo(x, z) + alto, z); o.rotation.set(0, r() * 6.28, 0); o.scale.set(e, e * (0.8 + r() * 0.5), e); o.updateMatrix(); im.setMatrixAt(i, o.matrix); im.setColorAt(i, _c.set(colores[r() * colores.length | 0]).multiplyScalar(0.85 + r() * 0.3)); });
+      im.instanceColor.needsUpdate = true; im.castShadow = false; im.receiveShadow = true; esc.add(im);
+      lejos(trocear(im, 80), 135);
+    };
+    sembrar(pasto, cruz(), viento(new THREE.MeshLambertMaterial({ map: tp, alphaTest: 0.42, side: THREE.DoubleSide })), 1, -0.03, ['#ffffff', '#e8f0c8', '#f2e2a8', '#d8e8b8']);
+    sembrar(flor, cruz(), viento(new THREE.MeshLambertMaterial({ map: tf, alphaTest: 0.42, side: THREE.DoubleSide })), 0.9, -0.03, ['#ffffff']);
+    sembrar(mata, mergeGeometries([new THREE.SphereGeometry(0.62, 9, 7).scale(1, 0.74, 1).translate(0, 0.38, 0), new THREE.SphereGeometry(0.45, 8, 6).scale(1, 0.8, 1).translate(0.48, 0.3, 0.2), new THREE.SphereGeometry(0.4, 8, 6).scale(1, 0.8, 1).translate(-0.4, 0.27, -0.3)]), new THREE.MeshLambertMaterial({ color: '#ffffff' }), 1.1, 0, ['#5f8a44', '#6a944a', '#7a9a44', '#4f7a3a', '#8a9a50']);
+    this.nOrilla = pasto.length + flor.length + mata.length;
   }
 
   campoFilas(x0, z0, x1, z1, paso, f) { for (let x = x0; x <= x1; x += paso) for (let z = z0; z <= z1; z += paso * 1.6) { const px = x + (this.r() - 0.5) * 0.6, pz = z + (this.r() - 0.5) * 0.6; if (libreCampo(px, pz)) f(px, pz); } }
@@ -52,9 +84,9 @@ export class Campo {
     const geo = mergeGeometries(hojas.map(g => g.toNonIndexed()));
     const pos = [];
     for (const [x0, z0, x1, z1] of [[-640, -200, -400, -80], [-640, 100, -400, 260], [-260, -640, -40, -420], [60, -640, 300, -430], [-640, -420, -420, -300]]) this.campoFilas(x0, z0, x1, z1, 4.6, (x, z) => pos.push([x, z]));
-    const im = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ color: '#7aa8a8', roughness: 0.7, side: THREE.DoubleSide }), pos.length), o = new THREE.Object3D();
-    pos.forEach(([x, z], i) => { o.position.set(x, alturaCampo(x, z), z); o.rotation.set(0, this.r() * 6, 0); o.scale.setScalar(0.85 + this.r() * 0.4); o.updateMatrix(); im.setMatrixAt(i, o.matrix); im.setColorAt(i, _c.set('#6f9fa3').offsetHSL(0, 0, (this.r() - 0.5) * 0.08)); });
-    im.castShadow = false; esc.add(im); this.nAgaves = pos.length;
+    const im = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.82, side: THREE.DoubleSide }), pos.length), o = new THREE.Object3D();
+    pos.forEach(([x, z], i) => { o.position.set(x, alturaCampo(x, z), z); o.rotation.set(0, this.r() * 6, 0); o.scale.setScalar(0.85 + this.r() * 0.4); o.updateMatrix(); im.setMatrixAt(i, o.matrix); im.setColorAt(i, _c.set('#5f8f88').offsetHSL((this.r() - 0.5) * 0.03, (this.r() - 0.5) * 0.08, (this.r() - 0.5) * 0.1)); });
+    im.castShadow = false; im.instanceColor.needsUpdate = true; esc.add(im); this.nAgaves = pos.length; lejos(trocear(im, 110), 300);
   }
 
   milpas(esc) {
@@ -64,7 +96,7 @@ export class Campo {
     for (const [x0, z0, x1, z1] of [[-620, 300, -470, 450], [160, -600, 280, -460], [-600, -600, -470, -470]]) this.campoFilas(x0, z0, x1, z1, 2.3, (x, z) => pos.push([x, z]));
     const im = new THREE.InstancedMesh(g, new THREE.MeshStandardMaterial({ map: tx, alphaTest: 0.4, side: THREE.DoubleSide, roughness: 0.9 }), pos.length), o = new THREE.Object3D();
     pos.forEach(([x, z], i) => { o.position.set(x, alturaCampo(x, z), z); o.rotation.set(0, this.r() * 6, 0); o.scale.setScalar(0.8 + this.r() * 0.4); o.updateMatrix(); im.setMatrixAt(i, o.matrix); });
-    esc.add(im);
+    esc.add(im); lejos(trocear(im, 110), 260);
   }
 
   rancho(esc) {
@@ -102,6 +134,7 @@ export class Campo {
   parador(esc) {
     const P = PARADOR, L = this.L, cx = (P.x0 + P.x1) / 2, cz = (P.z0 + P.z1) / 2, j = this.j;
     const piso = new THREE.Mesh(new THREE.PlaneGeometry(P.x1 - P.x0, P.z1 - P.z0).rotateX(-Math.PI / 2).translate(cx, 0.075, cz), new THREE.MeshStandardMaterial({ color: '#6a6a6e', roughness: 0.95 })); piso.receiveShadow = true; esc.add(piso);
+    L.push(caja(P.x1 - P.x0, 0.04, 5, cx, 0.06, 6, '#6a6a6e'));
     L.push(caja(12, 3.6, 7, 410, 1.8, 33, '#f2ede4'), caja(13, 0.35, 8, 410, 3.75, 33, '#c8202e'));
     j.mundo.agregar(404, 29.5, 416, 36.5, 3.6);
     const l = letrero('FONDA LA CURVA · BIRRIA', '#c8202e', '#ffffff', 10, 1.1); l.position.set(410, 3.0, 29.4); l.rotation.y = Math.PI; esc.add(l);
@@ -144,7 +177,7 @@ export class Campo {
     for (let k = 0; k < 340; k++) { const a = this.r() * Math.PI * 2, d = 380 + this.r() * 330, x = Math.cos(a) * d, z = Math.sin(a) * d; if (libreCampo(x, z, 8)) pos.push([x, z]); }
     const im = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), new THREE.MeshStandardMaterial({ color: '#9a9284', roughness: 1, flatShading: true }), pos.length), o = new THREE.Object3D();
     pos.forEach(([x, z], i) => { const s = 0.4 + this.r() * 1.6; o.position.set(x, alturaCampo(x, z) + s * 0.25, z); o.rotation.set(this.r() * 3, this.r() * 3, this.r() * 3); o.scale.set(s * (0.8 + this.r() * 0.6), s * 0.6, s); o.updateMatrix(); im.setMatrixAt(i, o.matrix); });
-    im.castShadow = false; esc.add(im);
+    im.castShadow = false; esc.add(im); lejos(trocear(im, 220), 420);
   }
 
   actualizar(dt) {
