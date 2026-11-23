@@ -21,7 +21,7 @@ export class ConosLuz {
 
   actualizar() {
     const A = this.j.ambiente, n = A.noche ?? 0, humedo = Math.max(A.lluvia || 0, A.neblina || 0);
-    const op = n > 0.3 ? (n - 0.3) / 0.7 * (0.05 + humedo * 0.09) : 0;
+    const op = n > 0.3 ? (n - 0.3) / 0.7 * (0.1 + humedo * 0.16) : 0;
     this.mat.opacity = op;
     this.im.visible = op > 0.005 && !this.j.jugador.interior;
   }

@@ -1,12 +1,13 @@
 import * as THREE from 'three';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221845';
-import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611221845';
-import { TIPOS } from './vehiculos.js?v=202611221845';
-import { glifoSVG } from './iconos.js?v=202611221845';
-import { TITULOS } from './misiones.js?v=202611221845';
-import { CONTACTOS } from './contactos.js?v=202611221845';
-import { SALIDAS } from './trabajos.js?v=202611221845';
-import { linea } from './ciudad.js?v=202611221845';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221927';
+import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611221927';
+import { nombreTipo } from './tuneo.js?v=202611221927';
+import { TIPOS } from './vehiculos.js?v=202611221927';
+import { glifoSVG } from './iconos.js?v=202611221927';
+import { TITULOS } from './misiones.js?v=202611221927';
+import { CONTACTOS } from './contactos.js?v=202611221927';
+import { SALIDAS } from './trabajos.js?v=202611221927';
+import { linea } from './ciudad.js?v=202611221927';
 const tarjeta = o => `<div class="tarjeta ${o.mia ? 'mia' : ''}">${o.src ? `<img src="${o.src}" alt="">` : `<i class="foto" style="${o.img}"></i>`}<div class="cuerpo"><b>${o.titulo}</b><small>${o.desc}</small>${o.barras ? `<div class="barras">${o.barras.map(([n, v]) => `<span><em>${n}</em><i style="--v:${Math.min(1, v) * 100}%"></i></span>`).join('')}</div>` : ''}<div class="pie">${o.mia ? `<em class="sello">${o.sello || 'TUYO'}</em>` : `<button data-accion="${o.accion}" type="button">${o.precio}</button>`}</div></div></div>`;
 
 const dinero = n => '$' + Math.floor(n).toLocaleString('es-MX');
@@ -111,12 +112,12 @@ export class Telefono {
     } else if (this.vista === 'autos') {
       const E = j.economia;
       P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Autos</b></header><div class="lista">
-        ${E.garaje.length ? '<h4>TU GARAJE</h4>' + E.garaje.map((g, i) => { const A = AUTOS.find(a => a.id === g.tipo); return tarjeta({ src: j.fotoAuto(g.tipo, g.color), titulo: A.nombre, desc: Object.keys(g.mejoras).length + ' mejoras · te lo llevan donde estés', mia: false, accion: `pedir:${i}`, precio: 'Traérmelo', extra: 'garaje' }); }).join('') : ''}
+        ${E.garaje.length ? '<h4>TU GARAJE</h4>' + E.garaje.map((g, i) => { return tarjeta({ src: j.fotoAuto(g.tipo, g.color), titulo: nombreTipo(g.tipo), desc: Object.keys(g.mejoras).length + ' mejoras · te lo llevan donde estés', mia: false, accion: `pedir:${i}`, precio: 'Traérmelo', extra: 'garaje' }); }).join('') : ''}
         <h4>A LA VENTA</h4>${AUTOS.filter(a => !E.garaje.some(g => g.tipo === a.id)).map(a => tarjeta({ src: j.fotoAuto(a.id, a.color), titulo: a.nombre, desc: `Máx. ${Math.round(TIPOS[a.id].vmax * 3.6)} km/h · ${a.id === 'moto' ? 'ágil y rápida' : a.id === 'camioneta' ? 'resistente' : a.id === 'deportivo' ? 'el más rápido' : 'económico'}`, accion: `auto:${a.id}`, precio: dinero(a.precio), barras: [['Velocidad', TIPOS[a.id].vmax / 55], ['Aceleración', TIPOS[a.id].acel / 17], ['Resistencia', TIPOS[a.id].salud / 160]] })).join('')}</div>`;
     } else if (this.vista === 'taller') {
       const E = j.economia, ICM = { motor: 'llave', frenos: 'punto', blindaje: 'escudo', nitro: 'chispa' };
       P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Taller Don Chuy</b></header><div class="lista">
-        ${E.garaje.length ? E.garaje.map((g, i) => `<div class="portada-auto" style="background-image:url(${j.fotoAuto(g.tipo, g.color)})"><b>${AUTOS.find(a => a.id === g.tipo).nombre}</b></div>` + MEJORAS.map(m => `<div class="fila mejora ${g.mejoras[m.id] ? 'mia' : ''}"><i class="ico">${glifoSVG(ICM[m.id])}</i><span><b>${m.nombre}</b><small>${m.desc}</small></span>${g.mejoras[m.id] ? '<em>LISTO</em>' : `<button data-accion="mejora:${i}:${m.id}" type="button">${dinero(m.precio)}</button>`}</div>`).join('')).join('') : '<p class="vacio">Compra un auto en la app Autos para poder mejorarlo aquí.</p>'}</div>`;
+        ${E.garaje.length ? E.garaje.map((g, i) => `<div class="portada-auto" style="background-image:url(${j.fotoAuto(g.tipo, g.color)})"><b>${nombreTipo(g.tipo)}</b></div>` + MEJORAS.map(m => `<div class="fila mejora ${g.mejoras[m.id] ? 'mia' : ''}"><i class="ico">${glifoSVG(ICM[m.id])}</i><span><b>${m.nombre}</b><small>${m.desc}</small></span>${g.mejoras[m.id] ? '<em>LISTO</em>' : `<button data-accion="mejora:${i}:${m.id}" type="button">${dinero(m.precio)}</button>`}</div>`).join('')).join('') : '<p class="vacio">Compra un auto en la app Autos para poder mejorarlo aquí.</p>'}</div>`;
     } else if (this.vista === 'comida') {
       P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Comida a domicilio</b></header><div class="lista rejilla2">
         ${COMIDA.map((c, i) => `<div class="plato"><i style="background-position:${(i % 3) * 50}% ${Math.floor(i / 3) * 100}%"></i><b>${c.nombre}</b><small>+${c.cura} de salud</small><button data-accion="comida:${c.id}" type="button">${dinero(c.precio)}</button></div>`).join('')}</div>`;

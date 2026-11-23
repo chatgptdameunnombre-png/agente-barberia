@@ -1,4 +1,4 @@
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221845';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221927';
 
 export const PEDIDOS = [
   { tipo: 'deportivo', color: '#c8a030', nombre: 'Deportivo dorado', pago: 3500 },

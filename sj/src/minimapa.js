@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611221845';
-import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611221845';
-import { dibujarGlifo } from './iconos.js?v=202611221845';
+import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611221927';
+import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611221927';
+import { dibujarGlifo } from './iconos.js?v=202611221927';
 
 export const ICONOS = {
   taller: { c: '#ffc94a', t: 'llave', n: 'Taller de Don Chuy' },
@@ -163,6 +163,9 @@ export class Minimapa {
     for (const m of j.placazos?.marcasMapa() || []) l.push(m);
     for (const m of j.pesca?.marcasMapa() || []) l.push(m);
     for (const m of j.lavado?.marcasMapa() || []) l.push(m);
+    for (const m of j.encargos?.marcasMapa() || []) l.push(m);
+    for (const m of j.territorio?.marcasMapa() || []) l.push(m);
+    for (const m of j.negociosVivos?.marcasMapa() || []) l.push(m);
     if (j.duo && !j.jugador.coche) l.push({ x: j.duo.pos.x, z: j.duo.pos.z, tipo: 'aliado' });
     const d = j.gps.destino;
     if (d) l.push({ x: d.x, z: d.z, tipo: 'pin', color: '#b46bff' });
@@ -184,6 +187,7 @@ export class Minimapa {
     g.scale(s / this.k, s / this.k);
     g.translate(-this.P(p.x), -this.P(p.z));
     g.drawImage(this.base, 0, 0);
+    for (const z of j.territorio?.zonasMapa() || []) { g.fillStyle = z.color + '33'; g.fillRect(this.P(z.x0), this.P(z.z0), this.P(z.x1) - this.P(z.x0), this.P(z.z1) - this.P(z.z0)); }
     const r = j.gps.ruta;
     if (r) {
       g.lineCap = 'round'; g.lineJoin = 'round';
@@ -349,6 +353,7 @@ export class Minimapa {
     const [ox, oy] = S(-W, -W);
     g.imageSmoothingEnabled = true;
     g.drawImage(this.base, ox, oy, W * 2 * this.zoom, W * 2 * this.zoom);
+    for (const z of j.territorio?.zonasMapa() || []) { const [x0, y0] = S(z.x0, z.z0), [x1, y1] = S(z.x1, z.z1); g.fillStyle = z.color + (z.ataque ? '66' : '30'); g.fillRect(x0, y0, x1 - x0, y1 - y0); g.strokeStyle = z.color + 'aa'; g.lineWidth = z.ataque ? 3 : 1.5; g.strokeRect(x0, y0, x1 - x0, y1 - y0); if (this.zoom > 1.6) { g.font = '800 11px Inter'; g.textAlign = 'center'; g.fillStyle = '#ffffffcc'; g.fillText(z.nombre, (x0 + x1) / 2, (y0 + y1) / 2 - 7); g.fillStyle = z.color; g.fillText(z.banda, (x0 + x1) / 2, (y0 + y1) / 2 + 8); } }
     const r = j.gps.ruta;
     if (r) {
       g.lineCap = 'round'; g.lineJoin = 'round';

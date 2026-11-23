@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { aplicarMejoras, AUTOS } from './economia.js?v=202611221845';
-import { TIPOS } from './vehiculos.js?v=202611221845';
+import { aplicarMejoras, AUTOS } from './economia.js?v=202611221927';
+import { TIPOS } from './vehiculos.js?v=202611221927';
+import { esCalle } from './ciudad.js?v=202611221927';
 
 export const NEONES = { morado: '#b46bff', azul: '#3fa8ff', verde: '#3fff8a', rosa: '#ff4fd8', rojo: '#ff3b3b' };
 const NOMBRE_NEON = { morado: 'morado', azul: 'azul', verde: 'verde', rosa: 'rosa', rojo: 'rojo' };
@@ -18,8 +19,8 @@ function texNeon() {
 export function ponerNeon(c, color) {
   if (c.neon) { c.grupo.remove(c.neon); c.neon.material.dispose(); c.neon = null; }
   if (!color || c.tipo === 'moto') return;
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(c.t.ancho * 1.7, c.t.largo * 1.25).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: texNeon(), color: NEONES[color] || color, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
-  m.position.y = 0.04; m.renderOrder = 2; c.grupo.add(m); c.neon = m;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(c.t.ancho * 2.1, c.t.largo * 1.4).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: texNeon(), color: NEONES[color] || color, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+  m.position.y = 0.13; m.renderOrder = 2; c.grupo.add(m); c.neon = m;
 }
 
 export function aplicarTuneo(c, m) {
@@ -42,7 +43,7 @@ export class Tuneo {
     x.fillStyle = 'rgba(246,196,49,0.9)'; x.font = '900 44px Impact, Arial Black, sans-serif'; x.textAlign = 'center'; x.save(); x.translate(128, 192); x.rotate(-Math.PI / 2); x.fillText('MEJORAS', 0, 16); x.restore();
     const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 8;
     const m = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 5.4).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: tx, transparent: true, roughness: 0.8, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
-    m.position.set(this.punto.x, 0.05, this.punto.z); m.receiveShadow = true; juego.escena.add(m);
+    m.position.set(this.punto.x, esCalle(this.punto.x, this.punto.z) ? 0.05 : 0.2, this.punto.z); m.receiveShadow = true; juego.escena.add(m);
   }
 
   cerca() {
@@ -84,13 +85,13 @@ export class Tuneo {
     const j = this.j, c = j.jugador.coche;
     if (!c) return;
     if (j.policia.estrellas) { j.hud.notificar('alerta', 'Don Chuy no te abre', 'Primero pierde a la policía.', 3); return; }
-    c.vx = c.vz = 0; c.vel = 0;
+    c.vx = c.vz = 0;
     j.actividades.abrirTienda({ titulo: 'TALLER DON CHUY · MEJORAS', sub: nombreTipo(c.tipo).toUpperCase() + ' · ' + Math.round(100 * c.salud / c.t.salud) + '% DE SALUD', articulos: this.articulos() });
   }
 
   actualizar() {
     const j = this.j;
     if (this.cerca() && !j.overlay) j.hud.pista('E', 'Mejorar el coche · Taller Don Chuy');
-    for (const c of j.coches) if (c.neon) c.neon.material.opacity = 0.35 + (j.ambiente.noche ?? 0) * 0.6;
+    for (const c of j.coches) if (c.neon) { c.neon.material.opacity = 0.45 + (j.ambiente.noche ?? 0) * 0.55; c.neon.position.y = (esCalle(c.pos.x, c.pos.z) ? 0.05 : 0.2) - c.grupo.position.y; }
   }
 }

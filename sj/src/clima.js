@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { LIMITE, VIENTO } from './ciudad.js?v=202611221845';
+import { LIMITE, VIENTO } from './ciudad.js?v=202611221927';
 
 export class Clima {
   constructor(juego) {
@@ -7,13 +7,13 @@ export class Clima {
     const tam = LIMITE * 2 + 40, A = juego.ciudad?.agua?.material;
     const nm = A?.normalMap ? A.normalMap.clone() : null;
     if (nm) { nm.wrapS = nm.wrapT = THREE.RepeatWrapping; nm.repeat.set(tam / 9, tam / 9); nm.needsUpdate = true; }
-    this.mat = new THREE.MeshStandardMaterial({ color: '#33444a', roughness: 0.06, metalness: 0.35, transparent: true, opacity: 0, depthWrite: false, normalMap: nm, normalScale: new THREE.Vector2(0.35, 0.35), envMapIntensity: 1.3 });
+    this.mat = new THREE.MeshStandardMaterial({ color: '#3a3628', roughness: 0.12, metalness: 0.05, transparent: true, opacity: 0, depthWrite: false, normalMap: nm, normalScale: new THREE.Vector2(0.5, 0.5), envMapIntensity: 0.35 });
     this.agua = new THREE.Mesh(new THREE.PlaneGeometry(tam, tam).rotateX(-Math.PI / 2), this.mat);
     this.agua.position.y = 0.02; this.agua.visible = false; this.agua.renderOrder = 1; this.agua.receiveShadow = false;
     juego.escena.add(this.agua);
-    const N = 140, geo = new THREE.PlaneGeometry(0.16, 0.12);
-    this.hojas = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ color: '#ffffff', side: THREE.DoubleSide }), N);
-    const cols = ['#6a8a3a', '#a87a3a', '#e8e2d2', '#8a6a3a', '#5a7a2a', '#dcd6c4'];
+    const N = 140, geo = new THREE.PlaneGeometry(0.11, 0.08);
+    this.hojas = new THREE.InstancedMesh(geo, new THREE.MeshBasicMaterial({ color: '#ffffff', side: THREE.DoubleSide, fog: true }), N);
+    const cols = ['#7a9a4a', '#b8884a', '#d8d2c2', '#9a7a4a', '#6a8a3a', '#c8c2b0'];
     for (let i = 0; i < N; i++) this.hojas.setColorAt(i, new THREE.Color(cols[i % cols.length]));
     this.hojas.visible = false; this.hojas.frustumCulled = false; this.hojas.castShadow = false;
     this.hojasD = Array.from({ length: N }, () => ({ x: (Math.random() - 0.5) * 60, y: Math.random() * 6, z: (Math.random() - 0.5) * 60, r: Math.random() * 6, v: 0.6 + Math.random() * 0.8 }));
@@ -50,8 +50,8 @@ export class Clima {
     this.agua.visible = N > 0.02;
     if (this.agua.visible) {
       this.agua.position.y = 0.02 + N * 0.1;
-      this.mat.opacity = Math.min(0.85, N * 1.1);
-      const ap = A.noche ?? 0; this.mat.color.setRGB(0.2 - ap * 0.12, 0.26 - ap * 0.15, 0.29 - ap * 0.16);
+      this.mat.opacity = Math.min(0.62, N * 0.8);
+      const ap = A.noche ?? 0; this.mat.color.setRGB(0.23 - ap * 0.15, 0.21 - ap * 0.14, 0.15 - ap * 0.1);
       if (this.mat.normalMap) this.mat.normalMap.offset.set(VIENTO.value * 0.02, VIENTO.value * 0.013);
     }
     if (this.activa) {

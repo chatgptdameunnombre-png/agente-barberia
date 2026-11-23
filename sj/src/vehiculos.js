@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611221845';
-import { mat } from './persona.js?v=202611221845';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611221927';
+import { mat } from './persona.js?v=202611221927';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611221845';
+import { hoja } from './texturas.js?v=202611221927';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, vocho: 1, vochotaxi: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
@@ -799,7 +799,7 @@ export class Coche {
     const rapido = Math.min(1, Math.abs(fw) / t.vmax);
     const tasa = this.giroSuave * t.giro * factorV * (1 - rapido * 0.5) * (freno ? 1.35 : 1);
     this.yaw -= tasa * dt;
-    const agarre = this.tipo === 'lancha' ? 1.6 : freno ? 1.3 : 7.5;
+    const agarre = (this.tipo === 'lancha' ? 1.6 : freno ? 1.3 : 7.5) * (this.tipo === 'lancha' ? 1 : this.juego.resbalon || 1);
     lat *= Math.exp(-agarre * dt);
     if (freno) fw -= Math.sign(fw) * Math.min(Math.abs(fw), 9 * dt);
     this.derrape = Math.abs(lat);
@@ -934,7 +934,7 @@ export class Coche {
   }
 
   ponchar(i) {
-    const r = this.ruedas[i]; if (!r || this.bici || this.quemado) return false;
+    const r = this.ruedas[i]; if (!r || this.bici || this.quemado || this.mejoras?.llantas) return false;
     this.ponchadas = this.ponchadas || new Set(); if (this.ponchadas.has(i)) return false;
     this.ponchadas.add(i); r.scale.y = r.scale.z = (r.scale.y || 1) * 0.74; r.parent.position.y -= 0.09; this.carro.rotation.z += (r.parent.position.x > 0 ? -1 : 1) * 0.03;
     this.juego.audio?.ruidoCorto?.(0.5, 900, 0.2, 'lowpass', 0.9);

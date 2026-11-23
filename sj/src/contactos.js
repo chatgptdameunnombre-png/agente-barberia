@@ -1,6 +1,7 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611221845';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221845';
-import { Peaton } from './peatones.js?v=202611221845';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611221927';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221927';
+import { Peaton } from './peatones.js?v=202611221927';
+import { romperVitrina, reponerVitrinas } from './joyeria.js?v=202611221927';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {
@@ -1171,6 +1172,142 @@ export const CONTACTOS = {
           if (m.paso === 2) { m.objetivos = []; m.objetivo('<b>Pierde a la policía.</b>'); if (!j.policia.estrellas) return 'ok'; }
         },
         fin(m) { m.j.hud.dialogos([['Capitán Ruelas', 'Sin su sicario, El Contador está solo. Cuando quieras trabajo, ya sabes dónde estoy.']]); }
+      }
+    ]
+  },
+  profe: {
+    nombre: 'El Profe', letra: 'H', modelo: 'peaton9', color: '#7ae0ff', zona: 'Banco Central', requisito: 2,
+    apariencia: { camisa: '#3a3a44', pantalon: '#22262e', lentes: true, reloj: true, sombrero: null, complexion: 0.95, edad: 'mayor', barba: 'candado', mangaCorta: false, mujer: false, peloLargo: false },
+    lugar: j => { const B = j.ciudad.lugares.banco; return libre(j, B.x - 22, B.z + 10); },
+    lista: [
+      {
+        titulo: 'EL RECONOCIMIENTO', premio: 600,
+        inicio(m) {
+          m.malos = null; m.joyas = null; m.fotos = null; m.modo = null; m.alarma = false; m.auto = null; m.maleta = null;
+          const j = m.j;
+          m.dialogo([['El Profe', 'Llevo veinte años planeando golpes y nunca he pisado una cárcel. ¿Sabes por qué? Porque primero se mira.'], ['El Profe', 'Ve a la Joyería Diamante como cliente. Fíjate en las cámaras, las vitrinas y la caja fuerte. Párate junto a cada cosa.']]);
+          m.tienda = j.interiores.tiendas.find(t => t.tipo === 'joyeria');
+          m.marcar(1, m.tienda.puerta.x, m.tienda.puerta.z, 2, 3, '#7ae0ff');
+          m.objetivo('Entra a la <b>Joyería Diamante</b>.');
+        },
+        actualizar(m) {
+          const j = m.j, I = j.interiores, t = m.tienda, J = j.jugador;
+          if (m.paso === 0 && I.dentro === t) {
+            const X = t.interior.ox, Z = t.interior.oz, L = t.interior.L, W = t.interior.W;
+            m.fotos = [['las cámaras', X - W / 2 + 1.4, Z - L / 2 + 1.6], ['las vitrinas', X, Z + 1.0], ['la caja fuerte', X + W / 2 - 2, Z - L / 2 + 2.0]].map(([n, x, z]) => { const r = j.crearRecogible('sobre', x, z); r.texto = 'Viste ' + n; m.extra.push(r.malla); return r; });
+            m.paso = 1;
+          }
+          if (m.paso === 1) {
+            const n = m.fotos.filter(r => r.tomado).length;
+            m.objetivo(`Revisa la joyería: <b>${n} de 3</b> (cámaras, vitrinas, caja fuerte).`);
+            if (n === 3) { m.paso = 2; j.hud.grande('YA LO VISTE TODO', 'Sal sin llamar la atención', 2); }
+          }
+          if (m.paso === 2) { m.objetivo('Sal de la joyería.'); if (!I.dentro) return 'ok'; }
+        },
+        fin(m) { m.j.hud.dialogos([['El Profe', 'Tres cámaras, seis vitrinas y una caja que no vale la pena. Ahora necesitamos con qué irnos.']]); }
+      },
+      {
+        titulo: 'EL AUTO DE ESCAPE', premio: 900,
+        inicio(m) {
+          m.malos = null; m.joyas = null; m.fotos = null; m.modo = null; m.alarma = false; m.maleta = null;
+          const j = m.j, t = j.interiores.tiendas.find(q => q.tipo === 'joyeria');
+          m.tienda = t;
+          m.dialogo([['El Profe', 'Hay un deportivo negro estacionado en la ciudad que nadie va a extrañar. Es el más rápido que conozco.'], ['El Profe', 'Llévalo a la vuelta de la joyería y déjalo ahí. Sin policía detrás, que no lo vean.']]);
+          m.auto = coche(m, 'deportivo', '#101012', null, false);
+          m.escondite = puntoCalleAleatorio(t.puerta, 25, 55, 30) || { x: t.puerta.x + 30, z: t.puerta.z, yaw: 0 };
+          m.objetivos = [m.auto];
+          m.objetivo('Roba el <b>deportivo negro</b>.');
+        },
+        actualizar(m) {
+          const j = m.j, c = m.auto, J = j.jugador;
+          if (c.quemado || c.ahogado) return 'falla Se destruyó el auto de escape.';
+          if (m.paso === 0) { if (J.coche === c) { m.paso = 1; m.objetivos = []; m.marcar(1, m.escondite.x, m.escondite.z, 4, 2, '#7ae0ff'); } return; }
+          if (m.paso === 1) {
+            const d = Math.hypot(c.pos.x - m.escondite.x, c.pos.z - m.escondite.z);
+            m.objetivo(j.policia.estrellas ? '<b>Pierde a la policía</b> antes de dejar el auto.' : d < 6 ? 'Bájate y <b>deja el auto</b> ahí.' : 'Deja el auto a la <b>vuelta de la joyería</b>.');
+            if (d < 6 && J.coche !== c && !j.policia.estrellas) { j.atracoEscondite = { x: c.pos.x, z: c.pos.z, yaw: c.yaw }; return 'ok'; }
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['El Profe', 'Perfecto. Ahí se queda hasta el día del golpe.']]); }
+      },
+      {
+        titulo: 'EL EQUIPO', premio: 900,
+        inicio(m) {
+          m.malos = null; m.joyas = null; m.fotos = null; m.modo = null; m.alarma = false; m.auto = null;
+          const j = m.j, T = j.interiores.tiendas.find(q => q.tipo === 'trinchera') || j.interiores.tiendas.find(q => q.tipo === 'armeria');
+          m.dialogo([['El Profe', 'En Excedentes La Trinchera me guardan una maleta: cortavidrios, guantes y uniformes de Seguridad Escudo.'], ['El Profe', 'Los Halcones saben que existe. Recógela y tráemela.']]);
+          const p = libre(j, T.puerta.x + T.fx * 4 + T.fz * 3, T.puerta.z + T.fz * 4 - T.fx * 3);
+          m.maleta = j.crearRecogible('sobre', p.x, p.z); m.maleta.texto = 'Tienes la maleta del Profe'; m.extra.push(m.maleta.malla);
+          m.marcar(1, p.x, p.z, 2, 3, '#7ae0ff');
+          m.objetivo('Recoge la <b>maleta</b> afuera de La Trinchera.');
+        },
+        actualizar(m) {
+          const j = m.j;
+          if (m.paso === 0 && m.maleta.tomado) {
+            m.paso = 1; const jp = j.jugador.posicion;
+            m.malos = [];
+            for (const a of [0.8, 3.6]) { const p = libre(j, jp.x + Math.cos(a) * 26, jp.z + Math.sin(a) * 26); m.malos.push(...matones(m, p.x, p.z, 3, ['pistola', 'subfusil', 'escopeta'], 'atacar')); }
+            j.hud.grande('¡LOS HALCONES!', 'Te estaban esperando', 2);
+            const P = CONTACTOS.profe.lugar(j); m.marcar(1, P.x, P.z, 2, 3, '#7ae0ff');
+          }
+          if (m.paso === 1) {
+            m.objetivos = m.malos.filter(g => !g.muerto && g.pos.distanceTo(j.jugador.posicion) < 60);
+            m.objetivo('Lleva la maleta con <b>El Profe</b>' + (m.objetivos.length ? ` · quedan <b>${m.objetivos.length}</b> Halcones cerca.` : '.'));
+            const P = CONTACTOS.profe.lugar(j), jp = j.jugador.posicion;
+            if (Math.hypot(jp.x - P.x, jp.z - P.z) < 4 && !j.policia.estrellas) { j.jugador.darArma('taser', 9); return 'ok'; }
+            if (Math.hypot(jp.x - P.x, jp.z - P.z) < 4) m.objetivo('<b>Pierde a la policía</b> antes de entregar la maleta.');
+          }
+        },
+        fin(m) { m.j.hud.dialogos([['El Profe', 'Todo completo. Te dejo un táser: mañana no quiero muertos si se puede evitar.']]); }
+      },
+      {
+        titulo: 'EL GOLPE A LA JOYERÍA', premio: 12000,
+        inicio(m) {
+          m.malos = null; m.joyas = null; m.fotos = null; m.modo = null; m.alarma = false; m.maleta = null;
+          const j = m.j, t = j.interiores.tiendas.find(q => q.tipo === 'joyeria');
+          m.tienda = t; reponerVitrinas(t);
+          m.dialogo([['El Profe', 'Hoy es el día. Tienes dos caminos.'], ['El Profe', 'Callado: párate en la marca azul, te pones el uniforme de Seguridad Escudo y entras como guardia. Duerme a los 3 guardias sin que nadie oiga (táser, silenciador o por la espalda) y vacía las vitrinas. Pago completo.'], ['El Profe', 'A lo bruto: entras directo, suena la alarma y tienes la policía encima. Se gana menos. Tú decides.']]);
+          const E = j.atracoEscondite || puntoCalleAleatorio(t.puerta, 25, 55, 30) || { x: t.puerta.x + 30, z: t.puerta.z, yaw: 0 };
+          m.auto = coche(m, 'deportivo', '#101012', E, false); m.auto.reservado = true;
+          m.azul = libre(j, t.puerta.x + t.fz * 6 + t.fx * 2, t.puerta.z - t.fx * 6 + t.fz * 2);
+          m.marcar(1, m.azul.x, m.azul.z, 1.5, 2, '#3a8aff'); m.marcar(2, t.puerta.x, t.puerta.z, 2, 3, '#ff3b5a');
+          m.objetivo('Elige: <b>marca azul</b> (callado) o <b>puerta</b> (a lo bruto).');
+        },
+        actualizar(m, dt) {
+          const j = m.j, I = j.interiores, t = m.tienda, J = j.jugador, jp = J.posicion;
+          if (m.paso === 0) {
+            if (!m.modo && Math.hypot(jp.x - m.azul.x, jp.z - m.azul.z) < 1.6) { m.modo = 'callado'; m.ocultar?.(1); j.hud.grande('UNIFORME PUESTO', 'Ahora eres de Seguridad Escudo', 2); m.objetivo('Entra a la joyería <b>sin hacer ruido</b>.'); }
+            if (I.dentro === t) {
+              if (!m.modo) m.modo = 'bruto';
+              m.ocultar?.(1); m.ocultar?.(2);
+              m.malos = matonesDentro(m, t, 3, ['pistola', 'escopeta', 'pistola']);
+              m.joyas = t.vitrinas.map(v => { const r = j.crearRecogible('sobre', v.x, v.z); r.texto = 'Joyas en la bolsa'; r.vit = v; m.extra.push(r.malla); r.malla.children[0].material.color.set('#e0b040'); return r; });
+              if (m.modo === 'callado') for (const g of m.malos) { g.estado = 'quieto'; g.yaw = Math.random() * 6.28; }
+              else { m.alarma = true; j.policia.subir(3); j.hud.grande('¡A LO BRUTO!', 'Ya sonó la alarma: rápido', 2); }
+              m.paso = 1; m.reloj = 75;
+            }
+          }
+          if (m.paso === 1) {
+            for (const r of m.joyas) if (r.tomado && !r.vit.rota) romperVitrina(j, r.vit);
+            const vivos = m.malos.filter(g => !g.muerto), n = m.joyas.filter(r => r.tomado).length;
+            if (!m.alarma && (vivos.some(g => g.estado === 'atacar' || g.estado === 'perseguir') || j.policia.estrellas)) { m.alarma = true; for (const g of vivos) g.estado = 'atacar'; if (j.policia.estrellas < 3) j.policia.subir(3); j.hud.grande('¡SONÓ LA ALARMA!', 'Ya no es pago completo', 2); }
+            if (m.alarma) { m.reloj -= dt; if (m.reloj <= 0 && j.policia.estrellas < 4) { j.policia.subir(4); j.hud.grande('¡LLEGÓ EL GRUPO ESPECIAL!', 'Sal de ahí', 2); } }
+            m.objetivos = m.modo === 'callado' && !m.alarma ? vivos : [];
+            m.objetivo((m.modo === 'callado' && !m.alarma && vivos.length ? `Duerme a los guardias sin ruido: <b>${vivos.length}</b> · ` : '') + `Joyas: <b>${n} de 6</b> (mínimo 4)` + (m.alarma ? ` · grupo especial en <b>${Math.max(0, Math.ceil(m.reloj))} s</b>` : ''));
+            if (n >= 4 && (n === 6 || !I.dentro)) { m.paso = 2; m.botin = n; }
+            if (!I.dentro && n < 4) m.objetivo(`Te faltan joyas: <b>${n} de 4</b>. Regresa a la joyería.`);
+          }
+          if (m.paso === 2) {
+            const c = m.auto, P = j.tuneo?.punto || j.ciudad.lugares.taller;
+            if (c.quemado || c.ahogado) return 'falla Se destruyó el auto de escape.';
+            if (J.coche !== c) { m.objetivos = I.dentro ? [] : [c]; m.objetivo('Sal y súbete al <b>auto de escape</b> negro.'); return; }
+            m.objetivos = []; m.marcar(1, P.x, P.z, 4, 2, '#7ae0ff');
+            const d = Math.hypot(c.pos.x - P.x, c.pos.z - P.z);
+            m.objetivo(j.policia.estrellas ? '<b>Pierde a la policía</b> y lleva el botín al taller de Don Chuy.' : 'Lleva el botín al <b>taller de Don Chuy</b>.');
+            if (d < 7 && !j.policia.estrellas) { const extra = m.modo === 'callado' && !m.alarma ? 13000 : m.botin * 1500; j.jugador.dinero += extra; j.hud.notificar('dinero', m.modo === 'callado' && !m.alarma ? 'Golpe perfecto' : 'Golpe ruidoso', '+$' + extra.toLocaleString('es-MX') + ' extra', 4); return 'ok'; }
+          }
+        },
+        fin(m) { m.j.noticias?.avisar('joyeria'); m.j.hud.dialogos([['El Profe', m.modo === 'callado' && !m.alarma ? 'Ni una alarma. Eso, mi alumno, es arte.' : 'Ruidoso, pero salimos. La próxima vez, más fino.']]); }
       }
     ]
   }

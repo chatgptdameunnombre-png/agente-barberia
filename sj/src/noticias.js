@@ -19,7 +19,10 @@ const EVENTOS = {
   arena: ['En la Arena Jacaranda, un aficionado se llevó una buena lana apostándole al ganador.'],
   luchador: ['El Hijo del Jacaranda recupera su máscara de gala y anuncia que defenderá el título.'],
   estrellas: ['Alerta: la policía busca a una persona peligrosa en la zona centro. Evite salir.'],
-  serenata: ['Reportan serenata sorpresa en la Plaza de Armas. Hubo aplausos y hasta lágrimas.']
+  serenata: ['Reportan serenata sorpresa en la Plaza de Armas. Hubo aplausos y hasta lágrimas.'],
+  tormenta: ['Alerta de Protección Civil: tormenta fuerte sobre Santa Jacaranda. Calles inundadas, maneje con precaución.', 'El viento derriba anuncios y las calles parecen ríos. Protección Civil pide no salir.'],
+  joyeria: ['Roban la Joyería Diamante: se llevan las vitrinas completas. La policía revisa las cámaras.', 'Golpe en la Joyería Diamante. "Fueron profesionales", dice el dueño.'],
+  colonia: ['Balacera entre pandillas en el barrio. Los vecinos dicen que la colonia cambió de dueño.']
 };
 
 export class Noticias {

@@ -42,14 +42,17 @@ export class Fisica {
     W.timestep = PASO;
     const suelo = W.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(0, -0.5, 0));
     W.createCollider(RAPIER.ColliderDesc.cuboid(4000, 0.5, 4000).setFriction(0.85).setCollisionGroups(grupo(MUNDO, 0xffff)), suelo);
+    this.estaticos = [];
     for (const c of this.j.mundo.cajas) {
-      const hy = Math.min(c.h, 40) / 2, b = W.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation((c.minx + c.maxx) / 2, hy, (c.minz + c.maxz) / 2));
-      W.createCollider(RAPIER.ColliderDesc.cuboid(Math.max(0.05, (c.maxx - c.minx) / 2), hy, Math.max(0.05, (c.maxz - c.minz) / 2)).setFriction(0.7).setCollisionGroups(grupo(MUNDO, 0xffff)), b);
+      const hy = Math.min(c.h, 40) / 2;
+      const col = W.createCollider(RAPIER.ColliderDesc.cuboid(Math.max(0.05, (c.maxx - c.minx) / 2), hy, Math.max(0.05, (c.maxz - c.minz) / 2)).setTranslation((c.minx + c.maxx) / 2, hy + 0.5, (c.minz + c.maxz) / 2).setFriction(0.7).setCollisionGroups(grupo(MUNDO, 0xffff)), suelo);
+      this.estaticos.push({ c: col, x: (c.minx + c.maxx) / 2, z: (c.minz + c.maxz) / 2, r: Math.hypot(c.maxx - c.minx, c.maxz - c.minz) / 2, on: true });
     }
     for (const B of this.j.ciudad?.bloques || []) {
-      const b = W.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation((B.x0 + B.x1) / 2, 0.075, (B.z0 + B.z1) / 2));
-      W.createCollider(RAPIER.ColliderDesc.cuboid((B.x1 - B.x0) / 2, 0.075, (B.z1 - B.z0) / 2).setFriction(0.8).setCollisionGroups(grupo(MUNDO, 0xffff)), b);
+      W.createCollider(RAPIER.ColliderDesc.cuboid((B.x1 - B.x0) / 2, 0.075, (B.z1 - B.z0) / 2).setTranslation((B.x0 + B.x1) / 2, 0.575, (B.z0 + B.z1) / 2).setFriction(0.8).setCollisionGroups(grupo(MUNDO, 0xffff)), suelo);
     }
+    const qp = W.queryPipeline; this.qpUpdate = qp.update.bind(qp); qp.update = () => { this.qpSucio = true; }; this.qpSucio = true;
+    this.tActivar = 0;
     this.colocarObjetos();
     this.listo = true;
   }
@@ -173,6 +176,7 @@ export class Fisica {
     const d = _p.copy(hasta).sub(desde), L = d.length();
     if (L < 0.01) return null;
     d.divideScalar(L);
+    if (this.qpSucio) { this.qpUpdate(this.mundo.colliders); this.qpSucio = false; }
     const hit = this.mundo.castRay(new RAPIER.Ray(v3(desde), v3(d)), L + 0.3, true, undefined, grupo(0xffff, OBJETO | MUNECO));
     if (!hit) return null;
     const b = hit.collider.parent(), pt = { x: desde.x + d.x * hit.timeOfImpact, y: desde.y + d.y * hit.timeOfImpact, z: desde.z + d.z * hit.timeOfImpact };
@@ -226,11 +230,20 @@ export class Fisica {
     }
   }
 
+  activarCercanos() {
+    const J = this.j.jugador, a = J.posicion, b = J.pos, R2 = 150;
+    for (const E of this.estaticos) {
+      const on = Math.hypot(E.x - a.x, E.z - a.z) - E.r < R2 || Math.hypot(E.x - b.x, E.z - b.z) - E.r < R2;
+      if (on !== E.on) { E.on = on; E.c.setEnabled(on); }
+    }
+  }
+
   actualizar(dt) {
     if (!this.listo) return;
     this.acum = Math.min(this.acum + dt, PASO * 4);
     if (this.acum < PASO) return;
     this.sincronizarCoches();
+    this.tActivar -= dt; if (this.tActivar <= 0) { this.tActivar = 0.5; this.activarCercanos(); }
     let n = 0;
     while (this.acum >= PASO && n < 4) { this.mundo.step(); this.acum -= PASO; n++; }
     const t = dt;

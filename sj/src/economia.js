@@ -1,4 +1,5 @@
-import { Coche, puntoCalleAleatorio, TIPOS } from './vehiculos.js?v=202611221845';
+import { Coche, puntoCalleAleatorio, TIPOS } from './vehiculos.js?v=202611221927';
+import { aplicarTuneo, nombreTipo } from './tuneo.js?v=202611221927';
 
 export const NEGOCIOS = [
   { id: 'depa', nombre: 'Departamento Jacaranda', precio: 6000, renta: 0, desc: 'Tu casa: duerme, cúrate y guarda la partida.' },
@@ -94,11 +95,11 @@ export class Economia {
     if (this.cocheMio && this.cocheMio !== j.jugador.coche && j.coches.includes(this.cocheMio)) { this.cocheMio.quitar(); j.coches.splice(j.coches.indexOf(this.cocheMio), 1); }
     const c = new Coche(j, g.tipo, g.color, p.x, p.z, p.yaw);
     c.marcado = true; c.propio = true;
-    aplicarMejoras(c, g.mejoras);
+    aplicarTuneo(c, g.mejoras);
     j.coches.push(c);
     this.cocheMio = c;
     j.gps.marcar(p.x, p.z);
-    j.hud.notificar('coche', 'Tu ' + AUTOS.find(a => a.id === g.tipo).nombre.toLowerCase() + ' llegó', 'Te lo marcamos en el GPS.', 3.5);
+    j.hud.notificar('coche', 'Tu ' + nombreTipo(g.tipo).toLowerCase() + ' llegó', 'Te lo marcamos en el GPS.', 3.5);
   }
 
   mejorar(i, id) {
@@ -106,8 +107,8 @@ export class Economia {
     if (!g || !m || g.mejoras[id]) return;
     if (!this.pagar(m.precio)) return;
     g.mejoras[id] = true;
-    if (this.cocheMio?.tipo === g.tipo) aplicarMejoras(this.cocheMio, g.mejoras);
-    j.hud.notificar('coche', m.nombre, 'Instalado en tu ' + AUTOS.find(a => a.id === g.tipo).nombre.toLowerCase(), 3);
+    if (this.cocheMio?.tipo === g.tipo) aplicarTuneo(this.cocheMio, g.mejoras);
+    j.hud.notificar('coche', m.nombre, 'Instalado en tu ' + nombreTipo(g.tipo).toLowerCase(), 3);
     j.audio.compra(); j.guardar();
   }
 

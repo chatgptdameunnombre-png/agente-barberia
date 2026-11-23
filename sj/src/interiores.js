@@ -1,22 +1,23 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611221845';
-import { hoja } from './texturas.js?v=202611221845';
-import { Peaton } from './peatones.js?v=202611221845';
-import { letrero } from './ciudad.js?v=202611221845';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611221845';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611221845';
-import { ARTICULOS } from './actividades.js?v=202611221845';
-import { OUTFITS, cambiarOutfit } from './jugador.js?v=202611221845';
-import { jugarMaquinita } from './maquinita.js?v=202611221845';
+import { animar } from './persona.js?v=202611221927';
+import { hoja } from './texturas.js?v=202611221927';
+import { Peaton } from './peatones.js?v=202611221927';
+import { letrero } from './ciudad.js?v=202611221927';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611221927';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611221927';
+import { ARTICULOS } from './actividades.js?v=202611221927';
+import { OUTFITS, cambiarOutfit } from './jugador.js?v=202611221927';
+import { jugarMaquinita } from './maquinita.js?v=202611221927';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { ARMERIAS, TIPOS_ARMERIA, construirArmeria } from './armerias.js?v=202611221845';
-import { ARMAS } from './jugador.js?v=202611221845';
+import { ARMERIAS, TIPOS_ARMERIA, construirArmeria } from './armerias.js?v=202611221927';
+import { JOYERIA, construirJoyeria, ARTICULOS_JOYERIA } from './joyeria.js?v=202611221927';
+import { ARMAS } from './jugador.js?v=202611221927';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
 const INT = hoja('assets/interior.jpg', 3, 2, { tam: 512, sinUrl: true });
-const COLOR_ICONO = { charro: '#e6b54a', trinchera: '#9ab85a', sierra: '#d88a4a', filo: '#ff5a4a', seguridad: '#4a8aff', cine: '#ffcf5a', maquinitas: '#3fd2ff', tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a', mercado: '#ff8a3a', templo: '#f2e6c8' };
-const LETRA = { charro: 'mira', trinchera: 'mira', sierra: 'mira', filo: 'mira', seguridad: 'mira', cine: 'P', maquinitas: 'A', tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L', mercado: 'M', templo: '+' };
+const COLOR_ICONO = { joyeria: '#7ae0ff', charro: '#e6b54a', trinchera: '#9ab85a', sierra: '#d88a4a', filo: '#ff5a4a', seguridad: '#4a8aff', cine: '#ffcf5a', maquinitas: '#3fd2ff', tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a', mercado: '#ff8a3a', templo: '#f2e6c8' };
+const LETRA = { joyeria: 'chispa', charro: 'mira', trinchera: 'mira', sierra: 'mira', filo: 'mira', seguridad: 'mira', cine: 'P', maquinitas: 'A', tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L', mercado: 'M', templo: '+' };
 const LUGARES_LIBRES = [
   ['ropa', 'BOUTIQUE LA JACARANDA', 'Boutique La Jacaranda', '#2a1440', '#e9c8ff'],
   ['barberia', 'BARBERÍA EL BIGOTE', 'Barbería El Bigote', '#1a1a1a', '#ff6b6b'],
@@ -26,7 +27,8 @@ const LUGARES_LIBRES = [
   ['antro', 'ANTRO NEÓN', 'Antro Neón', '#100818', '#ff4fd8'],
   ['arena', 'ARENA JACARANDA · LUCHA LIBRE', 'Arena Jacaranda · ring', '#1a0a0a', '#ffd23a'],
   ['cine', 'CINE JACARANDA', 'Cine Jacaranda', '#1a0a14', '#ffcf5a'],
-  ['maquinitas', 'MAQUINITAS EL PIXEL', 'Maquinitas El Pixel', '#0a0a1a', '#3fd2ff']
+  ['maquinitas', 'MAQUINITAS EL PIXEL', 'Maquinitas El Pixel', '#0a0a1a', '#3fd2ff'],
+  ['joyeria', 'JOYERÍA DIAMANTE', 'Joyería Diamante', '#0a0a14', '#7ae0ff']
 ];
 
 const ROPA_NOMBRES = ['Camisa de cuadros', 'Jersey Perla FC', 'Guayabera blanca', 'Sudadera gris', 'Blusa bordada', 'Chamarra de mezclilla', 'Playera jacaranda', 'Camisa hawaiana'];
@@ -317,10 +319,10 @@ export class Interiores {
     const m = (c, extra = {}) => new THREE.MeshLambertMaterial({ color: c, ...extra });
     const caja = (w, h, d, mat, x, y, z, choca = true) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); b.position.set(x, y, z); b.castShadow = false; b.receiveShadow = false; g.add(b); if (choca) mundo.agregar(ox + x - w / 2, oz + z - d / 2, ox + x + w / 2, oz + z + d / 2, y + h / 2); return b; };
     const pisoTex = t.tipo === 'tienda' ? INT[2].textura : null;
-    const piso = new THREE.Mesh(new THREE.PlaneGeometry(W, L), t.tipo === 'tienda' ? m('#d8d0c8', { map: repetir(INT[2].textura, W / 3, L / 3) }) : t.tipo === 'barberia' ? m('#ddd', { map: this.ajedrez() }) : m(ARMERIAS[t.tipo]?.piso || (t.tipo === 'armeria' ? '#3a3632' : '#8a7060')));
+    const piso = new THREE.Mesh(new THREE.PlaneGeometry(W, L), t.tipo === 'tienda' ? m('#d8d0c8', { map: repetir(INT[2].textura, W / 3, L / 3) }) : t.tipo === 'barberia' ? m('#ddd', { map: this.ajedrez() }) : m(t.tipo === 'joyeria' ? JOYERIA.piso : ARMERIAS[t.tipo]?.piso || (t.tipo === 'armeria' ? '#3a3632' : '#8a7060')));
     piso.rotation.x = -Math.PI / 2; g.add(piso);
     const techo = new THREE.Mesh(new THREE.PlaneGeometry(W, L), m('#f2efe8')); techo.rotation.x = Math.PI / 2; techo.position.y = H; g.add(techo);
-    const pared = t.tipo === 'tienda' ? m('#e0d8d0', { map: repetir(INT[3].textura, W / 4, 1) }) : m(ARMERIAS[t.tipo] ? ARMERIAS[t.tipo].pared : t.tipo === 'ropa' ? '#c9a3c4' : t.tipo === 'barberia' ? '#b8ad98' : t.tipo === 'mercado' ? '#e8dcc4' : t.tipo === 'templo' ? '#efe4cc' : '#5a5650');
+    const pared = t.tipo === 'tienda' ? m('#e0d8d0', { map: repetir(INT[3].textura, W / 4, 1) }) : m(t.tipo === 'joyeria' ? JOYERIA.pared : ARMERIAS[t.tipo] ? ARMERIAS[t.tipo].pared : t.tipo === 'ropa' ? '#c9a3c4' : t.tipo === 'barberia' ? '#b8ad98' : t.tipo === 'mercado' ? '#e8dcc4' : t.tipo === 'templo' ? '#efe4cc' : '#5a5650');
     caja(W, H, 0.3, pared, 0, H / 2, -L / 2);
     caja(W, H, 0.3, pared, 0, H / 2, L / 2);
     caja(0.3, H, L, pared, -W / 2, H / 2, 0);
@@ -377,6 +379,8 @@ export class Interiores {
       IMG_ARMAS.forEach((p, k) => { const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.75), new THREE.MeshBasicMaterial({ map: p.textura, transparent: true })); pl.position.set(-4.2 + (k % 4) * 2.8, 2.6 - Math.floor(k / 4) * 1.1, -L / 2 + 0.3); g.add(pl); });
       t.cajero = this.npc(t, 0, -L / 2 + 1.5, { cara: 6, ropa: null, camisa: '#2b2b2b', estiloPelo: 'rapado' });
       t.interior.mostrador.set(ox, 0, oz - L / 2 + 3.4);
+    } else if (t.tipo === 'joyeria') {
+      construirJoyeria.call(this, t, W, L, H, g, caja, m);
     } else if (ARMERIAS[t.tipo]) {
       construirArmeria.call(this, t, W, L, H, g, caja, m);
     } else if (t.tipo === 'cantina') {
@@ -853,6 +857,7 @@ export class Interiores {
   catalogo(t) {
     const j = this.j;
     if (t.tipo === 'armeria') return { titulo: 'ARMERÍA DEL VALLE', sub: 'PAGO EN EFECTIVO, SIN PREGUNTAS', articulos: ARTICULOS };
+    if (t.tipo === 'joyeria') return { titulo: 'JOYERÍA DIAMANTE', sub: 'ORO, PLATA Y BRILLANTES', articulos: (t.arts = t.arts || ARTICULOS_JOYERIA()) };
     if (ARMERIAS[t.tipo]) { const T = ARMERIAS[t.tipo]; return { titulo: T.nombre, sub: T.sub, articulos: (t.arts = t.arts || T.articulos()) }; }
     if (t.tipo === 'cantina' && j.propiedades?.cantina) return { titulo: 'CANTINA', sub: '', articulos: [
       { id: 'cerveza', nombre: 'Cerveza de la casa', precio: 0, verbo: 'Tomar', dar: jj => { jj.salud = Math.min(jj.saludMax, jj.salud + 10); j.mareo = Math.min(90, (j.mareo || 0) + 18); } },

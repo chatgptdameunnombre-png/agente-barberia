@@ -1,87 +1,95 @@
 import * as THREE from 'three';
-import { Mundo, construirCiudad, LIMITE, esCalle, VIENTO, linea } from './ciudad.js?v=202611221845';
-import { Coche, nuevaRutaIA, objetivoIA, dirigir, puntoCalleAleatorio, matFaro, matCalavera, matHalo, matHaz, esTaxi } from './vehiculos.js?v=202611221845';
-import { Peaton } from './peatones.js?v=202611221845';
-import { Jugador, ARMAS } from './jugador.js?v=202611221845';
-import { Policia } from './policia.js?v=202611221845';
-import { Ambiente } from './ambiente.js?v=202611221845';
-import { Audio } from './audio.js?v=202611221845';
-import { Minimapa } from './minimapa.js?v=202611221845';
-import { Misiones } from './misiones.js?v=202611221845';
-import { Hud } from './hud.js?v=202611221845';
-import { GPS, zona, calle } from './gps.js?v=202611221845';
-import { Rueda, Granadas } from './armas.js?v=202611221845';
-import { Actividades, Estadisticas } from './actividades.js?v=202611221845';
-import { decorar } from './decoracion.js?v=202611221845';
-import { Post } from './post.js?v=202611221845';
-import { ORDEN, cambiarOutfit } from './jugador.js?v=202611221845';
-import { pinturas, matsDecal, modelo as modeloCoche, TIPOS, cargarVehiculos } from './vehiculos.js?v=202611221845';
-import { Interiores } from './interiores.js?v=202611221845';
-import { crearPersona, sentar, montar, sombraPersona, silenciador } from './persona.js?v=202611221845';
-import { Animales } from './animales.js?v=202611221845';
-import { Duo } from './duo.js?v=202611221845';
-import { Telefono } from './telefono.js?v=202611221845';
-import { Redes } from './redes.js?v=202611221845';
-import { Eventos } from './eventos.js?v=202611221845';
-import { Economia } from './economia.js?v=202611221845';
-import { Trabajos } from './trabajos.js?v=202611221845';
-import { Aleatorios } from './aleatorios.js?v=202611221845';
-import { Ambulantes } from './ambulantes.js?v=202611221845';
-import { Semaforos } from './semaforos.js?v=202611221845';
-import { Autobuses } from './autobuses.js?v=202611221845';
-import { Fisica } from './fisica.js?v=202611221845';
-import { Gente } from './gente.js?v=202611221845';
-import { amueblar } from './mobiliario.js?v=202611221845';
-import { construirAzoteas } from './azoteas.js?v=202611221845';
-import { decorarTaller } from './taller.js?v=202611221845';
-import { TrenLigero } from './tren.js?v=202611221845';
-import { Baches } from './baches.js?v=202611221845';
-import { Aviones } from './aviones.js?v=202611221845';
-import { Gasolinera } from './gasolinera.js?v=202611221845';
-import { ventanasLisas } from './ventanas.js?v=202611221845';
-import { Hidrantes } from './hidrantes.js?v=202611221845';
-import { papelPicado } from './papelpicado.js?v=202611221845';
-import { decorarLotes, frenteMercado } from './lotes.js?v=202611221845';
-import { Limpiavidrios } from './limpiavidrios.js?v=202611221845';
-import { Fuegos } from './fuegos.js?v=202611221845';
-import { Vapor, Aves, Salpicaduras, Granizo, Arcoiris, Fuentes, Malecon , FuenteMonumento } from './vida.js?v=202611221845';
-import { placasCalles } from './placas.js?v=202611221845';
-import { basuraYCasetas } from './basura.js?v=202611221845';
-import { decorarParques } from './parques.js?v=202611221845';
-import { armarTianguis } from './tianguis.js?v=202611221845';
-import { adornarCatedral } from './catedral.js?v=202611221845';
-import { Direccionales } from './direccionales.js?v=202611221845';
-import { Emergencias, SonidosCalle, Persecuciones, Bomberos } from './emergencias.js?v=202611221845';
-import { terrazas } from './terrazas.js?v=202611221845';
-import { Paleteros } from './paleteros.js?v=202611221845';
-import { muralesTren } from './murales.js?v=202611221845';
-import { Partido } from './partido.js?v=202611221845';
-import { FilaAntro } from './fila.js?v=202611221845';
-import { Noche } from './noche.js?v=202611221845';
-import { Enojados } from './enojo.js?v=202611221845';
-import { Boda } from './boda.js?v=202611221845';
-import { Nado } from './nado.js?v=202611221845';
-import { alumbrado } from './alumbrado.js?v=202611221845';
-import { Placazos } from './placazos.js?v=202611221845';
-import { Percances } from './percances.js?v=202611221845';
-import { Malabarista } from './malabarista.js?v=202611221845';
-import { Verbena } from './verbena.js?v=202611221845';
-import { adornarKiosco } from './kiosco.js?v=202611221845';
-import { Lavado } from './lavado.js?v=202611221845';
-import { Globos } from './globos.js?v=202611221845';
-import { Pesca } from './pesca.js?v=202611221845';
-import { Intro } from './intro.js?v=202611221845';
-import { Pilotos } from './pilotos.js?v=202611221845';
-import { Organillero } from './organillero.js?v=202611221845';
-import { Pajaros } from './pajaros.js?v=202611221845';
-import { Rayos } from './rayos.js?v=202611221845';
-import { Feria } from './feria.js?v=202611221845';
-import { Noticias } from './noticias.js?v=202611221845';
-import { Pandillas } from './pandillas.js?v=202611221845';
-import { TaxiPasajero } from './taxis.js?v=202611221845';
-import { afueras } from './afueras.js?v=202611221845';
-import { DonChuy } from './donchuy.js?v=202611221845';
-import { CONTACTOS } from './contactos.js?v=202611221845';
+import { Mundo, construirCiudad, LIMITE, esCalle, VIENTO, linea } from './ciudad.js?v=202611221927';
+import { Coche, nuevaRutaIA, objetivoIA, dirigir, puntoCalleAleatorio, matFaro, matCalavera, matHalo, matHaz, esTaxi } from './vehiculos.js?v=202611221927';
+import { Peaton } from './peatones.js?v=202611221927';
+import { Jugador, ARMAS } from './jugador.js?v=202611221927';
+import { Policia } from './policia.js?v=202611221927';
+import { Ambiente } from './ambiente.js?v=202611221927';
+import { Audio } from './audio.js?v=202611221927';
+import { Minimapa } from './minimapa.js?v=202611221927';
+import { Misiones } from './misiones.js?v=202611221927';
+import { Hud } from './hud.js?v=202611221927';
+import { GPS, zona, calle } from './gps.js?v=202611221927';
+import { Rueda, Granadas } from './armas.js?v=202611221927';
+import { Actividades, Estadisticas } from './actividades.js?v=202611221927';
+import { decorar } from './decoracion.js?v=202611221927';
+import { Post } from './post.js?v=202611221927';
+import { ORDEN, cambiarOutfit } from './jugador.js?v=202611221927';
+import { pinturas, matsDecal, modelo as modeloCoche, TIPOS, cargarVehiculos } from './vehiculos.js?v=202611221927';
+import { Interiores } from './interiores.js?v=202611221927';
+import { crearPersona, sentar, montar, sombraPersona, silenciador } from './persona.js?v=202611221927';
+import { Animales } from './animales.js?v=202611221927';
+import { Duo } from './duo.js?v=202611221927';
+import { Telefono } from './telefono.js?v=202611221927';
+import { Redes } from './redes.js?v=202611221927';
+import { Eventos } from './eventos.js?v=202611221927';
+import { Economia } from './economia.js?v=202611221927';
+import { Trabajos } from './trabajos.js?v=202611221927';
+import { Aleatorios } from './aleatorios.js?v=202611221927';
+import { Ambulantes } from './ambulantes.js?v=202611221927';
+import { Semaforos } from './semaforos.js?v=202611221927';
+import { Autobuses } from './autobuses.js?v=202611221927';
+import { Fisica } from './fisica.js?v=202611221927';
+import { Gente } from './gente.js?v=202611221927';
+import { amueblar } from './mobiliario.js?v=202611221927';
+import { construirAzoteas } from './azoteas.js?v=202611221927';
+import { decorarTaller } from './taller.js?v=202611221927';
+import { TrenLigero } from './tren.js?v=202611221927';
+import { Baches } from './baches.js?v=202611221927';
+import { Aviones } from './aviones.js?v=202611221927';
+import { Gasolinera } from './gasolinera.js?v=202611221927';
+import { ventanasLisas } from './ventanas.js?v=202611221927';
+import { Hidrantes } from './hidrantes.js?v=202611221927';
+import { papelPicado } from './papelpicado.js?v=202611221927';
+import { decorarLotes, frenteMercado } from './lotes.js?v=202611221927';
+import { Limpiavidrios } from './limpiavidrios.js?v=202611221927';
+import { Fuegos } from './fuegos.js?v=202611221927';
+import { Vapor, Aves, Salpicaduras, Granizo, Arcoiris, Fuentes, Malecon , FuenteMonumento } from './vida.js?v=202611221927';
+import { placasCalles } from './placas.js?v=202611221927';
+import { basuraYCasetas } from './basura.js?v=202611221927';
+import { decorarParques } from './parques.js?v=202611221927';
+import { armarTianguis } from './tianguis.js?v=202611221927';
+import { adornarCatedral } from './catedral.js?v=202611221927';
+import { Direccionales } from './direccionales.js?v=202611221927';
+import { Emergencias, SonidosCalle, Persecuciones, Bomberos } from './emergencias.js?v=202611221927';
+import { terrazas } from './terrazas.js?v=202611221927';
+import { Paleteros } from './paleteros.js?v=202611221927';
+import { muralesTren } from './murales.js?v=202611221927';
+import { Partido } from './partido.js?v=202611221927';
+import { FilaAntro } from './fila.js?v=202611221927';
+import { Noche } from './noche.js?v=202611221927';
+import { Enojados } from './enojo.js?v=202611221927';
+import { Boda } from './boda.js?v=202611221927';
+import { Nado } from './nado.js?v=202611221927';
+import { alumbrado } from './alumbrado.js?v=202611221927';
+import { Placazos } from './placazos.js?v=202611221927';
+import { Percances } from './percances.js?v=202611221927';
+import { Malabarista } from './malabarista.js?v=202611221927';
+import { Verbena } from './verbena.js?v=202611221927';
+import { adornarKiosco } from './kiosco.js?v=202611221927';
+import { Lavado } from './lavado.js?v=202611221927';
+import { Globos } from './globos.js?v=202611221927';
+import { Pesca } from './pesca.js?v=202611221927';
+import { Intro } from './intro.js?v=202611221927';
+import { Pilotos } from './pilotos.js?v=202611221927';
+import { Organillero } from './organillero.js?v=202611221927';
+import { Pajaros } from './pajaros.js?v=202611221927';
+import { Rayos } from './rayos.js?v=202611221927';
+import { Tuneo } from './tuneo.js?v=202611221927';
+import { Encargos } from './encargos.js?v=202611221927';
+import { Territorio } from './territorio.js?v=202611221927';
+import { NegociosVivos } from './negociosvivos.js?v=202611221927';
+import { Clima } from './clima.js?v=202611221927';
+import { SombrasContacto } from './sombras.js?v=202611221927';
+import { ConosLuz } from './conosluz.js?v=202611221927';
+import { ResolucionDinamica } from './resolucion.js?v=202611221927';
+import { Feria } from './feria.js?v=202611221927';
+import { Noticias } from './noticias.js?v=202611221927';
+import { Pandillas } from './pandillas.js?v=202611221927';
+import { TaxiPasajero } from './taxis.js?v=202611221927';
+import { afueras } from './afueras.js?v=202611221927';
+import { DonChuy } from './donchuy.js?v=202611221927';
+import { CONTACTOS } from './contactos.js?v=202611221927';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const TRAFICO = 30, PEATONES = 44;
@@ -206,12 +214,19 @@ class Juego {
     this.malecon = new Malecon(this);
     this.semaforos = new Semaforos(this);
     this.autobuses = new Autobuses(this);
+    this.tuneo = new Tuneo(this);
+    this.encargos = new Encargos(this);
+    this.territorio = new Territorio(this);
+    this.negociosVivos = new NegociosVivos(this);
+    this.clima = new Clima(this);
+    this.sombrasC = new SombrasContacto(this);
     this.reloj = 0;
     this.propiedades = {};
     this.banco = 0;
     this.mareo = 0;
     this.minimapa = new Minimapa(this, document.getElementById('mini'), document.getElementById('mapaGrande'));
     this.post = new Post(this.renderer, this.escena, this.camara);
+    this.resDin = new ResolucionDinamica(this);
     this.humoTex = texturaHumo();
     this.camYaw = 0; this.camPitch = -0.12; this.tMouse = 9; this.sacudida = 0; this.retroceso = 0;
     this.modoCam = 0; this.hombroIzq = false;
@@ -417,7 +432,8 @@ class Juego {
       if (e.code === 'KeyC' && !j.coche && !this.overlay) { j.agachado = !j.agachado; this.hud.notificar('gps', j.agachado ? 'Agachado' : 'De pie', j.agachado ? 'Te ven menos y te pegan menos.' : '', 1.2); }
       if (e.code === 'KeyQ' && !j.coche && !this.overlay) j.rodar(this.entrada(), this.camYaw);
       if (e.code === 'KeyQ' && j.coche) { this.hud.radio(this.audio.cambiarEstacion(-1), this.audio.estacion); this.audio.radioActiva(true); }
-      if (e.code === 'KeyE' && j.coche) { this.hud.radio(this.audio.cambiarEstacion(1), this.audio.estacion); this.audio.radioActiva(true); }
+      if (e.code === 'KeyE' && j.coche && this.tuneo?.cerca()) this.tuneo.abrir();
+      else if (e.code === 'KeyE' && j.coche) { this.hud.radio(this.audio.cambiarEstacion(1), this.audio.estacion); this.audio.radioActiva(true); }
     });
     addEventListener('keyup', e => { this.teclas[e.code] = false; if (e.code === 'Tab') this.rueda.cerrar(); });
     addEventListener('blur', () => { this.teclas = {}; this.boton = [false, false, false]; this.rueda.cerrar(false); });
@@ -504,6 +520,7 @@ class Juego {
     this.ambiente.sol.castShadow = q >= 1;
     this.post.activo = q >= 2;
     this.post.nivel(q);
+    if (this.resDin) this.resDin.factor = 1;
     const pr = q >= 1 ? Math.min(devicePixelRatio || 1, 1.5) : 0.8;
     this.renderer.setPixelRatio(pr);
     this.post.composer.setPixelRatio(pr);
@@ -1394,7 +1411,7 @@ class Juego {
       else if (r.tipo === 'chaleco') { if (j.chaleco >= 100) ok = false; else { j.chaleco = Math.min(100, j.chaleco + 60); this.hud.notificar('coche', 'Chaleco +60', '', 2); } }
       else if (r.tipo === 'municion') { if (j.armas.pistola) j.armas.pistola.reserva += 24; else j.darArma('pistola', 24); if (j.armas.subfusil) j.armas.subfusil.reserva += 45; if (j.armas.escopeta) j.armas.escopeta.reserva += 6; this.hud.notificar('tienda', 'Balas', 'Recogiste munición.', 2); }
       else if (r.tipo === 'dinero') { const n = r.cantidad || 50; j.dinero += n; this.hud.popDinero(n); this.estadisticas.sumar('ganado', n); }
-      else if (r.tipo === 'sobre') { this.hud.notificar('mision', 'Tienes el sobre', '', 2.5); }      if (!ok) continue;
+      else if (r.tipo === 'sobre') { this.hud.notificar('mision', r.texto || 'Tienes el sobre', '', 2.5); }      if (!ok) continue;
       this.audio.dinero();
       r.tomado = true; r.malla.visible = false; r.espera = 60;
     }
@@ -1632,6 +1649,14 @@ class Juego {
     this.pajaros?.actualizar(dt);
     this.fuenteMon?.actualizar(dt);
     this.rayos?.actualizar(dt);
+    this.tuneo?.actualizar(dt);
+    this.encargos?.actualizar(dt);
+    this.territorio?.actualizar(dt);
+    this.negociosVivos?.actualizar(dt);
+    this.clima?.actualizar(dt, this.camara);
+    this.sombrasC?.actualizar();
+    if (!this.conosLuz && this.mobiliario) this.conosLuz = new ConosLuz(this);
+    this.conosLuz?.actualizar();
     this.feria?.actualizar(dt, this.ambiente.noche);
     this.noticias?.actualizar(dt);
     this.pandillas?.actualizar(dt);
@@ -1656,8 +1681,8 @@ class Juego {
       const d = Math.abs(p.pos.x - jp.x) + Math.abs(p.pos.z - jp.z);
       if (p.enInterior) { if (j.interior === p.enInterior) p.actualizar(dt); continue; }
       if (d < 220 || p.tipo !== 'civil') p.actualizar(dt);
-      p.grupo.visible = d < 160;
-      if (d < 160) sombraPersona(p.p, d < 62);
+      p.grupo.visible = d < 130;
+      if (d < 130) sombraPersona(p.p, d < 62);
     }
     this.fisica.actualizar(dt);
     this.gente.actualizar(dt);
@@ -1762,6 +1787,7 @@ class Juego {
     const dt = Math.min(0.05, real);
     this.ultimo = ahora;
     if (real > 0) this.fpsMedido += (1 / real - this.fpsMedido) * 0.05;
+    this.resDin?.actualizar(real);
     if (this.foto) this.camaraFoto(dt);
     else if (!this.pausado && !this.overlay) this.paso(dt);
     else if (!this.yaInicio) { this.ambiente.actualizar(0, this.camara); this.actualizarCamaraMenu(); }
@@ -1890,12 +1916,12 @@ class Juego {
   }
 
   async prepararRetratos() {
-    const { crearHumano } = await import('./humanos.js?v=202611221845');
+    const { crearHumano } = await import('./humanos.js?v=202611221927');
     this.retratos = this.retratos || {};
     for (const C of Object.values(CONTACTOS)) {
       if (!C.modelo || C.letra === 'N' || C.letra === 'V' || C.letra === 'G' || C.letra === 'I') continue;
       try {
-        const h = await crearHumano(C.modelo); h.tocar('Idle_Loop', 0); h.mixer.update(0.5); if (C.mascara) { const H = await import('./humanos.js?v=202611221845'); H.ponerMascara(h, ...C.mascara); }
+        const h = await crearHumano(C.modelo); h.tocar('Idle_Loop', 0); h.mixer.update(0.5); if (C.mascara) { const H = await import('./humanos.js?v=202611221927'); H.ponerMascara(h, ...C.mascara); }
         const R = this.renderer, esc = new THREE.Scene(), ancho = 256, alto = 256;
         esc.environment = this.escena.environment; esc.background = new THREE.Color(C.color).multiplyScalar(0.22);
         esc.add(h.grupo); h.grupo.updateMatrixWorld(true);
@@ -1986,7 +2012,7 @@ class Juego {
   guardar() {
     try {
       const j = this.jugador;
-      localStorage.setItem('perla_partida', JSON.stringify({ eco: this.economia.guardar(), cuerpo: { saludMax: j.saludMax, bonoVel: j.bonoVel, bonoGolpe: j.bonoGolpe }, propiedades: this.propiedades, banco: this.banco, mision: this.misiones.indice, misiones2: this.misiones.otros, dinero: j.dinero, armas: j.armas, act: this.actividades.guardar(), plac: this.placazos?.guardar(), trab: this.trabajos.guardar(), stats: this.estadisticas.d, estilos: j.estilos, personaje: j.personaje }));
+      localStorage.setItem('perla_partida', JSON.stringify({ eco: this.economia.guardar(), cuerpo: { saludMax: j.saludMax, bonoVel: j.bonoVel, bonoGolpe: j.bonoGolpe }, propiedades: this.propiedades, banco: this.banco, mision: this.misiones.indice, misiones2: this.misiones.otros, dinero: j.dinero, armas: j.armas, enc: this.encargos?.guardar(), terr: this.territorio?.guardar(), act: this.actividades.guardar(), plac: this.placazos?.guardar(), trab: this.trabajos.guardar(), stats: this.estadisticas.d, estilos: j.estilos, personaje: j.personaje }));
     } catch (e) { }
   }
 
@@ -1999,6 +2025,8 @@ class Juego {
       this.jugador.dinero = d.dinero || 0;
       if (d.armas) { this.jugador.armas = d.armas; if (!this.jugador.armas.puno) this.jugador.armas.puno = { cargador: 0, reserva: 0 }; }
       this.actividades.cargar(d.act);
+      this.encargos?.cargar(d.enc);
+      this.territorio?.cargar(d.terr);
       this.placazos?.cargar(d.plac);
       this.trabajos.cargar(d.trab);
       if (d.cuerpo) Object.assign(this.jugador, d.cuerpo);

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { esCalle } from './ciudad.js?v=202611221845';
+import { esCalle } from './ciudad.js?v=202611221927';
 
 export class SombrasContacto {
   constructor(juego, max = 260) {
@@ -39,7 +39,7 @@ export class SombrasContacto {
       if (n >= max) break;
       if (!p.grupo.visible || p.enInterior || (p.muerto && p.muneco)) continue;
       const d = Math.abs(p.pos.x - jp.x) + Math.abs(p.pos.z - jp.z);
-      if (d < this.cerca || d > 160) continue;
+      if (d < this.cerca || d > 130) continue;
       this.poner(n++, p.pos.x, esCalle(p.pos.x, p.pos.z) ? 0.03 : 0.215, p.pos.z, 0, 0.95, 0.95);
     }
     this.im.count = n;
