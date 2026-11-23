@@ -58,9 +58,9 @@ Aviso de privacidad completo: https://tuagentedeia.com/legales.html
 - El único teléfono de contacto de la agencia es +52 33 5126 1495. Cualquier otro número que aparezca en la página es un ejemplo.
 
 ## Páginas por servicio
-- [Agente de WhatsApp](https://tuagentedeia.com/agente-whatsapp/): contesta, agenda y manda recordatorios 24/7.
-- [Agente de llamadas](https://tuagentedeia.com/agente-de-voz/): recepcionista con voz que agenda por teléfono.
-- [Páginas web](https://tuagentedeia.com/paginas-web/): webs a la medida, rápidas en celular y listas para Google.
-- [Automatizaciones](https://tuagentedeia.com/automatizaciones/): procesos repetitivos con IA (reportes, avisos, registros).
-- [Tarjetas NFC](https://tuagentedeia.com/nfc/): menú, WhatsApp o reseñas con solo acercar el celular.
-- [Reseñas de clientes](https://tuagentedeia.com/rese%C3%B1as/): video y comentario de Barberísimo, barbería que usa agente de WhatsApp, agente de llamadas y página web.
+- [Agente de WhatsApp](https://agentedewhatsapp.tuagentedeia.com/): contesta, agenda y manda recordatorios 24/7.
+- [Agente de llamadas](https://agentedellamadas.tuagentedeia.com/): recepcionista con voz que agenda por teléfono.
+- [Páginas web](https://paginasweb.tuagentedeia.com/): webs a la medida, rápidas en celular y listas para Google.
+- [Automatizaciones](https://automatizaciones.tuagentedeia.com/): procesos repetitivos con IA (reportes, avisos, registros).
+- [Tarjetas NFC](https://nfc.tuagentedeia.com/): menú, WhatsApp o reseñas con solo acercar el celular.
+- [Reseñas de clientes](https://xn--reseas-zwa.tuagentedeia.com/): video y comentario de Barberísimo, barbería que usa agente de WhatsApp, agente de llamadas y página web.

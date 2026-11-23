@@ -18,40 +18,4 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
-  <url>
-    <loc>https://tuagentedeia.com/agente-whatsapp/</loc>
-    <lastmod>2026-11-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://tuagentedeia.com/agente-de-voz/</loc>
-    <lastmod>2026-11-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://tuagentedeia.com/paginas-web/</loc>
-    <lastmod>2026-11-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://tuagentedeia.com/automatizaciones/</loc>
-    <lastmod>2026-11-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://tuagentedeia.com/nfc/</loc>
-    <lastmod>2026-11-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://tuagentedeia.com/rese%C3%B1as/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
 </urlset>
