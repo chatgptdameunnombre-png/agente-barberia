@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { LIMITE } from './ciudad.js?v=202611221927';
+import { LIMITE } from './ciudad.js?v=202611222040';
+import { dentroRegion } from './sierradatos.js?v=202611222040';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 
@@ -9,15 +10,18 @@ export function afueras(juego) {
   const fuera = (x, z, m) => Math.abs(x) > LIMITE + m || Math.abs(z) > LIMITE + m;
   for (let k = 0; k < 900; k++) {
     const a = r() * Math.PI * 2, d = LIMITE + 25 + Math.pow(r(), 0.7) * 380, x = Math.cos(a) * d * 1.05, z = Math.sin(a) * d * 1.05;
-    if (!fuera(x, z, 18)) continue;
+    if (!fuera(x, z, 18) || dentroRegion(x, z, 8)) continue;
     arboles.push([x, z, 0.8 + r() * 1.1, r() < 0.3]);
   }
   for (let k = 0; k < 110; k++) {
     const lado = k % 4, t = (r() - 0.5) * 2 * (LIMITE + 60), o = LIMITE + 40 + r() * 140;
     const x = lado === 0 ? t : lado === 1 ? o : lado === 2 ? t : -o, z = lado === 0 ? o : lado === 1 ? t : lado === 2 ? -o : t;
-    bodegas.push([x, z, 14 + r() * 26, 10 + r() * 18, 5 + r() * 6, lado % 2 ? Math.PI / 2 : 0]);
+    const bw = 14 + r() * 26, bd = 10 + r() * 18, bh = 5 + r() * 6, bry = lado % 2 ? Math.PI / 2 : 0;
+    if (dentroRegion(x, z, Math.max(bw, bd) / 2 + 6) || (x > 320 && z > -440 && z < 360)) continue;
+    bodegas.push([x, z, bw, bd, bh, bry]);
   }
   for (let k = -12; k <= 12; k++) for (const s of [-1, 1]) { postes.push([k * 30, s * (LIMITE + 14)]); postes.push([s * (LIMITE + 14), k * 30]); }
+  for (let i = postes.length - 1; i >= 0; i--) if (dentroRegion(postes[i][0], postes[i][1], 3)) postes.splice(i, 1);
   const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), V = new THREE.Vector3(), S = new THREE.Vector3(), Y = new THREE.Vector3(0, 1, 0), c = new THREE.Color();
   const tronco = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.18, 0.28, 3, 6).translate(0, 1.5, 0), new THREE.MeshLambertMaterial({ color: '#5a3e28' }), arboles.length);
   const copa = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(2.2, 1), new THREE.MeshLambertMaterial({ color: '#ffffff' }), arboles.length);

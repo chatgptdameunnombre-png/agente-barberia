@@ -1,10 +1,11 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611221927';
-import { Coche } from './vehiculos.js?v=202611221927';
-import { Peaton } from './peatones.js?v=202611221927';
-import { CONTACTOS } from './contactos.js?v=202611221927';
-import { crearPersona, animar, nivelDetalle, sombraPersona } from './persona.js?v=202611221927';
-import { crearHumano } from './humanos.js?v=202611221927';
+import { linea, CARRIL } from './ciudad.js?v=202611222040';
+import { Coche } from './vehiculos.js?v=202611222040';
+import { Peaton } from './peatones.js?v=202611222040';
+import { CONTACTOS } from './contactos.js?v=202611222040';
+import { crearPersona, animar, nivelDetalle, sombraPersona } from './persona.js?v=202611222040';
+import { crearHumano } from './humanos.js?v=202611222040';
+import { LISTA2 } from './historia2.js?v=202611222040';
 
 export function crearMarcador(escena, color) {
   const g = new THREE.Group();
@@ -126,7 +127,7 @@ export class Misiones {
     if (C.modelo && !this.j.sinRealista) {
       const g = new THREE.Group(); g.position.set(p.x + 1.5, 0, p.z - 0.9); g.rotation.y = Math.atan2(-1.5, 0.9); this.j.escena.add(g);
       mk.fig = { grupo: g, yawBase: g.rotation.y, real: true };
-      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); if (C.mascara) import('./humanos.js?v=202611221927').then(H => H.ponerMascara(h, ...C.mascara)); }).catch(() => {});
+      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); if (C.mascara) import('./humanos.js?v=202611222040').then(H => H.ponerMascara(h, ...C.mascara)); }).catch(() => {});
       return;
     }
     if (!C.apariencia) return;
@@ -169,7 +170,7 @@ export class Misiones {
     this.paso = 0; this.t = 0; this.reloj = null;
     this.objetivos = [];
     this.ocultar();
-    j.hud.grande(def.titulo, C ? `${C.nombre} · misión ${this.otros[id] + 1} de ${C.lista.length}` : 'Don Chuy · misión ' + (this.indice + 1) + ' de ' + LISTA.length, 3.4, 'mision');
+    j.hud.grande(def.titulo, C ? `${C.nombre} · misión ${this.otros[id] + 1} de ${C.lista.length}` : (def.parte === 2 ? 'Don Chuy · segunda parte · misión ' + (this.indice - PRIMERA + 1) + ' de ' + (LISTA.length - PRIMERA) : 'Don Chuy · misión ' + (this.indice + 1) + ' de ' + PRIMERA), 3.4, 'mision');
     j.audio?.mision(true);
     def.inicio(this);
   }
@@ -192,6 +193,7 @@ export class Misiones {
     def.fin?.(this);
     j.guardar();
     if (this.indice >= LISTA.length) setTimeout(() => j.hud.grande('SANTA JACARANDA ES TUYA', 'Terminaste la historia. La ciudad sigue abierta.', 6, 'exito'), 4200);
+    else if (this.indice === PRIMERA && !C) { setTimeout(() => j.hud.grande('FIN DE LA PRIMERA PARTE', 'Don Chuy tiene noticias: búscalo en el taller', 6, 'exito'), 4200); this.esperaReintento = 6; }
     else this.esperaReintento = 6;
   }
 
@@ -458,6 +460,10 @@ const LISTA = [
     }
   }
 ];
+export const PRIMERA = LISTA.length;
+LISTA.push(...LISTA2);
+export const TOTAL_HISTORIA = LISTA.length;
+
 
 export const TOTAL_MISIONES = LISTA.length;
 export const TITULOS = LISTA.map(d => d.titulo);

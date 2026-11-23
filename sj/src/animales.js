@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mat, sombraPersona } from './persona.js?v=202611221927';
+import { mat, sombraPersona } from './persona.js?v=202611222040';
 
 const COLORES_PERRO = ['#c89a5a', '#3a2a1e', '#f0e6d6', '#8a6a4a', '#1c1c1c', '#d8b070'];
 

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { letrero } from './ciudad.js?v=202611221927';
+import { letrero } from './ciudad.js?v=202611222040';
 
 export const JOYERIA = { pared: '#d9d2c4', piso: '#1c2440', neon: { lineas: ['JOYERÍA', 'DIAMANTE'], c1: '#7ae0ff', c2: '#ffffff', w: 3.0, h: 1.2 } };
 

@@ -1,10 +1,11 @@
 import * as THREE from 'three';
-import { esTaxi } from './vehiculos.js?v=202611221927';
-import { linea, CARRIL } from './ciudad.js?v=202611221927';
-import { ARMAS } from './jugador.js?v=202611221927';
-import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611221927';
+import { alturaCerro } from './sierradatos.js?v=202611222040';
+import { esTaxi } from './vehiculos.js?v=202611222040';
+import { linea, CARRIL } from './ciudad.js?v=202611222040';
+import { ARMAS } from './jugador.js?v=202611222040';
+import { ICONO_ARMA, ICONO, iconoArma } from './iconos.js?v=202611222040';
 const PRODUCTOS = { 'Papitas y refresco': 0, 'Torta de jamón': 1, 'Bebida energética': 2, 'Kilo de tortillas': 3, 'Tacos de canasta': 4, 'Venda y alcohol': 5, 'Botiquín completo': 6, 'Suero': 7, 'Plato de birria': 8, 'Consomé': 9, 'Cinta y pegamento (repara coche)': 10, 'Concha': 11, 'Bolsa de pan dulce': 12, 'Coctel de camarón': 13, 'Tostada de ceviche': 14, 'Cerveza': 15, 'Cerveza de la casa': 15, 'Tequila': 16, 'Agua de jamaica': 17, 'Botana de la casa': 18, 'Chaleco antibalas': 19 };
-import { Peaton } from './peatones.js?v=202611221927';
+import { Peaton } from './peatones.js?v=202611222040';
 
 export class Estadisticas {
   constructor() {
@@ -155,6 +156,7 @@ export class Actividades {
       const l = Math.abs(ax * -r.dz + az * r.dx);
       if (t >= 0 && t <= r.largo && l < r.ancho / 2) return { h: r.alto * t / r.largo, rampa: r };
     }
+    if (x > 330) { const h = alturaCerro(x, z); if (h > 0.02) return { h, cerro: true }; }
     return null;
   }
 

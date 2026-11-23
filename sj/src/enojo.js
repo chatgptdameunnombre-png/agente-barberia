@@ -1,5 +1,5 @@
-import { Peaton } from './peatones.js?v=202611221927';
-import { nuevaRutaIA } from './vehiculos.js?v=202611221927';
+import { Peaton } from './peatones.js?v=202611222040';
+import { nuevaRutaIA } from './vehiculos.js?v=202611222040';
 
 const PELEA = ['¡Fíjate, animal!', '¡Bájate si eres tan valiente!', '¡Ahora sí me la pagas!', '¡Mi coche, desgraciado!'];
 const RECLAMO = ['¿Qué te pasa? ¡Me debes la defensa!', '¡Aprende a manejar!', '¡Ya me pegaste, oye!', '¡Ni te paras, eh!'];

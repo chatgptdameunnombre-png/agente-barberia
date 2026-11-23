@@ -1,9 +1,10 @@
+import { alturaCerro } from './sierradatos.js?v=202611222040';
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611221927';
-import { mat } from './persona.js?v=202611221927';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611222040';
+import { mat } from './persona.js?v=202611222040';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611221927';
+import { hoja } from './texturas.js?v=202611222040';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, vocho: 1, vochotaxi: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
@@ -818,6 +819,7 @@ export class Coche {
     const R = this.juego.actividades?.altura(this.pos.x, this.pos.z);
     const suelo = R ? R.h : 0;
     if (R) this.ultimaRampa = R.rampa;
+    if (R?.cerro) { const d = 1.7, hF = alturaCerro(this.pos.x + this.fx * d, this.pos.z + this.fz * d), hB = alturaCerro(this.pos.x - this.fx * d, this.pos.z - this.fz * d); this.pendiente = -Math.atan((hF - hB) / (2 * d)); } else this.pendiente = (this.pendiente || 0) * 0.8;
     if ((R && this.y <= suelo + 0.5 && this.vy < 6) || (!R && this.y <= suelo + 0.03 && this.vy <= 0)) {
       this.vyRampa = dt > 0 ? (suelo - (this.sueloPrev ?? suelo)) / dt : 0;
       this.y = suelo; this.vy = Math.max(0, this.vyRampa);
@@ -878,7 +880,7 @@ export class Coche {
     this.fwdPrev = fwd;
     this.acel = aceleracion;
     const caballito = this.tipo === 'moto' && this.conductor === 'jugador' && !this.enAire && aceleracion > 7 && fwd > 2 && fwd < 24 ? -Math.min(0.3, (aceleracion - 7) * 0.035) : 0;
-    const cabeceo = this.enAire ? -Math.atan2(this.vy, Math.max(4, Math.abs(fwd))) * 0.7 : caballito || Math.max(-0.065, Math.min(0.065, -aceleracion * 0.005));
+    const cabeceo = this.enAire ? -Math.atan2(this.vy, Math.max(4, Math.abs(fwd))) * 0.7 : (caballito || Math.max(-0.065, Math.min(0.065, -aceleracion * 0.005))) + (this.pendiente || 0);
     this.juego.baches?.revisar(this, dt);
     if (this.tipo === 'moto' || this.enAire) { this.carro.rotation.x += (cabeceo - this.carro.rotation.x) * Math.min(1, dt * (this.enAire ? 3 : 6)); this.cabV = 0; }
     else { const h = Math.min(dt, 1 / 30); if (!isFinite(this.cabV)) this.cabV = 0; if (!isFinite(this.carro.rotation.x)) this.carro.rotation.x = 0; this.cabV += ((cabeceo - this.carro.rotation.x) * 85 - this.cabV * 8) * h; this.carro.rotation.x += this.cabV * h; }

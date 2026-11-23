@@ -457,6 +457,7 @@
   #rueda .arma-ic .puntos i.on { background:#ffc94a; }
   #rueda .centro em { display:block; font:800 10px Inter; font-style:normal; letter-spacing:2px; opacity:.6; margin-bottom:2px; }
   #rueda .centro .giro { display:block; font:600 9.5px Inter; font-style:normal; opacity:.6; margin-top:6px; max-width:150px; transition:opacity .2s; }
+body.cine::before,body.cine::after{content:'';position:fixed;left:0;right:0;height:11vh;background:#000;z-index:40;pointer-events:none}body.cine::before{top:0}body.cine::after{bottom:0}body.cine #hud{opacity:.15}
 </style>
 </head>
 <body>
@@ -557,7 +558,13 @@
   </div>
   <div class="der vidrio" id="pNovedades"><h3>NOVEDADES</h3>
     <ul class="novedades">
-      <li class="sep">LO MÁS NUEVO · 23 DE NOVIEMBRE, TARDE</li>
+      <li class="sep">LO MÁS NUEVO · 23 DE NOVIEMBRE, NOCHE</li>
+      <li><b>Carretera a la Sierra</b> Sal por la calzada del oriente: pueblito San Isidro, Aeródromo Jacaranda y una subida en curvas al Mirador de la Sierra con vista a toda la ciudad.</li>
+      <li><b>¡A volar!</b> En el aeródromo hay un helicóptero y una avioneta. Presiona <kbd>F</kbd> junto a uno. Helicóptero: <kbd>W</kbd>/<kbd>S</kbd>, <kbd>A</kbd>/<kbd>D</kbd>, Espacio sube y Shift baja. Avioneta: <kbd>W</kbd> acelera, Espacio sube la nariz.</li>
+      <li><b>Tu casa en grande</b> Cómprala en el teléfono → Negocios: alberca, cochera con tus coches mejorados y adornos para la sala (billar, acuario, rocola y más).</li>
+      <li><b>Segunda parte de la historia</b> Don Chuy te espera en el taller: 6 misiones contra El Contador, con escenas de cámara.</li>
+      <li><b>Gráficas</b> Destello del sol al atardecer y haces de luz de los faros de noche.</li>
+      <li class="sep">23 DE NOVIEMBRE, TARDE</li>
       <li><b>Taller de mejoras</b> Entra con cualquier coche a la marca MEJORAS frente al Taller Don Chuy y presiona <kbd>E</kbd>: motor, turbo, frenos, blindaje, llantas antiponchaduras, polarizado, neón de colores y guardarlo en tu garaje.</li>
       <li><b>Encargos de Don Chuy</b> Te pide 10 coches específicos (ícono amarillo en el mapa). Róbalos y llévalos al taller sin policía.</li>
       <li><b>Pandillas con territorio</b> En el mapa se ven las colonias de Los Nopaleros, Los Halcones y Los del Canal. Tumba a 3 en su colonia, aguanta 3 oleadas y la colonia es tuya: te deja dinero cada hora. A veces vienen a recuperarla.</li>
@@ -680,7 +687,7 @@
     "@dimforge/rapier3d-compat": "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.14.0/rapier.es.js"
 } }
 </script>
-<script type="module" src="src/main.js?v=202611221927"></script>
+<script type="module" src="src/main.js?v=202611222040"></script>
 <div id="mirilla"><i></i></div>
 </body>
 </html>

@@ -1,12 +1,13 @@
-import { Coche, puntoCalleAleatorio, TIPOS } from './vehiculos.js?v=202611221927';
-import { aplicarTuneo, nombreTipo } from './tuneo.js?v=202611221927';
+import { Coche, puntoCalleAleatorio, TIPOS } from './vehiculos.js?v=202611222040';
+import { aplicarTuneo, nombreTipo } from './tuneo.js?v=202611222040';
 
 export const NEGOCIOS = [
   { id: 'depa', nombre: 'Departamento Jacaranda', precio: 6000, renta: 0, desc: 'Tu casa: duerme, cúrate y guarda la partida.' },
   { id: 'taqueria', nombre: 'Tacos La Calzada', precio: 8000, renta: 60, desc: 'Deja dinero cada hora del juego.' },
   { id: 'lavado', nombre: 'Autolavado Burbujas', precio: 14000, renta: 110, desc: 'Más clientes, más ganancia.' },
   { id: 'cantina', nombre: 'Cantina La Jacaranda', precio: 25000, renta: 200, desc: 'Y las bebidas te salen gratis.' },
-  { id: 'gasolinera', nombre: 'Gasolinera Jacaranda', precio: 40000, renta: 330, desc: 'El negocio más rentable de la ciudad.' }
+  { id: 'gasolinera', nombre: 'Gasolinera Jacaranda', precio: 40000, renta: 330, desc: 'El negocio más rentable de la ciudad.' },
+  { id: 'casa', nombre: 'Casa Jacaranda en San Isidro', precio: 45000, renta: 0, desc: 'Casa grande con cochera para 4 coches y alberca, junto al pueblo. Decórala y duerme ahí.' }
 ];
 
 export const AUTOS = [

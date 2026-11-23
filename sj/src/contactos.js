@@ -1,7 +1,7 @@
-import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611221927';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611221927';
-import { Peaton } from './peatones.js?v=202611221927';
-import { romperVitrina, reponerVitrinas } from './joyeria.js?v=202611221927';
+import { linea, esCalle, BLOQUES, PASO } from './ciudad.js?v=202611222040';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611222040';
+import { Peaton } from './peatones.js?v=202611222040';
+import { romperVitrina, reponerVitrinas } from './joyeria.js?v=202611222040';
 
 const ix = i => linea(i);
 const libre = (j, x, z) => {

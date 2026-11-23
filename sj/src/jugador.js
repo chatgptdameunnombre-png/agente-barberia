@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { enLago, sobreMuelle } from './ciudad.js?v=202611221927';
-import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611221927';
+import { enLago, sobreMuelle } from './ciudad.js?v=202611222040';
+import { crearPersona, animar, golpe as animGolpe, tumbar, levantar, sentar, ponerChamarra, montar, ROPA } from './persona.js?v=202611222040';
 
 export const ARMAS = {
   puno: { nombre: 'PUÑOS', tipo: 'golpe', daño: 14, cadencia: 0.42, alcance: 1.7, empuje: 3, cargador: 0 },
@@ -37,7 +37,8 @@ export const CATEGORIAS = [
 ];
 export const tieneArma = (j, k) => { const s = j.armas[k]; return !!s && (ARMAS[k].tipo !== 'lanzar' || s.reserva > 0); };
 
-import { Realista } from './realista.js?v=202611221927';
+import { Realista } from './realista.js?v=202611222040';
+import { alturaCerro } from './sierradatos.js?v=202611222040';
 export const REALISTAS = {};
 export const OUTFIT = {};
 export const OUTFITS = {
@@ -236,7 +237,7 @@ export class Jugador {
     }
     if (this.nadando) { this.vy = 0; this.y += ((this.velocidad > 0.3 ? 0.235 : 0.08) - this.y) * Math.min(1, dt * 5); }
     else {
-      const suelo = this.suelo = Math.max(sobreMuelle(j.ciudad.lago, this.pos.x, this.pos.z) ? 0.48 : 0, j.interiores?.pisoEn?.(this.pos.x, this.pos.z) || 0);
+      const suelo = this.suelo = Math.max(sobreMuelle(j.ciudad.lago, this.pos.x, this.pos.z) ? 0.48 : 0, j.interiores?.pisoEn?.(this.pos.x, this.pos.z) || 0, this.pos.x > 330 && !this.interior ? alturaCerro(this.pos.x, this.pos.z) : 0);
       if (ent.saltar && this.y <= suelo + 0.001) { this.vy = 6.4; j.audio?.salto?.(); }
       this.vy -= 20 * dt;
       this.y = Math.max(suelo, this.y + this.vy * dt);

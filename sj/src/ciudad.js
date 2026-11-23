@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611221927';
-import { hoja } from './texturas.js?v=202611221927';
+import { construirEstadio } from './estadio.js?v=202611222040';
+import { hoja } from './texturas.js?v=202611222040';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });
@@ -81,6 +81,7 @@ export class Mundo {
     }
     const lim = LIMITE + 2 - r;
     if (Math.abs(p.x) > 1500 || Math.abs(p.z) > 1500) return choque;
+    if (this.fuera && (Math.abs(p.x) > lim || Math.abs(p.z) > lim)) { const q = this.fuera(p.x, p.z, r); if (q === true) return choque; if (q) { const dx = q.x - p.x, dz = q.z - p.z, d = Math.hypot(dx, dz) || 1; p.x = q.x; p.z = q.z; return { x: dx / d, z: dz / d }; } }
     if (p.x > lim) { p.x = lim; choque = { x: -1, z: 0 }; }
     if (p.x < -lim) { p.x = -lim; choque = { x: 1, z: 0 }; }
     if (p.z > lim) { p.z = lim; choque = { x: 0, z: -1 }; }
@@ -297,6 +298,7 @@ export function construirCiudad(escena, mundo) {
   for (let i = 0; i < 4; i++) {
     const L = LIMITE + 1.2;
     const [x0, z0, x1, z1] = [[-L - 1, -L - 1, L + 1, -L], [-L - 1, L, L + 1, L + 1], [-L - 1, -L, -L, L], [L, -L, L + 1, L]][i];
+    if (i === 3) { for (const [a, b] of [[z0, -9], [9, z1]]) obra.caja('liso', (x0 + x1) / 2, (a + b) / 2, x1 - x0, b - a, 1.1, '#c9c2b4', 0, true); continue; }
     obra.caja('liso', (x0 + x1) / 2, (z0 + z1) / 2, x1 - x0, z1 - z0, 1.1, '#c9c2b4', 0, true);
   }
 
@@ -818,6 +820,7 @@ export function construirCiudad(escena, mundo) {
     while (k < n) {
       const a = r() * Math.PI * 2, d = 440 + Math.pow(r(), 0.8) * 170, x = Math.cos(a) * d, z = Math.sin(a) * d;
       if (Math.abs(x) < LIMITE + 30 && Math.abs(z) < LIMITE + 30) continue;
+      if (x > 300 && z > -440 && z < 360) continue;
       const alto = r() < 0.03 ? 14 + r() * 26 : 3.5 + r() * 6.5, ancho = 7 + r() * 12;
       V.set(x, -0.5, z); E.set(ancho, alto, ancho * (0.6 + r() * 0.8)); Q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.round(a * 4 / Math.PI) * Math.PI / 4 + (r() - 0.5) * 0.2);
       M.compose(V, Q, E); im.setMatrixAt(k, M); im.setColorAt(k, cc.set(tonos[r() * tonos.length | 0]).multiplyScalar(0.85 + r() * 0.2)); k++;
