@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { linea, LIMITE } from './ciudad.js?v=202611231822';
+import { linea, LIMITE } from './ciudad.js?v=202611231901';
 
 function lienzo(w, h, pintar) {
   const c = document.createElement('canvas'); c.width = w; c.height = h; pintar(c.getContext('2d'), w, h);
@@ -185,7 +185,7 @@ export class TrenLigero {
     return { m, texto: 'Tren ligero · ir a ' + d.nombre.replace('ESTACIÓN ', 'Estación ').replace(/\B[A-ZÁÉÍÓÚ]+/g, x => x.toLowerCase()) + ' ($10)' };
   }
 
-  marcasMapa() { return this.estaciones.map(e => ({ x: this.X + 10.35, z: e.z + 13, tipo: 'icono', ic: { c: '#5b2a86', t: 'T', n: 'Tren ligero · ' + e.nombre.toLowerCase().replace(/(^|\s)\S/g, x => x.toUpperCase()) } })); }
+  marcasMapa() { return this.estaciones.map(e => ({ x: this.X + 10.35, z: e.z + 13, tipo: 'icono', ic: { c: '#9a5ad8', t: 'tren', n: 'Tren ligero · ' + e.nombre.toLowerCase().replace(/(^|\s)\S/g, x => x.toUpperCase()) } })); }
 
   viajar() {
     const c = this.cerca(); if (!c) return false;

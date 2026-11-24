@@ -19,6 +19,22 @@ export function cargarAnimaciones() {
   }));
 }
 
+const LIMPIAS = new WeakMap();
+function sinLogo(m, [x, y, w, h], dx) {
+  const t = m.map, img = t?.image;
+  if (!img || !img.width) return;
+  let nueva = LIMPIAS.get(img);
+  if (!nueva) {
+    const k = img.width / 1024, c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+    const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0);
+    const desv = (px, py) => { const d = g.getImageData(px * k, py * k, w * k, h * k).data; let s1 = 0, s2 = 0, n = 0; for (let i = 0; i < d.length; i += 16) { const l = d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11; s1 += l; s2 += l * l; n++; } return Math.sqrt(Math.max(0, s2 / n - (s1 / n) ** 2)); };
+    if (desv(x, y) > desv(x + dx, y) * 1.6 + 3) g.drawImage(c, (x + dx) * k, y * k, w * k, h * k, x * k, y * k, w * k, h * k);
+    nueva = new THREE.CanvasTexture(c); nueva.flipY = t.flipY; nueva.colorSpace = t.colorSpace; nueva.wrapS = t.wrapS; nueva.wrapT = t.wrapT; nueva.anisotropy = t.anisotropy;
+    LIMPIAS.set(img, nueva);
+  }
+  m.map = nueva; m.needsUpdate = true;
+}
+
 export let ANISO = 8;
 export function configurar(renderer) { ANISO = renderer.capabilities.getMaxAnisotropy?.() || 8; }
 function prepararMateriales(raiz) {
@@ -27,13 +43,15 @@ function prepararMateriales(raiz) {
     o.castShadow = !/eyebrow|eyelash|low-poly|high-poly|teeth|tongue/i.test(o.name); o.receiveShadow = true; o.frustumCulled = false;
     const lista = [].concat(o.material).map(m => {
       for (const k of ['map', 'normalMap', 'roughnessMap', 'aoMap']) if (m[k]) { m[k].anisotropy = ANISO; m[k].needsUpdate = true; }
-      if (PELUDO.test(m.name)) { m.transparent = false; m.alphaTest = 0.35; m.alphaToCoverage = true; m.side = THREE.DoubleSide; m.depthWrite = true; m.roughness = 0.6; return m; }
+      if (PELUDO.test(m.name)) { const pesta = /eyelash/i.test(m.name), ceja = /eyebrow/i.test(m.name); m.transparent = false; m.alphaTest = pesta ? 0.6 : ceja ? 0.45 : 0.4; m.alphaToCoverage = true; m.side = THREE.DoubleSide; m.depthWrite = true; m.metalness = 0; m.roughness = pesta || ceja ? 0.9 : 0.8; m.envMapIntensity = 0.3; return m; }
       m.transparent = false; m.alphaTest = 0; m.opacity = 1; m.depthWrite = true;
       if (/ojos|low-poly|high-poly/i.test(m.name)) { m.roughness = 0.12; return m; }
       m.metalness = 0;
+      if (/female_casualsuit0[12]/i.test(m.name)) sinLogo(m, [706, 150, 196, 176], -556);
+      else if (/male_casualsuit04/i.test(m.name)) sinLogo(m, [498, 98, 150, 146], -400);
       if (/body|skin|^Human$/i.test(m.name) || o.name === 'Human') {
         const p = new THREE.MeshPhysicalMaterial(); THREE.MeshStandardMaterial.prototype.copy.call(p, m); p.defines = { STANDARD: '', PHYSICAL: '' };
-        p.roughness = 0.52; p.sheen = 0.35; p.sheenRoughness = 0.55; p.sheenColor = new THREE.Color('#ff8a70'); p.clearcoat = 0.04; p.clearcoatRoughness = 0.6;
+        p.roughness = 0.56; p.sheen = 0.28; p.sheenRoughness = 0.6; p.sheenColor = new THREE.Color('#ff8a70'); p.clearcoat = 0.03; p.clearcoatRoughness = 0.6; p.envMapIntensity = 0.7;
         return p;
       }
       m.roughness = Math.max(m.roughness ?? 0.7, 0.6);

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { modeloHeli } from './helicoptero.js?v=202611231822';
-import { alturaCerro, PISTA } from './sierradatos.js?v=202611231822';
-import { modeloJet } from './aeropuerto.js?v=202611231822';
+import { modeloHeli } from './helicoptero.js?v=202611231901';
+import { alturaCerro, PISTA } from './sierradatos.js?v=202611231901';
+import { modeloJet } from './aeropuerto.js?v=202611231901';
 
 const angulo = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
 
@@ -223,5 +223,5 @@ export class Vuelo {
     if (A && !this.j.overlay) this.j.hud.pista('F', 'Pilotear ' + A.nombre);
   }
 
-  marcasMapa() { return this.aeronaves.filter(A => !A.quemado && !A.oculto && A !== this.activa).map(A => ({ x: A.pos.x, z: A.pos.z, tipo: 'icono', ic: { c: '#7ae0ff', t: A.tipo === 'heli' ? 'H' : A.tipo === 'jet' ? 'J' : 'A', n: A.tipo === 'heli' ? 'Helicóptero' : A.tipo === 'jet' ? 'Avión de carga' : 'Avioneta' } })); }
+  marcasMapa() { return this.aeronaves.filter(A => !A.quemado && !A.oculto && A !== this.activa).map(A => ({ x: A.pos.x, z: A.pos.z, tipo: 'icono', ic: { c: '#7ae0ff', t: A.tipo === 'heli' ? 'heli' : 'avion', n: A.tipo === 'heli' ? 'Helicóptero' : A.tipo === 'jet' ? 'Avión de carga' : 'Avioneta' } })); }
 }

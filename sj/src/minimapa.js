@@ -1,77 +1,105 @@
 import * as THREE from 'three';
-import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611231822';
-import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611231822';
-import { dibujarGlifo } from './iconos.js?v=202611231822';
+import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611231901';
+import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611231901';
+import { dibujarGlifo } from './iconos.js?v=202611231901';
 
 export const ICONOS = {
   taller: { c: '#ffc94a', t: 'llave', n: 'Taller de Don Chuy' },
   pintura: { c: '#ff4f9a', t: 'chispa', n: 'Pintura Express' },
   armeria: { c: '#e2e6ee', t: 'mira', n: 'Armería del Valle' },
-  gasolinera: { c: '#ffb020', t: 'G', n: 'Gasolinera Jacaranda' },
+  gasolinera: { c: '#ffb020', t: 'gas', n: 'Gasolinera Jacaranda' },
   hospital: { c: '#ff5a6a', t: 'cruzroja', n: 'Hospital Civil' },
   comisaria: { c: '#4a9bff', t: 'escudo', n: 'Comisaría' },
   banco: { c: '#3bd16f', t: '$', n: 'Banco de Occidente' },
   mercado: { c: '#ff9a4a', t: 'bolsa', n: 'Mercado de San Jacinto' },
-  tianguis: { c: '#e86fa8', t: 'T', n: 'El Tianguis' },
+  tianguis: { c: '#e86fa8', t: 'carpa', n: 'El Tianguis' },
   estadio: { c: '#ff6b6b', t: 'balon', n: 'Estadio Jacaranda' },
   lago: { c: '#3fa8ff', t: 'ancla', n: 'Lago Azul · lanchas' },
   catedral: { c: '#f2c94c', t: 'cruz', n: 'Catedral' }
 };
 
 const COLOR = {
-  fuera: '#16201b', manzana: '#262c3d', edificio: '#353e57', borde: '#4a5574', calle: '#5a6380', linea: '#7d6a3a',
-  parque: '#2c6b46', plaza: '#5d5440', agua: '#2f78b0', taller: '#5a4a22', estadio: '#3a4a3a'
+  fuera: '#1a2420', manzana: '#2b3142', edificio: '#3a4258', borde: '#4a5574', calle: '#3b4254', linea: '#7d6a3a',
+  parque: '#2f6f4a', plaza: '#6b5f4b', agua: '#2f7fc0', taller: '#5a4a22', estadio: '#3a4a3a'
 };
 const W = LIMITE + 40;
+const SUELO_ZONA = { torres: '#28324a', centro: '#35303f', barrio: '#2b3142', parque: '#2f6f4a', plaza: '#6b5f4b', catedral: '#6b5f4b', monumento: '#6b5f4b' };
+const TECHO_ZONA = { torres: [86, 118, 168], centro: [150, 128, 112], barrio: [124, 116, 110] };
 
 function base(juego, tam) {
   const c = document.createElement('canvas'); c.width = c.height = tam;
   const g = c.getContext('2d');
   const k = tam / (W * 2), P = v => (v + W) * k;
+  const C = juego.ciudad, L = C.lugares;
+  if (!g.roundRect) g.roundRect = function (x, y, w, h) { this.rect(x, y, w, h); };
   g.fillStyle = COLOR.fuera; g.fillRect(0, 0, tam, tam);
-  for (let i = 0; i < 900; i++) { g.fillStyle = Math.random() < 0.5 ? 'rgba(80,140,90,.10)' : 'rgba(0,0,0,.10)'; g.beginPath(); g.arc(Math.random() * tam, Math.random() * tam, 2 + Math.random() * 10, 0, 7); g.fill(); }
-  g.fillStyle = COLOR.calle;
-  g.fillRect(P(-LIMITE), P(-LIMITE), LIMITE * 2 * k, LIMITE * 2 * k);
-  for (const b of juego.ciudad.bloques) {
-    const col = b.tipo === 'parque' ? COLOR.parque : (b.tipo === 'plaza' || b.tipo === 'catedral' || b.tipo === 'monumento') ? COLOR.plaza : COLOR.manzana;
-    g.fillStyle = '#6b7493';
-    g.fillRect(P(b.x0) - 0.6, P(b.z0) - 0.6, (b.x1 - b.x0) * k + 1.2, (b.z1 - b.z0) * k + 1.2);
-    g.fillStyle = col;
-    g.fillRect(P(b.x0), P(b.z0), (b.x1 - b.x0) * k, (b.z1 - b.z0) * k);
-  }
-  for (const a of juego.ciudad.arboles) {
-    g.fillStyle = a.morado ? 'rgba(170,120,230,.55)' : 'rgba(90,170,100,.5)';
-    g.beginPath(); g.arc(P(a.x), P(a.z), Math.max(1, 1.6 * a.escala * k), 0, 7); g.fill();
-  }
-  for (const cj of juego.mundo.cajas) {
-    const w = cj.maxx - cj.minx, d = cj.maxz - cj.minz;
-    if (w * d < 8 || cj.h < 2 || w > 200 || d > 200) continue;
-    const alto = Math.min(1, cj.h / 90);
-    g.fillStyle = `rgb(${53 + alto * 40},${62 + alto * 44},${87 + alto * 50})`;
-    g.fillRect(P(cj.minx), P(cj.minz), w * k, d * k);
-    g.strokeStyle = 'rgba(140,155,200,.35)'; g.lineWidth = Math.max(0.5, k * 0.4);
-    g.strokeRect(P(cj.minx), P(cj.minz), w * k, d * k);
-  }
-  const L = juego.ciudad.lugares;
-  if (L.monumento) { g.fillStyle = COLOR.agua; g.beginPath(); g.arc(P(L.monumento.x), P(L.monumento.z), 10.5 * k, 0, 7); g.fill(); }
-  g.strokeStyle = 'rgba(255,214,120,.35)'; g.lineWidth = Math.max(1, k * 0.5); g.setLineDash([4 * k, 3 * k]);
+  let sm = 99;
+  const az = () => { sm = (sm * 16807) % 2147483647; return (sm - 1) / 2147483646; };
+  for (let i = 0; i < 700; i++) { g.fillStyle = az() < 0.5 ? 'rgba(90,150,95,.07)' : 'rgba(0,0,0,.09)'; g.beginPath(); g.ellipse(az() * tam, az() * tam, 6 + az() * 26, 4 + az() * 14, az() * 3, 0, 7); g.fill(); }
+  g.fillStyle = '#10141c'; g.fillRect(P(-LIMITE) - 3, P(-LIMITE) - 3, LIMITE * 2 * k + 6, LIMITE * 2 * k + 6);
+  g.fillStyle = COLOR.calle; g.fillRect(P(-LIMITE), P(-LIMITE), LIMITE * 2 * k, LIMITE * 2 * k);
+  g.strokeStyle = 'rgba(255,255,255,.2)'; g.lineWidth = Math.max(1, k * 0.35); g.setLineDash([5 * k, 5 * k]);
   for (let i = 0; i <= BLOQUES; i++) {
     g.beginPath(); g.moveTo(P(linea(i)), P(-LIMITE)); g.lineTo(P(linea(i)), P(LIMITE)); g.stroke();
     g.beginPath(); g.moveTo(P(-LIMITE), P(linea(i))); g.lineTo(P(LIMITE), P(linea(i))); g.stroke();
   }
   g.setLineDash([]);
+  const tipoEn = (x, z) => { for (const b of C.bloques) if (x >= b.x0 && x <= b.x1 && z >= b.z0 && z <= b.z1) return b.tipo; return null; };
+  for (const b of C.bloques) {
+    const x = P(b.x0), y = P(b.z0), w = (b.x1 - b.x0) * k, h = (b.z1 - b.z0) * k, r = 2.2 * k;
+    g.fillStyle = '#5d667c'; g.beginPath(); g.roundRect(x - 1.1 * k, y - 1.1 * k, w + 2.2 * k, h + 2.2 * k, r + k); g.fill();
+    g.fillStyle = SUELO_ZONA[b.tipo] || COLOR.manzana; g.beginPath(); g.roundRect(x, y, w, h, r); g.fill();
+    if (b.tipo === 'parque') { g.strokeStyle = 'rgba(232,224,200,.5)'; g.lineWidth = 1.6 * k; g.beginPath(); g.moveTo(x + 4 * k, y + 4 * k); g.lineTo(x + w - 4 * k, y + h - 4 * k); g.moveTo(x + w - 4 * k, y + 4 * k); g.lineTo(x + 4 * k, y + h - 4 * k); g.stroke(); }
+  }
+  if (C.lago) { const A = C.lago, x = P(A.x0), y = P(A.z0), w = (A.x1 - A.x0) * k, h = (A.z1 - A.z0) * k; g.fillStyle = '#8fc6ee'; g.beginPath(); g.roundRect(x - k, y - k, w + 2 * k, h + 2 * k, 5 * k); g.fill(); const gr = g.createLinearGradient(x, y, x + w, y + h); gr.addColorStop(0, '#3a94d8'); gr.addColorStop(1, '#2468ac'); g.fillStyle = gr; g.beginPath(); g.roundRect(x, y, w, h, 4 * k); g.fill(); if (A.muelle) { g.fillStyle = '#a8814e'; g.fillRect(P(A.muelle.x) - 1.5 * k, P(A.muelle.z0), 3 * k, (A.muelle.z1 - A.muelle.z0) * k); } }
+  const marca = {};
+  for (const n in ICONOS) if (L[n]) marca[n] = L[n];
+  const acento = (cx, cz) => { let m = null, md = 34; for (const n in marca) { const d = Math.hypot(marca[n].x - cx, marca[n].z - cz); if (d < md) { md = d; m = n; } } return m; };
+  const cajas = juego.mundo.cajas.filter(cj => { const w = cj.maxx - cj.minx, d = cj.maxz - cj.minz; return !cj.agua && w * d >= 8 && cj.h >= 2 && w <= 200 && d <= 200 && Math.abs((cj.minx + cj.maxx) / 2) < LIMITE && Math.abs((cj.minz + cj.maxz) / 2) < LIMITE; }).sort((a, b) => a.h - b.h);
+  for (const cj of cajas) {
+    const w = cj.maxx - cj.minx, d = cj.maxz - cj.minz, cx = (cj.minx + cj.maxx) / 2, cz = (cj.minz + cj.maxz) / 2;
+    const zona = tipoEn(cx, cz) || 'barrio', alto = Math.min(1, cj.h / 80), x = P(cj.minx), y = P(cj.minz), ww = w * k, hh = d * k, so = Math.min(5, 0.8 + cj.h * 0.06) * k;
+    let col = TECHO_ZONA[zona] || TECHO_ZONA.barrio;
+    const n = w * d > 60 && cj.h > 5 ? acento(cx, cz) : null;
+    if (n) { const t = new THREE.Color(ICONOS[n].c); col = [t.r * 255 * 0.62 + 50, t.g * 255 * 0.62 + 50, t.b * 255 * 0.62 + 50]; }
+    const lum = 0.86 + alto * 0.5 + (az() - 0.5) * 0.12;
+    g.fillStyle = 'rgba(0,0,0,.34)'; g.fillRect(x + so, y + so, ww, hh);
+    g.fillStyle = `rgb(${Math.min(255, col[0] * lum) | 0},${Math.min(255, col[1] * lum) | 0},${Math.min(255, col[2] * lum) | 0})`; g.fillRect(x, y, ww, hh);
+    g.fillStyle = 'rgba(255,255,255,.16)'; g.fillRect(x, y, ww, Math.max(1, 0.5 * k)); g.fillRect(x, y, Math.max(1, 0.5 * k), hh);
+  }
+  for (const a of C.arboles) {
+    g.fillStyle = a.morado ? 'rgba(176,128,236,.8)' : 'rgba(86,170,104,.78)';
+    g.beginPath(); g.arc(P(a.x), P(a.z), Math.max(1.2, 1.7 * a.escala * k), 0, 7); g.fill();
+  }
+  if (L.monumento) { g.fillStyle = '#8fc6ee'; g.beginPath(); g.arc(P(L.monumento.x), P(L.monumento.z), 11.5 * k, 0, 7); g.fill(); g.fillStyle = COLOR.agua; g.beginPath(); g.arc(P(L.monumento.x), P(L.monumento.z), 10.3 * k, 0, 7); g.fill(); g.fillStyle = '#e8dcc0'; g.beginPath(); g.arc(P(L.monumento.x), P(L.monumento.z), 2.2 * k, 0, 7); g.fill(); }
+  const T = juego.tren;
+  if (T && T.X !== undefined) {
+    g.strokeStyle = 'rgba(20,14,34,.7)'; g.lineWidth = 4.4 * k; g.beginPath(); g.moveTo(P(T.X), P(-LIMITE)); g.lineTo(P(T.X), P(LIMITE)); g.stroke();
+    g.strokeStyle = '#b07ae8'; g.lineWidth = 2.2 * k; g.setLineDash([6 * k, 3 * k]); g.beginPath(); g.moveTo(P(T.X), P(-LIMITE)); g.lineTo(P(T.X), P(LIMITE)); g.stroke(); g.setLineDash([]);
+    for (const e of T.estaciones || []) { g.fillStyle = '#fff'; g.beginPath(); g.arc(P(T.X), P(e.z), 3.4 * k, 0, 7); g.fill(); g.fillStyle = '#9a5ad8'; g.beginPath(); g.arc(P(T.X), P(e.z), 2.2 * k, 0, 7); g.fill(); }
+  }
   return { c, k, P };
 }
 
+const _col = new THREE.Color();
+function tonos(hex) {
+  _col.set(hex); const r = _col.r, gg = _col.g, b = _col.b, lum = 0.3 * r + 0.59 * gg + 0.11 * b;
+  const f = (v, t) => Math.round(255 * Math.pow(Math.max(0, Math.min(1, v + (t > 0 ? (1 - v) * t : v * t))), 1 / 2.2));
+  return { claro: `rgb(${f(r, 0.3)},${f(gg, 0.3)},${f(b, 0.3)})`, oscuro: `rgb(${f(r, -0.28)},${f(gg, -0.28)},${f(b, -0.28)})`, tinta: lum > 0.36 ? '#14121d' : '#ffffff' };
+}
+const TONOS = {};
+
 function trazarIcono(g, x, y, ic, r = 13) {
+  const T = TONOS[ic.c] || (TONOS[ic.c] = tonos(ic.c || '#ffffff'));
   g.save();
-  g.shadowColor = 'rgba(0,0,0,.7)'; g.shadowBlur = 8; g.shadowOffsetY = 2;
-  g.fillStyle = ic.c;
-  g.beginPath(); g.arc(x, y, r + 2.5, 0, 7); g.fill();
-  g.shadowColor = 'transparent';
-  g.fillStyle = '#0f131c';
+  g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 7; g.shadowOffsetY = 2;
+  g.fillStyle = '#ffffff';
+  g.beginPath(); g.arc(x, y, r + 2, 0, 7); g.fill();
+  g.shadowColor = 'transparent'; g.shadowBlur = 0; g.shadowOffsetY = 0;
+  const gr = g.createLinearGradient(x, y - r, x, y + r); gr.addColorStop(0, T.claro); gr.addColorStop(1, T.oscuro);
+  g.fillStyle = gr;
   g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
-  dibujarGlifo(g, ic.t, x, y, r * 1.15, ic.c);
+  dibujarGlifo(g, ic.t, x, y, r * 1.18, T.tinta);
   g.restore();
 }
 
@@ -92,7 +120,7 @@ export class Minimapa {
     this.lienzo = lienzo; this.g = lienzo.getContext('2d');
     this.grande = grande; this.gg = grande.getContext('2d');
     const b = base(juego, 2048);
-    this.base = b.c; this.k = b.k; this.P = b.P;
+    this.baseVec = b.c; this.base = b.c; this.k = b.k; this.P = b.P; this.modoSat = false;
     this.centro = { x: 0, z: 0 }; this.zoom = 1;
     this.arrastre = null;
     this.raton = null;
@@ -142,9 +170,17 @@ export class Minimapa {
     for (let i = 0; i < 1400; i++) { h.fillStyle = Math.random() < 0.5 ? 'rgba(120,150,80,.10)' : 'rgba(30,40,20,.14)'; h.beginPath(); h.ellipse(Math.random() * tam, Math.random() * tam, 4 + Math.random() * 26, 3 + Math.random() * 14, Math.random() * 3, 0, 7); h.fill(); }
     h.restore();
     h.strokeStyle = 'rgba(0,0,0,.35)'; h.lineWidth = 6; h.strokeRect(P(-LIMITE - 4), P(-LIMITE - 4), (LIMITE * 2 + 8) * k, (LIMITE * 2 + 8) * k);
-    this.base = f; this.sateliteListo = true;
+    this.baseSat = f; this.sateliteListo = true; if (this.modoSat) this.base = f;
     return f;
   }
+
+  vista(sat) {
+    this.modoSat = !!sat;
+    if (this.modoSat && !this.baseSat) { try { this.satelite(); } catch (e) { console.warn('satelite', e); this.modoSat = false; } }
+    this.base = this.modoSat && this.baseSat ? this.baseSat : this.baseVec;
+  }
+
+  rehacer() { const b = base(this.j, 2048); this.baseVec = b.c; if (!this.modoSat) this.base = b.c; }
 
   blips() {
     const j = this.j, l = [];
@@ -309,6 +345,7 @@ export class Minimapa {
     document.querySelector('#mapa .zoom')?.addEventListener('click', e => {
       const b = e.target.closest('[data-z]'); if (!b || !this.abierto) return;
       if (b.dataset.z === 'centro') { const p = this.j.jugador.posicion; this.volar = { x: p.x, z: p.z }; }
+      else if (b.dataset.z === 'capa') { this.vista(!this.modoSat); b.classList.toggle('on', this.modoSat); }
       else { this.zoomMeta = Math.max(this.zoomMin, Math.min(9, (this.zoomMeta || this.zoom) * (b.dataset.z === 'mas' ? 1.6 : 1 / 1.6))); this.ancla = { x: innerWidth / 2, y: innerHeight / 2 }; }
       this.j.audio?.ui?.(760);
     });
@@ -362,7 +399,7 @@ export class Minimapa {
     const [ox, oy] = S(-W, -W);
     g.imageSmoothingEnabled = true;
     g.drawImage(this.base, ox, oy, W * 2 * this.zoom, W * 2 * this.zoom);
-    g.fillStyle = 'rgba(10,12,22,.26)'; g.fillRect(ox, oy, W * 2 * this.zoom, W * 2 * this.zoom);
+    if (this.modoSat) { g.fillStyle = 'rgba(10,12,22,.26)'; g.fillRect(ox, oy, W * 2 * this.zoom, W * 2 * this.zoom); }
     j.sierra?.dibujarMapa(g, S, Math.max(3, 7 * this.zoom));
     for (const z of j.territorio?.zonasMapa() || []) { const [x0, y0] = S(z.x0, z.z0), [x1, y1] = S(z.x1, z.z1); g.fillStyle = z.color + (z.ataque ? '66' : '30'); g.fillRect(x0, y0, x1 - x0, y1 - y0); g.strokeStyle = z.color + 'aa'; g.lineWidth = z.ataque ? 3 : 1.5; g.strokeRect(x0, y0, x1 - x0, y1 - y0); if (this.zoom > 1.6) { g.font = '800 11px Inter'; g.textAlign = 'center'; g.fillStyle = '#ffffffcc'; g.fillText(z.nombre, (x0 + x1) / 2, (y0 + y1) / 2 - 7); g.fillStyle = z.color; g.fillText(z.banda, (x0 + x1) / 2, (y0 + y1) / 2 + 8); } }
     const r = j.gps.ruta;

@@ -1,6 +1,6 @@
-import { esTaxi } from './vehiculos.js?v=202611231822';
+import { esTaxi } from './vehiculos.js?v=202611231901';
 import * as THREE from 'three';
-import { linea, indiceLinea } from './ciudad.js?v=202611231822';
+import { linea, indiceLinea } from './ciudad.js?v=202611231901';
 
 function aCalle(D) { const lx = linea(indiceLinea(D.x)), lz = linea(indiceLinea(D.z)); return Math.abs(D.x - lx) < Math.abs(D.z - lz) ? new THREE.Vector3(lx + 4, 0, D.z) : new THREE.Vector3(D.x, 0, lz + 4); }
 

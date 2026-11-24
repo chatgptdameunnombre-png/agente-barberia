@@ -566,6 +566,10 @@ body.cine::before,body.cine::after{content:'';position:fixed;left:0;right:0;heig
   #mapa .zoom button:hover { transform:scale(1.08); background:rgba(255,255,255,.18); }
   #mapa .zoom svg { width:20px; height:20px; display:block; }
   #mapa::after { background:radial-gradient(ellipse at center, transparent 62%, rgba(0,0,0,.42)); }
+
+  #mapa li i { background:var(--c); color:#14121d; border:1.5px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.35); }
+  #mapa .zoom button.on { background:#fff; color:#14121d; }
+  #mapa { background:#141a1c; }
 </style>
 </head>
 <body>
@@ -629,7 +633,7 @@ body.cine::before,body.cine::after{content:'';position:fixed;left:0;right:0;heig
     <div class="ayuda"><span><b>Clic</b> marca destino · <b>clic derecho</b> lo quita</span><span><b>Arrastra</b> para moverte · <b>rueda</b> para acercar</span><span>Toca un ícono de la lista para ocultarlo</span><span class="cierra"><kbd>M</kbd> cerrar · <kbd>C</kbd> centrar</span></div>
   </div>
   <div class="abajo"><div class="vidrio" id="mapaInfo"></div><div class="vidrio" id="mapaDestino"></div></div>
-  <div class="zoom"><button class="vidrio" data-z="mas" type="button" aria-label="Acercar">+</button><button class="vidrio" data-z="menos" type="button" aria-label="Alejar">−</button><button class="vidrio" data-z="centro" type="button" aria-label="Centrar en ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+  <div class="zoom"><button class="vidrio" data-z="mas" type="button" aria-label="Acercar">+</button><button class="vidrio" data-z="menos" type="button" aria-label="Alejar">−</button><button class="vidrio" data-z="capa" type="button" aria-label="Cambiar entre plano y foto aérea" title="Plano o foto aérea"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z" fill="currentColor"/><path d="M3 12l9 5 9-5M3 16l9 5 9-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button><button class="vidrio" data-z="centro" type="button" aria-label="Centrar en ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
 </div>
 <div id="tienda">
   <div class="izq vidrio">
@@ -669,7 +673,12 @@ body.cine::before,body.cine::after{content:'';position:fixed;left:0;right:0;heig
   </div>
   <div class="der vidrio" id="pNovedades"><h3>NOVEDADES</h3>
     <ul class="novedades">
-      <li class="sep">LO MÁS NUEVO · 24 DE NOVIEMBRE, NOCHE</li>
+      <li class="sep">LO MÁS NUEVO · 25 DE NOVIEMBRE</li>
+      <li><b>Mapa rehecho</b> Ahora es un plano limpio: calles, manzanas, edificios con el color de cada lugar, parques, lago y la línea del tren. Con el botón de capas cambias a la foto aérea.</li>
+      <li><b>Íconos nuevos</b> Cada lugar tiene su símbolo relleno de color: gasolinera, tianguis, tren, aeropuerto, helicóptero, cine, maquinitas, lucha, cajero y pesca.</li>
+      <li><b>Personajes</b> Cabello sin brillo de casco, gorras con forma de gorra, pestañas finas y playeras sin logotipo.</li>
+      <li><b>Más detalle en los coches</b> Limpiadores, molduras, antena, tercera luz de freno y rines con birlos; el deportivo trae toma en el cofre, faldones y difusor, y la camioneta barra antivuelco y defensa cromada.</li>
+      <li class="sep">24 DE NOVIEMBRE, NOCHE</li>
       <li><b>Inicio nuevo</b> La pantalla de inicio ahora muestra la ciudad real en movimiento, con un menú más limpio.</li>
       <li><b>Teléfono rediseñado</b> Pantalla principal con tu dinero y tu siguiente misión, barra fija con Misiones, Mapa, Banco y Cámara, y botones más claros en todas las apps.</li>
       <li><b>Mapa más claro</b> Rótulos discretos, lista de lugares en dos columnas, botones para acercar, alejar y centrar, y tu flecha más visible.</li>
@@ -816,7 +825,7 @@ body.cine::before,body.cine::after{content:'';position:fixed;left:0;right:0;heig
     "@dimforge/rapier3d-compat": "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.14.0/rapier.es.js"
 } }
 </script>
-<script type="module" src="src/main.js?v=202611231822"></script>
+<script type="module" src="src/main.js?v=202611231901"></script>
 <div id="mirilla"><i></i></div>
 </body>
 </html>

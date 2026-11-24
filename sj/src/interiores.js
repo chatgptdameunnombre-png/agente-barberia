@@ -1,25 +1,25 @@
 import * as THREE from 'three';
-import { animar } from './persona.js?v=202611231822';
-import { hoja } from './texturas.js?v=202611231822';
-import { Peaton } from './peatones.js?v=202611231822';
-import { letrero } from './ciudad.js?v=202611231822';
-import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611231822';
-import { IMG_ARMAS, ICONO } from './iconos.js?v=202611231822';
-import { ARTICULOS } from './actividades.js?v=202611231822';
-import { OUTFITS, cambiarOutfit } from './jugador.js?v=202611231822';
-import { jugarMaquinita } from './maquinita.js?v=202611231822';
+import { animar } from './persona.js?v=202611231901';
+import { hoja } from './texturas.js?v=202611231901';
+import { Peaton } from './peatones.js?v=202611231901';
+import { letrero } from './ciudad.js?v=202611231901';
+import { crearPersona, ROPA, ESTILOS_PELO, ponerChamarra, sentar } from './persona.js?v=202611231901';
+import { IMG_ARMAS, ICONO } from './iconos.js?v=202611231901';
+import { ARTICULOS } from './actividades.js?v=202611231901';
+import { OUTFITS, cambiarOutfit } from './jugador.js?v=202611231901';
+import { jugarMaquinita } from './maquinita.js?v=202611231901';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { ARMERIAS, TIPOS_ARMERIA, construirArmeria } from './armerias.js?v=202611231822';
-import { dormible } from './ligero.js?v=202611231822';
-import { JOYERIA, construirJoyeria, ARTICULOS_JOYERIA } from './joyeria.js?v=202611231822';
-import { DECOR, construirCasaInt, animarCasa } from './casa.js?v=202611231822';
-import { ARMAS } from './jugador.js?v=202611231822';
+import { ARMERIAS, TIPOS_ARMERIA, construirArmeria } from './armerias.js?v=202611231901';
+import { dormible } from './ligero.js?v=202611231901';
+import { JOYERIA, construirJoyeria, ARTICULOS_JOYERIA } from './joyeria.js?v=202611231901';
+import { DECOR, construirCasaInt, animarCasa } from './casa.js?v=202611231901';
+import { ARMAS } from './jugador.js?v=202611231901';
 
 const NOMBRE_LETRERO = ['Abarrotes Doña Lupe', 'Tortillería La Perla', 'Farmacia La Esperanza', 'Birria El Compa', 'Ferretería El Tornillo', 'Panadería La Concha', 'Mariscos El Pacífico', 'Lavandería Burbujas'];
 const ROBABLES = [0, 2, 5, 1, 3, 4, 6];
 const INT = hoja('assets/interior.jpg', 3, 2, { tam: 512, sinUrl: true });
 const COLOR_ICONO = { casa: '#b46bff', joyeria: '#7ae0ff', charro: '#e6b54a', trinchera: '#9ab85a', sierra: '#d88a4a', filo: '#ff5a4a', seguridad: '#4a8aff', cine: '#ffcf5a', maquinitas: '#3fd2ff', tienda: '#3fd2ff', ropa: '#e86fa8', barberia: '#ff6b6b', armeria: '#e2e6ee', cantina: '#ffb347', gimnasio: '#4fe08a', depa: '#b46bff', antro: '#ff4fd8', arena: '#ffd23a', mercado: '#ff8a3a', templo: '#f2e6c8' };
-const LETRA = { casa: 'casa', joyeria: 'chispa', charro: 'mira', trinchera: 'mira', sierra: 'mira', filo: 'mira', seguridad: 'mira', cine: 'P', maquinitas: 'A', tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'L', mercado: 'M', templo: '+' };
+const LETRA = { casa: 'casa', joyeria: 'chispa', charro: 'mira', trinchera: 'mira', sierra: 'mira', filo: 'mira', seguridad: 'mira', cine: 'cine', maquinitas: 'mando', tienda: 'carrito', ropa: 'camisa', barberia: 'tijeras', armeria: 'mira', cantina: 'copa', gimnasio: 'pesa', depa: 'casa', antro: 'nota', arena: 'mascara', mercado: 'bolsa', templo: 'cruz' };
 const LUGARES_LIBRES = [
   ['ropa', 'BOUTIQUE LA JACARANDA', 'Boutique La Jacaranda', '#2a1440', '#e9c8ff'],
   ['barberia', 'BARBERÍA EL BIGOTE', 'Barbería El Bigote', '#1a1a1a', '#ff6b6b'],
@@ -776,7 +776,7 @@ export class Interiores {
     return q;
   }
 
-  marcasMapa() { return this.tiendas.map(t => ({ x: t.puerta.x, z: t.puerta.z, tipo: 'icono', ic: { c: COLOR_ICONO[t.tipo], t: LETRA[t.tipo], n: t.nombre } })).concat((this.cajeros || []).map(c => ({ x: c.x, z: c.z, tipo: 'icono', ic: { c: '#3bd16f', t: '$', n: 'Cajero automático' } }))); }
+  marcasMapa() { return this.tiendas.map(t => ({ x: t.puerta.x, z: t.puerta.z, tipo: 'icono', ic: { c: COLOR_ICONO[t.tipo], t: LETRA[t.tipo], n: t.nombre } })).concat((this.cajeros || []).map(c => ({ x: c.x, z: c.z, tipo: 'icono', ic: { c: '#3bd16f', t: 'cajero', n: 'Cajero automático' } }))); }
 
   cerca() {
     const p = this.j.jugador.pos;

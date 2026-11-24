@@ -1,5 +1,5 @@
-import { ARMAS } from './jugador.js?v=202611231822';
-import { ICONO_ARMA, ICONO, iconoArma, IMG_ARMAS, glifoSVG } from './iconos.js?v=202611231822';
+import { ARMAS } from './jugador.js?v=202611231901';
+import { ICONO_ARMA, ICONO, iconoArma, IMG_ARMAS, glifoSVG } from './iconos.js?v=202611231901';
 
 const $ = id => document.getElementById(id);
 const RETRATO = { 'Don Chuy': 0, 'El Güero': 1, 'Encargado': 2, 'Matón': 3, 'Matías': 4, 'Lucía': 5, 'Cajero': 6, 'Oficial': 7 };
@@ -28,7 +28,7 @@ export class Hud {
     this.C = C;
     this.e.fondo.setAttribute('stroke-dasharray', `${C * 0.16} ${C * 0.67} ${C * 0.16} ${C}`);
     this.e.fondo.setAttribute('stroke-dashoffset', `${-C * 0.01}`);
-    const ley = [['#ffc94a', 'llave', 'Taller Don Chuy'], ['#ff4f9a', 'chispa', 'Pintura Express'], ['#e2e6ee', 'mira', 'Armería'], ['#ff5a6a', 'cruzroja', 'Hospital'], ['#4a9bff', 'escudo', 'Comisaría'], ['#3bd16f', '$', 'Banco'], ['#ff9a4a', 'bolsa', 'Mercado'], ['#e86fa8', 'T', 'Tianguis'], ['#3fd2ff', 'carrito', 'Tiendas'], ['#4fe08a', 'pesa', 'Gimnasio'], ['#ffb347', 'copa', 'Cantina'], ['#ffc94a', 'rampa', 'Salto único'], ['#3fd2ff', 'bandera', 'Carrera callejera'], ['#3fa8ff', 'ancla', 'Lago y lanchas'], ['#b46bff', 'punto', 'Tu destino'],
+    const ley = [['#ffc94a', 'llave', 'Taller Don Chuy'], ['#ff4f9a', 'chispa', 'Pintura Express'], ['#e2e6ee', 'mira', 'Armería'], ['#ff5a6a', 'cruzroja', 'Hospital'], ['#4a9bff', 'escudo', 'Comisaría'], ['#3bd16f', '$', 'Banco'], ['#ff9a4a', 'bolsa', 'Mercado'], ['#e86fa8', 'carpa', 'Tianguis'], ['#3fd2ff', 'carrito', 'Tiendas'], ['#4fe08a', 'pesa', 'Gimnasio'], ['#ffb347', 'copa', 'Cantina'], ['#ffc94a', 'rampa', 'Salto único'], ['#3fd2ff', 'bandera', 'Carrera callejera'], ['#3fa8ff', 'ancla', 'Lago y lanchas'], ['#b46bff', 'punto', 'Tu destino'],
       ['sep', 'CONTACTOS'], ['#ffc94a', 'C', 'Don Chuy'], ['#f0a03a', 'N', 'Tío Nacho'], ['#b46bff', 'V', 'Valeria Luna'], ['#e8c25a', 'G', 'La Güera Reyes'], ['#4a9bff', 'I', 'Comandante Ibarra']];
     $('leyenda').innerHTML = ley.map(([c, t, n]) => c === 'sep' ? `<li class="sep">${t}</li>` : `<li data-filtro="${t}"><i style="--c:${c}">${glifoSVG(t)}</i>${n}</li>`).join('');
     $('leyenda').addEventListener('click', e => { const li = e.target.closest('li[data-filtro]'); if (!li) return; const f = li.dataset.filtro, M = this.j.minimapa; M.ocultos = M.ocultos || new Set(); if (M.ocultos.has(f)) M.ocultos.delete(f); else M.ocultos.add(f); li.classList.toggle('off', M.ocultos.has(f)); this.j.audio?.ui?.(700); });
