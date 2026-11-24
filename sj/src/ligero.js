@@ -30,6 +30,22 @@ export function dormirQuieto(g, valores, n = 12) {
 
 export function despertar(g) { if (g) g.__sucio = true; }
 
+export function acelerarMatrices() {
+  const P = THREE.Object3D.prototype;
+  if (P.__rapida) return;
+  P.__rapida = true;
+  P.updateMatrix = function () {
+    const p = this.position, q = this.quaternion, s = this.scale;
+    let c = this.__m;
+    if (c === undefined) c = this.__m = new Float32Array(10).fill(NaN);
+    const a = Math.fround(p.x), b = Math.fround(p.y), d = Math.fround(p.z), e = Math.fround(q.x), f = Math.fround(q.y), g = Math.fround(q.z), h = Math.fround(q.w), i = Math.fround(s.x), k = Math.fround(s.y), l = Math.fround(s.z);
+    if (c[0] === a && c[1] === b && c[2] === d && c[3] === e && c[4] === f && c[5] === g && c[6] === h && c[7] === i && c[8] === k && c[9] === l) return;
+    c[0] = a; c[1] = b; c[2] = d; c[3] = e; c[4] = f; c[5] = g; c[6] = h; c[7] = i; c[8] = k; c[9] = l;
+    this.matrix.compose(p, q, s);
+    this.matrixWorldNeedsUpdate = true;
+  };
+}
+
 export const NIVELES = [3, 2, 1, 0, -1];
 export const PERFILES = {
   3: { nombre: 'Ultra', sombra: 4096, pr: 1.5, resMin: 0.7, peatones: 1, trafico: 1, lejos: 66, realistas: 18, rangoReal: 52, finos: 60, entorno: true, alcance: 1 },

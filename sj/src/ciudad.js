@@ -1,9 +1,9 @@
-import { alturaCampo } from './sierradatos.js?v=202611231901';
+import { alturaCampo } from './sierradatos.js?v=202611231951';
 import * as THREE from 'three';
-import { trocear, lejos } from './ligero.js?v=202611231901';
+import { trocear, lejos } from './ligero.js?v=202611231951';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { construirEstadio } from './estadio.js?v=202611231901';
-import { hoja } from './texturas.js?v=202611231901';
+import { construirEstadio } from './estadio.js?v=202611231951';
+import { hoja } from './texturas.js?v=202611231951';
 
 const FACH = hoja('assets/fachadas.jpg', 3, 2, { tam: 512, repetir: true, brillo: true, sinUrl: true });
 FACH.forEach((p, i) => { if (i === 3) p.vidrio = true; });

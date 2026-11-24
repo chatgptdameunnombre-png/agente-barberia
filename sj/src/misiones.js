@@ -1,11 +1,12 @@
 import * as THREE from 'three';
-import { linea, CARRIL } from './ciudad.js?v=202611231901';
-import { Coche } from './vehiculos.js?v=202611231901';
-import { Peaton } from './peatones.js?v=202611231901';
-import { CONTACTOS } from './contactos.js?v=202611231901';
-import { crearPersona, animar, nivelDetalle, sombraPersona } from './persona.js?v=202611231901';
-import { crearHumano } from './humanos.js?v=202611231901';
-import { LISTA2 } from './historia2.js?v=202611231901';
+import { linea, CARRIL } from './ciudad.js?v=202611231951';
+import { Coche } from './vehiculos.js?v=202611231951';
+import { Peaton } from './peatones.js?v=202611231951';
+import { CONTACTOS } from './contactos.js?v=202611231951';
+import { dormible } from './ligero.js?v=202611231951';
+import { crearPersona, animar, nivelDetalle, sombraPersona } from './persona.js?v=202611231951';
+import { crearHumano } from './humanos.js?v=202611231951';
+import { LISTA2 } from './historia2.js?v=202611231951';
 
 export function crearMarcador(escena, color) {
   const g = new THREE.Group();
@@ -127,11 +128,12 @@ export class Misiones {
     if (C.modelo && !this.j.sinRealista) {
       const g = new THREE.Group(); g.position.set(p.x + 1.5, 0, p.z - 0.9); g.rotation.y = Math.atan2(-1.5, 0.9); this.j.escena.add(g);
       mk.fig = { grupo: g, yawBase: g.rotation.y, real: true };
-      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); if (C.mascara) import('./humanos.js?v=202611231901').then(H => H.ponerMascara(h, ...C.mascara)); }).catch(() => {});
+      crearHumano(C.modelo).then(h => { g.add(h.grupo); mk.fig.h = h; h.tocar('Idle_Loop', 0); if (C.mascara) import('./humanos.js?v=202611231951').then(H => H.ponerMascara(h, ...C.mascara)); }).catch(() => {});
       return;
     }
     if (!C.apariencia) return;
     const f = crearPersona({ ...C.apariencia, fijo: true });
+    dormible(f.grupo);
     f.grupo.position.set(p.x + 1.5, 0, p.z - 0.9); f.grupo.rotation.y = Math.atan2(-1.5, 0.9);
     this.j.escena.add(f.grupo); mk.fig = f; f.yawBase = f.grupo.rotation.y;
   }

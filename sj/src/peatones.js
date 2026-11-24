@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { dormible } from './ligero.js?v=202611231901';
-import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611231901';
+import { dormible } from './ligero.js?v=202611231951';
+import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611231951';
 
 const _v = new THREE.Vector3();
 
@@ -259,8 +259,8 @@ export class Peaton {
     if (c && this.estado === 'pasear' && this.atasco > 1.5) { this.sentido *= -1; this.indice = (this.indice + this.sentido + 4) % 4; this.atasco = 0; }
     this.vel = mover;
     const dj = Math.abs(this.pos.x - jp.x) + Math.abs(this.pos.z - jp.z);
-    nivelDetalle(this.p, dj < 45);
-    animar(this.p, dt, mover, this.arma, apunta);
+    const oculto = !this.grupo.visible && !this.muerto && !this.muneco;
+    if (!oculto) { nivelDetalle(this.p, dj < 45); animar(this.p, dt, mover, this.arma, apunta); }
     if (this.estado === 'agachado' || this.estado === 'aturdido') { const P = this.p; P.cuerpo.position.y = -0.4; P.pi.rotation.x = -1.5; P.pd.rotation.x = -1.3; P.ri.rotation.x = 2.3; P.rd.rotation.x = 2.1; P.cuerpo.rotation.x = 0.35; P.bi.rotation.set(-2.8, 0, 0.5); P.bd.rotation.set(-2.8, 0, -0.5); P.ci.rotation.x = -1.9; P.cd.rotation.x = -1.9; }
     else if (this.p.cuerpo.position.y < -0.1) this.p.cuerpo.position.y = 0;
     const P = this.p, tt = this.t;

@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { letrero } from './ciudad.js?v=202611231901';
-import { Peaton } from './peatones.js?v=202611231901';
-import { CERRO, PISTA, HANGAR, PUEBLO, CASA, ANCHO, CAMINOS, MIRADOR, AERO, PERI, alturaCerro, dentroRegion, regresar } from './sierradatos.js?v=202611231901';
+import { letrero } from './ciudad.js?v=202611231951';
+import { Peaton } from './peatones.js?v=202611231951';
+import { CERRO, PISTA, HANGAR, PUEBLO, CASA, ANCHO, CAMINOS, MIRADOR, AERO, PERI, alturaCerro, dentroRegion, regresar } from './sierradatos.js?v=202611231951';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 function lienzo(w, h, f) { const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }

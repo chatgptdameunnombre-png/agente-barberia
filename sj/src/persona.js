@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611231901';
+import { hoja } from './texturas.js?v=202611231951';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const cap = (r, l, y = 0) => { const g = new THREE.CapsuleGeometry(r, l, 3, 10); g.translate(0, y, 0); return g; };
@@ -366,8 +366,8 @@ function crearArmas(mano) {
   const out = {};
   for (const id in ARMAS_GEO) {
     const g = new THREE.Group();
-    for (const [geo, m] of ARMAS_GEO[id]) { const k = new THREE.Mesh(geo, m); k.castShadow = true; g.add(k); }
-    g.visible = false;
+    let lleno = false, vis = false;
+    Object.defineProperty(g, 'visible', { configurable: true, enumerable: true, get() { return vis; }, set(v) { vis = !!v; if (vis && !lleno) { lleno = true; for (const [geo, m] of ARMAS_GEO[id]) { const k = new THREE.Mesh(geo, m); k.castShadow = true; g.add(k); } } } });
     mano.add(g);
     out[id] = g;
   }

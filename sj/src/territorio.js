@@ -1,5 +1,5 @@
-import { Peaton } from './peatones.js?v=202611231901';
-import { linea, CALLE, PASO, BLOQUES, tipoBloque } from './ciudad.js?v=202611231901';
+import { Peaton } from './peatones.js?v=202611231951';
+import { linea, CALLE, PASO, BLOQUES, tipoBloque } from './ciudad.js?v=202611231951';
 
 export const BANDAS = {
   nopal: { nombre: 'Los Nopaleros', color: '#3fbf5a', armas: ['pistola', 'bate', 'cuchillo', 'pistola'] },

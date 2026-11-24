@@ -1,5 +1,5 @@
-import { ARMAS } from './jugador.js?v=202611231901';
-import { ICONO_ARMA, ICONO, iconoArma, IMG_ARMAS, glifoSVG } from './iconos.js?v=202611231901';
+import { ARMAS } from './jugador.js?v=202611231951';
+import { ICONO_ARMA, ICONO, iconoArma, IMG_ARMAS, glifoSVG } from './iconos.js?v=202611231951';
 
 const $ = id => document.getElementById(id);
 const RETRATO = { 'Don Chuy': 0, 'El Güero': 1, 'Encargado': 2, 'Matón': 3, 'Matías': 4, 'Lucía': 5, 'Cajero': 6, 'Oficial': 7 };
@@ -170,7 +170,7 @@ export class Hud {
     if (this.tRadio > 0) { this.tRadio -= dt; if (this.tRadio <= 0) this.e.radio.classList.remove('on'); }
     if (this.pistaFrame < j.cuadro - 1) this.e.pista.classList.remove('on');
     this.moverBurbujas(dt);
-    this.e.reloj.textContent = j.ambiente.texto;
+    const hora = j.ambiente.texto; if (hora !== this._hora) { this._hora = hora; this.e.reloj.textContent = hora; }
     const clima = j.ambiente.lluvia > 0.3 ? 'lluvia' : j.ambiente.noche > 0.5 ? 'luna' : 'sol';
     if (clima !== this.climaPrevio) { this.e.clima.innerHTML = ICONO[clima]; this.climaPrevio = clima; }
     if (this.dineroPrevio !== null && jug.dinero !== this.dineroPrevio) {
@@ -181,29 +181,26 @@ export class Hud {
     this.dineroPrevio = jug.dinero;
     this.dineroMostrado += (jug.dinero - this.dineroMostrado) * Math.min(1, dt * 7);
     if (Math.abs(jug.dinero - this.dineroMostrado) < 1) this.dineroMostrado = jug.dinero;
-    this.e.dinero.textContent = '$' + Math.round(this.dineroMostrado).toLocaleString('es-MX');
+    { const dm = Math.round(this.dineroMostrado); if (dm !== this._dm) { this._dm = dm; this.e.dinero.textContent = '$' + dm.toLocaleString('es-MX'); } }
     const n = j.policia.estrellas;
     if (n !== this.estrellasPrevias) {
       [...this.e.estrellas.children].forEach((s, i) => { const on = i < n; if (on && i >= this.estrellasPrevias) { s.classList.remove('on'); void s.offsetWidth; } s.classList.toggle('on', on); });
       this.estrellasPrevias = n;
     }
-    this.e.estrellas.classList.toggle('parpadea', n > 0 && !j.policia.visto);
-    this.e.estrellas.classList.toggle('oculto', n === 0);
+    { const pe = n > 0 && !j.policia.visto, oe = n === 0; if (pe !== this._pe) { this._pe = pe; this.e.estrellas.classList.toggle('parpadea', pe); } if (oe !== this._oe) { this._oe = oe; this.e.estrellas.classList.toggle('oculto', oe); } }
     const claveArma = jug.arma + (jug.armas[jug.arma]?.silen ? '+s' : '');
     if (claveArma !== this.armaPrevia) { this.e.icono.innerHTML = iconoArma(jug.arma); this.e.arma.textContent = ARMAS[jug.arma].nombre + (jug.armas[jug.arma]?.silen ? ' · SILENCIADA' : ''); this.armaPrevia = claveArma; }
     const s = jug.armas[jug.arma], A = ARMAS[jug.arma];
-    document.body.classList.toggle('mirilla', !!(jug.apunta && ARMAS[jug.arma]?.zoom && !ARMAS[jug.arma]?.sinMirilla && !jug.coche));
+    { const mi = !!(jug.apunta && ARMAS[jug.arma]?.zoom && !ARMAS[jug.arma]?.sinMirilla && !jug.coche); if (mi !== this._mi) { this._mi = mi; document.body.classList.toggle('mirilla', mi); } }
     const txt = ARMAS[jug.arma]?.tipo === 'lanzar' ? `× ${s?.reserva || 0}` : A.cargador ? (jug.recargando > 0 ? 'RECARGANDO' : `${s.cargador} / ${s.reserva}`) : '';
     if (this.e.balas.textContent !== txt) this.e.balas.textContent = txt;
-    this.e.card.classList.toggle('recarga', jug.recargando > 0);
+    { const rc = jug.recargando > 0; if (rc !== this._rc) { this._rc = rc; this.e.card.classList.toggle('recarga', rc); } }
     if (jug.recargando > 0) this.e.rec.style.width = (1 - jug.recargando / A.recarga) * 100 + '%';
     const C = this.C;
     const fs = Math.max(0, jug.salud) / jug.saludMax, fc = Math.max(0, jug.chaleco) / 100;
-    this.e.salud.setAttribute('stroke-dasharray', `${C * 0.16 * fs} ${C}`);
-    this.e.salud.setAttribute('stroke-dashoffset', `${-C * 0.01}`);
-    this.e.chaleco.setAttribute('stroke-dasharray', `${C * 0.16 * fc} ${C}`);
-    this.e.chaleco.setAttribute('stroke-dashoffset', `${-(C * 0.84 + C * 0.16 * (1 - fc))}`);
-    this.e.salud.classList.toggle('baja', jug.salud < 30);
+    if (fs !== this._fs) { this._fs = fs; this.e.salud.setAttribute('stroke-dasharray', `${C * 0.16 * fs} ${C}`); this.e.salud.setAttribute('stroke-dashoffset', `${-C * 0.01}`); }
+    if (fc !== this._fc) { this._fc = fc; this.e.chaleco.setAttribute('stroke-dasharray', `${C * 0.16 * fc} ${C}`); this.e.chaleco.setAttribute('stroke-dashoffset', `${-(C * 0.84 + C * 0.16 * (1 - fc))}`); }
+    { const bj = jug.salud < 30; if (bj !== this._bj) { this._bj = bj; this.e.salud.classList.toggle('baja', bj); } }
     if (j.cuadro % 15 === 0) {
       const p = jug.posicion;
       const z = j.zonaDe(p.x, p.z), c = j.calleDe(p.x, p.z);
@@ -213,10 +210,8 @@ export class Hud {
     }
     if (jug.coche) {
       const c = jug.coche, kmh = Math.round(Math.abs(c.adelante) * 3.6);
-      this.e.velNum.textContent = kmh;
-      this.e.velArco.setAttribute('stroke-dasharray', `${Math.min(100, kmh / 2.4)} 100`);
-      this.e.nitro.querySelector('i').style.width = (j.nitro * 100) + '%';
-      this.e.nitro.classList.toggle('usando', !!c.turbo);
+      if (kmh !== this._kmh) { this._kmh = kmh; this.e.velNum.textContent = kmh; this.e.velArco.setAttribute('stroke-dasharray', `${Math.min(100, kmh / 2.4)} 100`); }
+      { const nt = Math.round(j.nitro * 100); if (nt !== this._nt) { this._nt = nt; (this._nitroI || (this._nitroI = this.e.nitro.querySelector('i'))).style.width = nt + '%'; } const tb = !!c.turbo; if (tb !== this._tb) { this._tb = tb; this.e.nitro.classList.toggle('usando', tb); } }
       const sc = Math.max(0, c.salud / c.t.salud);
       this.e.saludCoche.style.width = sc * 100 + '%';
       this.e.saludCoche.style.backgroundPosition = (100 - sc * 100) + '% 0';

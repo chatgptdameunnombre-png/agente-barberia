@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611231901';
-import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611231901';
-import { dibujarGlifo } from './iconos.js?v=202611231901';
+import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611231951';
+import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611231951';
+import { dibujarGlifo } from './iconos.js?v=202611231951';
 
 export const ICONOS = {
   taller: { c: '#ffc94a', t: 'llave', n: 'Taller de Don Chuy' },
@@ -89,7 +89,20 @@ function tonos(hex) {
 }
 const TONOS = {};
 
+const SELLOS = new Map();
 function trazarIcono(g, x, y, ic, r = 13) {
+  const clave = ic.c + '|' + ic.t + '|' + r;
+  let s = SELLOS.get(clave);
+  if (!s) {
+    const lado = Math.ceil((r + 9) * 2), esc = 2;
+    s = document.createElement('canvas'); s.width = s.height = lado * esc; s.lado = lado;
+    const h = s.getContext('2d'); h.scale(esc, esc); pintarIcono(h, lado / 2, lado / 2 - 1, ic, r);
+    SELLOS.set(clave, s);
+  }
+  g.drawImage(s, x - s.lado / 2, y - s.lado / 2 + 1, s.lado, s.lado);
+}
+
+function pintarIcono(g, x, y, ic, r = 13) {
   const T = TONOS[ic.c] || (TONOS[ic.c] = tonos(ic.c || '#ffffff'));
   g.save();
   g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 7; g.shadowOffsetY = 2;

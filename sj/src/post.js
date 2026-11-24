@@ -10,13 +10,17 @@ import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 class Oclusion extends GTAOPass {
   setSize(w, h) { super.setSize(Math.max(1, w * 0.5 | 0), Math.max(1, h * 0.5 | 0)); }
   overrideVisibility() {
-    const cache = this._visibilityCache;
-    this.scene.traverse(o => {
-      cache.set(o, o.visible);
-      if (o.isPoints || o.isLine || o.isSprite) o.visible = false;
-      else if (o.material && !Array.isArray(o.material) && (o.material.transparent || o.material.alphaTest > 0 || o.material.depthWrite === false)) o.visible = false;
-    });
+    const ocultos = this._ocultos || (this._ocultos = []);
+    ocultos.length = 0;
+    const ver = o => {
+      if (!o.visible) return;
+      const m = o.material;
+      if (o.isPoints || o.isLine || o.isSprite || (m && !Array.isArray(m) && (m.transparent || m.alphaTest > 0 || m.depthWrite === false))) { o.visible = false; ocultos.push(o); return; }
+      const h = o.children; for (let i = 0; i < h.length; i++) ver(h[i]);
+    };
+    ver(this.scene);
   }
+  restoreVisibility() { const o = this._ocultos; if (o) { for (let i = 0; i < o.length; i++) o[i].visible = true; o.length = 0; } }
 }
 
 const Gradacion = {

@@ -208,8 +208,11 @@ export class Fuentes {
 
   actualizar(dt) {
     const jp = this.j.jugador.posicion, p = this.pos, v = this.vel, vi = this.vida;
+    let alguna = false;
     this.lista.forEach((F, f) => {
       const cerca = Math.abs(F.x - jp.x) < 110 && Math.abs(F.z - jp.z) < 110;
+      if (!cerca && F.apagada) return;
+      F.apagada = !cerca; alguna = true;
       for (let k = 0; k < this.porFuente; k++) {
         const i = f * this.porFuente + k;
         if (!cerca) { p[i * 3 + 1] = -50; continue; }
@@ -227,7 +230,8 @@ export class Fuentes {
         p[i * 3] += v[i * 3] * dt; p[i * 3 + 1] += v[i * 3 + 1] * dt; p[i * 3 + 2] += v[i * 3 + 2] * dt;
       }
     });
-    this.pts.geometry.attributes.position.needsUpdate = true;
+    if (alguna) this.pts.geometry.attributes.position.needsUpdate = true;
+    this.pts.visible = this.lista.some(F => !F.apagada);
   }
 }
 

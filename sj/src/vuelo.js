@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { modeloHeli } from './helicoptero.js?v=202611231901';
-import { alturaCerro, PISTA } from './sierradatos.js?v=202611231901';
-import { modeloJet } from './aeropuerto.js?v=202611231901';
+import { modeloHeli } from './helicoptero.js?v=202611231951';
+import { alturaCerro, PISTA } from './sierradatos.js?v=202611231951';
+import { modeloJet } from './aeropuerto.js?v=202611231951';
+import { dormible } from './ligero.js?v=202611231951';
 
 const angulo = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
 
@@ -56,7 +57,7 @@ export class Vuelo {
 
   agregar(A) {
     A.pos = new THREE.Vector3(); A.vel = new THREE.Vector3(); A.yaw = 0; A.pitch = 0; A.roll = 0; A.motor = 0; A.v = 0; A.salud = 100; A.quemado = 0;
-    this.j.escena.add(A.grupo); this.aeronaves.push(A); this.reponer(A);
+    dormible(A.grupo); this.j.escena.add(A.grupo); this.aeronaves.push(A); this.reponer(A);
   }
 
   reponer(A) {
@@ -217,6 +218,7 @@ export class Vuelo {
         A.motor = Math.max(0, A.motor - dt * 0.3);
         if (!this.enTierra(A)) { A.vel.y -= 9 * dt; A.pos.addScaledVector(A.vel, dt); const s = this.suelo(A.pos.x, A.pos.z) + A.alto; if (A.pos.y < s) { if (A.vel.y < -8) { this.estrellar(A); continue; } A.pos.y = s; A.vel.set(0, 0, 0); } }
       }
+      if (A !== this.activa) { const cp = this.j.camara.position; A.grupo.visible = Math.hypot(A.pos.x - cp.x, A.pos.z - cp.z) < 520; }
       this.pintar(A, dt);
     }
     const A = this.cerca();

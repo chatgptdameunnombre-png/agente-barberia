@@ -72,7 +72,7 @@ export class Lejanos {
   actualizar(dt) {
     const j = this.j, cam = j.camara.position, U = this.umbral, im = this.im;
     this.reloj = (this.reloj || 0) + dt;
-    if (j.jugador.interior) { im.visible = false; for (const p of j.peatones) p.lejano = false; return; }
+    if (j.jugador.interior) { im.visible = false; for (const p of j.peatones) p.lejano = false; for (const l of [j.ambulantes?.mariachis, j.ambulantes?.puestos]) for (const m of l || []) m.lejano = false; return; }
     im.visible = true;
     let n = 0;
     const o = this.o, M = im.instanceMatrix.array;
@@ -89,6 +89,18 @@ export class Lejanos {
       o.position.set(p.pos.x, p.y || 0, p.pos.z); o.rotation.set(0, p.yaw || p.grupo.rotation.y || 0, 0); o.scale.set(e, e, e); o.updateMatrix(); o.matrix.toArray(M, n * 16);
       this.aCam.array.set(T.cam, n * 3); this.aPan.array.set(T.pan, n * 3); this.aPiel.array.set(T.piel, n * 3); this.aPelo.array.set(T.pelo, n * 3);
       this.aPaso.array[n * 2] = p.__fase; this.aPaso.array[n * 2 + 1] = (p.vel || 0) > 0.25 ? Math.min(0.75, 0.3 + (p.vel || 0) * 0.12) : 0;
+      n++;
+    }
+    const amb = j.ambulantes, UF = Math.max(U, 42);
+    if (amb) for (const lista of [amb.mariachis, amb.puestos]) for (const m of lista || []) {
+      const P = m.p || m.v; if (!P) continue;
+      const g = P.grupo, d = Math.hypot(g.position.x - cam.x, g.position.z - cam.z), hist = m.lejano ? -4 : 0;
+      if (d < UF + hist || d > 210 || n >= this.max) { m.lejano = false; continue; }
+      m.lejano = true; g.visible = false;
+      const T = P.__tonosL || (P.__tonosL = this.tonos({ p: P })), e = g.scale.y || 1;
+      o.position.copy(g.position); o.rotation.set(0, g.rotation.y, 0); o.scale.set(e, e, e); o.updateMatrix(); o.matrix.toArray(M, n * 16);
+      this.aCam.array.set(T.cam, n * 3); this.aPan.array.set(T.pan, n * 3); this.aPiel.array.set(T.piel, n * 3); this.aPelo.array.set(T.pelo, n * 3);
+      this.aPaso.array[n * 2] = 0; this.aPaso.array[n * 2 + 1] = 0;
       n++;
     }
     im.count = n;
