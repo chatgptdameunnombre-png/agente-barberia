@@ -1,0 +1,249 @@
+{
+  "gato": {
+    "exercise": "Cat_Stretch",
+    "images": [
+      {
+        "file": "gato-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cat_Stretch/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "gato-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cat_Stretch/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "cadera": {
+    "exercise": "Standing_Hip_Circles",
+    "images": [
+      {
+        "file": "cadera-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Circles/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "cadera-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Circles/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "tobillo": {
+    "exercise": "Ankle_Circles",
+    "images": [
+      {
+        "file": "tobillo-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_Circles/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "tobillo-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_Circles/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "brazos": {
+    "exercise": "Arm_Circles",
+    "images": [
+      {
+        "file": "brazos-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Arm_Circles/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "brazos-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Arm_Circles/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "pecho": {
+    "exercise": "Dynamic_Chest_Stretch",
+    "images": [
+      {
+        "file": "pecho-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dynamic_Chest_Stretch/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "pecho-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dynamic_Chest_Stretch/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "pierna": {
+    "exercise": "Front_Leg_Raises",
+    "images": [
+      {
+        "file": "pierna-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Front_Leg_Raises/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "pierna-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Front_Leg_Raises/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "hombros": {
+    "exercise": "Shoulder_Circles",
+    "images": [
+      {
+        "file": "hombros-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Shoulder_Circles/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "hombros-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Shoulder_Circles/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "flexor": {
+    "exercise": "Kneeling_Hip_Flexor",
+    "images": [
+      {
+        "file": "flexor-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kneeling_Hip_Flexor/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "flexor-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kneeling_Hip_Flexor/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "isquios": {
+    "exercise": "90_90_Hamstring",
+    "images": [
+      {
+        "file": "isquios-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/90_90_Hamstring/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "isquios-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/90_90_Hamstring/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "gluteo": {
+    "exercise": "Ankle_On_The_Knee",
+    "images": [
+      {
+        "file": "gluteo-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_On_The_Knee/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "gluteo-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_On_The_Knee/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "cuadriceps": {
+    "exercise": "On_Your_Side_Quad_Stretch",
+    "images": [
+      {
+        "file": "cuadriceps-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/On_Your_Side_Quad_Stretch/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "cuadriceps-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/On_Your_Side_Quad_Stretch/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "aductores": {
+    "exercise": "Groin_and_Back_Stretch",
+    "images": [
+      {
+        "file": "aductores-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Groin_and_Back_Stretch/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "aductores-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Groin_and_Back_Stretch/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  },
+  "nino": {
+    "exercise": "Childs_Pose",
+    "images": [
+      {
+        "file": "nino-0.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Childs_Pose/0.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      },
+      {
+        "file": "nino-1.jpg",
+        "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Childs_Pose/1.jpg",
+        "author": "Free Exercise DB, autor individual no indicado",
+        "license": "Unlicense",
+        "licenseUrl": "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md"
+      }
+    ]
+  }
+}

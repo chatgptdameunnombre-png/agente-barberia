@@ -1,0 +1,128 @@
+{
+ "pushup-wall": {
+  "source": "Incline_Push-Up",
+  "similar": "Igual, pero con las manos en la pared: más vertical y más fácil."
+ },
+ "pushup-incline": {
+  "source": "Incline_Push-Up"
+ },
+ "pushup-knee": {
+  "source": "Pushups",
+  "similar": "Igual, pero con las rodillas apoyadas en el piso."
+ },
+ "pushup": {
+  "source": "Pushups"
+ },
+ "pushup-parallettes": {
+  "source": "Close-Grip_Push-Up_off_of_a_Dumbbell",
+  "similar": "Con mini paralelas en vez de mancuernas: bajas más que las manos."
+ },
+ "pushup-diamond": {
+  "source": "Push-Ups_-_Close_Triceps_Position"
+ },
+ "pushup-decline": {
+  "source": "Push-Ups_With_Feet_Elevated"
+ },
+ "pushup-backpack": {
+  "source": "Pushups",
+  "similar": "Igual, con la mochila bien apretada en la espalda."
+ },
+ "row-backpack-1arm": {
+  "source": "One-Arm_Dumbbell_Row",
+  "similar": "Con la mochila en vez de mancuerna y la mano en una silla."
+ },
+ "row-backpack": {
+  "source": "Bent_Over_Two-Dumbbell_Row",
+  "similar": "Con la mochila agarrada de las dos asas."
+ },
+ "row-towel-door": {
+  "source": "Suspended_Row",
+  "similar": "Con una toalla en las manijas de una puerta bien cerrada."
+ },
+ "row-table": {
+  "source": "Inverted_Row",
+  "similar": "Bajo una mesa muy firme en vez de una barra."
+ },
+ "pullup-negative": {
+  "source": "Pullups",
+  "similar": "Solo la bajada, lo más lento que puedas."
+ },
+ "pullup": {
+  "source": "Pullups"
+ },
+ "curl-backpack": {
+  "source": "Dumbbell_Bicep_Curl",
+  "similar": "Con la mochila agarrada de las asas."
+ },
+ "neck-curl": {
+  "source": "Lying_Face_Up_Plate_Neck_Resistance",
+  "similar": "Empieza sin peso; luego libros con una toalla."
+ },
+ "neck-extension": {
+  "source": "Lying_Face_Down_Plate_Neck_Resistance",
+  "similar": "Empieza sin peso; luego libros con una toalla."
+ },
+ "squat": {
+  "source": "Bodyweight_Squat"
+ },
+ "squat-backpack": {
+  "source": "Goblet_Squat",
+  "similar": "Con la mochila abrazada contra el pecho."
+ },
+ "lunge": {
+  "source": "Dumbbell_Rear_Lunge",
+  "similar": "Sin peso, o con la mochila."
+ },
+ "split-squat": {
+  "source": "Split_Squats",
+  "similar": "Búlgara: el pie de atrás arriba de una silla."
+ },
+ "split-squat-backpack": {
+  "source": "Split_Squat_with_Dumbbells",
+  "similar": "Búlgara con la mochila y el pie de atrás en una silla."
+ },
+ "glute-bridge": {
+  "source": "Butt_Lift_Bridge"
+ },
+ "single-bridge": {
+  "source": "Single_Leg_Glute_Bridge"
+ },
+ "rdl-backpack": {
+  "source": "Stiff-Legged_Dumbbell_Deadlift",
+  "similar": "Con la mochila pegada a las piernas."
+ },
+ "calf-raise": {
+  "source": "Standing_Dumbbell_Calf_Raise",
+  "similar": "Sin peso, en el borde de un escalón."
+ },
+ "calf-raise-single": {
+  "source": "Standing_Dumbbell_Calf_Raise",
+  "similar": "A una pierna, apoyado en la pared."
+ },
+ "plank": {
+  "source": "Plank"
+ },
+ "dead-bug": {
+  "source": "Dead_Bug"
+ },
+ "wrist-curl": {
+  "source": "Seated_Dumbbell_Palms-Up_Wrist_Curl",
+  "similar": "Con un libro o la mochila."
+ },
+ "wrist-extension": {
+  "source": "Seated_Dumbbell_Palms-Down_Wrist_Curl",
+  "similar": "Con un libro o la mochila, palma abajo."
+ },
+ "backpack-hold": {
+  "source": "Farmers_Walk",
+  "similar": "Con la mochila en una mano."
+ },
+ "book-pinch": {
+  "source": "Plate_Pinch",
+  "similar": "Con un libro grueso en vez de discos."
+ },
+ "wrist-roller": {
+  "source": "Wrist_Roller",
+  "similar": "Palo de escoba, cuerda y botella de agua."
+ }
+}

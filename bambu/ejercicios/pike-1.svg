@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="44.5 107.1 380.0 253.3" role="img" aria-label="pike final">
+<rect x="44.5" y="107.1" width="380.0" height="253.3" fill="#eef2ef"/>
+<path d="M44.5 342 H424.5" stroke="#cdd8d1" stroke-width="4"/>
+<path d="M250.8 198.6 L301.1 265.9 L349.0 330.0 L328.2 342.0" fill="none" stroke="#8db9a3" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M190.0 283.0 L146.3 324.1 L200.0 330.0" fill="none" stroke="#8db9a3" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M250.8 198.6 L301.1 265.9 L349.0 330.0 L328.2 342.0" fill="none" stroke="#1f5a45" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M250.8 198.6 L190.0 283.0" fill="none" stroke="#1f5a45" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M190.0 283.0 L180.8 290.7" fill="none" stroke="#1f5a45" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="164.7" cy="304.2" r="21" fill="#1f5a45"/>
+<path d="M190.0 283.0 L146.3 324.1 L200.0 330.0" fill="none" stroke="#1f5a45" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M120 200 L120 290" stroke="#c38d1e" stroke-width="5" stroke-dasharray="9 7" stroke-linecap="round"/><path d="M113.0 277.9 L120 290 L127.0 277.9" fill="none" stroke="#c38d1e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

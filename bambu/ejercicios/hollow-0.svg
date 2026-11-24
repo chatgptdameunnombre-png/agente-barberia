@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="86.6 62.1 447.4 298.3" role="img" aria-label="hollow inicio">
+<rect x="86.6" y="62.1" width="447.4" height="298.3" fill="#eef2ef"/>
+<path d="M86.6 342 H534.0" stroke="#cdd8d1" stroke-width="4"/>
+<path d="M330.0 324.0 L360.0 245.5 L440.0 246.0 L464.0 246.0" fill="none" stroke="#8db9a3" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M227.6 305.9 L287.4 310.3 L339.0 294.2" fill="none" stroke="#8db9a3" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M330.0 324.0 L360.0 245.5 L440.0 246.0 L464.0 246.0" fill="none" stroke="#1f5a45" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M330.0 324.0 L227.6 305.9" fill="none" stroke="#1f5a45" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M227.6 305.9 L216.3 301.8" fill="none" stroke="#1f5a45" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="196.6" cy="294.7" r="21" fill="#1f5a45"/>
+<path d="M227.6 305.9 L287.4 310.3 L339.0 294.2" fill="none" stroke="#1f5a45" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

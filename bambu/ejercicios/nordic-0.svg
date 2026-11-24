@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="120.7 40.0 480.6 320.4" role="img" aria-label="nordic inicio">
+<rect x="120.7" y="40.0" width="480.6" height="320.4" fill="#eef2ef"/>
+<path d="M120.7 342 H601.3000000000001" stroke="#cdd8d1" stroke-width="4"/>
+<rect x="270" y="332" width="70" height="10" rx="5" fill="#c3cec7"/>
+<rect x="186" y="308" width="58" height="20" rx="8" fill="#9fb0a6"/>
+<path d="M300.0 232.0 L301.4 316.0 L222.0 326.0 L198.0 326.0" fill="none" stroke="#8db9a3" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M300.0 128.0 L357.4 145.6 L338.0 196.0" fill="none" stroke="#8db9a3" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M300.0 232.0 L301.4 316.0 L222.0 326.0 L198.0 326.0" fill="none" stroke="#1f5a45" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M300.0 232.0 L300.0 128.0" fill="none" stroke="#1f5a45" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M300.0 128.0 L300.0 116.0" fill="none" stroke="#1f5a45" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="300.0" cy="95.0" r="21" fill="#1f5a45"/>
+<path d="M300.0 128.0 L357.4 145.6 L338.0 196.0" fill="none" stroke="#1f5a45" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
