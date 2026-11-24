@@ -1,11 +1,11 @@
-import { alturaCerro } from './sierradatos.js?v=202611231951';
-import { dormirQuieto } from './ligero.js?v=202611231951';
+import { alturaCerro } from './sierradatos.js?v=202611231957';
+import { dormirQuieto } from './ligero.js?v=202611231957';
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611231951';
-import { mat } from './persona.js?v=202611231951';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611231957';
+import { mat } from './persona.js?v=202611231957';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611231951';
+import { hoja } from './texturas.js?v=202611231957';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, vocho: 1, vochotaxi: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };

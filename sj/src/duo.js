@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { modeloProtagonista, realistaDe } from './jugador.js?v=202611231951';
-import { animar, sentar } from './persona.js?v=202611231951';
-import { Peaton } from './peatones.js?v=202611231951';
+import { modeloProtagonista, realistaDe } from './jugador.js?v=202611231957';
+import { animar, sentar } from './persona.js?v=202611231957';
+import { Peaton } from './peatones.js?v=202611231957';
 
 const SENTADOS = [
   [['A', 'A veces se me olvida que esta ciudad también es bonita.'], ['B', 'Cuando no nos andan correteando, sí lo es.']],

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Peaton } from './peatones.js?v=202611231951';
+import { Peaton } from './peatones.js?v=202611231957';
 
 const COLORES = ['#ff3d6e', '#ffd23a', '#3fa8ff', '#4fe08a', '#b46bff', '#ff8a2a', '#ffffff', '#ff5ac8'];
 const geoGlobo = new THREE.SphereGeometry(0.17, 12, 10).scale(1, 1.22, 1);

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { dormible } from './ligero.js?v=202611231951';
-import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611231951';
+import { dormible } from './ligero.js?v=202611231957';
+import { crearPersona, animar, tumbar, levantar, nivelDetalle, sentar, volar } from './persona.js?v=202611231957';
 
 const _v = new THREE.Vector3();
 
