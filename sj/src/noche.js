@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { Peaton } from './peatones.js?v=202611231659';
-import { ARMERIAS } from './armerias.js?v=202611231659';
-import { JOYERIA } from './joyeria.js?v=202611231659';
+import { Peaton } from './peatones.js?v=202611231822';
+import { ARMERIAS } from './armerias.js?v=202611231822';
+import { JOYERIA } from './joyeria.js?v=202611231822';
 
 const NEON = {
   cantina: { lineas: ['CANTINA', 'LA JACARANDA'], c1: '#ffb347', c2: '#ff5a3a', flecha: true, w: 3.4, h: 1.25 },

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { esCalle } from './ciudad.js?v=202611231659';
+import { esCalle } from './ciudad.js?v=202611231822';
 
 export class SombrasContacto {
   constructor(juego, max = 260) {

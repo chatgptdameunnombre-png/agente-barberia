@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { trocearMalla, lejos } from './ligero.js?v=202611231659';
+import { trocearMalla, lejos } from './ligero.js?v=202611231822';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { rng, COLORES_CASA } from './ciudad.js?v=202611231659';
+import { rng, COLORES_CASA } from './ciudad.js?v=202611231822';
 
 const LETREROS = [[66, 246], [290, 466], [508, 690], [732, 912], [955, 1106], [1148, 1316], [1356, 1520], [1560, 1722]].map(([a, b]) => [6 / 887, 881 / 887, 1 - b / 1774, 1 - a / 1774]);
 const ESPECTACULARES = [];

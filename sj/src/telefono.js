@@ -1,13 +1,13 @@
 import * as THREE from 'three';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611231659';
-import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611231659';
-import { nombreTipo } from './tuneo.js?v=202611231659';
-import { TIPOS } from './vehiculos.js?v=202611231659';
-import { glifoSVG } from './iconos.js?v=202611231659';
-import { TITULOS } from './misiones.js?v=202611231659';
-import { CONTACTOS } from './contactos.js?v=202611231659';
-import { SALIDAS } from './trabajos.js?v=202611231659';
-import { linea } from './ciudad.js?v=202611231659';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611231822';
+import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611231822';
+import { nombreTipo } from './tuneo.js?v=202611231822';
+import { TIPOS } from './vehiculos.js?v=202611231822';
+import { glifoSVG } from './iconos.js?v=202611231822';
+import { TITULOS } from './misiones.js?v=202611231822';
+import { CONTACTOS } from './contactos.js?v=202611231822';
+import { SALIDAS } from './trabajos.js?v=202611231822';
+import { linea } from './ciudad.js?v=202611231822';
 const tarjeta = o => `<div class="tarjeta ${o.mia ? 'mia' : ''}">${o.src ? `<img src="${o.src}" alt="">` : `<i class="foto" style="${o.img}"></i>`}<div class="cuerpo"><b>${o.titulo}</b><small>${o.desc}</small>${o.barras ? `<div class="barras">${o.barras.map(([n, v]) => `<span><em>${n}</em><i style="--v:${Math.min(1, v) * 100}%"></i></span>`).join('')}</div>` : ''}<div class="pie">${o.mia ? `<em class="sello">${o.sello || 'TUYO'}</em>` : `<button data-accion="${o.accion}" type="button">${o.precio}</button>`}</div></div></div>`;
 
 const dinero = n => '$' + Math.floor(n).toLocaleString('es-MX');
@@ -28,7 +28,9 @@ const avatar = (j, autor) => {
   const k = u ? u.avatar : 0;
   return `<i class="av" style="background-position:${(k % 4) * 33.333}% ${Math.floor(k / 4) * 33.333}%"></i>`;
 };
-const LADO = 58, ESC = 1.17;
+const LADO = 54, ESC = 1.17;
+const DOCK = ['misiones', 'mapa', 'banco', 'camara'];
+const ESTADO = '<span class="senal"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12"><path d="M8 10.8 5.9 8.6a3 3 0 0 1 4.2 0zM3.4 6.1a6.5 6.5 0 0 1 9.2 0l-1.3 1.3a4.7 4.7 0 0 0-6.6 0zM.8 3.5a10.2 10.2 0 0 1 14.4 0l-1.3 1.3a8.4 8.4 0 0 0-11.8 0z"/></svg><svg class="pila" viewBox="0 0 26 12"><rect x=".6" y=".6" width="22" height="10.8" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="1.1"/><rect x="2.2" y="2.2" width="16" height="7.6" rx="1.9"/><rect x="23.6" y="4" width="1.8" height="4" rx=".9" opacity=".5"/></svg></span>';
 const posLogo = k => { const c = LADO * ESC; return `${(LADO / 2 - ((k % 4) + 0.5) * c).toFixed(1)}px ${(LADO / 2 - (Math.floor(k / 4) + 0.5) * c).toFixed(1)}px`; };
 
 export class Telefono {
@@ -65,7 +67,7 @@ export class Telefono {
   pintar() {
     const j = this.j, P = this.pantalla;
     P.dataset.vista = this.vista;
-    const barra = `<div class="barra"><span>${j.ambiente.texto}</span><span>JacaMóvil</span></div>`;
+    const barra = `<div class="barra"><span>${j.ambiente.texto}</span><i class="isla"></i>${ESTADO}</div>`;
     const R = j.redes;
     const feed = red => R.posts.filter(p => p.red === red).map(p => {
       const u = R.autorDe(p);
@@ -79,47 +81,52 @@ export class Telefono {
     if (this.vista === 'inicio') {
       const caja = Object.values(j.economia.cajas).reduce((a, b) => a + b, 0) | 0;
       const badge = { jacagram: R.sinLeer, negocios: caja > 0 ? '$' : 0 };
+      const app = ([id, n, k, c]) => `<button data-app="${id}" type="button"><i class="logo ${k < 0 ? 'glifo' : ''}" style="--c:${c};${k < 0 ? '' : 'background-position:' + posLogo(k)}">${k < 0 ? glifoSVG('bandera') : ''}${badge[id] ? `<em>${badge[id]}</em>` : ''}</i><span>${n}</span></button>`;
+      const frase = t => { t = String(t || '').toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); };
+      const M = j.misiones, sig = M.activa ? ['EN CURSO', frase(M.activa.titulo || 'Misión')] : M.indice < TITULOS.length ? ['SIGUIENTE MISIÓN', frase(TITULOS[M.indice])] : ['HISTORIA', 'Terminada'];
       P.innerHTML = barra + `<div class="reloj-tel">${j.ambiente.texto}</div><div class="fecha-tel">${j.jugador.personaje} · ${j.zonaDe(j.jugador.posicion.x, j.jugador.posicion.z)}</div>
-        <div class="apps">${APPS.map(([id, n, k, c]) => `<button data-app="${id}" type="button"><i class="logo ${k < 0 ? 'glifo' : ''}" style="--c:${c};${k < 0 ? '' : 'background-position:' + posLogo(k)}">${k < 0 ? glifoSVG('bandera') : ''}${badge[id] ? `<em>${badge[id]}</em>` : ''}</i><span>${n}</span></button>`).join('')}</div>`;
+        <div class="widgets"><button class="w" data-app="banco" type="button"><small>EFECTIVO</small><b class="verde">${dinero(j.jugador.dinero)}</b><span>Banco ${dinero(j.banco)}</span></button><button class="w" data-app="misiones" type="button"><small>${sig[0]}</small><b>${sig[1]}</b><span>${caja > 0 ? 'Por cobrar ' + dinero(caja) : 'Toca para ver todo'}</span></button></div>
+        <div class="apps">${APPS.filter(a => !DOCK.includes(a[0])).map(app).join('')}</div>
+        <div class="dock">${DOCK.map(id => APPS.find(a => a[0] === id)).filter(Boolean).map(app).join('')}</div>`;
     } else if (this.vista === 'jacagram') {
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b class="marca">JacaGram</b></header>${pestañas('jacagram')}<div class="feed">${feed('jacagram') || '<p class="vacio">Aún no hay publicaciones.</p>'}</div>`;
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b class="marca">JacaGram</b></header>${pestañas('jacagram')}<div class="feed">${feed('jacagram') || '<p class="vacio">Aún no hay publicaciones.</p>'}</div>`;
     } else if (this.vista === 'chisme') {
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b class="marca chisme">Chisme</b></header><div class="temas">${R.temas.map(t => `<span>${t}</span>`).join('')}</div><div class="feed compacto">${feed('chisme') || '<p class="vacio">Silencio total en Santa Jacaranda.</p>'}</div>`;
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b class="marca chisme">Chisme</b></header><div class="temas">${R.temas.map(t => `<span>${t}</span>`).join('')}</div><div class="feed compacto">${feed('chisme') || '<p class="vacio">Silencio total en Santa Jacaranda.</p>'}</div>`;
     } else if (this.vista === 'perfil') {
       const yo = R.yo(), mias = R.posts.filter(p => p.propio);
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b class="marca">JacaGram</b></header>${pestañas('perfil')}
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b class="marca">JacaGram</b></header>${pestañas('perfil')}
         <div class="perfil">${avatar(j, 'yo')}<b>${yo.nombre}</b><small>${yo.usuario}</small>
         <div class="cifras"><div><b>${mias.length}</b><small>publicaciones</small></div><div><b>${R.seguidores.toLocaleString('es-MX')}</b><small>seguidores</small></div><div><b>${R.sigo.size}</b><small>siguiendo</small></div></div>
         <p class="nota">Sube fotos con la Cámara. Las fotos en plena acción (persecuciones, saltos) se hacen virales y las marcas te buscan.${R.patrocinios.length ? ' Patrocinios: ' + R.patrocinios.map(x => x.marca).join(', ') + ' · $' + R.pagoDiario().toLocaleString('es-MX') + ' al día.' : ''}</p>
         <div class="rejilla">${mias.map(p => p.foto ? `<img src="${p.foto}" alt="">` : '').join('') || '<p class="vacio">Todavía no publicas nada.</p>'}</div></div>`;
     } else if (this.vista === 'mensajes') {
       R.mensajes.forEach(m => m.leido = true);
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b class="marca">Mensajes</b></header>${pestañas('mensajes')}<div class="lista">${R.mensajes.length ? R.mensajes.map((m, i) => `<div class="fila"><span><b>${m.de}</b><small>${m.texto}</small></span>${m.accion ? (m.aceptado ? '<em>ACEPTADO</em>' : `<button data-accion="aceptar:${i}" type="button">Aceptar</button>`) : ''}</div>`).join('') : '<p class="vacio">No tienes mensajes. Cuando tengas más seguidores te van a escribir marcas y otros usuarios.</p>'}</div>`;
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b class="marca">Mensajes</b></header>${pestañas('mensajes')}<div class="lista">${R.mensajes.length ? R.mensajes.map((m, i) => `<div class="fila"><span><b>${m.de}</b><small>${m.texto}</small></span>${m.accion ? (m.aceptado ? '<em>ACEPTADO</em>' : `<button data-accion="aceptar:${i}" type="button">Aceptar</button>`) : ''}</div>`).join('') : '<p class="vacio">No tienes mensajes. Cuando tengas más seguidores te van a escribir marcas y otros usuarios.</p>'}</div>`;
     } else if (this.vista === 'contactos') {
       const otro = j.duo.nombre;
       const cs = [['chuy', 'Don Chuy', 'Pedir trabajo'], ['beto', 'Beto el mecánico', 'Que te traiga un coche · $200'], ['otro', otro, 'Platicar'], ['abogado', 'Lic. Ramírez', 'Quitar estrellas · $' + (j.policia.estrellas * 400 || 0)]];
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Contactos</b></header><div class="contactos">${cs.map(([id, n, d]) => `<button data-contacto="${id}" type="button"><i>${n[0]}</i><span><b>${n}</b><small>${d}</small></span><em class="tel">${IC.llamar}</em></button>`).join('')}</div>`;
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Contactos</b></header><div class="contactos">${cs.map(([id, n, d]) => `<button data-contacto="${id}" type="button"><i>${n[0]}</i><span><b>${n}</b><small>${d}</small></span><em class="tel">${IC.llamar}</em></button>`).join('')}</div>`;
     } else if (this.vista === 'banco') {
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Banco de Occidente</b></header><div class="banco">
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Banco de Occidente</b></header><div class="banco">
         <div class="saldos"><div><small>EN EL BANCO</small><b>${dinero(j.banco)}</b></div><div><small>EN LA BOLSA</small><b>${dinero(j.jugador.dinero)}</b></div></div>
         <p class="nota">Si te tumban o te arrestan pierdes parte del efectivo. Lo del banco está a salvo.</p>
         <div class="botones"><button data-accion="depositar:1" type="button">Depositar todo</button><button data-accion="depositar:0" type="button">Depositar 500</button><button data-accion="retirar:0" type="button">Retirar 500</button><button data-accion="retirar:1" type="button">Retirar todo</button></div></div>`;
     } else if (this.vista === 'negocios') {
       const caja = Object.values(j.economia.cajas).reduce((a, b) => a + b, 0) | 0;
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Negocios</b></header><div class="lista">
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Negocios</b></header><div class="lista">
         <button class="grande" data-accion="cobrar" type="button">Cobrar todo · ${dinero(caja)}</button>
         ${NEGOCIOS.map((n, i) => { const t = j.economia.tiene(n.id); return tarjeta({ img: `background-image:url(assets/negocios.jpg);background-size:300% 200%;background-position:${(i % 3) * 50}% ${Math.floor(i / 3) * 100}%`, titulo: n.nombre, desc: n.desc + (n.renta ? ' · ' + dinero(n.renta) + ' por hora' : ''), mia: t, sello: 'TUYO', accion: `negocio:${n.id}`, precio: dinero(n.precio) }); }).join('')}</div>`;
     } else if (this.vista === 'autos') {
       const E = j.economia;
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Autos</b></header><div class="lista">
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Autos</b></header><div class="lista">
         ${E.garaje.length ? '<h4>TU GARAJE</h4>' + E.garaje.map((g, i) => { return tarjeta({ src: j.fotoAuto(g.tipo, g.color), titulo: nombreTipo(g.tipo), desc: Object.keys(g.mejoras).length + ' mejoras · te lo llevan donde estés', mia: false, accion: `pedir:${i}`, precio: 'Traérmelo', extra: 'garaje' }); }).join('') : ''}
         <h4>A LA VENTA</h4>${AUTOS.filter(a => !E.garaje.some(g => g.tipo === a.id)).map(a => tarjeta({ src: j.fotoAuto(a.id, a.color), titulo: a.nombre, desc: `Máx. ${Math.round(TIPOS[a.id].vmax * 3.6)} km/h · ${a.id === 'moto' ? 'ágil y rápida' : a.id === 'camioneta' ? 'resistente' : a.id === 'deportivo' ? 'el más rápido' : 'económico'}`, accion: `auto:${a.id}`, precio: dinero(a.precio), barras: [['Velocidad', TIPOS[a.id].vmax / 55], ['Aceleración', TIPOS[a.id].acel / 17], ['Resistencia', TIPOS[a.id].salud / 160]] })).join('')}</div>`;
     } else if (this.vista === 'taller') {
       const E = j.economia, ICM = { motor: 'llave', frenos: 'punto', blindaje: 'escudo', nitro: 'chispa' };
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Taller Don Chuy</b></header><div class="lista">
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Taller Don Chuy</b></header><div class="lista">
         ${E.garaje.length ? E.garaje.map((g, i) => `<div class="portada-auto" style="background-image:url(${j.fotoAuto(g.tipo, g.color)})"><b>${nombreTipo(g.tipo)}</b></div>` + MEJORAS.map(m => `<div class="fila mejora ${g.mejoras[m.id] ? 'mia' : ''}"><i class="ico">${glifoSVG(ICM[m.id])}</i><span><b>${m.nombre}</b><small>${m.desc}</small></span>${g.mejoras[m.id] ? '<em>LISTO</em>' : `<button data-accion="mejora:${i}:${m.id}" type="button">${dinero(m.precio)}</button>`}</div>`).join('')).join('') : '<p class="vacio">Compra un auto en la app Autos para poder mejorarlo aquí.</p>'}</div>`;
     } else if (this.vista === 'comida') {
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Comida a domicilio</b></header><div class="lista rejilla2">
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Comida a domicilio</b></header><div class="lista rejilla2">
         ${COMIDA.map((c, i) => `<div class="plato"><i style="background-position:${(i % 3) * 50}% ${Math.floor(i / 3) * 100}%"></i><b>${c.nombre}</b><small>+${c.cura} de salud</small><button data-accion="comida:${c.id}" type="button">${dinero(c.precio)}</button></div>`).join('')}</div>`;
     } else if (this.vista === 'misiones') {
       const M = j.misiones, A = j.actividades, T = j.trabajos, L = j.ciudad.lugares;
@@ -136,11 +143,11 @@ export class Telefono {
       const G = j.placazos, Lg = j.ciudad.lago;
       const nuevos = (G ? fila('Grafitis del barrio', `${G.hechos.size} de ${G.lugares.length} muros · $300 cada uno`, undefined, undefined, '#ffd23a', G.hechos.size >= G.lugares.length) : '') + (Lg ? fila('Pesca en el muelle', 'Lago Azul · presiona E en la punta del muelle', Lg.muelle.x, Lg.muelle.z0, '#3fb8d8') : '') + (j.lavado?.LX !== undefined ? fila('Autolavado', 'Gasolinera Jacaranda · $15', j.lavado.LX, j.lavado.LZ, '#2a6ec8') : '') + fila('Verbena en la Plaza', 'De 20:00 a 0:30 · banda y baile', L.plaza?.x, L.plaza?.z, '#ff6a8a');
       const extra = nuevos + fila('Jacarandas doradas', `${A.tomadas.size} de 12 encontradas · $250 cada una`, undefined, undefined, '#ffc94a', A.tomadas.size >= 12) + fila('Saltos únicos', `${A.saltosHechos.size} de ${A.rampas.length} · $500 cada uno`, undefined, undefined, '#ffc94a', A.saltosHechos.size >= A.rampas.length) + (L.lago ? fila('Lago Azul', 'Lanchas en el muelle', L.lago.x, L.lago.z, '#3fa8ff') : '');
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Misiones</b></header><div class="lista"><h4>HISTORIA</h4>${chuy}<h4>CONTACTOS</h4>${contactos}<h4>CARRERAS</h4>${carreras}<h4>TRABAJOS</h4>${trabajos}<h4>COLECCIONABLES Y LUGARES</h4>${extra}</div>`;
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Misiones</b></header><div class="lista"><h4>HISTORIA</h4>${chuy}<h4>CONTACTOS</h4>${contactos}<h4>CARRERAS</h4>${carreras}<h4>TRABAJOS</h4>${trabajos}<h4>COLECCIONABLES Y LUGARES</h4>${extra}</div>`;
     } else if (this.vista === 'stats') {
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Mi vida</b></header><div class="stats">${j.estadisticas.filas().map(([a, v]) => `<div>${a}</div><div>${v}</div>`).join('')}</div>`;
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Mi vida</b></header><div class="stats">${j.estadisticas.filas().map(([a, v]) => `<div>${a}</div><div>${v}</div>`).join('')}</div>`;
     } else if (this.vista === 'galeria') {
-      P.innerHTML = barra + `<header><button class="atras" type="button">‹</button><b>Fotos</b></header><div class="galeria">${this.fotos.length ? this.fotos.map((f, i) => `<a href="${f}" download="santa-jacaranda-foto-${i + 1}.jpg"><img src="${f}" alt=""></a>`).join('') : '<p class="vacio">Usa la Cámara para tomar fotos. Toca una para guardarla.</p>'}</div>`;
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Fotos</b></header><div class="galeria">${this.fotos.length ? this.fotos.map((f, i) => `<a href="${f}" download="santa-jacaranda-foto-${i + 1}.jpg"><img src="${f}" alt=""></a>`).join('') : '<p class="vacio">Usa la Cámara para tomar fotos. Toca una para guardarla.</p>'}</div>`;
     }
   }
 

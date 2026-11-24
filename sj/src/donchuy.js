@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { crearHumano } from './humanos.js?v=202611231659';
+import { crearHumano } from './humanos.js?v=202611231822';
 
 export class DonChuy {
   constructor(juego) {

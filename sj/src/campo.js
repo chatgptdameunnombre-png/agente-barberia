@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { trocear, lejos } from './ligero.js?v=202611231659';
+import { trocear, lejos } from './ligero.js?v=202611231822';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { letrero } from './ciudad.js?v=202611231659';
-import { alturaCampo, lomas, dentroRegion, RANCHO, PARADOR, PERI, CAMINOS, ANCHO } from './sierradatos.js?v=202611231659';
-import { VIENTO } from './ciudad.js?v=202611231659';
+import { letrero } from './ciudad.js?v=202611231822';
+import { alturaCampo, lomas, dentroRegion, RANCHO, PARADOR, PERI, CAMINOS, ANCHO } from './sierradatos.js?v=202611231822';
+import { VIENTO } from './ciudad.js?v=202611231822';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 const _c = new THREE.Color();

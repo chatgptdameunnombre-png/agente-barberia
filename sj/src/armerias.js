@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { ARTICULOS } from './actividades.js?v=202611231659';
-import { modeloArma } from './persona.js?v=202611231659';
-import { letrero } from './ciudad.js?v=202611231659';
+import { ARTICULOS } from './actividades.js?v=202611231822';
+import { modeloArma } from './persona.js?v=202611231822';
+import { letrero } from './ciudad.js?v=202611231822';
 
 const A = id => ARTICULOS.find(a => a.id === id);
 

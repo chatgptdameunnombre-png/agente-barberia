@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { letrero } from './ciudad.js?v=202611231659';
-import { Peaton } from './peatones.js?v=202611231659';
-import { Coche } from './vehiculos.js?v=202611231659';
-import { realistaDe } from './jugador.js?v=202611231659';
-import { AERO } from './sierradatos.js?v=202611231659';
+import { letrero } from './ciudad.js?v=202611231822';
+import { Peaton } from './peatones.js?v=202611231822';
+import { Coche } from './vehiculos.js?v=202611231822';
+import { realistaDe } from './jugador.js?v=202611231822';
+import { AERO } from './sierradatos.js?v=202611231822';
 
 const _c = new THREE.Color();
 function teñir(g, hex) { _c.set(hex); const n = g.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([_c.r, _c.g, _c.b], i * 3); g.setAttribute('color', new THREE.BufferAttribute(a, 3)); return g.index ? g.toNonIndexed() : g; }

@@ -1,11 +1,11 @@
-import { alturaCerro } from './sierradatos.js?v=202611231659';
-import { dormirQuieto } from './ligero.js?v=202611231659';
+import { alturaCerro } from './sierradatos.js?v=202611231822';
+import { dormirQuieto } from './ligero.js?v=202611231822';
 import * as THREE from 'three';
-import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611231659';
-import { mat } from './persona.js?v=202611231659';
+import { linea, indiceLinea, BLOQUES, CARRIL, CALLE, LIMITE } from './ciudad.js?v=202611231822';
+import { mat } from './persona.js?v=202611231822';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { hoja } from './texturas.js?v=202611231659';
+import { hoja } from './texturas.js?v=202611231822';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const FRENTES = hoja('assets/frentes.png', 4, 3, { magenta: true, tam: 512, sinUrl: true });
 const IDX_FRENTE = { sedan: 0, compacto: 1, vocho: 1, vochotaxi: 1, camioneta: 2, deportivo: 3, taxi: 4, policia: 5, ambulancia: 6 };
@@ -640,7 +640,7 @@ export function modelo(tipo, color) {
   }
   for (const s of [-1, 1]) {
     const h = new THREE.Sprite(matHalo);
-    h.position.set(s * (t.ancho / 2 - 0.32), 0.3 + t.alto * 0.62, t.largo / 2 + 0.25);
+    h.position.set(s * (t.ancho / 2 - (G.blender && !esVocho(tipo) ? 0.43 : 0.32)), 0.3 + t.alto * (G.blender && tipo === 'deportivo' ? 0.5 : 0.6), t.largo / 2 + 0.22);
     h.scale.setScalar(1.1);
     carro.add(h);
   }
@@ -693,7 +693,7 @@ export function modelo(tipo, color) {
   const ruedas = [], delanteras = [];
   for (const [sx, sz] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) {
     const piv = new THREE.Group();
-    piv.position.set(sx * (t.ancho / 2 - 0.1), 0.36, sz * t.largo * 0.31);
+    piv.position.set(sx * (t.ancho / 2 - (G.blender && !esVocho(tipo) ? 0.17 : 0.1)), 0.36, sz * t.largo * 0.31);
     const R = BL.coche;
     const ll = new THREE.Mesh(R?.llanta || geoLlanta, matLlanta); ll.castShadow = true;
     const rin = new THREE.Mesh(R?.rin || geoRin2, matRin2); ll.add(rin); finos.push(rin);

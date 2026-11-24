@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611231659';
-import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611231659';
-import { dibujarGlifo } from './iconos.js?v=202611231659';
+import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611231822';
+import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611231822';
+import { dibujarGlifo } from './iconos.js?v=202611231822';
 
 export const ICONOS = {
   taller: { c: '#ffc94a', t: 'llave', n: 'Taller de Don Chuy' },
@@ -306,6 +306,12 @@ export class Minimapa {
     }, { passive: false });
     c.addEventListener('dblclick', e => { if (!this.abierto) return; this.zoomMeta = Math.min(9, (this.zoomMeta || this.zoom) * 1.8); this.ancla = { x: e.clientX, y: e.clientY }; });
     addEventListener('keydown', e => { if (this.abierto && e.code === 'KeyC') { const p = this.j.jugador.posicion; this.volar = { x: p.x, z: p.z }; } });
+    document.querySelector('#mapa .zoom')?.addEventListener('click', e => {
+      const b = e.target.closest('[data-z]'); if (!b || !this.abierto) return;
+      if (b.dataset.z === 'centro') { const p = this.j.jugador.posicion; this.volar = { x: p.x, z: p.z }; }
+      else { this.zoomMeta = Math.max(this.zoomMin, Math.min(9, (this.zoomMeta || this.zoom) * (b.dataset.z === 'mas' ? 1.6 : 1 / 1.6))); this.ancla = { x: innerWidth / 2, y: innerHeight / 2 }; }
+      this.j.audio?.ui?.(760);
+    });
   }
 
   limitar() {
@@ -356,6 +362,7 @@ export class Minimapa {
     const [ox, oy] = S(-W, -W);
     g.imageSmoothingEnabled = true;
     g.drawImage(this.base, ox, oy, W * 2 * this.zoom, W * 2 * this.zoom);
+    g.fillStyle = 'rgba(10,12,22,.26)'; g.fillRect(ox, oy, W * 2 * this.zoom, W * 2 * this.zoom);
     j.sierra?.dibujarMapa(g, S, Math.max(3, 7 * this.zoom));
     for (const z of j.territorio?.zonasMapa() || []) { const [x0, y0] = S(z.x0, z.z0), [x1, y1] = S(z.x1, z.z1); g.fillStyle = z.color + (z.ataque ? '66' : '30'); g.fillRect(x0, y0, x1 - x0, y1 - y0); g.strokeStyle = z.color + 'aa'; g.lineWidth = z.ataque ? 3 : 1.5; g.strokeRect(x0, y0, x1 - x0, y1 - y0); if (this.zoom > 1.6) { g.font = '800 11px Inter'; g.textAlign = 'center'; g.fillStyle = '#ffffffcc'; g.fillText(z.nombre, (x0 + x1) / 2, (y0 + y1) / 2 - 7); g.fillStyle = z.color; g.fillText(z.banda, (x0 + x1) / 2, (y0 + y1) / 2 + 8); } }
     const r = j.gps.ruta;
@@ -367,11 +374,11 @@ export class Minimapa {
       g.setLineDash([2, 14]); g.lineDashOffset = -performance.now() / 40; g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 2.5; g.stroke(); g.setLineDash([]);
       for (const q of j.gps.trazoPts || []) { const [x, y] = S(q.x, q.z); g.fillStyle = '#0a0e18'; g.strokeStyle = j.gps.color; g.lineWidth = 2.5; g.beginPath(); g.arc(x, y, 10, 0, 7); g.fill(); g.stroke(); g.fillStyle = '#fff'; g.font = '900 11px Inter'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(q.n, x, y + 1); }
     }
-    if (this.zoom > 1.1) {
-      g.font = `800 ${Math.round(Math.min(13, 9 + this.zoom))}px Inter`; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.lineJoin = 'round'; g.lineWidth = 3.5; g.strokeStyle = 'rgba(12,14,20,.85)'; g.fillStyle = '#f2f4f8';
-      if ('letterSpacing' in g) g.letterSpacing = '1px';
-      const paso = this.zoom > 2.2 ? 1 : 3;
+    if (this.zoom > 1.45) {
+      g.font = `700 ${Math.round(Math.min(12, 8.5 + this.zoom * 0.8))}px Inter`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.lineJoin = 'round'; g.lineWidth = 3; g.strokeStyle = 'rgba(10,12,20,.8)'; g.fillStyle = 'rgba(236,240,248,.88)';
+      if ('letterSpacing' in g) g.letterSpacing = '1.2px';
+      const paso = this.zoom > 2.6 ? 1 : this.zoom > 1.9 ? 2 : 4;
       for (let i = 0; i <= BLOQUES; i++) for (let jj = 0; jj < BLOQUES; jj += paso) {
         const [x, y] = S(linea(i), linea(jj) + 40);
         g.save(); g.translate(x, y); g.rotate(Math.PI / 2); g.strokeText(CALLES_X[i].toUpperCase(), 0, 0); g.fillText(CALLES_X[i].toUpperCase(), 0, 0); g.restore();
@@ -381,14 +388,14 @@ export class Minimapa {
       if ('letterSpacing' in g) g.letterSpacing = '0px';
     }
     const zonas = [['CENTRO HISTÓRICO', 0, 0], ['DISTRITO FINANCIERO', 205, -230], ['COLONIA AGAVE', -200, -150], ['COLONIA LOS ARCOS', 120, -60], ['BARRIO DEL TIANGUIS', -200, 200], ['LAS JACARANDAS', 200, 180]];
-    const tz = Math.round(Math.max(15, Math.min(34, 10 + this.zoom * 9)));
-    g.font = `400 ${tz}px Anton, Impact, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
-    if ('letterSpacing' in g) g.letterSpacing = Math.round(tz * 0.18) + 'px';
-    g.globalAlpha = this.zoom > 2.4 ? 0.45 : 0.92;
+    const tz = Math.round(Math.max(11, Math.min(17, 8 + this.zoom * 3.4)));
+    g.font = `800 ${tz}px Inter, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    if ('letterSpacing' in g) g.letterSpacing = Math.round(tz * 0.42) + 'px';
+    g.globalAlpha = this.zoom > 3 ? 0.28 : this.zoom > 2 ? 0.55 : 0.86;
     for (const [n, x, z] of zonas) {
       const [sx, sy] = S(x, z);
-      g.save(); g.shadowColor = 'rgba(0,0,0,.85)'; g.shadowBlur = 10; g.lineWidth = 4; g.strokeStyle = 'rgba(8,10,16,.7)'; g.strokeText(n, sx, sy); g.restore();
-      g.fillStyle = '#fff6e8'; g.fillText(n, sx, sy);
+      g.save(); g.shadowColor = 'rgba(0,0,0,.9)'; g.shadowBlur = 8; g.lineWidth = 3.5; g.strokeStyle = 'rgba(8,10,16,.75)'; g.strokeText(n, sx, sy); g.restore();
+      g.fillStyle = '#ffffff'; g.fillText(n, sx, sy);
     }
     g.globalAlpha = 1;
     if ('letterSpacing' in g) g.letterSpacing = '0px';
@@ -404,11 +411,13 @@ export class Minimapa {
     const yaw = j.jugador.coche ? j.jugador.coche.yaw : j.jugador.yaw;
     const t = performance.now() / 1000;
     g.save(); g.translate(px, py);
-    g.fillStyle = 'rgba(255,255,255,.15)'; g.beginPath(); g.arc(0, 0, 20 + Math.sin(t * 4) * 4, 0, 7); g.fill();
+    const pul = (t * 0.7) % 1;
+    g.strokeStyle = `rgba(122,224,255,${(1 - pul) * 0.7})`; g.lineWidth = 2; g.beginPath(); g.arc(0, 0, 12 + pul * 26, 0, 7); g.stroke();
+    g.fillStyle = 'rgba(122,224,255,.2)'; g.beginPath(); g.arc(0, 0, 19, 0, 7); g.fill();
     g.rotate(-yaw + Math.PI);
-    g.shadowColor = 'rgba(0,0,0,.7)'; g.shadowBlur = 8;
-    g.fillStyle = '#fff';
-    g.beginPath(); g.moveTo(0, -16); g.lineTo(11, 12); g.lineTo(0, 6); g.lineTo(-11, 12); g.closePath(); g.fill();
+    g.shadowColor = 'rgba(0,0,0,.75)'; g.shadowBlur = 8;
+    g.beginPath(); g.moveTo(0, -17); g.lineTo(12, 13); g.lineTo(0, 6.5); g.lineTo(-12, 13); g.closePath();
+    g.fillStyle = '#ffffff'; g.fill(); g.shadowBlur = 0; g.lineJoin = 'round'; g.strokeStyle = '#10131c'; g.lineWidth = 2; g.stroke();
     g.restore();
     if (this.raton && !this.arrastre) {
       const w = this.aMundo(this.raton.x, this.raton.y);
