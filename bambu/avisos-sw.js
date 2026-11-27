@@ -23,12 +23,15 @@ self.addEventListener('fetch', (event) => {
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
       const cache = await caches.open(PAGINA)
+      const guardada = await cache.match(self.registration.scope)
+      const red = fetch(req).then(async (r) => { if (r.ok) await cache.put(self.registration.scope, r.clone()); return r })
+      if (!guardada) return red.catch(() => Response.error())
+      event.waitUntil(red.catch(() => undefined))
+      const lenta = new Promise((ok) => setTimeout(() => ok(null), 1500))
       try {
-        const red = await fetch(req)
-        if (red.ok) await cache.put(self.registration.scope, red.clone())
-        return red
+        return (await Promise.race([red, lenta])) || guardada
       } catch {
-        return (await cache.match(self.registration.scope)) || Response.error()
+        return guardada
       }
     })())
     return
