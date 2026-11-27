@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { modeloHeli } from './helicoptero.js?v=202611231957';
-import { alturaCerro, PISTA } from './sierradatos.js?v=202611231957';
-import { modeloJet } from './aeropuerto.js?v=202611231957';
-import { dormible } from './ligero.js?v=202611231957';
+import { modeloHeli } from './helicoptero.js?v=20261126192148';
+import { alturaCerro, PISTA } from './sierradatos.js?v=20261126192148';
+import { modeloJet } from './aeropuerto.js?v=20261126192148';
+import { dormible } from './ligero.js?v=20261126192148';
 
 const angulo = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
 

@@ -195,7 +195,7 @@ export class Fisica {
   }
 
   sincronizarCoches() {
-    const vivos = new Set();
+    const vivos = this._vivos || (this._vivos = new Set()); vivos.clear();
     const JP = this.j.jugador.posicion;
     for (const c of this.j.coches) {
       if (!c.t || c.tipo === 'lancha' || Math.abs(c.pos.x - JP.x) + Math.abs(c.pos.z - JP.z) > 110) continue;
@@ -211,7 +211,7 @@ export class Fisica {
       b.setNextKinematicRotation(v4(_q.setFromAxisAngle(_p.set(0, 1, 0), c.yaw)));
     }
     for (const [c, b] of this.coches) if (!vivos.has(c)) { this.mundo.removeRigidBody(b); this.coches.delete(c); }
-    const vistos = new Set();
+    const vistos = this._vistos || (this._vistos = new Set()); vistos.clear();
     if (jp0(this.j)) for (const q of this.j.peatones) {
       if (q.muerto || q.enInterior || q.vuela) continue;
       const P = this.j.jugador.posicion, d = Math.abs(q.pos.x - P.x) + Math.abs(q.pos.z - P.z);
@@ -254,7 +254,7 @@ export class Fisica {
       M.quieto = rapido ? 0 : M.quieto + t;
       if (M.t > 12 || M.quieto > 1.5) this.soltar(M);
     }
-    const tocados = new Set();
+    const tocados = this._tocados || (this._tocados = new Set()); tocados.clear();
     for (const o of this.objetos) {
       if (o.b.isSleeping()) { if (o.despierto) { o.despierto = false; this.pintarObjeto(o); tocados.add(o.im); } continue; }
       if (!o.despierto) { o.despierto = true; const v = o.b.linvel(); if (Math.hypot(v.x, v.z) > 2.5) this.j.audio?.golpe?.(false); }

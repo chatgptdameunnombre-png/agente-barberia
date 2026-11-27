@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { crearHumano, recorte } from './humanos.js?v=202611231957';
+import { crearHumano, recorte } from './humanos.js?v=20261126192148';
+import { liberar } from './ligero.js?v=20261126192148';
 
 const SUPERIOR = /^(spine_0[123]|neck_01|head|clavicle_|upperarm_|lowerarm_|hand_|index_|middle_|ring_|pinky_|thumb_)/i;
 const UNA_VEZ = new Set(['Roll', 'Death01', 'Punch_Jab', 'Punch_Cross', 'Pistol_Shoot', 'Pistol_Reload', 'Jump_Start', 'Jump_Land', 'Interact', 'Hit_Chest', 'Hit_Head', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit', 'PickUp_Table']);
@@ -241,7 +242,8 @@ export class Realista {
     if (Math.abs(rel) > 1.9) { this.pesoMira *= 0.9; return; }
     rel = Math.max(-1.05, Math.min(1.05, rel)) * this.pesoMira;
     const pit = Math.max(-0.35, Math.min(0.35, Math.atan2(dy, Math.hypot(dx, dz)))) * this.pesoMira;
-    for (const [b, f] of [[cue, 0.4], [cab, 0.6]]) {
+    for (let i = 0; i < 2; i++) {
+      const b = i ? cab : cue, f = i ? 0.6 : 0.4;
       if (!b) continue;
       b.parent.updateWorldMatrix(true, false); b.updateWorldMatrix(false, false);
       b.getWorldQuaternion(_q);
@@ -313,7 +315,7 @@ export class Realista {
     if (!this.listo) { this.promesa.then(() => this.peinado(estilo)); return; }
     const PELO = /short0|long0|bob0|ponytail|braid|afro|hair/i;
     let cab = null; this.raiz.traverse(o => { if (o.isBone && o.name.toLowerCase() === 'head') cab = o; if (o.isMesh && PELO.test([].concat(o.material)[0]?.name || '')) o.visible = estilo !== 'rapado' && estilo !== 'gorra' && estilo !== 'sombrero'; });
-    if (this.accesorio) { this.accesorio.parent?.remove(this.accesorio); this.accesorio = null; }
+    if (this.accesorio) { this.accesorio.parent?.remove(this.accesorio); liberar(this.accesorio); this.accesorio = null; }
     if (!cab || (estilo !== 'gorra' && estilo !== 'sombrero')) return;
     this.grupo.updateMatrixWorld(true);
     const qb = cab.getWorldQuaternion(new THREE.Quaternion()), qr = this.grupo.getWorldQuaternion(new THREE.Quaternion()), inv = qb.clone().invert();
@@ -339,7 +341,7 @@ export class Realista {
     let mat = null, jersey = false; this.raiz.traverse(o => { const n = [].concat(o.material)[0]?.name || ''; if (o.isMesh && /casualsuit0[45]/.test(n)) { mat = [].concat(o.material)[0]; jersey = /casualsuit04/.test(n); } });
     if (!mat || !mat.map?.image) return;
     if (!this.mapaOriginal) this.mapaOriginal = mat.map;
-    if (color === null) { if (mat.map !== this.mapaOriginal) { mat.map = this.mapaOriginal; mat.needsUpdate = true; } return; }
+    if (color === null) { if (mat.map !== this.mapaOriginal) { mat.map.dispose(); mat.map = this.mapaOriginal; mat.needsUpdate = true; } return; }
     const img = this.mapaOriginal.image, w = img.width, h = img.height;
     const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d', { willReadFrequently: true });
     g.drawImage(img, 0, 0); const d = g.getImageData(0, 0, w, h), px = d.data;
@@ -358,6 +360,7 @@ export class Realista {
     }
     g.putImageData(d, 0, 0);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.flipY = this.mapaOriginal.flipY; t.anisotropy = 8;
+    if (mat.map !== this.mapaOriginal) mat.map.dispose();
     mat.map = t; mat.needsUpdate = true;
   }
 

@@ -39,6 +39,8 @@ function ruidoCielo() {
   const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; return t;
 }
 
+const _dirSol = new THREE.Vector3(), _dirLuna = new THREE.Vector3(), _cero = new THREE.Vector3();
+
 export class Ambiente {
   constructor(juego, escena, ciudad) {
     this.juego = juego;
@@ -189,13 +191,13 @@ export class Ambiente {
     U.nubeSombra.value.copy(horiz).lerp(gris.set('#6f7888'), 0.55).multiplyScalar((0.3 + 0.55 * kDia) * (1 - N * 0.3));
     const ang = (this.hora - 6.5) / 13 * Math.PI;
     const sx = Math.cos(ang), sy = Math.sin(ang);
-    const dirSol = new THREE.Vector3(sx * 0.8, Math.max(sy, -0.3), 0.45).normalize();
+    const dirSol = _dirSol.set(sx * 0.8, Math.max(sy, -0.3), 0.45).normalize();
     this.cieloMat.uniforms.solDir.value.copy(dirSol);
     this.cieloMat.uniforms.solColor.value.copy(a.sol).lerp(b.sol, t).multiplyScalar(sy > -0.05 ? (1 - L * 0.9) : 0);
     const luz = lerp(a.luz, b.luz) * (1 - L * 0.5) * (1 - (this.nublado || 0) * 0.35) * (1 - (this.neblina || 0) * 0.25) + (this.relampago > 0 ? 1.5 : 0);
     const dia = sy > 0.05;
-    const objetivo = camara ? this.juego.jugador.posicion : new THREE.Vector3();
-    const luna = new THREE.Vector3(-sx * 0.8, Math.max(-sy, 0.2), -0.3).normalize();
+    const objetivo = camara ? this.juego.jugador.posicion : _cero.set(0, 0, 0);
+    const luna = _dirLuna.set(-sx * 0.8, Math.max(-sy, 0.2), -0.3).normalize();
     const dirLuz = dia ? dirSol : luna;
     if (!this.luna) {
       const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');

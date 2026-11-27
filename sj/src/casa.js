@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { Coche } from './vehiculos.js?v=202611231957';
-import { aplicarTuneo } from './tuneo.js?v=202611231957';
-import { CASA } from './sierradatos.js?v=202611231957';
+import { Coche } from './vehiculos.js?v=20261126192148';
+import { aplicarTuneo } from './tuneo.js?v=20261126192148';
+import { CASA } from './sierradatos.js?v=20261126192148';
 
 const _c = new THREE.Color();
 function teñir(g, hex) { _c.set(hex); const n = g.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([_c.r, _c.g, _c.b], i * 3); g.setAttribute('color', new THREE.BufferAttribute(a, 3)); return g.index ? g.toNonIndexed() : g; }

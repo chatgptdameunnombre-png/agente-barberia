@@ -1,13 +1,14 @@
 import * as THREE from 'three';
-import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=202611231957';
-import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=202611231957';
-import { nombreTipo } from './tuneo.js?v=202611231957';
-import { TIPOS } from './vehiculos.js?v=202611231957';
-import { glifoSVG } from './iconos.js?v=202611231957';
-import { TITULOS } from './misiones.js?v=202611231957';
-import { CONTACTOS } from './contactos.js?v=202611231957';
-import { SALIDAS } from './trabajos.js?v=202611231957';
-import { linea } from './ciudad.js?v=202611231957';
+import { Coche, puntoCalleAleatorio } from './vehiculos.js?v=20261126192148';
+import { NEGOCIOS, AUTOS, MEJORAS, COMIDA } from './economia.js?v=20261126192148';
+import { nombreTipo } from './tuneo.js?v=20261126192148';
+import { TIPOS } from './vehiculos.js?v=20261126192148';
+import { glifoSVG } from './iconos.js?v=20261126192148';
+import { TITULOS } from './misiones.js?v=20261126192148';
+import { CONTACTOS } from './contactos.js?v=20261126192148';
+import { SALIDAS } from './trabajos.js?v=20261126192148';
+import { linea } from './ciudad.js?v=20261126192148';
+import { esc } from './partida.js?v=20261126192148';
 const tarjeta = o => `<div class="tarjeta ${o.mia ? 'mia' : ''}">${o.src ? `<img src="${o.src}" alt="">` : `<i class="foto" style="${o.img}"></i>`}<div class="cuerpo"><b>${o.titulo}</b><small>${o.desc}</small>${o.barras ? `<div class="barras">${o.barras.map(([n, v]) => `<span><em>${n}</em><i style="--v:${Math.min(1, v) * 100}%"></i></span>`).join('')}</div>` : ''}<div class="pie">${o.mia ? `<em class="sello">${o.sello || 'TUYO'}</em>` : `<button data-accion="${o.accion}" type="button">${o.precio}</button>`}</div></div></div>`;
 
 const dinero = n => '$' + Math.floor(n).toLocaleString('es-MX');
@@ -145,7 +146,7 @@ export class Telefono {
       const extra = nuevos + fila('Jacarandas doradas', `${A.tomadas.size} de 12 encontradas · $250 cada una`, undefined, undefined, '#ffc94a', A.tomadas.size >= 12) + fila('Saltos únicos', `${A.saltosHechos.size} de ${A.rampas.length} · $500 cada uno`, undefined, undefined, '#ffc94a', A.saltosHechos.size >= A.rampas.length) + (L.lago ? fila('Lago Azul', 'Lanchas en el muelle', L.lago.x, L.lago.z, '#3fa8ff') : '');
       P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Misiones</b></header><div class="lista"><h4>HISTORIA</h4>${chuy}<h4>CONTACTOS</h4>${contactos}<h4>CARRERAS</h4>${carreras}<h4>TRABAJOS</h4>${trabajos}<h4>COLECCIONABLES Y LUGARES</h4>${extra}</div>`;
     } else if (this.vista === 'stats') {
-      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Mi vida</b></header><div class="stats">${j.estadisticas.filas().map(([a, v]) => `<div>${a}</div><div>${v}</div>`).join('')}</div>`;
+      P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Mi vida</b></header><div class="stats">${j.estadisticas.filas().map(([a, v]) => `<div>${esc(a)}</div><div>${esc(v)}</div>`).join('')}</div>`;
     } else if (this.vista === 'galeria') {
       P.innerHTML = barra + `<header><button class="atras" type="button" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>Fotos</b></header><div class="galeria">${this.fotos.length ? this.fotos.map((f, i) => `<a href="${f}" download="santa-jacaranda-foto-${i + 1}.jpg"><img src="${f}" alt=""></a>`).join('') : '<p class="vacio">Usa la Cámara para tomar fotos. Toca una para guardarla.</p>'}</div>`;
     }

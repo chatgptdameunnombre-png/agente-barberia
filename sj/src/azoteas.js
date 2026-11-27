@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { lejos } from './ligero.js?v=202611231957';
+import { lejos } from './ligero.js?v=20261126192148';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { VIENTO } from './ciudad.js?v=202611231957';
+import { VIENTO } from './ciudad.js?v=20261126192148';
 
 function rng(s) { return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 const _c = new THREE.Color();

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { LIMITE, VIENTO } from './ciudad.js?v=202611231957';
+import { LIMITE, VIENTO } from './ciudad.js?v=20261126192148';
 
 export class Clima {
   constructor(juego) {

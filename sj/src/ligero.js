@@ -201,3 +201,11 @@ export class Alcance {
     }
   }
 }
+
+export function liberar(g) {
+  g.traverse(o => {
+    if (!o.isMesh && !o.isLine && !o.isPoints && !o.isSprite) return;
+    o.geometry?.dispose?.();
+    for (const m of [].concat(o.material || [])) m.dispose?.();
+  });
+}

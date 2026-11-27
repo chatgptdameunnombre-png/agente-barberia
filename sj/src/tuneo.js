@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { aplicarMejoras, AUTOS } from './economia.js?v=202611231957';
-import { TIPOS } from './vehiculos.js?v=202611231957';
-import { esCalle } from './ciudad.js?v=202611231957';
+import { aplicarMejoras, AUTOS } from './economia.js?v=20261126192148';
+import { TIPOS } from './vehiculos.js?v=20261126192148';
+import { esCalle } from './ciudad.js?v=20261126192148';
 
 export const NEONES = { morado: '#b46bff', azul: '#3fa8ff', verde: '#3fff8a', rosa: '#ff4fd8', rojo: '#ff3b3b' };
 const NOMBRE_NEON = { morado: 'morado', azul: 'azul', verde: 'verde', rosa: 'rosa', rojo: 'rojo' };

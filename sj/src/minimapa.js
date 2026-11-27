@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=202611231957';
-import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=202611231957';
-import { dibujarGlifo } from './iconos.js?v=202611231957';
+import { LIMITE, linea, BLOQUES, CALLE } from './ciudad.js?v=20261126192148';
+import { CALLES_X, CALLES_Z, zona, calle } from './gps.js?v=20261126192148';
+import { dibujarGlifo } from './iconos.js?v=20261126192148';
 
 export const ICONOS = {
   taller: { c: '#ffc94a', t: 'llave', n: 'Taller de Don Chuy' },
@@ -147,30 +147,34 @@ export class Minimapa {
     const g = c.getContext('2d');
     const antes = R.getSize(new THREE.Vector2()), pr = R.getPixelRatio();
     const ocultar = [A.cielo, A.estrellas, A.gotas, j.gps.flechas, j.gps.haz, j.gps.trazoG, j.jugador.grupo, ...(j.decoracion?.nubes || []), ...j.coches.map(k => k.grupo), ...j.peatones.map(k => k.grupo), ...j.misiones.marcadores.map(k => k.g)].filter(Boolean);
-    const vis = ocultar.map(o => o.visible); ocultar.forEach(o => o.visible = false);
-    const niebla = [A.niebla.near, A.niebla.far], hora = A.hora, lluvia = A.lluvia;
-    A.hora = 9.6; A.lluvia = 0; A.actualizar(0, null);
-    const expo = R.toneMappingExposure; R.toneMappingExposure = expo * 0.8;
-    A.niebla.near = 1e5; A.niebla.far = 2e5;
+    const vis = ocultar.map(o => o.visible);
+    const niebla = [A.niebla.near, A.niebla.far], hora = A.hora, lluvia = A.lluvia, expo = R.toneMappingExposure;
     const sc = A.sol.shadow.camera, caja = [sc.left, sc.right, sc.top, sc.bottom, sc.far];
-    sc.left = -lado * 0.62; sc.right = lado * 0.62; sc.top = lado * 0.62; sc.bottom = -lado * 0.62; sc.far = 900; sc.updateProjectionMatrix();
-    const dir = A.sol.position.clone().sub(A.sol.target.position).normalize();
-    const cam = new THREE.OrthographicCamera(-lado / 2, lado / 2, lado / 2, -lado / 2, 1, 1400);
-    cam.up.set(0, 0, -1);
-    R.setPixelRatio(1); R.setSize(sub, sub, false);
-    for (let ty = 0; ty < n; ty++) for (let tx = 0; tx < n; tx++) {
-      const cx = -W + (tx + 0.5) * lado, cz = -W + (ty + 0.5) * lado;
-      A.sol.target.position.set(cx, 0, cz); A.sol.position.set(cx + dir.x * 400, dir.y * 400, cz + dir.z * 400);
-      A.sol.target.updateMatrixWorld(); A.sol.updateMatrixWorld();
-      cam.position.set(cx, 700, cz); cam.lookAt(cx, 0, cz); cam.updateMatrixWorld();
-      R.render(E, cam);
-      g.drawImage(R.domElement, 0, 0, sub, sub, tx * sub, ty * sub, sub, sub);
+    try {
+      ocultar.forEach(o => o.visible = false);
+      A.hora = 9.6; A.lluvia = 0; A.actualizar(0, null);
+      R.toneMappingExposure = expo * 0.8;
+      A.niebla.near = 1e5; A.niebla.far = 2e5;
+      sc.left = -lado * 0.62; sc.right = lado * 0.62; sc.top = lado * 0.62; sc.bottom = -lado * 0.62; sc.far = 900; sc.updateProjectionMatrix();
+      const dir = A.sol.position.clone().sub(A.sol.target.position).normalize();
+      const cam = new THREE.OrthographicCamera(-lado / 2, lado / 2, lado / 2, -lado / 2, 1, 1400);
+      cam.up.set(0, 0, -1);
+      R.setPixelRatio(1); R.setSize(sub, sub, false);
+      for (let ty = 0; ty < n; ty++) for (let tx = 0; tx < n; tx++) {
+        const cx = -W + (tx + 0.5) * lado, cz = -W + (ty + 0.5) * lado;
+        A.sol.target.position.set(cx, 0, cz); A.sol.position.set(cx + dir.x * 400, dir.y * 400, cz + dir.z * 400);
+        A.sol.target.updateMatrixWorld(); A.sol.updateMatrixWorld();
+        cam.position.set(cx, 700, cz); cam.lookAt(cx, 0, cz); cam.updateMatrixWorld();
+        R.render(E, cam);
+        g.drawImage(R.domElement, 0, 0, sub, sub, tx * sub, ty * sub, sub, sub);
+      }
+    } finally {
+      R.setPixelRatio(pr); R.setSize(antes.x, antes.y, false); R.toneMappingExposure = expo;
+      sc.left = caja[0]; sc.right = caja[1]; sc.top = caja[2]; sc.bottom = caja[3]; sc.far = caja[4]; sc.updateProjectionMatrix();
+      A.hora = hora; A.lluvia = lluvia; A.niebla.near = niebla[0]; A.niebla.far = niebla[1];
+      ocultar.forEach((o, k) => o.visible = vis[k]);
+      A.actualizar(0, j.camara);
     }
-    R.setPixelRatio(pr); R.setSize(antes.x, antes.y, false); R.toneMappingExposure = expo;
-    sc.left = caja[0]; sc.right = caja[1]; sc.top = caja[2]; sc.bottom = caja[3]; sc.far = caja[4]; sc.updateProjectionMatrix();
-    A.hora = hora; A.lluvia = lluvia; A.niebla.near = niebla[0]; A.niebla.far = niebla[1];
-    A.actualizar(0, j.camara);
-    ocultar.forEach((o, i) => o.visible = vis[i]);
     const f = document.createElement('canvas'); f.width = f.height = tam;
     const h = f.getContext('2d');
     h.filter = 'saturate(1.18) contrast(1.1) brightness(0.95)';
