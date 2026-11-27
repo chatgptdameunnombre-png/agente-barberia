@@ -1,5 +1,48 @@
+const ARCHIVOS = 'bambu-archivos-1'
+const PAGINA = 'bambu-pagina-1'
+const TOPE = 400
 self.addEventListener('install', () => self.skipWaiting())
-self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()))
+self.addEventListener('activate', (event) => event.waitUntil((async () => {
+  const quedan = [ARCHIVOS, PAGINA]
+  for (const k of await caches.keys()) if (k.startsWith('bambu-') && !quedan.includes(k)) await caches.delete(k)
+  await self.clients.claim()
+})()))
+const esArchivo = (url) => {
+  const ruta = url.pathname.slice(new URL(self.registration.scope).pathname.length)
+  return !ruta.startsWith('pose/') && (ruta.startsWith('assets/') || /\.(png|webp|svg|jpg|jpeg|woff2|ico)$/i.test(ruta))
+}
+async function recorta(cache) {
+  const llaves = await cache.keys()
+  for (const k of llaves.slice(0, Math.max(0, llaves.length - TOPE))) await cache.delete(k)
+}
+self.addEventListener('fetch', (event) => {
+  const req = event.request
+  if (req.method !== 'GET') return
+  const url = new URL(req.url)
+  if (url.origin !== self.location.origin || !req.url.startsWith(self.registration.scope)) return
+  if (req.mode === 'navigate') {
+    event.respondWith((async () => {
+      const cache = await caches.open(PAGINA)
+      try {
+        const red = await fetch(req)
+        if (red.ok) await cache.put(self.registration.scope, red.clone())
+        return red
+      } catch {
+        return (await cache.match(self.registration.scope)) || Response.error()
+      }
+    })())
+    return
+  }
+  if (!esArchivo(url)) return
+  event.respondWith((async () => {
+    const cache = await caches.open(ARCHIVOS)
+    const guardado = await cache.match(req)
+    if (guardado) return guardado
+    const red = await fetch(req)
+    if (red.ok && red.type === 'basic') { await cache.put(req, red.clone()); recorta(cache) }
+    return red
+  })())
+})
 self.addEventListener('push', (event) => {
   let data = {}
   try { data = event.data ? event.data.json() : {} } catch { data = { body: event.data ? event.data.text() : '' } }
